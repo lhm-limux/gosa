@@ -1,0 +1,8 @@
+[core]
+loglevel = INFO
+log = syslog
+profile = False
+
+[client]
+user = gosa-ng
+group = gosa-ng

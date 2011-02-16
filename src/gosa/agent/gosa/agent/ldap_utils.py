@@ -1,0 +1,105 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+This code is part of GOsa (http://www.gosa-project.org)
+Copyright (C) 2009, 2010 GONICUS GmbH
+
+ID: $$Id: ldap_utils.py 997 2010-09-28 15:09:46Z cajus $$
+
+See LICENSE for more information about the licensing.
+"""
+import ldap
+import ldapurl
+import ldap.sasl
+from contextlib import contextmanager
+from gosa.common.env import Environment
+
+
+class LDAPHandler(object):
+
+    connection_handle = []
+    connection_usage  = []
+    instance = None
+
+    def __init__(self):
+        self.env = Environment.getInstance()
+
+        # Initialize from configuration
+        getOption = self.env.config.getOption
+        self.__url = ldapurl.LDAPUrl(getOption("url", section='ldap'))
+        self.__bind_user = getOption('bind_user', section='ldap', default=None)
+        self.__bind_dn = getOption('bind_dn', section='ldap', default=None)
+        self.__bind_secret = getOption('bind_secret', section='ldap', default=None)
+        self.__pool = int(getOption('pool_size', section='ldap', default=10))
+
+        # Sanity check
+        if self.__bind_user and not ldap.SASL_AVAIL:
+            raise Exception("bind_user needs SASL support, which doesn't seem to be available in python-ldap")
+
+        # Initialize static pool
+        LDAPHandler.connection_handle = [None] * self.__pool
+        LDAPHandler.connection_usage = [False] * self.__pool
+
+    def get_base(self):
+        return self.__url.dn
+
+    def get_connection(self):
+        # Are there free connections in the pool?
+        try:
+            next_free = LDAPHandler.connection_usage.index(False)
+        except ValueError:
+            raise Exception("no free LDAP connection available")
+
+        # Need to initialize?
+        if not LDAPHandler.connection_handle[next_free]:
+            self.env.log.debug("initializing LDAP connection to %s" %
+                    str(self.__url))
+            conn = ldap.initialize("%s://%s" % (self.__url.urlscheme, self.__url.hostport))
+
+            # If no SSL scheme used, try TLS
+            if ldap.TLS_AVAIL and self.__url.urlscheme != "ldaps":
+                try:
+                    conn.start_tls_s()
+                except ldap.PROTOCOL_ERROR as detail:
+                    self.env.log.debug("cannot use TLS, falling back to unencrypted session")
+
+            try:
+                # Simple bind?
+                if self.__bind_dn:
+                    self.env.log.debug("starting simple bind using '%s'" %
+                        self.__bind_dn)
+                    conn.simple_bind_s(self.__bind_dn, self.__bind_secret)
+                else:
+                    self.env.log.debug("starting SASL bind using '%s'" %
+                        self.__bind_user)
+                    auth_tokens = ldap.sasl.digest_md5(self.__bind_user, self.__bind_secret)
+                    conn.sasl_interactive_bind_s("", auth_tokens)
+
+            except ldap.INVALID_CREDENTIALS as detail:
+                self.env.log.error("LDAP authentication failed: %s" %
+                        str(detail))
+
+            LDAPHandler.connection_handle[next_free] = conn
+
+        # Lock entry
+        LDAPHandler.connection_usage[next_free] = True
+
+        return LDAPHandler.connection_handle[next_free]
+
+    def free_connection(self, conn):
+        index = LDAPHandler.connection_handle.index(conn)
+        LDAPHandler.connection_usage[index] = False
+
+    @contextmanager
+    def get_handle(self):
+        conn = self.get_connection()
+        try:
+            yield conn
+        finally:
+            self.free_connection(conn)
+
+    @staticmethod
+    def get_instance():
+        if not LDAPHandler.instance:
+            LDAPHandler.instance = LDAPHandler()
+        return LDAPHandler.instance

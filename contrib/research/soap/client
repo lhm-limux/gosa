@@ -1,0 +1,26 @@
+#!/usr/bin/env python2.6
+
+# Hrmpf. ZSI uses one deprecated function in code we do not use...
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+from ZSI.ServiceProxy import ServiceProxy
+from amqp import AMQPConnection
+from qpid.messaging import Connection, MessagingError
+
+
+# Prepare AMQP connection
+connection = Connection("localhost:5672")
+
+try:
+    # Open it, start service proxy and lets add...
+    connection.open()
+    service = ServiceProxy('test.wsdl', use_wsdl=True, transport=AMQPConnection, transdict={'address': 'command.exec', 'conn': connection})
+    print service.add(x=5, y=6)
+    connection.close()
+
+except MessagingError, m:
+    print m
+
+finally:
+    connection.close()

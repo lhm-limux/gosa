@@ -1,0 +1,90 @@
+#!/usr/bin/env python2.6
+# -*- coding: utf-8 -*-
+import libvirt
+
+def main():
+    # Connect to vbox session
+    conn = libvirt.open('vbox:///session')
+
+    # Define from XML file
+    xml = """
+<domain type='vbox'>
+  <name>vbox-guest</name>
+  <uuid>d1b39d02-d936-493d-b918-08513a1fea66</uuid>
+  <os>
+    <type>hvm</type>
+    <boot dev='cdrom'/>
+    <boot dev='hd'/>
+    <boot dev='fd'/>
+    <boot dev='network'/>
+  </os>
+  <memory>654321</memory>
+  <vcpu>1</vcpu>
+  <features>
+    <pae/>
+    <acpi/>
+    <apic/>
+  </features>
+  <devices>
+    <disk type='file' device='disk'>
+      <source file='/home/cajus/pyvirt/vbox-guest.vdi'/>
+      <target dev='hdd'/>
+    </disk>
+    <!--NAT-->
+    <interface type='user'>
+      <mac address='08:00:27:C0:08:37'/>
+      <model type='AM79C973'/>
+    </interface>
+    <graphics type='rdp' autoport='yes'/>
+  </devices>
+</domain>
+"""
+    dom = conn.defineXML(xml)
+    print conn.listDefinedDomains()
+
+#    xmlStorage = """
+#<pool type="dir">
+#  <name>virtimages</name>
+#  <target>
+#    <path>/home/cajus/disk-pool</path>
+#  </target>
+#</pool>
+#"""
+#    pool = conn.storagePoolDefineXML(xmlStorage, 0)
+
+    pool = conn.storagePoolLookupByName("default-pool")
+
+    xmlVolume = """
+<volume>
+  <name>vbox.img</name>
+  <key>/home/cajus/.VirtualBox/HardDisks/vbox.img</key>
+  <allocation>0</allocation>
+  <capacity>10485760</capacity>
+  <target>
+    <path>/home/cajus/.VirtualBox/HardDisks/vbox.img</path>
+    <format type=""/>
+  </target>
+</volume>
+"""
+    pool.createXML(xmlVolume, 0)
+
+    #define + filename
+
+
+    conn.close()
+
+if __name__ == '__main__':
+    main()
+
+    
+
+# Import/Export
+#     |  domainXMLFromNative(self, nativeFormat, nativeConfig, flags)
+#     |      Reads native configuration data  describing a domain, and
+#     |      generates libvirt domain XML. The format of the native
+#     |      data is hypervisor dependant.
+#     |  
+#     |  domainXMLToNative(self, nativeFormat, domainXml, flags)
+#     |      Reads a domain XML configuration document, and generates
+#     |      generates a native configuration file describing the domain.
+#     |      The format of the native data is hypervisor dependant.

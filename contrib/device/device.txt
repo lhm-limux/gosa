@@ -1,0 +1,72 @@
+ldap config!
+
+
+
+Device definition
+=================
+
+device
+ cn
+ serialNumber
+ seeAlso
+ owner
+ ou 
+ o
+ l
+ description
+
+ieee802Device
+ macAddress
+
+bootableDevice
+ bootFile
+ bootParameter
+
+ipHost
+ ipHostNumber
+
+simpleSecurityObject
+ userPassword
+
+registeredDevice
+ manager
+ deviceUUID
+ deviceStatus
+
+installRecipe
+ member
+ ksTemplate
+ ksKeyboardlayout 
+ ksSystemLocale
+ ksTimezone
+ ksTimeUTC
+ ksNTPServer[]
+ ksMirror -> mirror or pool of mirrors to install from / missing
+ ksMirrorTorrent
+ ksRootEnabled
+ ksRootPasswordHash
+ ksKernelPackage
+ ksPartitionTable -> format string
+
+configurationRecipe (TBD)
+
+virtualDeviceRecipe (TBD)
+
+
+
+Mirror Pools
+============
+
+installPool
+ cn
+ mirrors
+
+
+Kickstart template definition
+=============================
+
+kickstartTemplate
+ cn
+ ksTemplateURL
+ distribution
+ release -> suite

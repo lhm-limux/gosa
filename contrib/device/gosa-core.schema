@@ -1,0 +1,17 @@
+objectclass ( 1.3.6.1.4.1.10098.3.2.1.0.1 NAME 'gosaConfigRoot'
+	SUP top STRUCTURAL
+        DESC 'GOsa configuration root container'
+	MAY ( description )
+	MUST ( cn ) )
+
+objectclass ( 1.3.6.1.4.1.10098.3.2.1.0.2 NAME 'gosaConfigContainer'
+	SUP top STRUCTURAL
+        DESC 'GOsa configuration container'
+	MAY ( description )
+	MUST ( cn ) )
+
+objectclass ( 1.3.6.1.4.1.10098.3.2.1.0.3 NAME 'gosaConfigItem'
+	SUP top STRUCTURAL
+        DESC 'GOsa configuration item'
+	MAY ( description )
+	MUST ( cn ) )

@@ -1,0 +1,73 @@
+>>> import pynotify
+>>> pynotify.init('someName')
+True
+>>> n = pynotify.Notification("Beispiel", "Beispiel")
+>>> n.show()
+True
+>>> n = pynotify.Notification("Beispiel", "Beispiel", "dialog-warning")
+>>> n.show()
+True
+>>> n.set_timeout(pynotify.EXPIRES_NEVER)
+>>> n.show()
+True
+>>> def callback_function(notification=None, action=None, data=None):
+...      print "It worked!"
+... 
+>>> n.add_action("clicked","Button text", callback_function, None)
+>>> n.show()
+True
+>>> It worked!
+
+>>> n = pynotify.Notification("Telefonanruf", "Anruf von +49-89-1234-3123\ntest\ntest", "dialog-warning")
+>>> n.show
+<built-in method show of pynotify.Notification object at 0x9beac34>
+>>> n.show()
+True
+>>> n.show()
+True
+>>> n.show()
+True
+>>> n.add_action("clicked","Ablehnen", callback_function, None)
+>>> n.show()
+True
+>>> n.add_action("clicked","Tickets anzeigen", callback_function, None)
+>>> n.show()
+True
+>>> n.show()
+True
+>>> n.set_timeout(pynotify.EXPIRES_NEVER)
+>>> n.show()
+True
+>>> n.show()
+True
+>>> It worked!
+
+>>> n.show()
+True
+>>> n.add_action("clicked2","Tickets anzeigen", callback_function, None)
+>>> n.show()
+True
+>>> n = pynotify.Notification("Telefonanruf", "Anruf von +49-89-1234-3123\ntest\ntest", "dialog-warning")
+>>> n.add_action("clicked2","Tickets anzeigen", callback_function, None)
+>>> n.add_action("clicked","Ablehnen", callback_function, None)
+>>> n.show()
+True
+>>> It worked!
+n.show()
+True
+>>> n.show()
+True
+>>> n.set_timeout(pynotify.EXPIRES_NEVER)
+>>> n.show()
+True
+>>> It worked!
+>>> 
+>>> n = pynotify.Notification("Telefonanruf", "<b>Anruf von:</b> <i>+49-89-1234-3123</i>\nNerving GmBH\ntest", "dialog-warning")
+>>> n.show()
+True
+>>> n = pynotify.Notification("Telefonanruf", "<b>Anruf von:</b> <i>+49-89-1234-3123</i>\nNerving GmBH\n<table><tr><td>test</td><td>mööö</td></tr></table>", "dialog-warning")
+>>> n.show()
+True
+>>> n = pynotify.Notification("Telefonanruf", "<b>Anruf von:</b> <i>+49-89-1234-3123</i>\nNerving GmBH\n<a href='http://www.heise.de/newsticker'>Hier gehts lang</a>", "dialog-warning")
+>>> n.show()
+True

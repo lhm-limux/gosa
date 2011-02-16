@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process-definition name="flow" revision="1.0">
+    <description>Anforderung eines neuen Accounts</description>
+
+    <start-task>
+        <successor>anforderung</successor>
+    </start-task>
+    
+    <task name="anforderung">
+        <description>Anforderung</description>
+        <successor>genehmigung</successor>
+    </task>
+
+    <task name="genehmigung">
+        <description>Genehmigung</description>
+        <successor>anlage</successor>
+    </task>
+
+    <task name="anlage">
+        <description>Anlage</description>
+        <successor>bereitstellung hardware</successor>
+    </task>
+    
+    <task name="bereitstellung hardware">
+        <description>Bereitstellung der Hardware</description>
+        <successor>deployment</successor>
+    </task>
+
+    <task name="deployment">
+        <description>Description</description>
+        <successor>end</successor>
+    </task>
+</process-definition>

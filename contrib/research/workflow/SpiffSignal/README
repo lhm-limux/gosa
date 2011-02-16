@@ -1,0 +1,42 @@
+= Spiff Signal =
+
+This library is part of the Spiff platform.
+
+SpiffSignal is a Python module that implements a simple signal/event mechanism.
+
+
+= Contact =
+
+Mailing List: [http://groups.google.com/group/spiff/]
+
+
+= Dependencies =
+
+(none)
+
+
+= Usage =
+
+API documentation is embedded into the Spiff Signal source code and 
+currently not yet available elsewhere.
+
+If you need more help, please drop by our mailing list. You might actually 
+make someone write the missing pieces of documentation.
+
+#Text
+from SpiffSignal import Trackable
+
+class WatchMe(Trackable):
+    def __init__(self):
+        Trackable.__init__(self)
+
+    def do_something(self):
+        self.signal_emit('did-something', 'hello world')
+
+def my_callback(arg):
+    print arg
+
+foo = WatchMe()
+foo.signal_connect('did-something', my_callback)
+foo.do_something()
+#End

@@ -1,0 +1,85 @@
+\input{spiff-signal.tex}     % Import common styles.
+\usepackage{german}   % German language, old orthography.
+\fancyfoot[C]{Seite \thepage}
+\title{\productname\ Version \productversion\\
+Benutzerhandbuch\\
+\vspace{5 mm}
+\large Signal-/Event-Mechanismus für Python}
+\author{Samuel Abels}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\newpage
+\section{Einführung}
+\subsection{Wozu \productname?}
+
+\product stellt einen einfach Signal-/Event-Mechanismus für Python zur 
+Verfügung.
+
+\subsection{Rechtliches}
+
+\product und das vorliegende Benutzerhandbuch werden unter den Bedingungen 
+der GNU GPL (General Public License) Version 2 zur Verfügung gestellt. Eine 
+Kopie der GPL sollten sie zusammen mit \product erhalten haben; falls nicht, 
+so können sie diese unter der folgenden Adresse einsehen:
+
+\vspace{1em}
+\url{http://www.gnu.org/licenses/gpl-2.0.txt}
+\vspace{1em}
+
+Sollte diese Lizenz ihren Anforderungen nicht genügen, können sie sich 
+gerne unter Angabe der Gründe über die im nächsten Abschnitt 
+angegebenen Kontaktmöglichkeiten mit uns in Verbindung setzen - vielleicht 
+lässt sich eine Lösung herbeiführen, die beide Seiten zufrieden stellt.
+
+
+\subsection{Kontaktinformation \& Feedback}
+
+Sollten sie Verbesserungsvorschläge oder Korrekturen für \product oder 
+die \product-Dokumentation haben, so werden diese dankbar entgegengenommen.
+Folgende Kontaktmöglichkeiten bieten wir an: \\
+
+\input{contact.tex}
+
+\newpage
+\section{Schnellüberblick}
+
+\product stell nur eine einzige Klasse zur Verfügung: {\it Trackable} 
+implementiert die Schnittstelle um Signale zu senden und zu empfangen.
+Ein Objekt, das Signale senden möchte, muss lediglich von {\it Trackable} 
+erben und kann dann die {\it signal\_emit}-Methode verwenden, wie in folgendem 
+Code zu sehen:
+
+\begin{lstlisting}
+from SpiffSignal import Trackable
+
+class WatchMe(Trackable):
+    def __init__(self):
+        Trackable.__init__(self)
+    
+    def do_something(self):
+        self.signal_emit('did-something', 'hello world')
+\end{lstlisting}
+
+Um das Signal zu empfangen kann ein Abonnent sich dann mittels 
+{\it signal\_connect} beim Sender anmelden:
+
+\begin{lstlisting}
+def my_callback(arg):
+    print arg
+
+foo = WatchMe()
+foo.signal_connect('did-something', my_callback)
+foo.do_something()
+\end{lstlisting}
+
+Es wird also beim Senden des {\it did\_something}-Signals die Funktion 
+{\it my\_callback} aufgerufen.
+
+\product stellt weitere Methoden zur Verfügung um bestehende Verbindungen 
+vom Sender wieder abzumelden und um weitere Informationen zu ermitteln. 
+Eine vollständige Liste aller von {\it Trackable} zur Verfügung 
+gestellten Methoden finden sie in unserer API-Dokumentation.
+\end{document}

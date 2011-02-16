@@ -1,0 +1,104 @@
+dn: ou=systems,dc=gonicus,dc=de
+objectClass: organizationalUnit
+ou: systems
+
+dn: ou=devices,ou=systems,dc=gonicus,dc=de
+objectClass: organizationalUnit
+ou: devices
+
+dn: cn=inst-test,ou=devices,ou=systems,dc=gonicus,dc=de
+objectClass: device
+objectClass: ieee802Device
+objectClass: simpleSecurityObject
+objectClass: registeredDevice
+objectClass: installRecipe
+deviceUUID: a0d17918-cfb2-11df-acbd-5452005f1250
+deviceKey:: TTFuMXJnbEVSNUk0aFhPTUtpZWt6OGVvVmlYek16TjMxUjRkY2tTdnNVTT0K
+cn: inst-test
+macAddress: 00:11:22:33:44:88
+serialNumber: 08154711
+description: Dies ist ein PC
+deviceType: workstation
+deviceStatus: [AI]
+installTemplateDN: cn=Debian-Test,cn=templates,cn=libinst,cn=config,dc=gonicus,dc=de
+installNTPServer: pool.ntpdebian.org
+installNTPServer: 10.89.1.1
+installRootEnabled: TRUE
+installRootPasswordHash: $1$Zj7dIUaN$EVD/953QAHwZSBOG4RNcR/
+installKeyboardlayout: de-latin1-nodeadkeys
+installSystemLocale: de_DE.UTF-8
+installTimezone: Europe/Berlin
+installTimeUTC: TRUE
+installRelease: debian/squeeze/1.0
+installMirrorDN: cn=amqp,ou=servers,ou=systems,dc=intranet,dc=gonicus,dc=de
+installKernelPackage: linux-image-2.6-686
+installRecipeDN: cn=reciepe-text,ou=devices,ou=systems,dc=gonicus,dc=de
+owner: cn=Pollmeier Cajus,ou=people,ou=Technik,dc=gonicus,dc=de
+
+dn: cn=reciepe-test,ou=systems,dc=gonicus,dc=de
+objectClass: installProfile
+objectClass: installRecipe
+installRelease: debian/squeeze/1.0
+installMirrorDN: cn=amqp,ou=servers,ou=systems,dc=intranet,dc=gonicus,dc=de
+installKernelPackage: linux-image-2.6-686
+installPartitionTable: disk sda --initlabel --all;part /boot --size 250 --format --bootable --asprimary --fstype ext3 --ondisk sda;part pv.01 --size 40000 --grow --format --asprimary --ondisk sda;volgroup system --format pv.01;logvol / --size 4000 --format --fstype ext3 --name root --vgname system;logvol swap --size 4000 --format --name swap --vgname system;logvol /usr --size 5000 --format --fstype ext3 --name usr --vgname system;logvol /srv --size 10000 --grow --format --fstype ext3 --name srv --vgname system;logvol /var --size 4000 --format --fstype ext3 --name var --vgname system;logvol /home --size 10000 --format --fstype ext3 --name home --vgname system;
+
+dn: cn=config,dc=gonicus,dc=de
+objectClass: gosaConfigRoot
+cn: config
+
+dn: cn=libinst,cn=config,dc=gonicus,dc=de
+objectClass: gosaConfigContainer
+cn: libinst
+
+dn: cn=templates,cn=libinst,cn=config,dc=gonicus,dc=de
+objectClass: gosaConfigContainer
+cn: templates
+
+dn: cn=mirror-pools,cn=libinst,cn=config,dc=gonicus,dc=de
+objectClass: gosaConfigContainer
+cn: mirror-pools
+
+dn: cn=Pool1,cn=mirror-pools,cn=libinst,cn=config,dc=gonicus,dc=de
+objectClass: gosaConfigItem
+objectClass: installMirrorPool
+cn: Pool1
+description: Der Pool mit der Nummmer 1
+installMirrorDN: cn=amqp,ou=servers,ou=systems,dc=intranet,dc=gonicus,dc=de
+
+dn: cn=Debian-Test,cn=templates,cn=libinst,cn=config,dc=gonicus,dc=de
+objectClass: gosaConfigItem
+objectClass: installTemplate
+cn: Debian-Test
+description: Ein Test-Template
+installMethod: preseed
+templateData:: IyBMb2NhbGUKZC1pIGRlYmlhbi1pbnN0YWxsZXIvbG9jYWxlIHN0cmluZyB7aW5zdGFsbGVyX2xv
+ Y2FsZX0KZC1pIGRlYmlhbi1pbnN0YWxsZXIva2V5bWFwIHNlbGVjdCB7aW5zdGFsbGVyX2tleW1h
+ cH0KZC1pIGNvbnNvbGUta2V5bWFwcy1hdC9rZXltYXAgc2VsZWN0IHtjb25zb2xlX2tleW1hcH0K
+ ZC1pIGNvbnNvbGUtc2V0dXAvbGF5b3V0Y29kZSBzdHJpbmcge2NvbnNvbGVfbGF5b3V0X2NvZGV9
+ CgpkLWkgbmV0Y2ZnL2Nob29zZV9pbnRlcmZhY2Ugc2VsZWN0IGF1dG8KCiMgUGFrZXRtaXJyb3IK
+ ZC1pIG1pcnJvci9wcm90b2NvbCBzdHJpbmcge21pcnJvcl9wcm90b2NvbH0KZC1pIG1pcnJvci9j
+ b3VudHJ5IHN0cmluZyBtYW51YWwKZC1pIG1pcnJvci9odHRwL2hvc3RuYW1lIHN0cmluZyB7bWly
+ cm9yX2hvc3R9CmQtaSBtaXJyb3IvaHR0cC9kaXJlY3Rvcnkgc3RyaW5nIHttaXJyb3JfcGF0aH0K
+ ZC1pIG1pcnJvci9odHRwL3Byb3h5IHN0cmluZwpkLWkgbWlycm9yL3N1aXRlIHN0cmluZyB7c3Vp
+ dGV9CmQtaSBtaXJyb3IvdWRlYi9zdWl0ZSBzdHJpbmcge3N1aXRlfQoKIyBQYXJ0bWFuCntwYXJ0
+ aXRpb259CgojIENsb2NrCmQtaSBjbG9jay1zZXR1cC91dGMgYm9vbGVhbiB7dGltZV91dGN9CmQt
+ aSB0aW1lL3pvbmUgc3RyaW5nIHt0aW1lX3pvbmV9CntudHB9CgojIExvY2FsIHVzZXJzCmQtaSBw
+ YXNzd2QvbWFrZS11c2VyIGJvb2xlYW4gZmFsc2UKZC1pIHBhc3N3ZC9yb290LWxvZ2luIGJvb2xl
+ YW4ge3Jvb3RfbG9naW5fZW5hYmxlZH0KZC1pIHBhc3N3ZC9yb290LXBhc3N3b3JkLWNyeXB0ZWQg
+ cGFzc3dvcmQge3Jvb3RfcGFzc3dvcmRfbWQ1fQoKIyBQYWNrYWdlcwp0YXNrc2VsIHRhc2tzZWwv
+ Zmlyc3QgbXVsdGlzZWxlY3Qgc3RhbmRhcmQKZC1pIHBrZ3NlbC9pbmNsdWRlIHN0cmluZyBvcGVu
+ c3NoLWNsaWVudCBvcGVuc3NoLXNlcnZlciB2aW0gbGVzcyByc3luYyBwdXBwZXQKZC1pIHBrZ3Nl
+ bC91cGdyYWRlIHNlbGVjdCBmdWxsLXVwZ3JhZGUKe2tlcm5lbF9wYWNrYWdlfQoKIyBEb24ndCBz
+ ZW5kIGluZm9ybWF0aW9uIGFyb3VuZCBmb3IgYXV0b21hdGljIGluc3RhbGxhdGlvbnMKcG9wdWxh
+ cml0eS1jb250ZXN0IHBvcHVsYXJpdHktY29udGVzdC9wYXJ0aWNpcGF0ZSBib29sZWFuIGZhbHNl
+ CgojIEdydWIgc2V0dXAKZC1pIGdydWItaW5zdGFsbGVyL29ubHlfZGViaWFuIGJvb2xlYW4gdHJ1
+ ZQoKIyBLb21tYW5kbywgZGFzIG5hY2ggZGVyIEluc3RhbGxhdGlvbiBhdXNnZWbDvGhydCB3aXJk
+ LiBgaW4tdGFyZ2V0YCBiZWRldXRldCwgZGFzcyBkYXMgZm9sZ2VuZGUKIyBLb21tYW5kbyBpbiBk
+ ZXIgaW5zdGFsbGllcnRlbiBVbWdlYnVuZyBhdXNnZWbDvGhydCB3aXJkLCBuaWNodCBpbiBkZXIg
+ SW5zdGFsbGF0aW9uc3VtZ2VidW5nLgojIEhpZXIgd2lyZCBodHRwOi8vJHNlcnZlci9za3JpcHQu
+ c2ggbmFjaCAvdG1wIGhlcnVudGVyZ2VsYWRlbiwgYXVzZsO8aHJiYXIgZ2VtYWNodCB1bmQgYXVz
+ Z2Vmw7xocnQuCiNkLWkgcHJlc2VlZC9sYXRlX2NvbW1hbmQgc3RyaW5nIGluLXRhcmdldCB3Z2V0
+ IC1QIC90bXAvIGh0dHA6Ly8kc2VydmVyL3NrcmlwdC5zaDsgaW4tdGFyZ2V0IGNobW9kICt4IC90
+ bXAvc2tyaXB0LnNoOyBpbi10YXJnZXQgL3RtcC9za3JpcHQuc2gKCmQtaSBmaW5pc2gtaW5zdGFs
+ bC9yZWJvb3RfaW5fcHJvZ3Jlc3Mgbm90ZQo=

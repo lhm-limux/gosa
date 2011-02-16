@@ -1,0 +1,76 @@
+#!/usr/bin/env python2.6
+import sys
+from qpid.messaging import Connection, Message
+from ZSI.parse import ParsedSoap
+
+
+# Our test method
+def add(x, y):
+    return x + y
+
+
+##############################################################################
+#                                 R H E I N                                  #
+##############################################################################
+
+broker = "localhost:5672"
+address = '''command.exec; {
+                create:always,
+                node:{
+                    type:queue,
+                    x-bindings:[ {
+                        exchange:"amq.direct",
+                        queue:"command.exec"
+                    } ]
+                }
+             }'''
+
+connection = Connection(broker)
+
+try:
+    connection.open()
+    session = connection.session()
+    receiver = session.receiver(address)
+
+    print "Waiting for messages..."
+    while True:
+        # Fetch next message, acknowledge it
+        message = receiver.fetch(timeout=1000)
+        print "Incoming message <--------\n%s" % message.content
+        session.acknowledge()
+
+        # Talk to client generated reply queue
+        sender = session.sender(message.reply_to)
+
+        # Use WSDL to verify message, dispatch by looking
+        # for function name and named parameters
+        # call the function, encode the result as a SOAP
+        # result.
+        #ps = ParsedSoap(message.content)
+        #SendResponse
+        #SenfFault
+
+        # Dummy reply for testing
+        re = """<?xml version="1.0" encoding="utf-8" ?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+                   xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+                   xmlns:ZSI="http://www.zolera.com/schemas/ZSI/"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <SOAP-ENV:Body xmlns:ns1="http://schemas.xmlsoap.org/wsdl/soap/">
+        <ns1:addResponse>
+            <result xsi:type="xsd:integer">11</result>
+        </ns1:addResponse>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>"""
+
+        # Get rid of it...
+        response = Message(re)
+        sender.send(response)
+        print "Outgoing message -------->\n%s" % response.content
+
+except MessagingError, m:
+    print m
+
+finally:
+    connection.close()

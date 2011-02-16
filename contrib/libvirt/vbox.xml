@@ -1,0 +1,30 @@
+<domain type='vbox'>
+  <name>vbox-guest</name>
+  <uuid>d1b39d02-d936-493d-b918-08513a1fea66</uuid>
+  <os>
+    <type>hvm</type>
+    <boot dev='cdrom'/>
+    <boot dev='hd'/>
+    <boot dev='fd'/>
+    <boot dev='network'/>
+  </os>
+  <memory>654321</memory>
+  <vcpu>1</vcpu>
+  <features>
+    <pae/>
+    <acpi/>
+    <apic/>
+  </features>
+  <devices>
+    <disk type='file' device='disk'>
+      <source file='/home/cajus/pyvirt/vbox-guest.vdi'/>
+      <target dev='hdd'/>
+    </disk>
+    <!--NAT-->
+    <interface type='user'>
+      <mac address='08:00:27:C0:08:37'/>
+      <model type='AM79C973'/>
+    </interface>
+    <graphics type='rdp' autoport='yes'/>
+  </devices>
+</domain>

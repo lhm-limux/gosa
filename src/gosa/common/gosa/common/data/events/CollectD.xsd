@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<schema targetNamespace="http://www.gonicus.de/Events"
+        elementFormDefault="qualified"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        xmlns:gosa="http://www.gonicus.de/Events">
+
+    <simpleType name="host_t">
+        <restriction base="string">
+        </restriction>
+    </simpleType>
+
+
+    <simpleType name="interval_t">
+        <restriction base="decimal">
+            <minInclusive value="0.0"/>
+        </restriction>
+    </simpleType>
+
+
+    <simpleType name="values_t">
+        <list itemType="float"/>
+    </simpleType>
+
+
+    <complexType name="CollectD">
+        <all>
+            <element name="Host" type="gosa:host_t" minOccurs="1" maxOccurs="1"/>
+            <element name="Plugin" type="string" minOccurs="1" maxOccurs="1"/>
+            <element name="PluginInstance" type="string" minOccurs="0" maxOccurs="1"/>
+            <element name="Type" type="string" minOccurs="1" maxOccurs="1"/>
+            <element name="TypeInstance" type="string" minOccurs="0" maxOccurs="1"/>
+            <element name="Time" type="float" minOccurs="1" maxOccurs="1"/>
+            <element name="Interval" type="gosa:interval_t" minOccurs="1" maxOccurs="1"/>
+            <element name="Values" type="gosa:values_t" minOccurs="1" maxOccurs="1"/>
+        </all>
+    </complexType>
+
+
+    <element name="CollectD" type="gosa:CollectD"/>
+</schema>

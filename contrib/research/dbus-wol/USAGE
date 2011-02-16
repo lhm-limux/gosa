@@ -1,0 +1,18 @@
+- copy com.gonicus.gosa.conf to /etc/dbus-1/system.d
+
+
+- start dbus-wol-service.py as root
+
+
+- to send WOL, execute as user (should be at console or in adm group):
+
+dbus-send --system --type=method_call --dest=com.gonicus.gosa /com/gonicus/gosa/object com.gonicus.gosa.wakeOnLan string:'00:26:2d:f2:aa:36'
+
+or use dbus-wol-client.py
+
+- to stop the dbus-wol service, execute:
+
+dbus-send --system --type=method_call --dest=com.gonicus.gosa /com/gonicus/gosa/object com.gonicus.gosa.Exit
+
+
+

@@ -1,0 +1,81 @@
+\input{spiff-signal.tex}   % Import common styles.
+\fancyfoot[C]{Page \thepage}
+\title{\productname\ Release \productversion\\
+User Documentation\\
+\vspace{5 mm}
+\large Signal/event mechanism for Python}
+\author{Samuel Abels}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\newpage
+\section{Introduction}
+\subsection{Why \productname?}
+
+\product provides a simple signal/event mechanism for Python.
+
+\subsection{Legal Information}
+
+\product and this handbook are distributed under the terms and conditions 
+of the GNU GPL (General Public License) Version 2. You should have received 
+a copy of the GPL along with \product. If you did not, you may read it here:
+
+\vspace{1em}
+\url{http://www.gnu.org/licenses/gpl-2.0.txt}
+\vspace{1em}
+
+If this license does not meet your requirements you may contact us under 
+the points of contact listed in the following section. Please let us know 
+why you need a different license - perhaps we may work out a solution 
+that works for either of us.
+
+
+\subsection{Contact Information \& Feedback}
+
+If you spot any errors, or have ideas for improving \product or this 
+documentation, your suggestions are gladly accepted.
+We offer the following contact options: \\
+
+\input{contact.tex}
+
+\newpage
+\section{Overview}
+
+\product provides one single class only: {\it Trackable} implements an 
+interface for sending and receiving signals. To send a signal an object 
+inherits from {\it Trackable} and calls the {\it signal\_emit}-Method, 
+as can be seen in the following code:
+
+\begin{lstlisting}
+from SpiffSignal import Trackable
+
+class WatchMe(Trackable):
+    def __init__(self):
+        Trackable.__init__(self)
+    
+    def do_something(self):
+        self.signal_emit('did-something', 'hello world')
+\end{lstlisting}
+
+To retrieve the signal a subscriber may register with the sender 
+using the {\it signal\_connect} method:
+
+\begin{lstlisting}
+def my_callback(arg):
+    print arg
+
+foo = WatchMe()
+foo.signal_connect('did-something', my_callback)
+foo.do_something()
+\end{lstlisting}
+
+The example calls the {\it my\_callback} function whenever the 
+{\it did\_something} signal is sent by the WatchMe class.
+
+\product provides additional methods for unregistering existing 
+connections and for retireving additional information. For a complete 
+list of the methods supported by {\it Trackable} please refer to our API 
+documentation.
+\end{document}

@@ -1,0 +1,15 @@
+#!/usr/bin/env python2.6
+# -*- coding: utf-8 -*-
+import libvirt
+
+def main():
+    # Connect to vbox session
+    conn = libvirt.open('vbox:///session')
+    print conn.listDefinedDomains()
+    dom = conn.lookupByName("vbox-guest")
+    dom.undefine()
+
+    conn.close()
+
+if __name__ == '__main__':
+    main()

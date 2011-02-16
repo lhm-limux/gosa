@@ -1,0 +1,277 @@
+## This schema is part of GOsa (http://www.gosa-project.org)
+## Copyright (C) 2009, 2010 GONICUS GmbH
+##
+## ID: $$Id: installed-device.schema 1127 2010-10-14 09:27:54Z cajus $$
+##
+## This file contains the OpenLDAP schema definition needed for
+## installing devices using various mechanisms. It also holds a class for
+## defining installation profiles.
+##
+## See the packaged LICENSE for more information about the licensing.
+
+
+# Attribute: installTemplateDN
+#
+# The attribute installTemplateDN points to another object that
+# keeps the install template definition for the resulting host
+# or profile.
+#
+attributetype ( 1.3.6.1.4.1.10098.3.2.1.5 NAME 'installTemplateDN'
+    DESC 'DN that points to the installation installTemplate'
+    SUP distinguishedName
+    SINGLE-VALUE )
+
+# Attribute: installKeyboardLayout
+#
+# To determine the target keyboard layout of a host, the attribute
+# installKeyboardLayout has to be specified.
+#
+# The format is defined by RFC 1766:
+#  de
+#  de-de
+#
+# This is mapped to the final keyboard map by the install
+# file generation module.
+attributetype ( 1.3.6.1.4.1.10098.3.2.1.6 NAME 'installKeyboardLayout'
+    DESC 'Keyboard map is defined like in RFC 1766 [2]'
+    EQUALITY caseIgnoreMatch
+    SUBSTR caseIgnoreSubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{64}
+    SINGLE-VALUE )
+
+# Attribute: installSystemLocale
+#
+# To determine the target locale of a host, the attribute
+# installSystemLocale has to be specified.
+#
+# The format is defined by RFC 1766:
+#  de
+#  de-de
+#
+# This is mapped to the final locale by the install
+# file generation module.
+attributetype ( 1.3.6.1.4.1.10098.3.2.1.7 NAME 'installSystemLocale'
+    DESC 'Language code like defined in RFC 1766 [2]'
+    EQUALITY caseIgnoreMatch
+    SUBSTR caseIgnoreSubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{16}
+    SINGLE-VALUE )
+
+# Attribute: installTimezone
+#
+# This attribute sets the timezone of a system to be installed.
+# The format is like shown in the zoneinfo package:
+#
+#  Europe/Berlin
+#  GMT-1
+#
+attributetype ( 1.3.6.1.4.1.10098.3.2.1.8 NAME 'installTimezone'
+    DESC 'Timezone string defined in zoneinfo description'
+    EQUALITY caseIgnoreMatch
+    SUBSTR caseIgnoreSubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{64}
+    SINGLE-VALUE )
+
+# Attribute: installTimeUTC
+#
+# This attribute determines if the system clock runs in UTC or
+# not. It is a bool value.
+#
+attributetype ( 1.3.6.1.4.1.10098.3.2.1.9 NAME 'installTimeUTC'
+    DESC 'Bool flag to determine if we system time is in UTC'
+    EQUALITY booleanMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+    SINGLE-VALUE )
+
+# Attribute: installNTPServer
+#
+# To provide a smooth time synchronization from the installation
+# on, a list of NTP servers can be provided. Format is DNS name
+# or IP.
+#
+attributetype ( 1.3.6.1.4.1.10098.3.2.1.10 NAME 'installNTPServer'
+    DESC 'List of NTP servers that should be used'
+    EQUALITY caseIgnoreMatch
+    SUBSTR caseIgnoreSubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{255} )
+
+# Attribute: installMirrorPoolDN
+#
+# This attribute specifies the install mirror pool to be used.
+# If omitted, the system tries to find the mirror based
+# on installMirror or the information of the installTemplate
+# automatically.
+#
+attributetype ( 1.3.6.1.4.1.10098.3.2.1.11 NAME 'installMirrorPoolDN'
+    DESC 'DN that points to the mirror pool to be used'
+    SUP distinguishedName
+    SINGLE-VALUE )
+
+# Attribute: installRootEnabled
+#
+# Flag to signal a root account usage to the installer. Take
+# care about additional users with sudo permission if you don't
+# use the root account.
+#
+attributetype ( 1.3.6.1.4.1.10098.3.2.1.12 NAME 'installRootEnabled'
+    DESC 'Bool flag to tetermin if the root account is enabled'
+    EQUALITY booleanMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+    SINGLE-VALUE )
+
+# Attribute: installRootPasswordHash
+#
+# Hash that will be transferred to the systems shadow file if
+# the root account is used. A hash can be created as follows:
+#
+# $ mkpasswd -m MD5
+#
+attributetype ( 1.3.6.1.4.1.10098.3.2.1.13 NAME 'installRootPasswordHash'
+    DESC 'Hash to be placed in the systems shadow file'
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{255}
+    SINGLE-VALUE )
+
+# Attribute: installKernelPackage
+#
+# To override the default kernel package installation, the package name
+# of the kernel to be used can be provided here. Use the package name,
+# not the filename.
+#
+attributetype ( 1.3.6.1.4.1.10098.3.2.1.14 NAME 'installKernelPackage'
+    DESC 'Name of the kernel package that should be installed'
+    EQUALITY caseIgnoreMatch
+    SUBSTR caseIgnoreSubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{255}
+    SINGLE-VALUE )
+
+# Attribute: installPartitiontable
+#
+# The partition table definition is one string which keeps a definition
+# like shown in http://www.redhat.com/docs/manuals/enterprise/RHEL-5-ma\
+# nual/Installation_Guide-en-US/s1-kickstart2-options.html
+# With the exception that there is no "clearpart", but a "disk" statement
+# which allows to define disks.
+#
+# I.e.:
+#
+# disk hda --initlabel --all;part raid.11 --size 1000 --format --asprimary \
+# --ondisk hda;part raid.12 --size 1000 --format --asprimary --ondisk hda; \
+# part raid.21 --size 1000 --format --asprimary --ondisk hda;part raid.22 \
+# --size 1000 --format --asprimary --ondisk hda;raid /safe --level 1 --name \
+# md1 --spares 0 --format raid.11 raid.12;raid pv.01 --level 1 --name md0 \
+# --spares 0 --format raid.21 raid.22;volgroup sysvg --format pv.01;logvol \
+# /mnt --size 8000 --format --name voltest --vgname sysvg; 
+#
+# If you split by ";" you've the format defined by redhat.
+#
+attributetype ( 1.3.6.1.4.1.10098.3.2.1.15 NAME 'installPartitionTable'
+    DESC 'Name of the kernel package that should be installed'
+    EQUALITY caseIgnoreMatch
+    SUBSTR caseIgnoreSubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SINGLE-VALUE )
+
+# Attribute: installRecipeDN
+#
+# In order to cascade installation recipes or use profiles, it is
+# possible to provide another profile which is used for attribute
+# inheritance. This is primarily meant for assigning profiles - 
+# cascading recipes is no good practice.
+#
+attributetype ( 1.3.6.1.4.1.10098.3.2.1.16 NAME 'installRecipeDN'
+    DESC 'DN that points to a instalRecipe object'
+    SUP distinguishedName
+    SINGLE-VALUE )
+
+# Attribute: installMirrorDN
+#
+# This attribute specifies the install mirror to be used.
+# If omitted, the system tries to find the mirror based
+# on the information of installMirrorPoolDN or the 
+# installTemplate automatically.
+#
+attributetype ( 1.3.6.1.4.1.10098.3.2.1.17 NAME 'installMirrorDN'
+    DESC 'DN that points to the mirror pool to be used'
+    SUP distinguishedName )
+
+# Attribute: installMethod
+#
+# This attribute specifies the method to be used for client
+# bootstrapping. It is used to specify what install method
+# is used for a defined template.
+attributetype ( 1.3.6.1.4.1.10098.3.2.1.18 NAME 'installMethod'
+    DESC 'Method to be used for client / with template'
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SINGLE-VALUE )
+
+# Attribute: installRelease
+#
+# This attribute specifies the release path for the installation.
+attributetype ( 1.3.6.1.4.1.10098.3.2.1.19 NAME 'installRelease'
+    DESC 'Release to be used for client / with template'
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SINGLE-VALUE )
+
+# Attribute: templateData
+#
+# Store the kickstart/preseed/etc. template.
+attributetype ( 1.3.6.1.4.1.10098.3.2.1.20 NAME 'templateData'
+    DESC 'The template used for kickstarting'
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SINGLE-VALUE )
+
+
+# Object: installProfile
+#
+# Objects of the structural type installProfile can host a couple of
+# recipes that can define a target systen - or aspects of it.
+objectclass ( 1.3.6.1.4.1.10098.3.2.1.1.11 NAME 'installProfile'
+    SUP top STRUCTURAL
+    DESC 'Objectclass for bundeling installation reciepes'
+    MAY  ( manager $ description )
+    MUST ( cn ) )
+
+# Object: installRecipe
+#
+# The installRecipe object keeps all information that is needed to
+# generate a valid install file based on a template description.
+#
+# It can either be placed inside of a installableDevice object, or
+# inside of an installProfile object. The first overrides the latter:
+#
+# If you've a profile which is assigned to a host, and define
+# certain attributes for the host directly, they preceed the
+# profile values. It may be cascaded with multiple profiles
+# by using the installRecipeDN.
+objectclass ( 1.3.6.1.4.1.10098.3.2.1.1.12 NAME 'installRecipe'
+    SUP top AUXILIARY
+    DESC 'Objectclass for bundeling installation reciepes'
+    MAY  ( installTemplateDN $ installNTPServer $ installRootEnabled $
+           installRootPasswordHash $ installKeyboardlayout $
+           installSystemLocale $ installTimezone $ installMirrorDN $
+           installTimeUTC $ installMirrorPoolDN $ installKernelPackage $
+           installPartitionTable $ installRecipeDN $ installRelease ) )
+
+# Object: installTemplate
+#
+# This object defines the template to be used for installation, the
+# target release 
+objectclass ( 1.3.6.1.4.1.10098.3.2.1.1.13 NAME 'installTemplate'
+    SUP top AUXILIARY
+    DESC 'Kickstart template definition'
+    MAY ( description $ installMethod $ templateData )
+    MUST ( cn ) )
+
+# Object: installMirrorPool
+#
+# This object maintains bundles of mirror servers for easy assignement
+# to clients.
+objectclass ( 1.3.6.1.4.1.10098.3.2.1.1.14 NAME 'installMirrorPool'
+    SUP top AUXILIARY
+    DESC 'Kickstart template definition'
+    MAY ( description $ installMirrorDN )
+    MUST ( cn ) )

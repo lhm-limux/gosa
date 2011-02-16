@@ -1,0 +1,136 @@
+\chapter{Messaging mit AMQP}
+
+\section{Was ist AMQP?}
+
+AMQP steht für Advanced Message Queueing Protocol und stellt eine Middleware
+für nachrichtenorientierte Anwendungen auf dem Applicationslayer des OSI-Modells
+dar. Es kümmert sich um die Zustellung, Weiterleitung und Zwischenspeicherung von
+Nachrichten, sowie die Zuverlässigkeit des Austausches sowie Sicherheit.
+
+AMQP ist ein binäres Protokoll welches die Interoperabilität zwischen verschiedenen
+Plattformen gewährleistet. Form und Grösse von Daten der einzelnen Nachrichten
+spielen keine Rolle.
+
+Eine AMQP Infrastruktur besteht aus mindestens einem Broker - das ist die
+Instanz auf der die Nachricthen-Queues zusammenlaufen, sowie einer (TODO) beliebigen
+Anzahl von Clients. Diese Clients können Nachrichten publizieren und/oder
+empfangen. Im folgenden werden die Empfänger als Consumer bezeichnet, die
+publizierenden Clients als Producer.
+
+
+\section{Queues}
+
+Grundlage für den Nachrichtenverkehr sind Queues. Die Nachrichten in Queues
+werden im Speicher oder auf der Festplatte vorgehalten und auf Wunsch in der eingespeisten
+Reihenfolge an die Consumer weitergeleitet. Queues sind damit Nachrichtenspeicher
+sowie Verteilungseinheit in einem. Nachrichtenqueues sind voneinander
+unabhängig und können verschiedene Eigenschaften besitzen: privat oder öffentlich,
+permanent oder temporär, beständig oder flüchtig. Durch die Eigenschaften
+einer Queue wird bestimmt, ob man z.B. eine store-and-forward, pub-sub oder
+wie auch immer geartete Queue bereitstellen möchte.
+
+Würde man eine Analogie zu SMTP anstrengen, so sind die Queues wie Postfächer
+zu sehen. Der Absender der Mail ein Producer, ein Mail-Filter ein Consumer.
+
+Queues lassen sich unter anderem so konfigurieren, dass one to one, one to any,
+point to point sowie publish and subscribe realisierbar sind. Für einen
+Teilnehmer im AMQP-Netzwerk kann es z.B. interessant sein wenn die Festplatte
+eines angeschlossenen Systems kurz davor ist vollzulaufen. In diesem Fall
+ist eine Status-Queue anzulegen, welche von den angeschlossenen Systemen
+mit Status-Information befüllt wird. Consumer können dann darauf reagieren
+und etwa eine Festplatten-Aufräum-Aktion starten oder einen Administrator
+per SMS benachrichtigen.
+
+Queues können persistent angelegt werden. Queues können über verschiedene
+Broker in einem Cluster gespiegelt werden.
+
+
+\section{Exchange}
+
+Ein Exchange ist die Instanz im AMQP-Konzept, welche Queues über diverse
+Kriterien miteinander verbinden kann und damit für das Routing von
+Nachrichten zuständig ist. Diese Verbindung als Binding bezeichnet.
+
+AMQP bringt bereits eine Anzahl von verschiedenen Exchanges mit. So lässt
+sich z.B. anhand eines Routing-Keys oder über XQuery eine Zuordnung
+zu diversen Nachrichtenqueues vornehmen.
+
+Auf deren Verwendung wird Kapitel [TODO] Kommunikation genauer eingegangen.
+
+
+\section{Nachrichten}
+
+Die versendeten Informationen bestehen aus dem AMQP-Header und dem
+Nachrichten-Body. Grundsätzlich ist der Body im AMQP-Konzept nicht
+von Bedeutung: was transportiert wird spielt keine Rolle.
+
+Sämtliche Konfiguration über das \glqq wie wird die Nachricht weitergeleitet\grqq geschieht
+über den Header.
+
+
+\section{Verfügbare Broker}
+
+Einer der grössten Nachteile von AMQP ist, dass verschiedene Spezifikationen
+in unterschiedlichen Entwicklungsständen vorliegen, die grösstenteils nicht
+miteinander kompatibel sind. Bis zur Version 1.0 wird uns dieses Problem
+wahrscheinlich noch erhalten bleiben.
+
+Es existieren unterschiedliche frei verfügbare sowie kommerzielle Broker. Hier
+ein Auszug:
+
+\begin{itemize}
+\item OpenAMQ
+
+  Dieser freie Broker wurde von den ursrpünglichen Schöpfern des AMQP in C entwickelt und
+  unterstützt mit zyre interesante Features wie RestMS. Leider wird OpenAMQ
+  eingestellt und dem ebenso von iMatix entwickelten 0mq der Vortritt gelassen.
+
+  OpenAMQ unterstützt nur ältere Spezifikationen von AMQP.
+
+  Dieses Projekt bringt keinerlei Zugriffskontrolle und Authentifizierung mit
+  und scheidet aufgrund des zusätzlichen Aufwandes an dieser Stelle aus.
+
+\item RabitMQ
+
+  Ist ein freier, in Java programmierter Broker. Er wird von der Firma
+  Rabbit Technologies Ltd gepflegt.
+
+  RabitMQ unterstützt nur ältere Spezifikationen von AMQP.
+
+  Wir möchten gerne eine Java-Abhängigkeit vermeiden. Dieser Broker fällt
+  damit aus.
+
+\item QPID
+
+  Dieses Apache-Projekt bietet einen C- und Java-basierten Broker mit der
+  jeweils aktuellsten Version der AMQP-Spezifikation. Er unterstützt eine
+  SASL-basierte Authentifizierung, sowie eine Berechtigungsvergabe auf
+  einzelne Queues.
+
+  QPID unterstützt zusätzlich eine inhaltbasierte Nachrichtenfilterung über XQuery.
+
+
+\item Red Hat Enterprise MRG
+
+  Dies ist eine kommerzielle Version von QPID.
+\end{itemize}
+
+
+Im Falle von GOsa ist QPID aufgrund der Variabilität, XML-Features und der SASL-
+Anbindung vorzuziehen. QPID bereitet durch seine Messaging API bereits auf
+kommende AMQP-Versionen vor und erleichtert künftige Entwicklungen. 
+
+
+\section{Authentifizierung}
+
+Der verwendete Broker unterstützt eine SASL-basierte Authentifizierung und
+eine Dateibasierte Authorisierung bezüglich des Zugriffs auf die Qeueus. Die
+Authorisierung ist allerdings nur für sehr grundlegende Aktionen denkbar, da
+sie nicht dynamisch ist und damit keine sinnvolle Verwaltung von Gruppen und
+Benutzern zulässt. Zudem ist von einer Ausweitung des Berechtigunskonzeptes auf
+Benutzer aus Performancegründen abzusehen.
+
+AMQP versendet auf Wunsch die Authentifizierungsinformation des Benutzers
+mit. Damit lässt sich auf Seiten des GOsa-Dienstes eine einfache Authorisierung
+des Nutzers durchführen.
+

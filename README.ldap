@@ -1,0 +1,4 @@
+This is no README yet. Just notes for the final README composer:
+
+deviceUUID and deviceKey need to be rw for the administrative user, only. It should
+be hidden like userPassword for all other users.

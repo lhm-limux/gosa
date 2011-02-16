@@ -1,0 +1,8 @@
+#!/usr/bin/php5
+<?php
+include "jsonRPCClient.php";
+
+$ob = new jsonRPC('http://amqp.intranet.gonicus.de:4000');
+print $ob->updateInstanceStatus(Array(Array('1028', '10', 'ldap', 'LDAP', '', 'search', '4c57e052be065', '1280828269', '1280828269,08', '0', '63', '1', '13148904', '0,020000', '')))."\n";
+
+?>
