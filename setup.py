@@ -9,6 +9,7 @@ builds = [
     "agent",
     "client",
     "agent",
+    "shell",
     "plugins/libinst",
     ]
 
