@@ -5,10 +5,10 @@ import sys
 from subprocess import call
 
 builds = [ 
-    "gosa/common",
-    "gosa/agent",
-    "gosa/client",
-    "gosa/agent",
+    "common",
+    "agent",
+    "client",
+    "agent",
     "plugins/libinst",
     ]
 

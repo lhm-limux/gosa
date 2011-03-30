@@ -184,6 +184,9 @@ class CommandRegistry(object):
         @rtype: var
         @return: the real methods result
         """
+
+        #TODO: check for permission
+
         # Check for user authentication
         if not user:
             raise CommandNotAuthorized("call of function '%s' without a valid username is not permitted" % func)
