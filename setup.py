@@ -5,11 +5,11 @@ import sys
 from subprocess import call
 
 builds = [ 
-    "src/gosa/common",
-    "src/gosa/agent",
-    "src/gosa/client",
-    "src/gosa/agent",
-    "src/plugins/libinst",
+    "gosa/common",
+    "gosa/agent",
+    "gosa/client",
+    "gosa/agent",
+    "plugins/libinst",
     ]
 
 here = os.path.abspath(os.path.dirname(__file__))

@@ -190,8 +190,8 @@ To install the current archive:
 
 To install from SVN:
 
-# svn co https://oss.gonicus.de/repositories/belfry/trunk project
-# cd project
+# git clone git@labs.intranet.gonicus.de:gosa-ng/gosa-ng.git src
+# cd src
 # python setup.py install
 
 
@@ -203,7 +203,7 @@ To install from SVN:
 Take a look at the gosa.conf present in the src/gosa/agent directory and adapt it
 to your needs. Fire up the daemon in foreground mode:
 
-# gosa-agent -f --config=src/gosa/agent/gosa.conf
+# gosa-agent -f --config=gosa/agent/gosa.conf
 
 
 6) Using the gosa-shell
