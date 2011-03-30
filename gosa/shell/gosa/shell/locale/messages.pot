@@ -1,0 +1,60 @@
+# Translations template for GOsa.
+# Copyright (C) 2010 GONICUS GmbH
+# This file is distributed under the same license as the GOsa project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: GOsa 3.0\n"
+"Report-Msgid-Bugs-To: gosa@oss.gonicus.de\n"
+"POT-Creation-Date: 2010-07-19 17:03+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.4\n"
+
+#: src/gosa/shell/main.py:129
+msgid "Searching service provider..."
+msgstr ""
+
+#: src/gosa/shell/main.py:155
+msgid "Need at least a service URI!"
+msgstr ""
+
+#. Conected to URL, i.e. https://amqp.local:8080/rpc
+#: src/gosa/shell/main.py:159
+#, python-format
+msgid "Connected to %s://%s:%s/%s"
+msgstr ""
+
+#. This is a prompt - Username [joe]:
+#: src/gosa/shell/main.py:173
+msgid "Username"
+msgstr ""
+
+#. This is a prompt - Password:
+#: src/gosa/shell/main.py:179
+msgid "Password"
+msgstr ""
+
+#: src/gosa/shell/main.py:203
+msgid "The selected protocol is not supported!"
+msgstr ""
+
+#: src/gosa/shell/main.py:209
+#, python-format
+msgid "Login of user '%s' failed"
+msgstr ""
+
+#: src/gosa/shell/main.py:340
+msgid "GOsa service shell. Use Ctrl+D to exit."
+msgstr ""
+
+#: src/gosa/shell/main.py:346
+msgid "Closing session"
+msgstr ""
+
