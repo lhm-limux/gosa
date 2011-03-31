@@ -127,7 +127,7 @@ class ClientService(object):
             amqp = PluginRegistry.getInstance("AMQPHandler")
             self.__proxy[client] = AMQPServiceProxy(amqp.url['source'], queue)
 
-        # Call him to the moon...
+        # Call her to the moon...
         methodCall = getattr(self.__proxy[client], method)
 
         # Do the call

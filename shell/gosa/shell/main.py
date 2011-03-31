@@ -320,16 +320,16 @@ import rlcompleter
 import atexit
 import os
 
-# Tab completion 
+# Tab completion
 readline.parse_and_bind('tab: complete')
 
-# history file 
-histfile = os.path.join(os.environ['HOME'], '.gosa.history') 
-try: 
-    readline.read_history_file(histfile) 
-except IOError: 
-    pass 
-atexit.register(readline.write_history_file, histfile) 
+# history file
+histfile = os.path.join(os.environ['HOME'], '.gosa.history')
+try:
+    readline.read_history_file(histfile)
+except IOError:
+    pass
+atexit.register(readline.write_history_file, histfile)
 del os, histfile, readline, rlcompleter
 """
 

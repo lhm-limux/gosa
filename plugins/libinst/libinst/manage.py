@@ -134,7 +134,17 @@ class RepositoryManager(Plugin):
         methods = {}
         for method, obj in self.install_method_reg.iteritems():
             methods[method] = obj.getInfo()
-            methods[method]["items"] = obj.getItemTypes()
+
+            # Remove checks and modules
+            items = obj.getItemTypes()
+            for k, v in obj.getItemTypes().iteritems():
+                if 'module' in v:
+                    del v['module']
+                if 'options' in v and 'data' in v['options'] and 'check' in v['options']['data']:
+                    del v['options']['data']['check']
+                items[k] = v
+
+            methods[method]["items"] = items
             methods[method]["repositories"] = obj.getSupportedTypes()
 
         return methods
