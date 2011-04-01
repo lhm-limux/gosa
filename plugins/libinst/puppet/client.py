@@ -20,7 +20,7 @@ from shutil import rmtree
 from fcntl import lockf, LOCK_UN, LOCK_EX
 from git import Repo
 from pwd import getpwnam
-from time import mktime
+from time import mktime, sleep
 
 from gosa.common.event import EventMaker
 from gosa.common.components.plugin import Plugin
@@ -238,6 +238,7 @@ class PuppetLogWatcher(pyinotify.ProcessEvent):
     def process_IN_CREATE(self, event):
         self.env.log.debug("logwatch detected change for '%s'" % event.pathname)
         if event.pathname.endswith(".yaml"):
+            sleep(1)
             amqp = PluginRegistry.getInstance("AMQPClientHandler")
             self.env.log.debug("puppet logwatch detected change for '%s', producing event" % event.pathname)
             amqp.sendEvent(self.report_to_event(event.pathname))
