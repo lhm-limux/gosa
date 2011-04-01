@@ -248,7 +248,7 @@ class PuppetLogWatcher(pyinotify.ProcessEvent):
 
         with open(file_name, "r") as f:
             yml = yaml.load(f)
-            logs = [e.Id(amqp_service.id)]
+            logs = [e.Id(self.env.id)]
 
             for log in yml.logs:
                 data = [
