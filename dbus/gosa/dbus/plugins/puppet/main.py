@@ -33,30 +33,30 @@ class PuppetDbusHandler(dbus.service.Object, Plugin):
         msg = Popen(command, stdout=PIPE, stderr=PIPE, shell=True).stderr.read()
         hostname = self.env.id
         logdir = self.env.config.getOption("report-dir", "puppet", "/var/log/puppet")
-    
+
         # Create yaml report in case of critical errors
         if msg != "":
             now = datetime.now()
             ftime = now.strftime("%Y-%m-%d %H:%M:%S.%f %z") + \
                 get_timezone_delta()
-    
+
             # Create structure if missing
             output_dir = logdir + "/" + hostname
             if not os.path.exists(output_dir):
                 os.makedirs(output_dir)
-    
+
             # Write yaml file
             output_file = output_dir + "/" + now.strftime("%Y%m%d%H%M.yaml")
             with open(output_file, "w") as f:
                 f.write("""--- !ruby/object:Puppet::Transaction::Report
   external_times: {}
   host: %(hostname)s
-  logs: 
+  logs:
     - !ruby/object:Puppet::Util::Log
       level: !ruby/sym critical
       message: %(message)s
       source: Puppet
-      tags: 
+      tags:
         - critical
       time: %(time)s
       version: &id001 2.6.0
