@@ -1,5 +1,0 @@
-Please make sure that the service is excecuted as a domain admin!
-
-To get this module running, you need at least this module:
-
-easy_install http://timgolden.me.uk/python/downloads/active_directory-0.6.7.zip
