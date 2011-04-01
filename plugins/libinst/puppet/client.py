@@ -178,7 +178,10 @@ class PuppetClient(Plugin):
             self.env.log.debug("installing post-update hook")
             with open(git_path + "/hooks/post-update", "w") as f:
                 f.write("#!/bin/sh\ngit archive --format=tar HEAD | " +
-                    "(cd %s && tar xf -)" % self.__target_dir)
+                    "(cd %s && tar xf -)\n" +
+                    "dbus-send --system --type=method_call " +
+                    "--dest=com.gonicus.gosa /com/gonicus/gosa/puppet " +
+                    "com.gonicus.gosa.run_puppet" % self.__target_dir)
 
             os.chmod(git_path + "/hooks/post-update", 0755)
 
@@ -226,7 +229,7 @@ class PuppetClient(Plugin):
         with open(self.__base_dir + "/.ssh/authorized_keys", "w") as f:
             lockf(f, LOCK_EX)
             for id, key in keys.iteritems():
-                f.write("%s %s %s command=\"git-shell -c '$SSH_ORIGINAL_COMMAND'\"" % (key['type'], key['data'], id))
+                f.write("command=\"git-shell -c \\\"$SSH_ORIGINAL_COMMAND\\\"\" %s %s %s" % (key['type'], key['data'], id))
             lockf(f, LOCK_UN)
 
 
