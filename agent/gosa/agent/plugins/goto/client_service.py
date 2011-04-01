@@ -273,6 +273,11 @@ class ClientService(object):
         data = data.ClientAnnounce
         self.env.log.debug("client '%s' is joining us" % data.Id)
 
+        # Remove remaining proxy values for this client
+        if "client" in self.__proxy:
+            self.__proxy[client].close()
+            del self.__proxy[client]
+
         # Assemble caps
         caps = {}
         for method in data.ClientCapabilities.ClientMethod:
