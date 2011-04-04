@@ -21,6 +21,12 @@
 		</all>
 	</complexType>
 
+	<complexType name="NodeObject">
+        <all>
+			<element name="OID" type="string" maxOccurs="1" minOccurs="1"></element>
+			<element name="Signature" type="string" maxOccurs="1" minOccurs="0"></element>
+		</all>
+	</complexType>
 
 	<complexType name="NodeCapabilities">
         <annotation>
@@ -30,11 +36,12 @@ It contains a list of methods that are supported by the sending node.</documenta
         <sequence>
             <element name="Id" type="string" minOccurs="1"></element>
             <element name="NodeMethod" type="gosa:NodeMethod" maxOccurs="unbounded" minOccurs="0"></element>
+            <element name="NodeObject" type="gosa:NodeObject" maxOccurs="unbounded" minOccurs="0"></element>
         </sequence>
 	</complexType>
 
     <element name="NodeMethod" type="gosa:NodeMethod"></element>
-
+    <element name="NodeObject" type="gosa:NodeObject"></element>
     <element name="NodeCapabilities" type="gosa:NodeCapabilities"></element>
 
 </schema>

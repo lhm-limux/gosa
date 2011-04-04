@@ -257,7 +257,6 @@ class JSONRPCObjectMapper(object):
     #TODO: move store to memcache or DB in order to allow shared
     #      objects accross agent instances
     __store = {}
-    __object_registry = {}
 
     @Command(__doc__=N_("Close object and remove it from stack"))
     def closeObject(self, ref):
@@ -268,6 +267,7 @@ class JSONRPCObjectMapper(object):
 
     @Command(__doc__=N_("Set property for object on stack"))
     def setObjectProperty(self, ref, name, value):
+        #TODO: forward to correct node if it's not us
         if not ref in JSONRPCObjectMapper.__store:
             raise ValueError("reference %s not found" % ref)
         if not name in JSONRPCObjectMapper.__store[ref]['properties']:
@@ -277,6 +277,7 @@ class JSONRPCObjectMapper(object):
 
     @Command(__doc__=N_("Get property from object on stack"))
     def getObjectProperty(self, ref, name):
+        #TODO: forward to correct node if it's not us
         if not ref in JSONRPCObjectMapper.__store:
             raise ValueError("reference %s not found" % ref)
         if not name in JSONRPCObjectMapper.__store[ref]['properties']:
@@ -285,6 +286,7 @@ class JSONRPCObjectMapper(object):
 
     @Command(__doc__=N_("Call method from object on stack"))
     def dispatchObjectMethod(self, ref, method, *args):
+        #TODO: forward to correct node if it's not us
         if not ref in JSONRPCObjectMapper.__store:
             raise ValueError("reference %s not found" % ref)
         if not method in JSONRPCObjectMapper.__store[ref]['methods']:
@@ -293,6 +295,8 @@ class JSONRPCObjectMapper(object):
 
     @Command(__doc__=N_("Instantiate object and place it on stack"))
     def openObject(self, oid, *args, **kwargs):
+        #TODO: forward to correct node if it's not us
+        env = Environment.getInstance()
 
         # Use oid to find the object type
         obj_type = self.__get_object_type(oid)
@@ -303,7 +307,11 @@ class JSONRPCObjectMapper(object):
 
         # Make object instance and store it
         obj = obj_type(*args, **kwargs)
-        JSONRPCObjectMapper.__store[ref] = {'object': obj, 'methods': methods, 'properties': properties}
+        JSONRPCObjectMapper.__store[ref] = {
+                'node': env.id,
+                'object': obj,
+                'methods': methods,
+                'properties': properties}
 
         # Build property dict
         propvals = {}
@@ -316,20 +324,11 @@ class JSONRPCObjectMapper(object):
 
         return result
 
-    @Command(__doc__=N_("List proxyable objects"))
-    def listRegisteredOIDs(self, *args, **kwargs):
-        return [oid for oid in JSONRPCObjectMapper.__store]
-
-    @staticmethod
-    def registerObject(oid, obj):
-        #TODO: add __init__ signature
-        JSONRPCObjectMapper.__store[oid] = obj
-
     def __get_object_type(self, oid):
-        if not oid in JSONRPCObjectMapper.__store:
+        if not oid in PluginRegistry.objects:
             raise Exception("Unknown object OID %s" % oid)
 
-        return JSONRPCObjectMapper.__store[oid]
+        return PluginRegistry.objects[oid]['object']
 
     def __inspect(self, clazz):
         methods = []
@@ -373,5 +372,5 @@ class Blumentopf(object):
     def farbe(self):
         self.__farbe = None
 
-JSONRPCObjectMapper.registerObject('test.blumentopf', Blumentopf)
+PluginRegistry.registerObject('test.blumentopf', Blumentopf)
 #TODO: Remove object test 8<---------------------------

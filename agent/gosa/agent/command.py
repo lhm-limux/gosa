@@ -392,10 +392,21 @@ class CommandRegistry(object):
                     e.Type(mtype),
                     e.QueueRequired('true' if info['needsQueue'] else 'false'),
                     e.Documentation(info['doc'])))
+
+        for obj, info in PluginRegistry.objects.iteritems():
+            if info['signature']:
+                methods.append(
+                    e.NodeObject(
+                        e.OID(obj),
+                        e.Signature(info['signature'])))
+            else:
+                methods.append(e.NodeObject(e.OID(obj)))
+
         caps = e.Event(
             e.NodeCapabilities(
                 e.Id(self.env.id),
                 *methods))
+
         amqp.sendEvent(caps)
 
     def _handleNodeCapabilities(self, data):

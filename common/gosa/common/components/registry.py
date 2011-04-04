@@ -22,6 +22,7 @@ class PluginRegistry(object):
     """
     modules = {}
     handlers = {}
+    objects = {}
 
     def __init__(self, component="gosa.modules"):
         """
@@ -80,6 +81,15 @@ class PluginRegistry(object):
         for handler, clazz  in PluginRegistry.handlers.iteritems():
             if hasattr(clazz, 'stop'):
                 clazz.stop()
+
+    @staticmethod
+    def registerObject(oid, obj):
+        if oid in  PluginRegistry.objects:
+            raise ValueError("OID '%s' is already registerd!" % oid)
+
+        PluginRegistry.objects[oid] = {
+            'object': obj,
+            'signature': None}
 
     @staticmethod
     def getInstance(name):
