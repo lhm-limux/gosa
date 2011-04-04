@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
 
-
 setup(
     name = "libinst",
     version = "1.0",
@@ -54,7 +53,7 @@ for various systems in your setup.
 
     entry_points = """
         [libinst.repository]
-        libinst.debian_handler = libinst.debian.main:DebianHandler
+        libinst.debian_handler = debian_repository.main:DebianHandler
 
         [libinst.methods]
         libinst.puppet = puppet.methods:PuppetInstallMethod

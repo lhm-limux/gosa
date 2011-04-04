@@ -23,8 +23,6 @@ from repository import Architecture, Component, Distribution, File, Section, \
 from libinst.repository import Base, Package, Repository, Section, \
     Architecture, Component, Release, Distribution, Type, File, Keyring, \
     ConfigItem, ConfigItemReleases
-from libinst.debian.model import DebianDistribution, DebianRelease, \
-    DebianPriority, DebianPackage, DebianComponent
 from types import StringTypes
 
 from gosa.common.env import Environment
@@ -128,7 +126,6 @@ class RepositoryManager(Plugin):
             "methods":["puppet"]},
             }
 
-    #TODO: This is a dummy function
     @Command(__doc__=N_("List the available installation methods"))
     def getSupportedInstallMethods(self):
         methods = {}

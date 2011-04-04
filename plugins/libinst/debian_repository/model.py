@@ -22,7 +22,7 @@ from gosa.common.env import Environment
 from pkg_resources import resource_filename
 
 # Include locales
-t = gettext.translation('messages', resource_filename("libinst.debian", "locale"), fallback=True)
+t = gettext.translation('messages', resource_filename("debian_repository", "locale"), fallback=True)
 _ = t.ugettext
 
 class DebianPriority(Base, UseInnoDB):

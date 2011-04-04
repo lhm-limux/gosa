@@ -8,7 +8,7 @@
  See LICENSE for more information about the licensing.
 """
 
-from libinst.debian.model import DebianPackage, DebianPriority, DebianDistribution, DebianRelease
+from model import DebianPackage, DebianPriority, DebianDistribution, DebianRelease
 from libinst.interface import DistributionHandler
 from libinst.repository import *
 from sqlalchemy.orm.exc import NoResultFound
@@ -37,7 +37,7 @@ from gosa.common.utils import N_
 from pkg_resources import resource_filename
 
 # Include locales
-t = gettext.translation('messages', resource_filename("libinst.debian", "locale"), fallback=True)
+t = gettext.translation('messages', resource_filename("debian_repository", "locale"), fallback=True)
 _ = t.ugettext
 
 class DebianHandler(DistributionHandler):

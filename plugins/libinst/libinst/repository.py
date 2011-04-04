@@ -283,6 +283,7 @@ class Distribution(Base, UseInnoDB):
     discriminator = Column('discriminator', String(50))
     path = Column(String(255))
     last_updated = Column(DateTime)
+    base_installation_method = Column(String(255))
     installation_method = Column(String(255))
     mirror_sources = Column(Boolean, default=False)
     __mapper_args__ = {'polymorphic_on': discriminator}
@@ -306,6 +307,7 @@ class Distribution(Base, UseInnoDB):
             "path": self.path,
             "last_updated": self.last_updated,
             "installation_method": self.installation_method,
+            "base_installation_method": self.base_installation_method,
             "mirror_sources": self.mirror_sources,
         }
 
