@@ -67,6 +67,7 @@ class CommandRegistry(object):
     _target_ = 'core'
 
     capabilities = {}
+    objects = {}
     commands = {}
     nodes = {}
     proxy = {}
@@ -228,7 +229,7 @@ class CommandRegistry(object):
                         __getattribute__(method)(*arg, **larg)
             else:
                 # Sort nodes by load, use first which is in [func][provider]
-                nodes = sorted(self.nodes.items(), lambda x, y: cmp(x[1]['load'], y[1]['load']))
+                nodes = self.get_load_sorted_nodes()
 
                 # Get first match that is a provider for this function
                 for provider, node in nodes:
@@ -362,6 +363,9 @@ class CommandRegistry(object):
         p.sub('', queue)
         return self.env.domain + '.command.%s' % PluginRegistry.modules[clazz].__getattribute__('_target_') == p.sub('', queue)
 
+    def get_load_sorted_nodes(self):
+        return sorted(self.nodes.items(), lambda x, y: cmp(x[1]['load'], y[1]['load']))
+
     def __del__(self):
         self.env.log.debug("shutting down command registry")
 
@@ -429,6 +433,15 @@ class CommandRegistry(object):
 
             # Append the sender as a new provider
             self.capabilities[methodName]['provider'].append(data.Id.text)
+
+        # Add objects
+        for obj in data.NodeObject:
+            oid = obj.OID.text
+            if not oid in self.objects:
+                self.objects[oid] = []
+
+            # Append the sender as a new provider
+            self.objects[oid].append(data.Id.text)
 
     def _handleNodeStatus(self, data):
         data = data.NodeStatus

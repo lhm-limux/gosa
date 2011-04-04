@@ -27,6 +27,7 @@ from gosa.common.components.jsonrpc_proxy import JSONRPCException
 from gosa.common.components.registry import PluginRegistry
 from gosa.common.components.zeroconf import ZeroconfService
 from gosa.common.components.command import Command
+from gosa.common.components.amqp_proxy import AMQPServiceProxy
 
 
 class JsonRpcApp(object):
@@ -220,6 +221,8 @@ class JSONRPCService(object):
     """ GOsa JSON-RPC provider """
     implements(IInterfaceHandler)
 
+    __proxy = {}
+
     def __init__(self):
         env = Environment.getInstance()
         env.log.debug("initializing JSON RPC service provider")
@@ -257,6 +260,7 @@ class JSONRPCObjectMapper(object):
     #TODO: move store to memcache or DB in order to allow shared
     #      objects accross agent instances
     __store = {}
+    __proxy = {}
 
     @Command(__doc__=N_("Close object and remove it from stack"))
     def closeObject(self, ref):
@@ -267,35 +271,49 @@ class JSONRPCObjectMapper(object):
 
     @Command(__doc__=N_("Set property for object on stack"))
     def setObjectProperty(self, ref, name, value):
-        #TODO: forward to correct node if it's not us
         if not ref in JSONRPCObjectMapper.__store:
             raise ValueError("reference %s not found" % ref)
         if not name in JSONRPCObjectMapper.__store[ref]['properties']:
             raise ValueError("property %s not found" % name)
+
+        if not self.__can_be_handled_locally(ref):
+            proxy = self.__get_proxy(ref)
+            return proxy.setObjectProperty(ref, name, value)
 
         return setattr(JSONRPCObjectMapper.__store[ref]['object'], name, value)
 
     @Command(__doc__=N_("Get property from object on stack"))
     def getObjectProperty(self, ref, name):
-        #TODO: forward to correct node if it's not us
         if not ref in JSONRPCObjectMapper.__store:
             raise ValueError("reference %s not found" % ref)
         if not name in JSONRPCObjectMapper.__store[ref]['properties']:
             raise ValueError("property %s not found" % name)
+
+        if not self.__can_be_handled_locally(ref):
+            proxy = self.__get_proxy(ref)
+            return proxy.getObjectProperty(ref, name)
+
         return getattr(JSONRPCObjectMapper.__store[ref]['object'], name)
 
     @Command(__doc__=N_("Call method from object on stack"))
     def dispatchObjectMethod(self, ref, method, *args):
-        #TODO: forward to correct node if it's not us
         if not ref in JSONRPCObjectMapper.__store:
             raise ValueError("reference %s not found" % ref)
         if not method in JSONRPCObjectMapper.__store[ref]['methods']:
             raise ValueError("method %s not found" % name)
+
+        if not self.__can_be_handled_locally(ref):
+            proxy = self.__get_proxy(ref)
+            return proxy.dispatchObjectMethod(ref, method, *args)
+
         return getattr(JSONRPCObjectMapper.__store[ref]['object'], method)(*args)
 
     @Command(__doc__=N_("Instantiate object and place it on stack"))
     def openObject(self, oid, *args, **kwargs):
-        #TODO: forward to correct node if it's not us
+        if not self.__can_oid_be_handled_locally(oid):
+            proxy = self.__get_proxy_by_oid(oid)
+            return proxy.openObject(oid, *args)
+
         env = Environment.getInstance()
 
         # Use oid to find the object type
@@ -309,6 +327,7 @@ class JSONRPCObjectMapper(object):
         obj = obj_type(*args, **kwargs)
         JSONRPCObjectMapper.__store[ref] = {
                 'node': env.id,
+                'oid': oid,
                 'object': obj,
                 'methods': methods,
                 'properties': properties}
@@ -326,7 +345,7 @@ class JSONRPCObjectMapper(object):
 
     def __get_object_type(self, oid):
         if not oid in PluginRegistry.objects:
-            raise Exception("Unknown object OID %s" % oid)
+            raise ValueError("Unknown object OID %s" % oid)
 
         return PluginRegistry.objects[oid]['object']
 
@@ -344,6 +363,38 @@ class JSONRPCObjectMapper(object):
                 properties.append(part)
 
         return methods, properties
+
+    def __can_be_handled_locally(self, ref):
+        return self.__can_oid_be_handled_locally(
+                JSONRPCObjectMapper.__store[ref]['oid'])
+
+    def __can_oid_be_handled_locally(self, oid):
+        cr = PluginRegistry.getInstance('CommandRegistry')
+        if not oid in cr.objects:
+            raise ValueError("Unknown object OID %s" % oid)
+        return oid in PluginRegistry.objects
+
+    def __get_proxy(self, ref):
+        return self.__get_proxy_by_oid(
+                JSONRPCObjectMapper.__store[ref]['oid'])
+
+    def __get_proxy_by_oid(self, oid):
+        # Choose a possible node
+        cr = PluginRegistry.getInstance('CommandRegistry')
+        nodes = cr.get_load_sorted_nodes()
+
+        # Get first match that is a provider for this object
+        for provider, node in nodes:
+            if provider in cr.objects[oid]:
+                break
+
+        if not provider in self.__proxy:
+            env = Environment.getInstance()
+            queue = '%s.core.%s' % (env.domain, provider)
+            amqp = PluginRegistry.getInstance("AMQPHandler")
+            self.__proxy[provider] = AMQPServiceProxy(amqp.url['source'], queue)
+
+        return self.__proxy[provider]
 
 
 #TODO: Remove object test 8<---------------------------
