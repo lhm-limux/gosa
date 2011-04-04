@@ -76,7 +76,7 @@ class ObjectFactory(object):
 
     @staticmethod
     def get_instance(proxy, obj_type, ref, oid, methods, properties, data=None):
-        return type(obj_type,
+        return type(str(obj_type),
                 (ObjectFactory, object),
                 ObjectFactory.__dict__.copy())(proxy, ref, oid, methods, properties, data)
 
@@ -134,7 +134,7 @@ class JSONServiceProxy(object):
             if "result" in resp and \
                 isinstance(resp["result"], DictType) and \
                 "__jsonclass__" in resp["result"] and \
-                resp["result"]["__jsonclass__"][0] == "gosa.common.components.jsonrpc.ObjectFactory":
+                resp["result"]["__jsonclass__"][0] == "json.ObjectFactory":
 
                 resp = resp["result"]
                 jc = resp["__jsonclass__"][1]

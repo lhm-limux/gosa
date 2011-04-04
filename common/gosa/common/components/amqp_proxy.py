@@ -13,11 +13,13 @@ from threading import Thread
 from lxml import objectify
 from qpid.messaging import *
 from qpid.util import URL
+from types import DictType
 from gosa.common.components.jsonrpc_proxy import JSONRPCException
 from jsonrpc.json import dumps, loads
 from gosa.common.components.amqp import AMQPProcessor
 from gosa.common.utils import parseURL, buildXMLSchema
 from lxml import etree, objectify
+from jsonrpc_proxy import ObjectFactory
 
 
 class AMQPServiceProxy(object):
@@ -179,7 +181,28 @@ class AMQPServiceProxy(object):
         if resp['error'] != None:
             AMQPServiceProxy.worker[queue][self.__worker]['locked'] = False
             raise JSONRPCException(resp['error'])
+
         else:
+            # Look for json class hint
+            if "result" in resp and \
+                isinstance(resp["result"], DictType) and \
+                "__jsonclass__" in resp["result"] and \
+                resp["result"]["__jsonclass__"][0] == "json.ObjectFactory":
+
+                resp = resp["result"]
+                jc = resp["__jsonclass__"][1]
+                del resp["__jsonclass__"]
+
+                # Extract property presets
+                data = {}
+                for prop in resp:
+                    data[prop] = resp[prop]
+
+                jc.insert(0, AMQPServiceProxy(self.__serviceURL, self.__serviceAddress, None, self.__conn))
+                jc.append(data)
+                AMQPServiceProxy.worker[queue][self.__worker]['locked'] = False
+                return ObjectFactory.get_instance(*jc)
+
             AMQPServiceProxy.worker[queue][self.__worker]['locked'] = False
             return resp['result']
 

@@ -136,6 +136,7 @@ class JsonRpcApp(object):
                 message=text,
                 error=text)
             self.env.log.warning(text)
+
             return Response(
                 status=500,
                 content_type='application/json',
@@ -316,7 +317,7 @@ class JSONRPCObjectMapper(object):
         return result
 
     @Command(__doc__=N_("List proxyable objects"))
-    def listRegisteredOIDs(self, oid, *args, **kwargs):
+    def listRegisteredOIDs(self, *args, **kwargs):
         return [oid for oid in JSONRPCObjectMapper.__store]
 
     @staticmethod
@@ -344,3 +345,33 @@ class JSONRPCObjectMapper(object):
                 properties.append(part)
 
         return methods, properties
+
+
+#TODO: Remove object test 8<---------------------------
+
+class Blumentopf(object):
+
+    __farbe = "braun"
+
+    def giessen(self, menge=1.0):
+        if menge > 1.0:
+            print "----> Blumentopf läuft über"
+            return False
+
+        print "----> Blumentopf giessen mit %fl" % menge
+        return True
+
+    @property
+    def farbe(self):
+        return self.__farbe
+
+    @farbe.setter
+    def farbe(self, value):
+        self.__farbe = value
+
+    @farbe.deleter
+    def farbe(self):
+        self.__farbe = None
+
+JSONRPCObjectMapper.registerObject('test.blumentopf', Blumentopf)
+#TODO: Remove object test 8<---------------------------
