@@ -1,16 +1,13 @@
 import select
 import sys
 import platform
-from threading import Thread
 
 if platform.system() != "Windows":
+    from gosa.common.components.dbus_runner import DBusRunner
     import dbus
-    import gobject
     import avahi
-    from dbus import DBusException
-    from dbus.mainloop.glib import DBusGMainLoop
-    from dbus import glib
 else:
+    from threading import Thread
     import pybonjour
 
 
@@ -63,38 +60,27 @@ class ZeroconfClient(object):
     def start(self):
 
         if platform.system() == "Linux":
-
-            loop = DBusGMainLoop()
-            self.__bus = dbus.SystemBus(mainloop=loop)
+            self.__runner = DBusRunner()
+            bus = self.__runner.get_system_bus()
             self.__server = dbus.Interface(
-                                self.__bus.get_object(avahi.DBUS_NAME, '/'),
+                                bus.get_object(avahi.DBUS_NAME, '/'),
                                 'org.freedesktop.Avahi.Server')
-            sbrowser = dbus.Interface(self.__bus.get_object(avahi.DBUS_NAME,
+            sbrowser = dbus.Interface(bus.get_object(avahi.DBUS_NAME,
                            self.__server.ServiceBrowserNew(avahi.IF_UNSPEC,
                            avahi.PROTO_UNSPEC, self.__regtype, 'local',
                            dbus.UInt32(0))),
                            avahi.DBUS_INTERFACE_SERVICE_BROWSER)
             sbrowser.connect_to_signal("ItemNew", self.__browseCallbackAvahi)
-            self.active = True
+            self.__runner.start()
 
         else:
-            """
-            Start the bonjour event processing.
-            """
             self.active = True
+
+            # Start the bonjour event processing.
             browse_sdRef = pybonjour.DNSServiceBrowse(regtype=self.__regtype,
             callBack=self.__browseCallback)
 
-        def runner():
-            if platform.system() == "Linux":
-                gobject.threads_init()
-                glib.init_threads()
-                context = gobject.MainLoop().get_context()
-
-                while self.active:
-                    context.iteration(True)
-
-            else:
+            def runner():
                 try:
                     while self.active:
                         ready = select.select([browse_sdRef], [], [],
@@ -104,15 +90,19 @@ class ZeroconfClient(object):
                 finally:
                     browse_sdRef.close()
 
-        self.__thread = Thread(target=runner)
-        self.__thread.start()
+            self.__thread = Thread(target=runner)
+            self.__thread.start()
 
     def stop(self):
         """
         Stop the bonjour event processing.
         """
-        self.active = False
-        self.__thread.join()
+        if platform.system() == "Linux":
+            self.__runner.stop()
+
+        else:
+            self.active = False
+            self.__thread.join()
 
     def __resolveCallback(self, sdRef, flags, interfaceIndex, errorCode,
                         fullname, hosttarget, port, txtRecord):
