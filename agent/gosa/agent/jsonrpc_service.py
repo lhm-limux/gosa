@@ -250,42 +250,45 @@ class JSONRPCService(object):
         self.__http.app.unregister(self.path)
 
 
-
-
 class JSONRPCObjectMapper(object):
-    store = {}
+    _target_ = 'core'
+
+    #TODO: move store to memcache or DB in order to allow shared
+    #      objects accross agent instances
+    __store = {}
+    __object_registry = {}
 
     @Command(__doc__=N_("Close object and remove it from stack"))
     def closeObject(self, ref):
-        if not ref in self.store:
+        if not ref in JSONRPCObjectMapper.__store:
             raise ValueError("reference %s not found" % ref)
 
-        del self.store[ref]
+        del JSONRPCObjectMapper.__store[ref]
 
     @Command(__doc__=N_("Set property for object on stack"))
     def setObjectProperty(self, ref, name, value):
-        if not ref in self.store:
+        if not ref in JSONRPCObjectMapper.__store:
             raise ValueError("reference %s not found" % ref)
-        if not name in self.store[ref]['properties']:
+        if not name in JSONRPCObjectMapper.__store[ref]['properties']:
             raise ValueError("property %s not found" % name)
 
-        return setattr(self.store[ref]['object'], name, value)
+        return setattr(JSONRPCObjectMapper.__store[ref]['object'], name, value)
 
     @Command(__doc__=N_("Get property from object on stack"))
     def getObjectProperty(self, ref, name):
-        if not ref in self.store:
+        if not ref in JSONRPCObjectMapper.__store:
             raise ValueError("reference %s not found" % ref)
-        if not name in self.store[ref]['properties']:
+        if not name in JSONRPCObjectMapper.__store[ref]['properties']:
             raise ValueError("property %s not found" % name)
-        return getattr(self.store[ref]['object'], name)
+        return getattr(JSONRPCObjectMapper.__store[ref]['object'], name)
 
     @Command(__doc__=N_("Call method from object on stack"))
     def dispatchObjectMethod(self, ref, method, *args):
-        if not ref in self.store:
+        if not ref in JSONRPCObjectMapper.__store:
             raise ValueError("reference %s not found" % ref)
-        if not method in self.store[ref]['methods']:
+        if not method in JSONRPCObjectMapper.__store[ref]['methods']:
             raise ValueError("method %s not found" % name)
-        return getattr(self.store[ref]['object'], method)(*args)
+        return getattr(JSONRPCObjectMapper.__store[ref]['object'], method)(*args)
 
     @Command(__doc__=N_("Instantiate object and place it on stack"))
     def openObject(self, oid, *args, **kwargs):
@@ -297,11 +300,9 @@ class JSONRPCObjectMapper(object):
         # Load instance, fill with dummy stuff
         ref = str(uuid.uuid1())
 
-        #TODO: read only?, args?
-        obj = obj_type()
-
-        # Store object
-        self.store[ref] = {'object': obj, 'methods': methods, 'properties': properties}
+        # Make object instance and store it
+        obj = obj_type(*args, **kwargs)
+        JSONRPCObjectMapper.__store[ref] = {'object': obj, 'methods': methods, 'properties': properties}
 
         # Build property dict
         propvals = {}
@@ -314,12 +315,20 @@ class JSONRPCObjectMapper(object):
 
         return result
 
+    @Command(__doc__=N_("List proxyable objects"))
+    def listRegisteredOIDs(self, oid, *args, **kwargs):
+        return [oid for oid in JSONRPCObjectMapper.__store]
+
+    @staticmethod
+    def registerObject(oid, obj):
+        #TODO: add __init__ signature
+        JSONRPCObjectMapper.__store[oid] = obj
+
     def __get_object_type(self, oid):
-        # Hard coded for now...
-        #obj_type = "preseed.DebianDiskDefinition"
-        #(module, clazz) = obj_type.rsplit(".", 1)
-        #return getattr(globals()[module], clazz)
-        return None
+        if not oid in JSONRPCObjectMapper.__store:
+            raise Exception("Unknown object OID %s" % oid)
+
+        return JSONRPCObjectMapper.__store[oid]
 
     def __inspect(self, clazz):
         methods = []

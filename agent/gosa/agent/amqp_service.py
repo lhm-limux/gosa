@@ -118,6 +118,14 @@ class AMQPService(object):
             try:
                 res = self.__cr.dispatch(message.user_id, queue, name, *args)
             except Exception, e:
+
+                #TODO: removeme
+                print '-'*60
+                traceback.print_exc(file=sys.stderr)
+                print '-'*60
+
+                text = traceback.format_exc()
+                env.log.error(text)
                 err = str(e)
                 exc_value = sys.exc_info()[1]
 
