@@ -201,7 +201,23 @@ class InstallMethod(object):
                 }
 
         """
-        return self._supportedItems
+        res = {}
+
+        for item, value in self._supportedItems.items():
+            res[item] = {
+                    "name": value['name'],
+                    "description": value['description'],
+                    "container": value['container'],
+                    "options": {},
+                    }
+
+            # Copy all elements that do not contain objects
+            for oitem, ovalue in value['options'].items():
+                res[item]['options'][oitem] = {}
+                for ditem, dvalue in ovalue.items():
+                    if ditem != "check":
+                        res[item]['options'][oitem][ditem] = dvalue
+        return res
 
     def listItems(self, release, item_type=None, path=None, children=None):
         """

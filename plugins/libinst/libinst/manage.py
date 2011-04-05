@@ -128,19 +128,21 @@ class RepositoryManager(Plugin):
 
     @Command(__doc__=N_("List the available installation methods"))
     def getSupportedInstallMethods(self):
+        import copy
         methods = {}
         for method, obj in self.install_method_reg.iteritems():
             methods[method] = obj.getInfo()
 
             # Remove checks and modules
-            items = obj.getItemTypes()
-            for k, v in obj.getItemTypes().iteritems():
-                u = filter(lambda x: not x[0] in ['module'], a.items())
-                if 'options' in u and 'data' in u['options'] and 'check' in u['options']['data']:
-                    del u['options']['data']['check']
-                items[k] = u
+            #items = obj.getItemTypes()
+            #for k, v in obj.getItemTypes().iteritems():
+            #    if 'module' in u:
+            #        del u['module']
+            #    if 'options' in u and 'data' in u['options'] and 'check' in u['options']['data']:
+            #        del u['options']['data']['check']
+            #    items[k] = u
 
-            methods[method]["items"] = items
+            methods[method]["items"] = obj.getItemTypes()
             methods[method]["repositories"] = obj.getSupportedTypes()
 
         return methods
