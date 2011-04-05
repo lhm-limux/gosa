@@ -201,10 +201,10 @@ To install from SVN:
 (!) Make sure, you've entered the virtual environment using "source bin/activate"
     from inside the gosa-ng directory.
 
-Take a look at the gosa.conf present in the src/gosa/agent directory and adapt it
+Take a look at the agent.conf present in the src/gosa/agent directory and adapt it
 to your needs. Fire up the daemon in foreground mode:
 
-# gosa-agent -f --config=gosa/agent/gosa.conf
+# gosa-agent -f --config=gosa/agent/data/agent.conf
 
 
 6) Using the gosa-shell
