@@ -23,7 +23,7 @@ from repository import Architecture, Component, Distribution, File, Section, \
 from libinst.repository import Base, Package, Repository, Section, \
     Architecture, Component, Release, Distribution, Type, File, Keyring, \
     ConfigItem, ConfigItemReleases
-from types import StringTypes
+from types import StringTypes, DictType
 
 from gosa.common.env import Environment
 from gosa.common.components.command import Command, NamedArgs
@@ -67,22 +67,22 @@ class RepositoryManager(Plugin):
         engine = env.getDatabaseEngine("repository")
         Session = sessionmaker(bind=engine)
         self._session = Session()
-        self.path = env.config.getOption('path', section = 'repository')
+        self.path = env.config.getOption('path', section='repository')
         if not os.path.exists(self.path):
             try:
                 os.makedirs(self.path)
             except:
                 raise
 
-        db_purge = env.config.getOption('db_purge', section = 'repository')
+        db_purge = env.config.getOption('db_purge', section='repository')
         if db_purge == "True":
             self.initializeDatabase(engine)
 
         # Initialize internal repository instance
-        self._repository=self._getRepository(path = self.path, add=True)
+        self._repository = self._getRepository(path=self.path, add=True)
 
         # Load all repository handlers
-        self.type_reg= {}
+        self.type_reg = {}
         for entry in pkg_resources.iter_entry_points("libinst.repository"):
             module = entry.load()
             self.env.log.info("repository handler %s included" % module.__name__)
@@ -90,14 +90,14 @@ class RepositoryManager(Plugin):
                 self.type_reg[module_type] = module()
 
         # Load all installation methods
-        self.install_method_reg= {}
+        self.install_method_reg = {}
         for entry in pkg_resources.iter_entry_points("libinst.methods"):
             module = entry.load()
             self.env.log.info("installation method %s included " % module.__name__)
             self.install_method_reg[module.getInfo()['name'].lower()] = module(self)
 
         # Load all base installation methods
-        self.base_install_method_reg= {}
+        self.base_install_method_reg = {}
         for entry in pkg_resources.iter_entry_points("libinst.base_methods"):
             module = entry.load()
             self.env.log.info("base installation method %s included " % module.__name__)
@@ -119,11 +119,11 @@ class RepositoryManager(Plugin):
     def getSupportedBaseInstallMethods(self):
         for m in self.base_install_method_reg:
             print "---->", m
-        return { "preseed":{
-            "name":"Debian preseed",
-            "description":"Base installation using the debian installer",
-            "repositories":["deb"],
-            "methods":["puppet"]},
+        return {"preseed": {
+            "name": "Debian preseed",
+            "description": "Base installation using the debian installer",
+            "repositories": ["deb"],
+            "methods": ["puppet"]},
             }
 
     @Command(__doc__=N_("List the available installation methods"))
@@ -167,7 +167,7 @@ class RepositoryManager(Plugin):
     def getMirrorURL(self, release):
         result = None
         distribution = None
-        if not self.env.config.getOption('http_base_url', section = 'repository'):
+        if not self.env.config.getOption('http_base_url', section='repository'):
             raise ValueError(N_("Option 'http_base_url' in section 'repository' is not configured!"))
         if self._getDistribution(release.split('/')[0]):
             distribution = self._getDistribution(release.split('/')[0])
@@ -176,7 +176,7 @@ class RepositoryManager(Plugin):
             raise ValueError(N_("Release {release} was not found!").format(release=release))
         else:
             release = self._getRelease(release)
-        result = self.env.config.getOption('http_base_url', section = 'repository')
+        result = self.env.config.getOption('http_base_url', section='repository')
         if not result.endswith('/'):
             result += '/'
         if distribution is not None:
@@ -392,7 +392,7 @@ class RepositoryManager(Plugin):
             if not instance:
                 raise ValueError(N_("Distribution %s not found", distribution))
             else:
-                distribution=instance
+                distribution = instance
 
         if distribution.releases and recursive is not True:
             raise ValueError(N_("Distribution {distribution} contains releases. Need to set recursive or remove all releases to allow removal!").format(distribution=distribution.name))
@@ -585,7 +585,7 @@ class RepositoryManager(Plugin):
                 if component not in distribution.components:
                     distribution.components.append(component)
             if mirror_sources:
-                distribution.mirror_sources=mirror_sources
+                distribution.mirror_sources = mirror_sources
         else:
             raise ValueError(N_("Need a distribution to add properties"))
         try:
@@ -595,7 +595,6 @@ class RepositoryManager(Plugin):
             self._session.rollback()
             raise
         return result
-
 
     @Command(__doc__=N_("Remove existing properties from a mirrored distribution"))
     @NamedArgs("m_hash")
@@ -638,7 +637,6 @@ class RepositoryManager(Plugin):
             raise
         return result
 
-
     @Command(__doc__=N_("Update a local mirror"))
     @NamedArgs("m_hash")
     def updateMirror(self, m_hash=None, distribution=None):
@@ -658,7 +656,6 @@ class RepositoryManager(Plugin):
         else:
             raise ValueError(N_("Need a distribution to update"))
         return result
-
 
     def createMirror(self, distribution, release):
         #TODO
@@ -883,7 +880,6 @@ class RepositoryManager(Plugin):
             except:
                 self._session.rollback()
 
-
         if download_dir:
             try:
                 shutil.rmtree(download_dir)
@@ -894,7 +890,7 @@ class RepositoryManager(Plugin):
 
     @Command(__doc__=N_("Remove a package from the selected release"))
     @NamedArgs("m_hash")
-    def removePackage(self, package, m_hash=None, arch = None, release = None, distribution = None):
+    def removePackage(self, package, m_hash=None, arch=None, release=None, distribution=None):
         """
         removePackage removes a package from a release.
 
@@ -910,7 +906,7 @@ class RepositoryManager(Plugin):
         result = False
         package_name = package
         if isinstance(package, StringTypes):
-            package = self._getPackage(package, arch = arch)
+            package = self._getPackage(package, arch=arch)
 
         if package is not None:
             package_name = package.name
@@ -930,7 +926,7 @@ class RepositoryManager(Plugin):
     def addKeys(self, keys):
         result = False
         if not self._repository.keyring:
-            self._repository.keyring = Keyring(data = keys)
+            self._repository.keyring = Keyring(data=keys)
             work_dir = self._getGPGEnvironment()
             gpg = gnupg.GPG(gnupghome=work_dir)
             for key in gpg.list_keys(True):
@@ -959,7 +955,7 @@ class RepositoryManager(Plugin):
                 fp = key['fingerprint']
                 break
         if fp is not None:
-            if gpg.delete_keys(fp, secret = True).status == "ok":
+            if gpg.delete_keys(fp, secret=True).status == "ok":
                 self._repository.keyring.data = gpg.list_keys(True)
                 if self._repository.keyring.name == fp:
                     self._repository.keyring.name = None
@@ -985,16 +981,16 @@ class RepositoryManager(Plugin):
                 raise ValueError("Unknown release %s" % release)
             else:
                 release = instance
-        elif isinstance(release, DictTypes):
+        elif isinstance(release, DictType):
             pass
         elif not isinstance(release, Release):
             raise ValueError(N_("Argument release must either be a String or a Release"))
         if release.distribution.installation_method is None:
-            raise ValueError("Release %s has no installation method!" % release)
+            raise ValueError("Release %s has no installation method!" % release.name)
         elif release.distribution.installation_method not in self.install_method_reg:
-            raise ValueError("Unsupported installation method %s found for release %s " % (release.distribution.installation_method, release))
+            raise ValueError("Unsupported installation method %s found for release %s " % (release.distribution.installation_method, release.name))
         else:
-            result = self.install_method_reg[release.distribution.installation_method].listItems(release, item_type=item_type, path=path, children=children)
+            result = self.install_method_reg[release.distribution.installation_method].listItems(release.name, item_type=item_type, path=path, children=children)
         return result
 
     @Command(__doc__=N_("Set the data for the specified item"))
@@ -1007,11 +1003,11 @@ class RepositoryManager(Plugin):
             else:
                 release = instance
         if release.distribution.installation_method is None:
-            raise ValueError("Release %s has no installation method!" % release)
+            raise ValueError("Release %s has no installation method!" % release.name)
         elif release.distribution.installation_method not in self.install_method_reg:
-            raise ValueError("Unsupported installation method %s found for release %s " % (release.distribution.installation_method, release))
+            raise ValueError("Unsupported installation method %s found for release %s " % (release.distribution.installation_method, release.name))
         else:
-            result = self.install_method_reg[release.distribution.installation_method].setItem(release, path, item_type, data)
+            result = self.install_method_reg[release.distribution.installation_method].setItem(release.name, path, item_type, data)
         return result
 
     @Command(__doc__=N_("Remove the specified item and it's children"))
@@ -1024,11 +1020,12 @@ class RepositoryManager(Plugin):
             else:
                 release = instance
         if release.distribution.installation_method is None:
-            raise ValueError("Release %s has no installation method!" % release)
+            raise ValueError("Release %s has no installation method!" % release.name)
         elif release.distribution.installation_method not in self.install_method_reg:
-            raise ValueError("Unsupported installation method %s found for release %s " % (release.distribution.installation_method, release))
+            raise ValueError("Unsupported installation method %s found for release %s " % (release.distribution.installation_method,
+                        release.name))
         else:
-            result = self.install_method_reg[release.distribution.installation_method].removeItem(release, path, children)
+            result = self.install_method_reg[release.distribution.installation_method].removeItem(release.name, path, children)
         return result
 
     @Command(__doc__=N_("Return the data of specified item"))
@@ -1041,11 +1038,12 @@ class RepositoryManager(Plugin):
             else:
                 release = instance
         if release.distribution.installation_method is None:
-            raise ValueError("Release %s has no installation method!" % release)
+            raise ValueError("Release %s has no installation method!" % release.name)
         elif release.distribution.installation_method not in self.install_method_reg:
-            raise ValueError("Unsupported installation method %s found for release %s " % (release.distribution.installation_method, release))
+            raise ValueError("Unsupported installation method %s found for release %s " % (release.distribution.installation_method,
+                        release.name))
         else:
-            result = self.install_method_reg[release.distribution.installation_method].getItem(release, path)
+            result = self.install_method_reg[release.distribution.installation_method].getItem(release.name, path)
         return result
 
 #----------------------------------------
@@ -1135,7 +1133,7 @@ class RepositoryManager(Plugin):
             result = result.one()
         except NoResultFound:
             if add:
-                result = Repository(name = name, path = path)
+                result = Repository(name=name, path=path)
                 self._session.add(result)
         return result
 
@@ -1178,8 +1176,7 @@ class RepositoryManager(Plugin):
             self._session.rollback()
         return result
 
-
-    def _getConfigItem(self, name, item_type, release = None, add=False):
+    def _getConfigItem(self, name, item_type, release=None, add=False):
         result = None
         try:
             result = self._session.query(ConfigItem)
@@ -1195,7 +1192,6 @@ class RepositoryManager(Plugin):
             self._session.add(result)
         return result
 
-
     def _replaceConfigItems(self, release, items):
         result = None
 
@@ -1205,11 +1201,11 @@ class RepositoryManager(Plugin):
         # Iterate over DB Items, delete orphans
         for item_name, item_type in self.listItems(release).iteritems():
             if self._getConfigItem(item_name, item_type, release=release):
-               if item_name not in items:
-                   db_instance = self._getConfigItem(item_name, item_type, release=release)
-                   self._session.merge(db_instance)
-                   release.config_items.remove(db_instance)
-                   self._session.delete(db_instance)
+                if item_name not in items:
+                    db_instance = self._getConfigItem(item_name, item_type, release=release)
+                    self._session.merge(db_instance)
+                    release.config_items.remove(db_instance)
+                    self._session.delete(db_instance)
 
         # Iterate over FS scan, add missing items
         for item_name, item_type in items.iteritems():
@@ -1275,7 +1271,6 @@ class RepositoryManager(Plugin):
     def getSession(self):
         return self._session
 
-
     def _getGPGEnvironment(self):
         result = None
         work_dir = tempfile.mkdtemp()
@@ -1293,6 +1288,7 @@ class RepositoryManager(Plugin):
             gpg.import_keys(self._repository.keyring.data)
         result = work_dir
         return result
+
 
 class NotFoundException(Exception):
     pass
