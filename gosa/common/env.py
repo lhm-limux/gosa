@@ -15,6 +15,8 @@ import log
 import config
 import platform
 from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy import *
 from gosa.common.utils import dmi_system
 
 
@@ -47,6 +49,7 @@ class Environment:
     config = None
     noargs = False
     __instance = None
+    __db = {}
 
     def __init__(self):
         """
@@ -103,7 +106,19 @@ class Environment:
         @rtype: Engine
         @return: sqlalchemy engine object
         """
-        return create_engine(self.config.getOption(key, section))
+        index = "%s/%s" % (section, key)
+
+        if not index in self.__db:
+            self.__db[index] = create_engine(self.config.getOption(key, section),
+                    pool_size=40, pool_recycle=120)
+
+        return self.__db[index]
+
+    def getDatabaseSession(self, section, key="database"):
+        sql = self.getDatabaseEngine(section, key)
+        session = scoped_session(sessionmaker(autoflush=True))
+        session.configure(bind=sql)
+        return session()
 
     @staticmethod
     def getInstance():
