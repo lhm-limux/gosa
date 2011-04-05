@@ -336,8 +336,8 @@ setup(
         gosa-dbus = gosa.dbus.main:main
 
         [gosa_dbus.modules]
-        #gosa-dbus.command = gosa.dbus.command:DbusCommandRegistry
-        gosa-dbus.puppet = gosa.dbus.plugins.puppet.main:PuppetDbusHandler
+        gosa-dbus.shell = gosa.dbus.plugins.shell:DBusShellHandler
+        gosa-dbus.puppet = gosa.dbus.plugins.puppet.main:PuppetDBusHandler
     """,
 )
 

@@ -60,7 +60,7 @@ class ZeroconfClient(object):
     def start(self):
 
         if platform.system() == "Linux":
-            self.__runner = DBusRunner()
+            self.__runner = DBusRunner.get_instance()
             bus = self.__runner.get_system_bus()
             self.__server = dbus.Interface(
                                 bus.get_object(avahi.DBUS_NAME, '/'),

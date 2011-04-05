@@ -12,6 +12,7 @@ class DBusRunner(object):
 
     __bus = None
     __active = False
+    __instance = None
 
     def __init__(self):
         loop = DBusGMainLoop()
@@ -45,6 +46,9 @@ class DBusRunner(object):
 
     def get_system_bus(self):
         return DBusRunner.__bus
+
+    def is_active(self):
+        return self.__active
 
     @staticmethod
     def get_instance():

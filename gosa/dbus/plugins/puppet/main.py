@@ -11,7 +11,7 @@ from gosa.common.components.command import Command
 from gosa.dbus.utils import get_system_bus
 
 
-class PuppetDbusHandler(dbus.service.Object, Plugin):
+class PuppetDBusHandler(dbus.service.Object, Plugin):
     """ Puppet handler containing methods to be exported to DBUS """
 
     def __init__(self):
