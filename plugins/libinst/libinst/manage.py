@@ -103,10 +103,10 @@ class RepositoryManager(Plugin):
             self.env.log.info("base installation method %s included " % module.__name__)
             self.base_install_method_reg[module.getInfo()['name'].lower()] = module()
 
-    #===============================================================================
+    #==========================================================================
     # initialize all DB schema for an in Memory Database:
     # the parameter given here are not important
-    #===============================================================================
+    #==========================================================================
     def initializeDatabase(self, engine):
         a = Base()
         # pylint: disable-msg=E1101
@@ -135,11 +135,10 @@ class RepositoryManager(Plugin):
             # Remove checks and modules
             items = obj.getItemTypes()
             for k, v in obj.getItemTypes().iteritems():
-                if 'module' in v:
-                    del v['module']
-                if 'options' in v and 'data' in v['options'] and 'check' in v['options']['data']:
-                    del v['options']['data']['check']
-                items[k] = v
+                u = filter(lambda x: not x[0] in ['module'], a.items())
+                if 'options' in u and 'data' in u['options'] and 'check' in u['options']['data']:
+                    del u['options']['data']['check']
+                items[k] = u
 
             methods[method]["items"] = items
             methods[method]["repositories"] = obj.getSupportedTypes()
