@@ -254,7 +254,7 @@ setup(
         'nose',
         'NoseXUnit',
         'pylint',
-        'babel==0.9.5',
+        'babel',
         ],
     install_requires = client_install_requires,
     dependency_links = [
@@ -321,7 +321,7 @@ setup(
         'nose',
         'NoseXUnit',
         'pylint',
-        'babel==0.9.5',
+        'babel',
         ],
     install_requires = [
         'gosa.common',
@@ -379,7 +379,7 @@ setup(
     test_suite = "nose.collector",
     zip_safe = False,
 
-    setup_requires = ['nose', 'NoseXUnit', 'pylint', 'babel==0.9.5' ],
+    setup_requires = ['nose', 'NoseXUnit', 'pylint', 'babel' ],
     install_requires = ['gosa.common'],
 
     entry_points = """
