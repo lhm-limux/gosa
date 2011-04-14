@@ -23,8 +23,6 @@ from repository import Architecture, Component, Distribution, File, Section, \
 from libinst.repository import Base, Package, Repository, Section, \
     Architecture, Component, Release, Distribution, Type, File, Keyring, \
     ConfigItem, ConfigItemReleases
-from debian_repository.model import DebianPackage, DebianPriority, \
-    DebianDistribution, DebianRelease
 from types import StringTypes, DictType
 
 from gosa.common.env import Environment
@@ -76,13 +74,6 @@ class RepositoryManager(Plugin):
             except:
                 raise
 
-        db_purge = env.config.getOption('db_purge', section='repository')
-        if db_purge == "True":
-            self.initializeDatabase(engine)
-
-        # Initialize internal repository instance
-        self._repository = self._getRepository(path=self.path, add=True)
-
         # Load all repository handlers
         self.type_reg = {}
         for entry in pkg_resources.iter_entry_points("libinst.repository"):
@@ -104,6 +95,15 @@ class RepositoryManager(Plugin):
             module = entry.load()
             self.env.log.info("base installation method %s included " % module.__name__)
             self.base_install_method_reg[module.getInfo()['name'].lower()] = module()
+
+        # Purge DB if wanted
+        db_purge = env.config.getOption('db_purge', section='repository')
+        if db_purge == "True":
+            self.initializeDatabase(engine)
+
+        # Initialize internal repository instance
+        self._repository = self._getRepository(path=self.path, add=True)
+
 
     #==========================================================================
     # initialize all DB schema for an in Memory Database:
