@@ -23,6 +23,8 @@ from repository import Architecture, Component, Distribution, File, Section, \
 from libinst.repository import Base, Package, Repository, Section, \
     Architecture, Component, Release, Distribution, Type, File, Keyring, \
     ConfigItem, ConfigItemReleases
+from debian_repository.model import DebianPackage, DebianPriority, \
+    DebianDistribution, DebianRelease
 from types import StringTypes, DictType
 
 from gosa.common.env import Environment

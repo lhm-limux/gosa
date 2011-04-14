@@ -308,6 +308,8 @@ class InstallMethod(object):
 
         # Load parent object
         parent = self._get_parent(release, path)
+        if not parent:
+            raise ValueError("cannot find parent object for '%s'" % path)
 
         # Load instance of ConfigItem
         item = self._manager._getConfigItem(name=name, item_type=item_type, add=True)
@@ -323,7 +325,10 @@ class InstallMethod(object):
             item.name = data["name"]
 
         # Add us as child
+        item.path = path
         parent.children.append(item)
+        release_object = self._manager._getRelease(release)
+        release_object.config_items.append(item)
 
         # Try to commit the changes
         try:
@@ -350,15 +355,22 @@ class InstallMethod(object):
             children = self._manager._getRelease(release).config_items
 
         def filter_path(item):
-            return item.name.startswith(path + "/")
+            if item.path:
+                return item.path.startswith(path + "/")
+
+            return False
 
         # Remove children if exist
         matches = filter(filter_path, children)
         if matches:
             for child in matches:
-                print "Remove", child
-                self.removeItem(release, path, child.children)
                 self._manager._session.delete(child)
+
+        # Remove self
+        for me in children:
+            if path == me.path:
+                self._manager._session.delete(me)
+                break
 
         # Try to commit the changes
         try:

@@ -10,6 +10,7 @@
  See LICENSE for more information about the licensing.
 """
 import os
+import os.path
 import re
 import pwd
 import shutil
@@ -18,7 +19,7 @@ import pkg_resources
 from datetime import datetime
 from libinst.methods import InstallMethod
 from git import Repo
-from git.cmd import Git
+from git.cmd import Git, GitCommandError
 from subprocess import Popen, PIPE
 from threading import RLock
 from libinst.manage import RepositoryManager
@@ -264,6 +265,7 @@ class PuppetInstallMethod(InstallMethod):
             self.env.log.info("staging changes for module %s" % line)
 
             mode, file_path = line.split(" ", 1)
+            file_path = os.path.join(*file_path.split("/")[1:])
 
             # Remove data?
             if mode == "D":
@@ -281,8 +283,6 @@ class PuppetInstallMethod(InstallMethod):
         cmd.commit("-m", comment)
 
     def removeItem(self, release, path, comment=None):
-        super(PuppetInstallMethod, self).removeItem(release, path)
-
         item_type = self._get_item(release, path).item_type
         target_path, target_name = self.__get_target(release, path)
         module = self._supportedItems[item_type]['module'](target_path, target_name)
@@ -294,7 +294,12 @@ class PuppetInstallMethod(InstallMethod):
 
         self.env.log.info("commiting changes for module %s" % target_name)
         cmd = Git(target_path)
-        cmd.commit("-a", "-m", comment)
+        try:
+            cmd.commit("-a", "-m", comment)
+        except GitCommandError as e:
+            self.env.log.debug("no commit for %s: %s" % (target_name, str(e)))
+
+        super(PuppetInstallMethod, self).removeItem(release, path)
 
     def gen_ssh_key(self, path, comment):
         for f in [path, path + ".pub"]:

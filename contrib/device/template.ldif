@@ -32,7 +32,7 @@ installTimeUTC: TRUE
 installRelease: debian/squeeze/1.0
 installMirrorDN: cn=amqp,ou=servers,ou=systems,dc=intranet,dc=gonicus,dc=de
 installKernelPackage: linux-image-2.6-686
-installRecipeDN: cn=reciepe-text,ou=devices,ou=systems,dc=gonicus,dc=de
+installRecipeDN: cn=reciepe-test,ou=devices,ou=systems,dc=gonicus,dc=de
 owner: cn=Pollmeier Cajus,ou=people,ou=Technik,dc=gonicus,dc=de
 
 dn: cn=reciepe-test,ou=systems,dc=gonicus,dc=de
