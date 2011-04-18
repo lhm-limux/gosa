@@ -17,7 +17,7 @@ import gnupg
 import re
 import gettext
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 from repository import Architecture, Component, Distribution, File, Section, \
     Type, Release, Package
 from libinst.repository import Base, Package, Repository, Section, \
@@ -65,7 +65,7 @@ class RepositoryManager(Plugin):
         env = Environment.getInstance()
         self.env = env
         engine = env.getDatabaseEngine("repository")
-        Session = sessionmaker(bind=engine)
+        Session = scoped_session(sessionmaker(autoflush=True, bind=engine))
         self._session = Session()
         self.path = env.config.getOption('path', section='repository')
         if not os.path.exists(self.path):
@@ -100,7 +100,6 @@ class RepositoryManager(Plugin):
         db_purge = env.config.getOption('db_purge', section='repository')
         if db_purge == "True":
             self.initializeDatabase(engine)
-
         # Initialize internal repository instance
         self._repository = self._getRepository(path=self.path, add=True)
 
@@ -350,7 +349,7 @@ class RepositoryManager(Plugin):
 
         if not self._getDistribution(name):
             if isinstance(type, StringTypes):
-                type = self._getType(type, True)
+                type = self._getType(type, add=True)
             if type is not None and type.name in self.type_reg:
                 result = self.type_reg[type.name].createDistribution(self._session, name, mirror=mirror)
                 if result is not None:
@@ -430,7 +429,6 @@ class RepositoryManager(Plugin):
 
         @type distribution: string
         @param distribution: distribution name
-                    self._session.delete(release)
 
         @type name: string
         @param name: release name
@@ -908,6 +906,7 @@ class RepositoryManager(Plugin):
         """
         result = False
         package_name = package
+
         if isinstance(package, StringTypes):
             package = self._getPackage(package, arch=arch)
 
@@ -1127,6 +1126,7 @@ class RepositoryManager(Plugin):
 
     def _getRepository(self, name=None, path=None, add=False):
         result = None
+
         try:
             result = self._session.query(Repository)
             if name:
