@@ -103,85 +103,92 @@ class TestDebianRepository(unittest.TestCase):
 
 
     def test_createRelease(self):
-        self.assertFalse("etch" in self.mgr.getReleases("debian"))
+        self.assertFalse("etch" in [r['name'] for r in self.mgr.getReleases("debian")])
         self.assertTrue(self.mgr.createRelease("debian", "etch"))
-        self.assertTrue("etch" in self.mgr.getReleases("debian"))
+        self.assertTrue("etch" in [r['name'] for r in self.mgr.getReleases("debian")])
 
 
     def test_createChildRelease1stLevel(self):
-        self.assertFalse("etch" in self.mgr.getReleases("debian"))
+        self.assertFalse("etch" in [r['name'] for r in self.mgr.getReleases("debian")])
         self.assertTrue(self.mgr.createRelease("debian", "etch"))
-        self.assertFalse("etch/4.0.1" in self.mgr.getReleases("debian"))
+        self.assertTrue("etch" in [r['name'] for r in self.mgr.getReleases("debian")])
+        self.assertFalse("etch/4.0.1" in [r['name'] for r in self.mgr.getReleases("debian")])
         self.assertTrue(self.mgr.createRelease("debian", "etch/4.0.1"))
-        self.assertTrue("etch/4.0.1" in self.mgr.getReleases("debian"))
+        self.assertTrue("etch/4.0.1" in [r['name'] for r in self.mgr.getReleases("debian")])
 
 
     def test_createChildRelease1stLevelFail(self):
-        self.assertFalse("etch" in self.mgr.getReleases("debian"))
-        self.assertFalse("etch/4.0.1" in self.mgr.getReleases("debian"))
+        self.assertFalse("etch" in [r['name'] for r in self.mgr.getReleases("debian")])
+        self.assertFalse("etch/4.0.1" in [r['name'] for r in self.mgr.getReleases("debian")])
         self.assertRaises(ValueError, self.mgr.createRelease, "debian", "etch/4.0.1")
-        self.assertFalse("etch/4.0.1" in self.mgr.getReleases("debian"))
+        self.assertFalse("etch/4.0.1" in [r['name'] for r in self.mgr.getReleases("debian")])
 
 
     def test_createChildReleaseDuplicateName(self):
-        self.assertFalse("etch" in self.mgr.getReleases("debian"))
+        self.assertFalse("etch" in [r['name'] for r in self.mgr.getReleases("debian")])
         self.assertTrue(self.mgr.createRelease("debian", "etch"))
-        self.assertFalse("etch/etch" in self.mgr.getReleases("debian"))
+        self.assertFalse("etch/etch" in [r['name'] for r in self.mgr.getReleases("debian")])
         self.assertTrue(self.mgr.createRelease("debian", "etch/etch"))
-        self.assertTrue("etch/etch" in self.mgr.getReleases("debian"))
+        self.assertTrue("etch/etch" in [r['name'] for r in self.mgr.getReleases("debian")])
 
 
     def test_createChildReleaseDuplicateNameWithRemoval(self):
-        self.assertFalse("etch" in self.mgr.getReleases("debian"))
+        self.assertFalse("etch" in [r['name'] for r in self.mgr.getReleases("debian")])
         self.assertTrue(self.mgr.createRelease("debian", "etch"))
-        self.assertFalse("etch/etch" in self.mgr.getReleases("debian"))
+        self.assertTrue("etch" in [r['name'] for r in self.mgr.getReleases("debian")])
+        self.assertFalse("etch/etch" in [r['name'] for r in self.mgr.getReleases("debian")])
         self.assertTrue(self.mgr.createRelease("debian", "etch/etch"))
-        self.assertTrue("etch/etch" in self.mgr.getReleases("debian"))
+        self.assertTrue("etch/etch" in [r['name'] for r in self.mgr.getReleases("debian")])
         self.assertTrue(self.mgr.removeRelease("etch/etch"))
-        self.assertFalse("etch/etch" in self.mgr.getReleases("debian"))
-        self.assertTrue("etch" in self.mgr.getReleases("debian"))
+        self.assertFalse("etch/etch" in [r['name'] for r in self.mgr.getReleases("debian")])
+        self.assertTrue("etch" in [r['name'] for r in self.mgr.getReleases("debian")])
 
 
     def test_createChildReleaseDuplicateNameWithRename(self):
-        self.assertFalse("etch" in self.mgr.getReleases("debian"))
-        self.assertFalse("etch/etch" in self.mgr.getReleases("debian"))
+        self.assertFalse("etch" in [r['name'] for r in self.mgr.getReleases("debian")])
+        self.assertFalse("etch/etch" in [r['name'] for r in self.mgr.getReleases("debian")])
         self.assertTrue(self.mgr.createRelease("debian", "etch"))
+        self.assertTrue("etch" in [r['name'] for r in self.mgr.getReleases("debian")])
         self.assertTrue(self.mgr.createRelease("debian", "etch/etch"))
-        self.assertTrue("etch/etch" in self.mgr.getReleases("debian"))
+        self.assertTrue("etch/etch" in [r['name'] for r in self.mgr.getReleases("debian")])
         self.assertTrue(self.mgr.renameRelease("etch", "etch2"))
-        self.assertTrue("etch2" in self.mgr.getReleases("debian"))
-        self.assertTrue("etch2/etch" in self.mgr.getReleases("debian"))
+        self.assertTrue("etch2" in [r['name'] for r in self.mgr.getReleases("debian")])
+        self.assertTrue("etch2/etch" in [r['name'] for r in self.mgr.getReleases("debian")])
 
 
     def test_createChildReleaseDuplicateNameWithRename2(self):
-        self.assertFalse("etch" in self.mgr.getReleases("debian"))
-        self.assertFalse("etch/etch" in self.mgr.getReleases("debian"))
-        self.assertFalse("etch/etch/etch" in self.mgr.getReleases("debian"))
+        self.assertFalse("etch" in [r['name'] for r in self.mgr.getReleases("debian")])
+        self.assertFalse("etch/etch" in [r['name'] for r in self.mgr.getReleases("debian")])
+        self.assertFalse("etch/etch/etch" in [r['name'] for r in self.mgr.getReleases("debian")])
         self.assertTrue(self.mgr.createRelease("debian", "etch"))
+        self.assertTrue("etch" in [r['name'] for r in self.mgr.getReleases("debian")])
         self.assertTrue(self.mgr.createRelease("debian", "etch/etch"))
+        self.assertTrue("etch/etch" in [r['name'] for r in self.mgr.getReleases("debian")])
         self.assertTrue(self.mgr.createRelease("debian", "etch/etch/etch"))
-        self.assertTrue("etch/etch/etch" in self.mgr.getReleases("debian"))
+        self.assertTrue("etch/etch/etch" in [r['name'] for r in self.mgr.getReleases("debian")])
         self.assertTrue(self.mgr.renameRelease("etch/etch", "etch/etch2"))
-        self.assertTrue("etch" in self.mgr.getReleases("debian"))
-        self.assertTrue("etch/etch2" in self.mgr.getReleases("debian"))
-        self.assertTrue("etch/etch2/etch" in self.mgr.getReleases("debian"))
+        self.assertTrue("etch" in [r['name'] for r in self.mgr.getReleases("debian")])
+        self.assertTrue("etch/etch2" in [r['name'] for r in self.mgr.getReleases("debian")])
+        self.assertTrue("etch/etch2/etch" in [r['name'] for r in self.mgr.getReleases("debian")])
 
 
     def test_createChildRelease3rdLevel(self):
-        self.assertFalse("etch" in self.mgr.getReleases("debian"))
+        self.assertFalse("etch" in [r['name'] for r in self.mgr.getReleases("debian")])
         self.assertTrue(self.mgr.createRelease("debian", "etch"))
-        self.assertFalse("etch/4.0.1" in self.mgr.getReleases("debian"))
+        self.assertTrue("etch" in [r['name'] for r in self.mgr.getReleases("debian")])
+        self.assertFalse("etch/4.0.1" in [r['name'] for r in self.mgr.getReleases("debian")])
         self.assertTrue(self.mgr.createRelease("debian", "etch/4.0.1"))
-        self.assertFalse("etch/4.0.1/prod" in self.mgr.getReleases("debian"))
+        self.assertTrue("etch/4.0.1" in [r['name'] for r in self.mgr.getReleases("debian")])
+        self.assertFalse("etch/4.0.1/prod" in [r['name'] for r in self.mgr.getReleases("debian")])
         self.assertTrue(self.mgr.createRelease("debian", "etch/4.0.1/prod"))
-        self.assertTrue("etch/4.0.1/prod" in self.mgr.getReleases("debian"))
+        self.assertTrue("etch/4.0.1/prod" in [r['name'] for r in self.mgr.getReleases("debian")])
 
 
     def test_createChildRelease3rdLevelFail(self):
-        self.assertFalse("etch/4.0.1" in self.mgr.getReleases("debian"))
-        self.assertFalse("etch/4.0.1/prod" in self.mgr.getReleases("debian"))
+        self.assertFalse("etch/4.0.1" in [r['name'] for r in self.mgr.getReleases("debian")])
+        self.assertFalse("etch/4.0.1/prod" in [r['name'] for r in self.mgr.getReleases("debian")])
         self.assertRaises(ValueError, self.mgr.createRelease, "debian", "etch/4.0.1/prod")
-        self.assertFalse("etch/4.0.1/prod" in self.mgr.getReleases("debian"))
+        self.assertFalse("etch/4.0.1/prod" in [r['name'] for r in self.mgr.getReleases("debian")])
 
 
     def test_releaseNameFail(self):

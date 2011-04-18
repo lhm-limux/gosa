@@ -110,7 +110,7 @@ class Environment:
 
         if not index in self.__db:
             self.__db[index] = create_engine(self.config.getOption(key, section),
-                    pool_size=40, pool_recycle=120)
+                    pool_size=40, pool_recycle=120, echo=True)
 
         return self.__db[index]
 

@@ -181,7 +181,7 @@ class Release(Base, UseInnoDB):
     name = Column(String(255), unique=True)
     parent_id = Column(Integer, ForeignKey('release.id'))
     # pylint: disable-msg=E1101
-    packages = relationship(Package, secondary=ReleasePackages.__table__, backref=backref('releases'))
+    packages = relationship(Package, secondary=ReleasePackages.__table__, backref=backref('releases', uselist=True))
     discriminator = Column(String(50))
     __mapper_args__ = {'polymorphic_on': discriminator}
 
