@@ -19,11 +19,7 @@ import gettext
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
-#from repository import Architecture, Component, Distribution, File, Section, \
-#    Type, Release, Package
-from libinst.repository import Base, Package, Repository, Section, \
-    Architecture, Component, Release, Distribution, Type, File, Keyring, \
-    ConfigItem, ConfigItemReleases
+from libinst.entities.config_item import ConfigItem
 
 from libinst.entities import Base
 from libinst.entities.architecture import Architecture
