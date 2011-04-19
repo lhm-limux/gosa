@@ -1,0 +1,40 @@
+# Attribute: configVariable
+#
+# This attribute keeps a parameter which may be used inside of the 
+# assigned configItems. They can be configured to handle special cases
+# for that node or group of nodes.
+#
+# As the syntax, use an assigment consisting of the variable name
+# and the value separated by a "=" sign.
+#
+attributetype (1.3.6.1.4.1.10098.3.2.1.50 NAME 'configVariable'
+	DESC 'Parameter assignement for installation'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+# Attribute: configItem
+#
+# A node can have multiple configItems which make up the final
+# configuration for that node (or group of nodes).
+#
+attributetype (1.3.6.1.4.1.10098.3.2.1.51 NAME 'configItem'
+	DESC 'An assigned configItem'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26)
+
+# Object: configRecipe
+#
+# In addition to installRecipe, the configRecipe object keeps all
+# information for the "after bootstrap" process: it's responsible
+# for config management of clients.
+#
+# It can either be placed inside of a installableDevice object, or
+# inside of an installProfile object. The first overrides the latter:
+#
+# If you've a profile which is assigned to a host, and define
+# certain attributes for the host directly, they preceed the
+# profile values. It may be cascaded with multiple profiles
+# by using the installRecipeDN.
+objectclass (1.3.6.1.4.1.10098.3.2.1.1.10 NAME 'configRecipe' SUP top AUXILIARY
+	DESC 'Puppet Client objectclass'
+	MAY (configItem $ configVariable ))
