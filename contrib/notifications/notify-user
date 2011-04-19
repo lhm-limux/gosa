@@ -46,7 +46,7 @@ class Notify(object):
         return self.__res
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     n = Notify()
     sys.exit(n.send("Ottfried on the run", "Hallo Welt!", actions=['Ja', 'Nein']))
 #sys.exit(n.send("Ottfried on the run", "Hallo Welt!",))
@@ -76,5 +76,5 @@ if __name__=='__main__':
 # 2) Nachricht mit Callbacks
 #    Timeout (mandatory), Titel, Nachricht (HTML), Icon, Urgency (low, normal, critical)
 #    "Button 1", "Button 2", ...
-#    
+#
 #    -> wartet auf bestätigung, max. timeout -> -1
