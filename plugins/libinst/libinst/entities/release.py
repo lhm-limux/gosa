@@ -7,17 +7,12 @@
 
  See LICENSE for more information about the licensing.
 """
-
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Table, Column, Integer, String, ForeignKey, Sequence
 from sqlalchemy.orm import relationship, backref
 
+from libinst.entities import Base, UseInnoDB
 from libinst.entities.package import Package
-
-Base = declarative_base()
-
-class UseInnoDB(object):
-        __table_args__ = {'mysql_engine': 'InnoDB'}
 
 
 class ReleasePackages(Base, UseInnoDB):

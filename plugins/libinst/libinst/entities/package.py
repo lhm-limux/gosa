@@ -18,10 +18,7 @@ from libinst.entities.file import File
 from libinst.entities.section import Section
 from libinst.entities.type import Type
 
-Base = declarative_base()
-
-class UseInnoDB(object):
-        __table_args__ = {'mysql_engine': 'InnoDB'}
+from libinst.entities import Base, UseInnoDB
 
 
 class PackageFiles(Base, UseInnoDB):

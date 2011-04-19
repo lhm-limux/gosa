@@ -14,12 +14,8 @@ from sqlalchemy.orm import relationship, backref
 
 from libinst.entities.package import Package
 
+from libinst.entities import Base, UseInnoDB
 from debian_repository.entities.priority import DebianPriority
-
-Base = declarative_base()
-
-class UseInnoDB(object):
-        __table_args__ = {'mysql_engine': 'InnoDB'}
 
 
 class DebianPackage(Package, UseInnoDB):

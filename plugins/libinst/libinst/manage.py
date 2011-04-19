@@ -24,9 +24,15 @@ from sqlalchemy.ext.declarative import declarative_base
 #from libinst.repository import Base, Package, Repository, Section, \
 #    Architecture, Component, Release, Distribution, Type, File, Keyring, \
 #    ConfigItem, ConfigItemReleases
-from libinst.entities.repository import Repository
+
+from libinst.entities import Base
+from libinst.entities.distribution import Distribution
+from libinst.entities.package import Package
 from libinst.entities.release import Release
+from libinst.entities.repository import Repository, RepositoryKeyring
 from libinst.entities.section import Section
+from libinst.entities.type import Type
+
 from types import StringTypes, DictType
 
 from gosa.common.env import Environment
@@ -49,8 +55,6 @@ ALLOWED_CHARS_DISTRIBUTION = "^[A-Za-z0-9\-_\.]+$"
 
 #TODO: ATM a host must have a dedicated database, path is not specific enough
 #      to identify hosts. What about other plugins?
-
-Base = declarative_base()
 
 class RepositoryManager(Plugin):
     """ The RepositoryManager allows managing several types of repositories.
@@ -934,7 +938,7 @@ class RepositoryManager(Plugin):
     def addKeys(self, keys):
         result = False
         if not self._repository.keyring:
-            self._repository.keyring = Keyring(data=keys)
+            self._repository.keyring = RepositoryKeyring(data=keys)
             work_dir = self._getGPGEnvironment()
             gpg = gnupg.GPG(gnupghome=work_dir)
             for key in gpg.list_keys(True):

@@ -34,6 +34,14 @@ from gosa.common.utils import N_
 
 from libinst.interface import DistributionHandler
 
+from libinst.entities.architecture import Architecture
+from libinst.entities.component import Component
+from libinst.entities.file import File
+from libinst.entities.release import Release
+from libinst.entities.repository import Repository
+from libinst.entities.section import Section
+from libinst.entities.type import Type
+
 from debian_repository.entities.package import DebianPackage
 from debian_repository.entities.priority import DebianPriority
 from debian_repository.entities.distribution import DebianDistribution

@@ -12,11 +12,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Table, Column, Integer, String, ForeignKey, Sequence
 from sqlalchemy.orm import relationship, backref
 
-Base = declarative_base()
-
-
-class UseInnoDB(object):
-    __table_args__ = {'mysql_engine': 'InnoDB'}
+from libinst.entities import Base, UseInnoDB
+from libinst.entities.component import Component
 
 
 class DebianComponent(Component, UseInnoDB):
