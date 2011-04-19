@@ -7,19 +7,6 @@
 
  See LICENSE for more information about the licensing.
 """
-
-from model import DebianPackage, DebianPriority, DebianDistribution, DebianRelease
-from libinst.interface import DistributionHandler
-from libinst.repository import *
-from sqlalchemy.orm.exc import NoResultFound
-
-try:
-    # pylint: disable-msg=F0401
-    from debian import debfile, deb822
-except:
-    # pylint: disable-msg=E0611
-    from debian_bundle import debfile, deb822
-
 import string
 import os
 import sys
@@ -31,8 +18,27 @@ import tempfile
 import urllib2
 import re
 import gettext
+
+from sqlalchemy.orm.exc import NoResultFound
+
+try:
+    # pylint: disable-msg=F0401
+    from debian import debfile, deb822
+except:
+    # pylint: disable-msg=E0611
+    from debian_bundle import debfile, deb822
+
+
 from gosa.common.env import Environment
 from gosa.common.utils import N_
+
+from libinst.interface import DistributionHandler
+
+from debian_repository.entities.package import DebianPackage
+from debian_repository.entities.priority import DebianPriority
+from debian_repository.entities.distribution import DebianDistribution
+from debian_repository.entities.release import DebianRelease
+
 # pylint: disable-msg=E0611
 from pkg_resources import resource_filename
 

@@ -12,7 +12,8 @@
 import re
 import os
 from gosa.common.env import Environment
-from libinst.repository import ConfigItem
+
+from libinst.entities.config_item import ConfigItem
 
 
 class InstallItem(object):

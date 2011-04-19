@@ -18,11 +18,15 @@ import re
 import gettext
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import sessionmaker, scoped_session
-from repository import Architecture, Component, Distribution, File, Section, \
-    Type, Release, Package
-from libinst.repository import Base, Package, Repository, Section, \
-    Architecture, Component, Release, Distribution, Type, File, Keyring, \
-    ConfigItem, ConfigItemReleases
+from sqlalchemy.ext.declarative import declarative_base
+#from repository import Architecture, Component, Distribution, File, Section, \
+#    Type, Release, Package
+#from libinst.repository import Base, Package, Repository, Section, \
+#    Architecture, Component, Release, Distribution, Type, File, Keyring, \
+#    ConfigItem, ConfigItemReleases
+from libinst.entities.repository import Repository
+from libinst.entities.release import Release
+from libinst.entities.section import Section
 from types import StringTypes, DictType
 
 from gosa.common.env import Environment
@@ -45,6 +49,8 @@ ALLOWED_CHARS_DISTRIBUTION = "^[A-Za-z0-9\-_\.]+$"
 
 #TODO: ATM a host must have a dedicated database, path is not specific enough
 #      to identify hosts. What about other plugins?
+
+Base = declarative_base()
 
 class RepositoryManager(Plugin):
     """ The RepositoryManager allows managing several types of repositories.
