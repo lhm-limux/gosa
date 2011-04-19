@@ -9,7 +9,7 @@
 
  See LICENSE for more information about the licensing.
 """
-import unidecode
+from unidecode import unidecode
 
 from gosa.common.components.command import Command
 from gosa.common.components.plugin import Plugin

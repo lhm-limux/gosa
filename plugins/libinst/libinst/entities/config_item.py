@@ -7,7 +7,7 @@
 
  See LICENSE for more information about the licensing.
 """
-
+import os
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Table, Column, Integer, String, ForeignKey, Sequence, UniqueConstraint
 from sqlalchemy.orm import relationship, backref

@@ -312,24 +312,24 @@ class InstallMethod(object):
         if not parent:
             raise ValueError("cannot find parent object for '%s'" % path)
 
-        # Load instance of ConfigItem
-        item = self._manager._getConfigItem(name=name, item_type=item_type, add=True)
-
         # Check if the current path is a container for that kind of
         # item type
         if not item_type in self._supportedItems[parent.item_type]['container']:
             raise ValueError("'%s' is not allowed for container '%s'" %
                     (item_type, parent.item_type))
 
+        # Load instance of ConfigItem
+        item = self._manager._getConfigItem(name=name, item_type=item_type, add=True)
+        item.path = path
+
         # Check if item will be renamed
         if "name" in data and name != data["name"]:
             item.name = data["name"]
 
         # Add us as child
-        item.path = path
-        parent.children.append(item)
         release_object = self._manager._getRelease(release)
         release_object.config_items.append(item)
+        parent.children.append(item)
 
         # Try to commit the changes
         try:
