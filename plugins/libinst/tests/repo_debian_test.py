@@ -3,7 +3,7 @@ import unittest
 
 from sqlalchemy.orm import sessionmaker
 from libinst.manage import RepositoryManager
-from libinst.repository import Type
+from libinst.entities.type import Type
 from gosa.common.env import Environment
 import pprint
 

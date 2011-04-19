@@ -26,6 +26,7 @@ from sqlalchemy.ext.declarative import declarative_base
 #    ConfigItem, ConfigItemReleases
 
 from libinst.entities import Base
+from libinst.entities.architecture import Architecture
 from libinst.entities.distribution import Distribution
 from libinst.entities.package import Package
 from libinst.entities.release import Release
