@@ -15,6 +15,7 @@ import urllib2
 import pkg_resources
 import gnupg
 import re
+import pytz
 import gettext
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -23,14 +24,17 @@ from libinst.entities.config_item import ConfigItem
 
 from libinst.entities import Base
 from libinst.entities.architecture import Architecture
+from libinst.entities.component import Component
 from libinst.entities.distribution import Distribution
 from libinst.entities.package import Package
 from libinst.entities.release import Release
 from libinst.entities.repository import Repository, RepositoryKeyring
 from libinst.entities.section import Section
 from libinst.entities.type import Type
-
 from types import StringTypes, DictType
+
+from libinst.system_locale import locale_map
+from libinst.keyboard_models import KeyboardModels
 
 from gosa.common.env import Environment
 from gosa.common.components.command import Command, NamedArgs
@@ -110,6 +114,8 @@ class RepositoryManager(Plugin):
         # Initialize internal repository instance
         self._repository = self._getRepository(path=self.path, add=True)
 
+        # Load keyboard models
+        self.keyboardModels = KeyboardModels().get_models()
 
     #==========================================================================
     # initialize all DB schema for an in Memory Database:
@@ -175,11 +181,10 @@ class RepositoryManager(Plugin):
     @Command(__doc__=N_("Get the external Repository URL for the given Release"))
     def getMirrorURL(self, release):
         result = None
-        distribution = None
         if not self.env.config.getOption('http_base_url', section='repository'):
             raise ValueError(N_("Option 'http_base_url' in section 'repository' is not configured!"))
-        if self._getDistribution(release.split('/')[0]):
-            distribution = self._getDistribution(release.split('/')[0])
+        distribution = self._getDistribution(release.split('/')[0])
+        if distribution:
             release = release.split('/', 1)[1]
         if not self._getRelease(release):
             raise ValueError(N_("Release {release} was not found!").format(release=release))
@@ -1055,6 +1060,32 @@ class RepositoryManager(Plugin):
             result = self.install_method_reg[release.distribution.installation_method].getItem(release.name, path)
         return result
 
+    @Command(__doc__=N_("Get supported system locales"))
+    def getSystemLocales(self):
+        return locale_map
+
+    @Command(__doc__=N_("Get supported keyboard models"))
+    def getKeyboardModels(self):
+        return self.keyboardModels
+
+    @Command(__doc__=N_("Get supported time zones"))
+    def getTimezones(self):
+        return pytz.all_timezones
+
+    @Command(__doc__=N_("Get kernel packages for the specified release"))
+    def getKernelPackages(self, release):
+        distribution = self._getDistribution(release.split('/')[0])
+        if distribution:
+            release = self._getRelease(release.split('/', 1)[1])
+        else:
+            return []
+
+        repo_type = distribution.type.name
+        pname = self.type_reg[repo_type].getKernelPackageFilter()
+        return self.getPackages(release=release.name, custom_filter={'name': pname})
+
+#----------------------------------------
+#   HIER GEHTS LOS! ABER SO RICHTIG...
 #----------------------------------------
 
     def _getArchitecture(self, name, add=False):

@@ -32,9 +32,11 @@ class BaseInstall(object):
     #  installPartitionTable
     #  installRecipeDN -> Cascadiertes Rezept
 
+    #OK
     def installGetSystemLocales(self):
         return locale_map
 
+    #OK
     def installGetKeyboardModels(self):
         return self.keyboardModels
 
@@ -42,6 +44,7 @@ class BaseInstall(object):
         #TODO: read from repo
         return []
 
+    #OK
     def installGetTimezones(self):
         return pytz.all_timezones
 

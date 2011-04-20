@@ -107,6 +107,9 @@ class DebianHandler(DistributionHandler):
             raise
         return result
 
+    def getKernelPackageFilter(self):
+        return "linux-image"
+
     def addPackage(self, session, url, distribution=None, release=None, origin=None, component=None):
         if distribution:
             if isinstance(distribution, (str, unicode)):
