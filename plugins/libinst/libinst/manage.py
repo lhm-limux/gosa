@@ -568,6 +568,47 @@ class RepositoryManager(Plugin):
             result = self.type_reg[release.distribution.type.name].renameRelease(self._session, release, target)
         return result
 
+    @Command(__doc__=N_("Replace distribution properties"))
+    @NamedArgs("m_hash")
+    def setDistribution(self, m_hash=None, distribution=None, arch=None, component=None, mirror_sources=None):
+        result = None
+        if distribution:
+            if isinstance(distribution, StringTypes):
+                instance = self._getDistribution(distribution)
+                if not instance:
+                    raise ValueError(N_("Distribution %s was not found", distribution))
+                else:
+                    distribution = instance
+            #if arch:
+            #    if isinstance(arch, StringTypes):
+            #        instance = self._getArchitecture(arch, add=True)
+            #        if not instance:
+            #            raise ValueError(N_("Architecture %s was not found", arch))
+            #        else:
+            #            arch = instance
+            #    if arch not in distribution.architectures:
+            #        distribution.architectures.append(arch)
+            #if component:
+            #    if isinstance(component, StringTypes):
+            #        instance = self._getComponent(component, add=True)
+            #        if not instance:
+            #            raise ValueError(N_("Component %s was not found", component))
+            #        else:
+            #            component = instance
+            #    if component not in distribution.components:
+            #        distribution.components.append(component)
+            if mirror_sources:
+                distribution.mirror_sources = mirror_sources
+        else:
+            raise ValueError(N_("Need a distribution to add properties"))
+        try:
+            self._session.commit()
+            result = True
+        except:
+            self._session.rollback()
+            raise
+        return result
+
     @Command(__doc__=N_("Add new properties to a mirrored distribution"))
     @NamedArgs("m_hash")
     def addMirrorProperty(self, m_hash=None, distribution=None, arch=None, component=None, mirror_sources=None):
@@ -737,7 +778,7 @@ class RepositoryManager(Plugin):
                 result = filter(package_filter, release.packages)
         else:
             if custom_filter:
-                result = self._session.query(Package).filter(custom_filter)
+                result = self._session.query(Package.name.like(custom_filter))
             elif arch or section:
                 result = self._session.query(Package)
                 if arch:
