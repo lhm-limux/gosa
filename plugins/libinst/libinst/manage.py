@@ -17,6 +17,7 @@ import gnupg
 import re
 import pytz
 import gettext
+import ldap
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
@@ -38,6 +39,7 @@ from libinst.keyboard_models import KeyboardModels
 
 from gosa.common.env import Environment
 from gosa.common.components.command import Command, NamedArgs
+from gosa.agent.ldap_utils import LDAPHandler
 from gosa.common.components.plugin import Plugin
 from gosa.common.utils import N_
 # pylint: disable-msg=E0611
@@ -579,24 +581,47 @@ class RepositoryManager(Plugin):
                     raise ValueError(N_("Distribution %s was not found", distribution))
                 else:
                     distribution = instance
-            #if arch:
-            #    if isinstance(arch, StringTypes):
-            #        instance = self._getArchitecture(arch, add=True)
-            #        if not instance:
-            #            raise ValueError(N_("Architecture %s was not found", arch))
-            #        else:
-            #            arch = instance
-            #    if arch not in distribution.architectures:
-            #        distribution.architectures.append(arch)
-            #if component:
-            #    if isinstance(component, StringTypes):
-            #        instance = self._getComponent(component, add=True)
-            #        if not instance:
-            #            raise ValueError(N_("Component %s was not found", component))
-            #        else:
-            #            component = instance
-            #    if component not in distribution.components:
-            #        distribution.components.append(component)
+
+            # Handle architectures
+            if not arch:
+                arch = []
+
+            # Clean architectures that are not used anymore
+            for ar in distribution.architectures:
+                if not ar.name in arch:
+                    del distribution.architectures[ar]
+
+            # Add new architectures
+            for ar in arch:
+                if isinstance(ar, StringTypes):
+                    instance = self._getArchitecture(ar, add=True)
+                    if not instance:
+                        raise ValueError(N_("Architecture %s was not found", ar))
+                    else:
+                        ar = instance
+                if ar not in distribution.architectures:
+                    distribution.architectures.append(ar)
+
+            # Handle components
+            if not component:
+                component = []
+
+            # Clean components that are not used anymore
+            for cp in distribution.components:
+                if not cp.name in component:
+                    del distribution.components[cp]
+
+            # Add new components
+            for cp in component:
+                if isinstance(cp, StringTypes):
+                    instance = self._getComponent(cp, add=True)
+                    if not instance:
+                        raise ValueError(N_("Component %s was not found", cp))
+                    else:
+                        cp = instance
+                if cp not in distribution.components:
+                    distribution.components.append(cp)
+
             if mirror_sources:
                 distribution.mirror_sources = mirror_sources
         else:
@@ -1125,9 +1150,73 @@ class RepositoryManager(Plugin):
         pname = self.type_reg[repo_type].getKernelPackageFilter()
         return self.getPackages(release=release.name, custom_filter={'name': pname})
 
-#----------------------------------------
-#   HIER GEHTS LOS! ABER SO RICHTIG...
-#----------------------------------------
+    @Command(__doc__=N_("Get device's installation method"))
+    def systemGetBaseInstallMethod(self, mac, data=None):
+        # Load system
+        if not data:
+            data = self.__load_system(mac)
+
+        if not "installTemplateDN" in data:
+            raise ValueError("system with hardware address '%s' has no install template assigned" % mac)
+
+        # Inspect template for install method
+        if not "installMethod" in data:
+            return None
+
+        return data["installMethod"].lower()
+
+    #TODO: Command can be removed later on, because we're going to download
+    #      the template over the network
+    @Command(__doc__=N_("Get device's filled install template"))
+    def systemGetTemplate(self, mac):
+        """ Evaulate template for system with mac 'mac' """
+        data = self.__load_system(mac)
+        method = self.systemGetBaseInstallMethod(mac, data)
+
+        # Use the method described by "method" and pass evaluated data
+        if not method in self.base_install_method_reg:
+            raise ValueError("system with hardware address '%s' has an unknown installation method assigned" % mac)
+
+        inst_m = self.base_install_method_reg[method]
+        return inst_m.getTemplate(data)
+
+    @Command(__doc__=N_("Get device's configuration method"))
+    def systemGetConfigMethod(self, mac):
+        #-> load from configMethod
+        raise Exception("Not implemented")
+
+    @Command(__doc__=N_("Get device's boot string"))
+    def systemGetBootParams(self, mac):
+        params = []
+        data = self.__load_system(mac)
+        method = self.systemGetBaseInstallMethod(mac, data)
+
+        # Use the method described by "method" and pass evaluated data
+        if not method in self.base_install_method_reg:
+            raise ValueError("system with hardware address '%s' has an unknown installation method assigned" % mac)
+
+        # Load base install parameters
+        inst_m = self.base_install_method_reg[method]
+        params.append(inst_m.getBootParams(data))
+
+        # Load config parameters
+        #TODO: fill with life
+        #conf_m = self.install_method_reg[c_method]()
+        #params.append(conf_m.getBootParams(data))
+
+        #TODO: depending on the system status
+        #-> data["deviceStatus"] -> contains "A" -> system is active
+
+        # Append device key if available
+        if "deviceKey" in data:
+            params.append("svc_key=%s" % data["deviceKey"])
+
+        # TODO: svc_url
+        return " ".join(params)
+
+#------#
+# HIER #
+#------#
 
     def _getArchitecture(self, name, add=False):
         result = None
@@ -1369,6 +1458,63 @@ class RepositoryManager(Plugin):
         else:
             gpg.import_keys(self._repository.keyring.data)
         result = work_dir
+        return result
+
+    def __load_system(self, mac):
+        result = {}
+
+        # Load chained entries
+        res_queue = []
+        lh = LDAPHandler.get_instance()
+        with lh.get_handle() as conn:
+            res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
+                "(&(objectClass=installRecipe)(objectClass=device)(macAddress=%s))" % mac,
+                ["installTemplateDN", "installNTPServer", "installRootEnabled",
+                 "installRootPasswordHash", "installKeyboardlayout", "installSystemLocale",
+                 "installTimezone", "installMirrorDN", "installTimeUTC",
+                 "installMirrorPoolDN", "installKernelPackage", "installPartitionTable",
+                 "installRecipeDN", "installRelease", "deviceStatus", "deviceKey"])
+
+            # Unique?
+            if not res:
+                raise ValueError("hardware address '%s' cannot be found" % mac)
+            if len(res) != 1:
+                raise ValueError("hardware address '%s' is not unique" % mac)
+
+            # Add initial object
+            dn, obj = res[0]
+            print "adding object '%s' to result queue" % dn
+            res_queue.append(obj)
+
+            # Trace recipes of present
+            depth = self.recipeRecursionDepth
+            while 'installRecipeDN' in obj:
+                dn = obj['installRecipeDN'][0]
+                res = conn.search_s(dn, ldap.SCOPE_BASE, attrlist=[
+                    "installTemplateDN", "installNTPServer", "installRootEnabled",
+                    "installRootPasswordHash", "installKeyboardlayout", "installSystemLocale",
+                    "installTimezone", "installMirrorDN", "installTimeUTC",
+                    "installMirrorPoolDN", "installKernelPackage", "installPartitionTable",
+                    "installRecipeDN", "installRelease"])
+                print "+ adding recipe '%s' to result queue" % dn
+                obj = res[0][1]
+                res_queue.append(obj)
+
+            # Reverse merge queue into result
+            res_queue.reverse()
+            for res in res_queue:
+                result.update(res)
+
+            # Add template information
+            if "installTemplateDN" in result:
+                dn = result["installTemplateDN"][0]
+                res = conn.search_s(dn, ldap.SCOPE_BASE, attrlist=["installMethod", "templateData"])
+                print "+ adding template information"
+                if "installMethod" in res[0][1]:
+                    result["installMethod"] = res[0][1]["installMethod"][0]
+                if "templateData" in res[0][1]:
+                    result["templateData"] = res[0][1]["templateData"][0]
+
         return result
 
 

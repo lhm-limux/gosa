@@ -40,6 +40,7 @@ class BaseInstall(object):
     def installGetKeyboardModels(self):
         return self.keyboardModels
 
+    #OK
     def installGetKernelPackages(self):
         #TODO: read from repo
         return []
@@ -48,6 +49,7 @@ class BaseInstall(object):
     def installGetTimezones(self):
         return pytz.all_timezones
 
+    #OK
     def systemGetTemplate(self, mac):
         """ Evaulate template for system with name 'name' """
         data = self.__load_system(mac)
@@ -59,6 +61,22 @@ class BaseInstall(object):
         pr = PreseedInstallMethod(data)
         return pr.getBootConfiguration()
 
+    #TODO -----------------------
+    def systemGetInstallMethod(self, name):
+        #-> find with analyzing the objectclasses -> i.e. "puppet", "fai", "opsi"
+        raise Exception("Not implemented")
+
+    def systemGetBootParams(self, name):
+        #-> depends on system state and base install method
+        #-> depending on the system status, add the encrypted key
+        raise Exception("Not implemented")
+
+        #TODO: Preseed has to register http service providing the
+        #      per preseed config on url
+    #TODO -----------------------
+
+
+    #OK
     def systemGetBaseInstallMethod(self, mac, data=None):
         # Load system
         if not data:
@@ -73,6 +91,7 @@ class BaseInstall(object):
 
         return data["installMethod"]
 
+    #OK
     def __load_system(self, mac):
         result = {}
 
@@ -129,18 +148,6 @@ class BaseInstall(object):
                     result["templateData"] = res[0][1]["templateData"][0]
 
         return result
-
-    def systemGetInstallMethod(self, name):
-        #-> find with analyzing the objectclasses -> i.e. "puppet", "fai", "opsi"
-        raise Exception("Not implemented")
-
-    def systemGetBootParams(self, name):
-        #-> depends on system state and base install method
-        #-> depending on the system status, add the encrypted key
-        raise Exception("Not implemented")
-
-    #TODO: Preseed has to register http service providing the
-    #      per preseed config on url
 
 
 #--- Fun is somewhere else...

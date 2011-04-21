@@ -22,6 +22,15 @@ attributetype (1.3.6.1.4.1.10098.3.2.1.51 NAME 'configItem'
 	EQUALITY caseIgnoreIA5Match
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26)
 
+# Attribute: configMethod
+#
+# Store the desired configuration method for the client.
+#
+attributetype (1.3.6.1.4.1.10098.3.2.1.52 NAME 'configItem'
+	DESC 'Stores the desired configuration method'
+	EQUALITY caseIgnoreIA5Match
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26)
+
 # Object: configRecipe
 #
 # In addition to installRecipe, the configRecipe object keeps all
@@ -37,4 +46,5 @@ attributetype (1.3.6.1.4.1.10098.3.2.1.51 NAME 'configItem'
 # by using the installRecipeDN.
 objectclass (1.3.6.1.4.1.10098.3.2.1.1.50 NAME 'configRecipe' SUP top AUXILIARY
 	DESC 'Puppet Client objectclass'
+	MUST configMethod
 	MAY (configItem $ configVariable ))
