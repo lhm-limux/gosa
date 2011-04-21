@@ -38,7 +38,7 @@ from libinst.entities.architecture import Architecture
 from libinst.entities.component import Component
 from libinst.entities.file import File
 from libinst.entities.release import Release
-from libinst.entities.repository import Repository
+from libinst.entities.repository import Repository, RepositoryKeyring
 from libinst.entities.section import Section
 from libinst.entities.type import Type
 
@@ -511,7 +511,7 @@ class DebianHandler(DistributionHandler):
             self.env.log.debug("Generating GPG Key")
             input_data = gpg.gen_key_input(key_type="RSA", key_length=1024)
             key = gpg.gen_key(input_data)
-            repository.keyring = Keyring(name=key.fingerprint, data=gpg.export_keys(key, True))
+            repository.keyring = RepositoryKeyring(name=key.fingerprint, data=gpg.export_keys(key, True))
             self.env.log.debug("Exported key '%s' to repository" % key)
         else:
             gpg.import_keys(repository.keyring.data)
