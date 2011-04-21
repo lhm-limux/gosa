@@ -50,13 +50,13 @@ class Notify(object):
 # Check the urgency level.
 def checkUrgency(option, opt, value, parser):
 
-    map = {};    
-    map[None] = pynotify.URGENCY_NORMAL
-    map['critical'] = pynotify.URGENCY_CRITICAL
-    map['normal'] = pynotify.URGENCY_NORMAL
-    map['low'] = pynotify.URGENCY_LOW
+    attrMap = {};    
+    attrMap[None] = pynotify.URGENCY_NORMAL
+    attrMap['critical'] = pynotify.URGENCY_CRITICAL
+    attrMap['normal'] = pynotify.URGENCY_NORMAL
+    attrMap['low'] = pynotify.URGENCY_LOW
 
-    if value not in map:
+    if value not in attrMap:
         raise OptionValueError("Invalid urgency level specified. (critical, normal, low)")
         value = None
 
