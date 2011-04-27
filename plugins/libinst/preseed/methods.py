@@ -9,4 +9,11 @@ from libinst.methods import BaseInstallMethod
 
 
 class DebianPreseed(BaseInstallMethod):
-    pass
+
+    @staticmethod
+    def getInfo():
+        return {
+            "name": "Preseed",
+            "title": "Debian preseed installation method",
+            "description": "Description",
+            }
