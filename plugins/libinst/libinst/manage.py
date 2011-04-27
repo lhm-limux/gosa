@@ -18,20 +18,23 @@ import re
 import pytz
 import gettext
 import ldap
+
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
-from libinst.entities.config_item import ConfigItem
 
 from libinst.entities import Base
 from libinst.entities.architecture import Architecture
 from libinst.entities.component import Component
+from libinst.entities.config_item import ConfigItem, ConfigItemReleases
 from libinst.entities.distribution import Distribution
+from libinst.entities.file import File
 from libinst.entities.package import Package
 from libinst.entities.release import Release
 from libinst.entities.repository import Repository, RepositoryKeyring
 from libinst.entities.section import Section
 from libinst.entities.type import Type
+
 from types import StringTypes, DictType
 
 from libinst.system_locale import locale_map
@@ -1453,7 +1456,7 @@ class RepositoryManager(Plugin):
             self.env.log.debug("Generating GPG Key, type %s and length %s Bit" % (key_type, key_length))
             input_data = gpg.gen_key_input(key_type=key_type, key_length=key_length)
             key = gpg.gen_key(input_data)
-            self._repository.keyring = Keyring(name=key.fingerprint, data=gpg.export_keys(key, True))
+            self._repository.keyring = RepositoryKeyring(name=key.fingerprint, data=gpg.export_keys(key, True))
             self._session.commit()
         else:
             gpg.import_keys(self._repository.keyring.data)

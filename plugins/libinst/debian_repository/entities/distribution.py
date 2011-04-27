@@ -7,6 +7,10 @@
 
  See LICENSE for more information about the licensing.
 """
+import gettext
+import os
+import select
+import subprocess
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Table, Column, Integer, String, ForeignKey, Sequence
@@ -15,6 +19,15 @@ from sqlalchemy.orm import relationship, backref
 from libinst.entities import Base, UseInnoDB
 from libinst.entities.distribution import Distribution
 
+from gosa.common.env import Environment
+from gosa.common.utils import N_, locate
+
+# pylint: disable-msg=E0611
+from pkg_resources import resource_filename
+
+# Include locales
+t = gettext.translation('messages', resource_filename("debian_repository", "locale"), fallback=True)
+_ = t.ugettext
 
 class DebianDistribution(Distribution, UseInnoDB):
     __tablename__ = 'debian_distribution'
