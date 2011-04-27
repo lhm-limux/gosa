@@ -589,7 +589,7 @@ class RepositoryManager(Plugin):
             # Clean architectures that are not used anymore
             for ar in distribution.architectures:
                 if not ar.name in arch:
-                    del distribution.architectures[ar]
+                    del distribution.architectures[distribution.architectures.index(ar)]
 
             # Add new architectures
             for ar in arch:
@@ -609,7 +609,7 @@ class RepositoryManager(Plugin):
             # Clean components that are not used anymore
             for cp in distribution.components:
                 if not cp.name in component:
-                    del distribution.components[cp]
+                    del distribution.components[distribution.components.index(cp)]
 
             # Add new components
             for cp in component:
