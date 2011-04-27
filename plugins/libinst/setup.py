@@ -59,7 +59,7 @@ for various systems in your setup.
         libinst.puppet = puppet.methods:PuppetInstallMethod
 
         [libinst.base_methods]
-        #libinst.preseed = preseed.methods:PreseedBaseInstallMethod
+        libinst.preseed = preseed.methods:DebianPreseed
 
         [gosa.modules]
         gosa-agent.libinst = libinst.manage:RepositoryManager

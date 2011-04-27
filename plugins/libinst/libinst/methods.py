@@ -89,6 +89,17 @@ class BaseInstallMethod(object):
     needed to interact with any install method. Implementations of this interface
     must implement all methods.
     """
+    attributes = {
+            'installNTPServer': 'ntp-servers',
+            'installRootEnabled': 'root-user',
+            'installRootPasswordHash': 'root-hash',
+            'installKeyboardlayout': 'keyboard-layout',
+            'installSystemLocale': 'system-locale',
+            'installTimezone': 'timezone',
+            'installTimeUTC': 'utc',
+            'installRelease': 'release',
+            'installKernelPackage': 'kernel',
+        }
 
     @staticmethod
     def getInfo():
@@ -119,11 +130,37 @@ class BaseInstallMethod(object):
         """
         return None
 
-    def setBaseInstallParameters(self, device_uuid):
+    #TODO-----------------------------------------
+
+    def setBaseInstallParameters(self, device_uuid, data):
         pass
 
     def getBaseInstallParameters(self, device_uuid):
+        res = {}
+        data = load_system(device_uuid)
+
+        for key, value in self.attributes.items():
+            if key in data:
+                res[value] = data[key]
+            else:
+                res[value] = None
+
+        print "-"*80
+        print res
+        print "-"*80
+        return res
+
+    def setBaseInstallDiskSetup(self, device_uuid, obj_ref):
         pass
+
+    def getBaseInstallDiskSetup(self, device_uuid):
+        pass
+
+    #TODO: getter and setter for that...
+    #  installMirrorDN        -> DN des Mirror Systems
+    #  installMirrorPoolDN    -> DN einer Mirror-Pool-Definition
+    #  installTemplateDN      -> DN eines Templates
+    #  installRecipeDN        -> Cascadiertes Rezept
 
     #TODO: need methods for kickstart stuff
     #  installTemplateDN      -> Template Objekt definieren
