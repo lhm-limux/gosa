@@ -5,6 +5,7 @@ import pynotify
 import gobject
 import dbus
 import dbus.mainloop.glib
+import time
 from optparse import OptionParser, OptionValueError
 
 
@@ -15,17 +16,35 @@ class Notify(object):
         pynotify.init('gosa-ng')
 
     def __callback(self, notification=None, action=None, data=None):
-        self.__res = self.__actions.index(data)
+        
+        # If we do not get a data object but have actions defined
+        #  then the notification was just closed without selecting an action.
+        if self.__actions:
+            if data not in self.__actions:
+                self.notify.show()
+                return
+            else:
+                self.__res = self.__actions.index(data)
+        else:
+            self.__res = 100
+
+        self.notify.close()
         self.loop.quit()
 
     def notification_closed(self,*args, **kwargs):
-        self.loop.quit()
+
+        # Is there a valid result selected? If not, then show the dialog again.
+        if self.__res == 255:
+            time.sleep(5)
+            self.notify.show() 
+        else:
+            self.loop.quit()
     
     def send(self, title, message, icon="dialog-information",
         urgency=pynotify.URGENCY_NORMAL,
         timeout=pynotify.EXPIRES_DEFAULT, **kwargs):
 
-        self.__res = 101
+        self.__res = 255
 
         # Build dialog
         notify = pynotify.Notification(title, message, icon)
