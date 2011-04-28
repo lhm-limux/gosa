@@ -11,8 +11,9 @@
 """
 import re
 import os
+import ldap
 from gosa.common.env import Environment
-
+from gosa.agent.ldap_utils import LDAPHandler
 from libinst.entities.config_item import ConfigItem
 
 
@@ -81,6 +82,103 @@ class InstallItem(object):
 
     def scan(self):
         return {}
+
+
+class BaseInstallMethod(object):
+    """
+    This is the base install method interface class. It defines all relevant methods
+    needed to interact with any install method. Implementations of this interface
+    must implement all methods.
+    """
+    attributes = {
+            'installNTPServer': 'ntp-servers',
+            'installRootEnabled': 'root-user',
+            'installRootPasswordHash': 'root-hash',
+            'installKeyboardlayout': 'keyboard-layout',
+            'installSystemLocale': 'system-locale',
+            'installTimezone': 'timezone',
+            'installTimeUTC': 'utc',
+            'installRelease': 'release',
+            'installKernelPackage': 'kernel',
+        }
+
+    @staticmethod
+    def getInfo():
+        """
+        Get information for the current install method implementation.
+
+        @rtype: dict
+        @return: A dict containing name, title and description
+        """
+        return None
+
+    def getBootParams(self, device_uuid):
+        """
+        Return boot parameters needed for that install method.
+
+        @rtype: list
+        @return: list of boot parameters
+        """
+        return []
+
+    def getBootConfiguration(self, device_uuid):
+        """
+        Return the complete boot configuration file needed to do a base
+        bootstrapping.
+
+        @rtype: string
+        @return: multi line text
+        """
+        return None
+
+    #TODO-----------------------------------------
+
+    def setBaseInstallParameters(self, device_uuid, data):
+        pass
+
+    def getBaseInstallParameters(self, device_uuid):
+        res = {}
+        data = load_system(device_uuid)
+
+        for key, value in self.attributes.items():
+            if key in data:
+                res[value] = data[key]
+            else:
+                res[value] = None
+
+        print "-"*80
+        print res
+        print "-"*80
+        return res
+
+    def setBaseInstallDiskSetup(self, device_uuid, obj_ref):
+        pass
+
+    def getBaseInstallDiskSetup(self, device_uuid):
+        pass
+
+    #TODO: getter and setter for that...
+    #  installMirrorDN        -> DN des Mirror Systems
+    #  installMirrorPoolDN    -> DN einer Mirror-Pool-Definition
+    #  installTemplateDN      -> DN eines Templates
+    #  installRecipeDN        -> Cascadiertes Rezept
+
+    #TODO: need methods for kickstart stuff
+    #  installTemplateDN      -> Template Objekt definieren
+    #  installNTPServer
+    #  installRootEnabled
+    #  installRootPasswordHash
+    #  installKeyboardlayout  -> Liste
+    #  installSystemLocale    -> Liste
+    #  installTimezone        -> Liste
+    #  installTimeUTC
+    #  installRelease         -> Liste
+    #  installMirrorDN        -> DN des Mirror Systems
+    #  installMirrorPoolDN    -> DN einer Mirror-Pool-Definition
+    #  installKernelPackage   -> Liste
+    #  installPartitionTable  -> Object
+    #  installRecipeDN        -> Cascadiertes Rezept
+
 
 
 class InstallMethod(object):
@@ -428,6 +526,15 @@ class InstallMethod(object):
         """
         return None
 
+    def getBootParams(self):
+        """
+        Return boot parameters needed for that install method.
+
+        @rtype: list
+        @return: list of boot parameters
+        """
+        return []
+
     def _get_relative_path(self, release, path):
         """
         Internal function to evaluate the relative path for
@@ -495,3 +602,58 @@ class InstallMethod(object):
         parent = path.rsplit("/", 1)[0] or "/"
 
         return self._get_item(release, parent)
+
+
+def load_system(device_uuid):
+    result = {}
+
+    # Load chained entries
+    res_queue = []
+    lh = LDAPHandler.get_instance()
+    with lh.get_handle() as conn:
+        res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
+            "(&(objectClass=installRecipe)(objectClass=device)(deviceUUID=%s))" % device_uuid,
+            ["installTemplateDN", "installNTPServer", "installRootEnabled",
+             "installRootPasswordHash", "installKeyboardlayout", "installSystemLocale",
+             "installTimezone", "installMirrorDN", "installTimeUTC",
+             "installMirrorPoolDN", "installKernelPackage", "installPartitionTable",
+             "installRecipeDN", "installRelease", "deviceStatus", "deviceKey"])
+
+        # Unique?
+        if not res:
+            raise ValueError("device UUID '%s' cannot be found" % device_uuid)
+        if len(res) != 1:
+            raise ValueError("device UUID '%s' is not unique!?" % device_uuid)
+
+        # Add initial object
+        dn, obj = res[0]
+        res_queue.append(obj)
+
+        # Trace recipes of present
+        depth = 3
+        while 'installRecipeDN' in obj:
+            dn = obj['installRecipeDN'][0]
+            res = conn.search_s(dn, ldap.SCOPE_BASE, attrlist=[
+                "installTemplateDN", "installNTPServer", "installRootEnabled",
+                "installRootPasswordHash", "installKeyboardlayout", "installSystemLocale",
+                "installTimezone", "installMirrorDN", "installTimeUTC",
+                "installMirrorPoolDN", "installKernelPackage", "installPartitionTable",
+                "installRecipeDN", "installRelease"])
+            obj = res[0][1]
+            res_queue.append(obj)
+
+        # Reverse merge queue into result
+        res_queue.reverse()
+        for res in res_queue:
+            result.update(res)
+
+        # Add template information
+        if "installTemplateDN" in result:
+            dn = result["installTemplateDN"][0]
+            res = conn.search_s(dn, ldap.SCOPE_BASE, attrlist=["installMethod", "templateData"])
+            if "installMethod" in res[0][1]:
+                result["installMethod"] = res[0][1]["installMethod"][0]
+            if "templateData" in res[0][1]:
+                result["templateData"] = unicode(res[0][1]["templateData"][0], 'utf-8')
+
+    return result

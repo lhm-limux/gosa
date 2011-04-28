@@ -7,6 +7,9 @@
 
  See LICENSE for more information about the licensing.
 """
+# pylint: disable=E0611
+from pkg_resources import resource_filename
+
 import os
 import shutil
 import hashlib
@@ -18,32 +21,31 @@ import re
 import pytz
 import gettext
 import ldap
+from types import StringTypes, DictType
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
-from libinst.entities.config_item import ConfigItem
 
 from libinst.entities import Base
 from libinst.entities.architecture import Architecture
 from libinst.entities.component import Component
+from libinst.entities.config_item import ConfigItem, ConfigItemReleases
 from libinst.entities.distribution import Distribution
+from libinst.entities.file import File
 from libinst.entities.package import Package
 from libinst.entities.release import Release
 from libinst.entities.repository import Repository, RepositoryKeyring
 from libinst.entities.section import Section
 from libinst.entities.type import Type
-from types import StringTypes, DictType
-
 from libinst.system_locale import locale_map
 from libinst.keyboard_models import KeyboardModels
+from libinst.methods import load_system
 
 from gosa.common.env import Environment
 from gosa.common.components.command import Command, NamedArgs
 from gosa.agent.ldap_utils import LDAPHandler
 from gosa.common.components.plugin import Plugin
 from gosa.common.utils import N_
-# pylint: disable-msg=E0611
-from pkg_resources import resource_filename
 
 # Include locales
 t = gettext.translation('messages', resource_filename("libinst", "locale"), fallback=True)
@@ -66,6 +68,7 @@ class RepositoryManager(Plugin):
         ...
     """
     _target_ = 'libinst'
+    recipeRecursionDepth = 3
 
     def __init__(self):
         """
@@ -81,6 +84,7 @@ class RepositoryManager(Plugin):
         Session = scoped_session(sessionmaker(autoflush=True, bind=engine))
         self._session = Session()
         self.path = env.config.getOption('path', section='repository')
+
         if not os.path.exists(self.path):
             try:
                 os.makedirs(self.path)
@@ -125,9 +129,9 @@ class RepositoryManager(Plugin):
     #==========================================================================
     def initializeDatabase(self, engine):
         a = Base()
-        # pylint: disable-msg=E1101
+        # pylint: disable=E1101
         a.metadata.drop_all(engine)
-        # pylint: disable-msg=E1101
+        # pylint: disable=E1101
         a.metadata.create_all(engine)
 
     #TODO: This is a dummy function
@@ -370,7 +374,7 @@ class RepositoryManager(Plugin):
                     result.type = type
                     result.installation_method = install_method
                     self._session.add(result)
-                    # pylint: disable-msg=E1101,E1103
+                    # pylint: disable=E1101,E1103
                     self._repository.distributions.append(result)
                     try:
                         self._session.commit()
@@ -520,7 +524,7 @@ class RepositoryManager(Plugin):
                 self.env.log.debug("Removing child release %s" % child_release)
                 self.removeRelease(child_release, recursive=True)
         else:
-            # pylint: disable-msg=E1101
+            # pylint: disable=E1101
             for package in release.packages[:]:
                 result = self.removePackage(package, arch=package.arch.name, release=release)
                 if result is not True:
@@ -589,7 +593,7 @@ class RepositoryManager(Plugin):
             # Clean architectures that are not used anymore
             for ar in distribution.architectures:
                 if not ar.name in arch:
-                    del distribution.architectures[ar]
+                    del distribution.architectures[distribution.architectures.index(ar)]
 
             # Add new architectures
             for ar in arch:
@@ -609,7 +613,7 @@ class RepositoryManager(Plugin):
             # Clean components that are not used anymore
             for cp in distribution.components:
                 if not cp.name in component:
-                    del distribution.components[cp]
+                    del distribution.components[distribution.components.index(cp)]
 
             # Add new components
             for cp in component:
@@ -1018,7 +1022,7 @@ class RepositoryManager(Plugin):
         else:
             work_dir = self._getGPGEnvironment()
             gpg = gnupg.GPG(gnupghome=work_dir)
-            # pylint: disable-msg=E1101
+            # pylint: disable=E1101
             import_result = gpg.import_keys(keys)
             if import_result.count > 0:
                 result = True
@@ -1151,13 +1155,13 @@ class RepositoryManager(Plugin):
         return self.getPackages(release=release.name, custom_filter={'name': pname})
 
     @Command(__doc__=N_("Get device's installation method"))
-    def systemGetBaseInstallMethod(self, mac, data=None):
+    def systemGetBaseInstallMethod(self, device_uuid, data=None):
         # Load system
         if not data:
-            data = self.__load_system(mac)
+            data = load_system(device_uuid)
 
         if not "installTemplateDN" in data:
-            raise ValueError("system with hardware address '%s' has no install template assigned" % mac)
+            raise ValueError("device with UUID '%s' has no install template assigned" % device_uuid)
 
         # Inspect template for install method
         if not "installMethod" in data:
@@ -1168,51 +1172,73 @@ class RepositoryManager(Plugin):
     #TODO: Command can be removed later on, because we're going to download
     #      the template over the network
     @Command(__doc__=N_("Get device's filled install template"))
-    def systemGetTemplate(self, mac):
-        """ Evaulate template for system with mac 'mac' """
-        data = self.__load_system(mac)
-        method = self.systemGetBaseInstallMethod(mac, data)
+    def systemGetTemplate(self, device_uuid):
+        """ Evaulate template for system with device_uuid 'device_uuid' """
+        data = load_system(device_uuid)
+        method = self.systemGetBaseInstallMethod(device_uuid, data)
 
         # Use the method described by "method" and pass evaluated data
         if not method in self.base_install_method_reg:
-            raise ValueError("system with hardware address '%s' has an unknown installation method assigned" % mac)
+            raise ValueError("device with UUID '%s' has an unknown installation method assigned" % device_uuid)
 
         inst_m = self.base_install_method_reg[method]
         return inst_m.getTemplate(data)
 
     @Command(__doc__=N_("Get device's configuration method"))
-    def systemGetConfigMethod(self, mac):
-        #-> load from configMethod
-        raise Exception("Not implemented")
+    def systemGetConfigMethod(self, device_uuid, data=None):
+        if not data:
+            data = load_system(device_uuid)
+
+        if not "configMethod" in data:
+            return None
+
+        return data["configMethod"].lower()
 
     @Command(__doc__=N_("Get device's boot string"))
-    def systemGetBootParams(self, mac):
+    def systemGetBootParams(self, device_uuid):
         params = []
-        data = self.__load_system(mac)
-        method = self.systemGetBaseInstallMethod(mac, data)
+        data = load_system(device_uuid)
+        method = self.systemGetBaseInstallMethod(device_uuid, data)
+        c_method = self.systemGetConfigMethod(device_uuid, data)
 
         # Use the method described by "method" and pass evaluated data
         if not method in self.base_install_method_reg:
-            raise ValueError("system with hardware address '%s' has an unknown installation method assigned" % mac)
+            raise ValueError("device with UUID '%s' has an unknown installation method assigned" % device_uuid)
 
         # Load base install parameters
         inst_m = self.base_install_method_reg[method]
-        params.append(inst_m.getBootParams(data))
+        params += inst_m.getBootParams(device_uuid)
 
         # Load config parameters
-        #TODO: fill with life
-        #conf_m = self.install_method_reg[c_method]()
-        #params.append(conf_m.getBootParams(data))
+        if c_method:
+            conf_m = self.install_method_reg[c_method]()
+            params += conf_m.getBootParams(device_uuid)
 
-        #TODO: depending on the system status
-        #-> data["deviceStatus"] -> contains "A" -> system is active
+        # Check device status before returning anything
+        if not "deviceStatus" in data or "A" not in data["deviceStatus"][0]:
+            return None
 
         # Append device key if available
         if "deviceKey" in data:
-            params.append("svc_key=%s" % data["deviceKey"])
+            params.append("svc_key=%s" % data["deviceKey"][0])
 
-        # TODO: svc_url
+        #TODO: for non DNS/zeroconf setups, it might be a good idea to
+        #      send a connection URI, too
+
         return " ".join(params)
+
+    @Command(__doc__=N_("Get device's boot string"))
+    def systemGetBootConfiguration(self, device_uuid):
+        data = load_system(device_uuid)
+        method = self.systemGetBaseInstallMethod(device_uuid, data)
+
+        # Use the method described by "method" and pass evaluated data
+        if not method in self.base_install_method_reg:
+            raise ValueError("device with UUID '%s' has an unknown installation method assigned" % device_uuid)
+
+        # Get boot configuration from installation method
+        inst_m = self.base_install_method_reg[method]
+        return inst_m.getBootConfiguration(device_uuid)
 
 #------#
 # HIER #
@@ -1453,68 +1479,11 @@ class RepositoryManager(Plugin):
             self.env.log.debug("Generating GPG Key, type %s and length %s Bit" % (key_type, key_length))
             input_data = gpg.gen_key_input(key_type=key_type, key_length=key_length)
             key = gpg.gen_key(input_data)
-            self._repository.keyring = Keyring(name=key.fingerprint, data=gpg.export_keys(key, True))
+            self._repository.keyring = RepositoryKeyring(name=key.fingerprint, data=gpg.export_keys(key, True))
             self._session.commit()
         else:
             gpg.import_keys(self._repository.keyring.data)
         result = work_dir
-        return result
-
-    def __load_system(self, mac):
-        result = {}
-
-        # Load chained entries
-        res_queue = []
-        lh = LDAPHandler.get_instance()
-        with lh.get_handle() as conn:
-            res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
-                "(&(objectClass=installRecipe)(objectClass=device)(macAddress=%s))" % mac,
-                ["installTemplateDN", "installNTPServer", "installRootEnabled",
-                 "installRootPasswordHash", "installKeyboardlayout", "installSystemLocale",
-                 "installTimezone", "installMirrorDN", "installTimeUTC",
-                 "installMirrorPoolDN", "installKernelPackage", "installPartitionTable",
-                 "installRecipeDN", "installRelease", "deviceStatus", "deviceKey"])
-
-            # Unique?
-            if not res:
-                raise ValueError("hardware address '%s' cannot be found" % mac)
-            if len(res) != 1:
-                raise ValueError("hardware address '%s' is not unique" % mac)
-
-            # Add initial object
-            dn, obj = res[0]
-            print "adding object '%s' to result queue" % dn
-            res_queue.append(obj)
-
-            # Trace recipes of present
-            depth = self.recipeRecursionDepth
-            while 'installRecipeDN' in obj:
-                dn = obj['installRecipeDN'][0]
-                res = conn.search_s(dn, ldap.SCOPE_BASE, attrlist=[
-                    "installTemplateDN", "installNTPServer", "installRootEnabled",
-                    "installRootPasswordHash", "installKeyboardlayout", "installSystemLocale",
-                    "installTimezone", "installMirrorDN", "installTimeUTC",
-                    "installMirrorPoolDN", "installKernelPackage", "installPartitionTable",
-                    "installRecipeDN", "installRelease"])
-                print "+ adding recipe '%s' to result queue" % dn
-                obj = res[0][1]
-                res_queue.append(obj)
-
-            # Reverse merge queue into result
-            res_queue.reverse()
-            for res in res_queue:
-                result.update(res)
-
-            # Add template information
-            if "installTemplateDN" in result:
-                dn = result["installTemplateDN"][0]
-                res = conn.search_s(dn, ldap.SCOPE_BASE, attrlist=["installMethod", "templateData"])
-                print "+ adding template information"
-                if "installMethod" in res[0][1]:
-                    result["installMethod"] = res[0][1]["installMethod"][0]
-                if "templateData" in res[0][1]:
-                    result["templateData"] = res[0][1]["templateData"][0]
-
         return result
 
 
