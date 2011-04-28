@@ -3,6 +3,8 @@
 import sys
 import pynotify
 import gobject
+import dbus
+import dbus.mainloop.glib
 from optparse import OptionParser, OptionValueError
 
 
@@ -16,6 +18,11 @@ class Notify(object):
         self.__res = self.__actions.index(data)
         self.loop.quit()
 
+    def notification_closed(self,*args, **kwargs):
+        self.loop.quit()
+        print "Closed"
+        
+    
     def send(self, title, message, icon="dialog-information",
         urgency=pynotify.URGENCY_NORMAL,
         timeout=pynotify.EXPIRES_DEFAULT, **kwargs):
@@ -36,8 +43,16 @@ class Notify(object):
         notify.set_timeout(timeout)
         notify.set_urgency(urgency)
         notify.show()
+        self.notify = notify
 
         if self.__actions:
+            dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+            bus = dbus.SessionBus()	
+
+            #bus.add_signal_receiver(handler, interface_keyword="dbus_interface", member_keyword="member")
+            bus.add_signal_receiver(self.notification_closed, dbus_interface="org.freedesktop.Notifications", signal_name="NotificationClosed",
+                member_keyword="__member", interface_keyword="__interface")
+
             self.loop = gobject.MainLoop()
             try:
                 self.loop.run()
