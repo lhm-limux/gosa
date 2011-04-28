@@ -1207,24 +1207,38 @@ class RepositoryManager(Plugin):
 
         # Load base install parameters
         inst_m = self.base_install_method_reg[method]
-        params.append(inst_m.getBootParams(data))
+        params += inst_m.getBootParams(device_uuid)
 
         # Load config parameters
-        conf_m = self.install_method_reg[c_method]()
-        params.append(conf_m.getBootParams(data))
+        if c_method:
+            conf_m = self.install_method_reg[c_method]()
+            params += conf_m.getBootParams(device_uuid)
 
         # Check device status before returning anything
-        if not "deviceStatus" in data or not "A" in data["deviceStatus"]:
+        if not "deviceStatus" in data or "A" not in data["deviceStatus"][0]:
             return None
 
         # Append device key if available
         if "deviceKey" in data:
-            params.append("svc_key=%s" % data["deviceKey"])
+            params.append("svc_key=%s" % data["deviceKey"][0])
 
         #TODO: for non DNS/zeroconf setups, it might be a good idea to
         #      send a connection URI, too
 
         return " ".join(params)
+
+    @Command(__doc__=N_("Get device's boot string"))
+    def systemGetBootConfiguration(self, device_uuid):
+        data = load_system(device_uuid)
+        method = self.systemGetBaseInstallMethod(device_uuid, data)
+
+        # Use the method described by "method" and pass evaluated data
+        if not method in self.base_install_method_reg:
+            raise ValueError("device with UUID '%s' has an unknown installation method assigned" % device_uuid)
+
+        # Get boot configuration from installation method
+        inst_m = self.base_install_method_reg[method]
+        return inst_m.getBootConfiguration(device_uuid)
 
 #------#
 # HIER #

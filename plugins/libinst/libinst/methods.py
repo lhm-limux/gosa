@@ -11,8 +11,9 @@
 """
 import re
 import os
+import ldap
 from gosa.common.env import Environment
-
+from gosa.agent.ldap_utils import LDAPHandler
 from libinst.entities.config_item import ConfigItem
 
 
@@ -626,7 +627,6 @@ def load_system(device_uuid):
 
         # Add initial object
         dn, obj = res[0]
-        print "adding object '%s' to result queue" % dn
         res_queue.append(obj)
 
         # Trace recipes of present
@@ -639,7 +639,6 @@ def load_system(device_uuid):
                 "installTimezone", "installMirrorDN", "installTimeUTC",
                 "installMirrorPoolDN", "installKernelPackage", "installPartitionTable",
                 "installRecipeDN", "installRelease"])
-            print "+ adding recipe '%s' to result queue" % dn
             obj = res[0][1]
             res_queue.append(obj)
 
@@ -652,10 +651,9 @@ def load_system(device_uuid):
         if "installTemplateDN" in result:
             dn = result["installTemplateDN"][0]
             res = conn.search_s(dn, ldap.SCOPE_BASE, attrlist=["installMethod", "templateData"])
-            print "+ adding template information"
             if "installMethod" in res[0][1]:
                 result["installMethod"] = res[0][1]["installMethod"][0]
             if "templateData" in res[0][1]:
-                result["templateData"] = res[0][1]["templateData"][0]
+                result["templateData"] = unicode(res[0][1]["templateData"][0], 'utf-8')
 
     return result
