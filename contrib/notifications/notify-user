@@ -20,14 +20,12 @@ class Notify(object):
 
     def notification_closed(self,*args, **kwargs):
         self.loop.quit()
-        print "Closed"
-        
     
     def send(self, title, message, icon="dialog-information",
         urgency=pynotify.URGENCY_NORMAL,
         timeout=pynotify.EXPIRES_DEFAULT, **kwargs):
 
-        self.__res = 0
+        self.__res = 101
 
         # Build dialog
         notify = pynotify.Notification(title, message, icon)
