@@ -8,9 +8,13 @@
 import re
 from urlparse import urlparse
 from gosa.common.env import Environment
+from gosa.common.components.registry import PluginRegistry
 from libinst.methods import load_system
 from libinst.methods import BaseInstallMethod
 from libinst.disk import DiskDefinition, LINUX, ALL
+
+
+#TODO: object registry?
 
 
 class DebianPreseed(BaseInstallMethod):
@@ -25,10 +29,11 @@ class DebianPreseed(BaseInstallMethod):
 
     def __init__(self):
         super(DebianPreseed, self).__init__()
+        self.env = Environment.getInstance()
         self.path = self.env.config.getOption('path', 'libinst', default="/preseed")
-
-    def serve(self):
         self.__http = PluginRegistry.getInstance('HTTPService')
+
+        #TODO: add http service
         print "==================> SERVE!"
 
     def __attr_map(self, source, default=None, data=None):
@@ -46,8 +51,7 @@ class DebianPreseed(BaseInstallMethod):
         #      -> check if release_path debian/squeeze/1.0 is supported
         #         for the mirror
         #      -> if not available, automatically choose a mirror
-        env = Environment.getInstance()
-        url = urlparse(env.config.getOption(
+        url = urlparse(self.env.config.getOption(
             'http_base_url', section='repository'))
 
         return {
@@ -127,10 +131,10 @@ class DebianPreseed(BaseInstallMethod):
             self.path.lstrip("/"),
             data['macAddress'][0] + ".cfg")
 
-        hostname = 
-        domain = 
+        hostname = data['cn'][0]
+        #TODO: take a look at RFC 1279 before doing anything else
+        domain = "please-fixme.org"
 
-        #TODO: needs adaption
         params = [
             "vga=normal",
             "initrd=debian-installer/%s/initrd.gz" % arch,
