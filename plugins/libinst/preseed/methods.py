@@ -12,9 +12,12 @@ from gosa.common.components.registry import PluginRegistry
 from libinst.methods import load_system
 from libinst.methods import BaseInstallMethod
 from libinst.disk import DiskDefinition, LINUX, ALL
+from webob import exc, Request, Response
 
 
 class DebianPreseed(BaseInstallMethod):
+
+    http_subtree = True
 
     @staticmethod
     def getInfo():
@@ -28,10 +31,41 @@ class DebianPreseed(BaseInstallMethod):
         super(DebianPreseed, self).__init__()
         self.env = Environment.getInstance()
         self.path = self.env.config.getOption('path', 'libinst', default="/preseed")
+
+        # Get http service instance
         self.__http = PluginRegistry.getInstance('HTTPService')
 
-        #TODO: add http service
-        print "==================> SERVE!"
+        # Register ourselves
+        self.__http.register(self.path, self)
+
+    def __call__(self, environ, start_response):
+        req = Request(environ)
+        try:
+            resp = self.process(req, environ)
+        except ValueError, e:
+            resp = exc.HTTPBadRequest(str(e))
+        except exc.HTTPException, e:
+            resp = e
+        return resp(environ, start_response)
+
+    def process(self, req, environment):
+        if not req.method == 'GET':
+            raise exc.HTTPMethodNotAllowed(
+                "Only GET allowed").exception
+
+        try:
+            # Try to find a device uuid for the device
+            data = self.getBootConfiguration(None,
+                 mac=req.path.split("/")[-1].replace("-", ":"))
+            res = Response(data, "200 OK", [("Content-type", "text/plain; charset='utf-8'"),])
+            return res
+
+        except Exception as e:
+            print e
+            pass
+
+        e = exc.HTTPNotFound(location=req.path_info)
+        return req.get_response(e)
 
     def __attr_map(self, source, default=None, data=None):
         if not source in data:
@@ -85,11 +119,11 @@ class DebianPreseed(BaseInstallMethod):
         dd = DebianDiskDefinition(data['installPartitionTable'][0])
         return str(dd)
 
-    def getBootConfiguration(self, device_uuid):
-        super(DebianPreseed, self).getBootConfiguration(device_uuid)
+    def getBootConfiguration(self, device_uuid, mac=None):
+        super(DebianPreseed, self).getBootConfiguration(device_uuid, mac)
 
         # Load device data
-        data = load_system(device_uuid)
+        data = load_system(device_uuid, mac)
 
         # Attribute conversion
         mapped_data = {
@@ -109,11 +143,11 @@ class DebianPreseed(BaseInstallMethod):
 
         return data['templateData'].format(**mapped_data)
 
-    def getBootParams(self, device_uuid):
-        super(DebianPreseed, self).getBootParams(device_uuid)
+    def getBootParams(self, device_uuid, mac=None):
+        super(DebianPreseed, self).getBootParams(device_uuid, mac)
 
         # Load device data
-        data = load_system(device_uuid)
+        data = load_system(device_uuid, mac)
 
         arch = data["installArchitecture"][0]
         keymap = data["installKeyboardLayout"][0] \
@@ -126,7 +160,7 @@ class DebianPreseed(BaseInstallMethod):
             self.__http.host,
             self.__http.port,
             self.path.lstrip("/"),
-            data['macAddress'][0] + ".cfg")
+            data['macAddress'][0].replace(":", "-"))
 
         hostname = data['cn'][0]
         #TODO: take a look at RFC 1279 before doing anything else

@@ -112,7 +112,7 @@ class BaseInstallMethod(object):
         """
         return None
 
-    def getBootParams(self, device_uuid):
+    def getBootParams(self, device_uuid, mac=None):
         """
         Return boot parameters needed for that install method.
 
@@ -121,7 +121,7 @@ class BaseInstallMethod(object):
         """
         return []
 
-    def getBootConfiguration(self, device_uuid):
+    def getBootConfiguration(self, device_uuid, mac=None):
         """
         Return the complete boot configuration file needed to do a base
         bootstrapping.
@@ -604,15 +604,16 @@ class InstallMethod(object):
         return self._get_item(release, parent)
 
 
-def load_system(device_uuid):
+def load_system(device_uuid, mac=None):
     result = {}
 
     # Load chained entries
     res_queue = []
     lh = LDAPHandler.get_instance()
     with lh.get_handle() as conn:
+        fltr = "macAddress=%s" % mac if mac else "deviceUUID=%s" % device_uuid
         res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
-            "(&(objectClass=installRecipe)(objectClass=device)(deviceUUID=%s))" % device_uuid,
+            "(&(objectClass=installRecipe)(objectClass=device)(%s))" % fltr,
             ["installTemplateDN", "installNTPServer", "installRootEnabled", "macAddress",
              "installRootPasswordHash", "installKeyboardlayout", "installSystemLocale",
              "installTimezone", "installMirrorDN", "installTimeUTC", "installArchitecture",
