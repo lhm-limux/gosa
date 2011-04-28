@@ -6,6 +6,8 @@
  See LICENSE for more information about the licensing.
 """
 import re
+from urlparse import urlparse
+from gosa.common.env import Environment
 from libinst.methods import load_system
 from libinst.methods import BaseInstallMethod
 from libinst.disk import DiskDefinition, LINUX, ALL
@@ -23,6 +25,11 @@ class DebianPreseed(BaseInstallMethod):
 
     def __init__(self):
         super(DebianPreseed, self).__init__()
+        self.path = self.env.config.getOption('path', 'libinst', default="/preseed")
+
+    def serve(self):
+        self.__http = PluginRegistry.getInstance('HTTPService')
+        print "==================> SERVE!"
 
     def __attr_map(self, source, default=None, data=None):
         if not source in data:
@@ -32,16 +39,22 @@ class DebianPreseed(BaseInstallMethod):
 
     def __load_release(self, data):
         release_path = data["installRelease"][0]
-        print "Release path:", release_path
-        #TODO: come in and find out...
-        # installRelease: debian/squeeze/1.0
-        # installMirrorDN: cn=amqp,ou=servers,ou=systems,dc=intranet,dc=gonicus,dc=de
+
+        #TODO: find configured mirror
+        #      by inspecting installMirrorDN / installMirrorPoolDN
+        #      for the moment, load it from the configuration file
+        #      -> check if release_path debian/squeeze/1.0 is supported
+        #         for the mirror
+        #      -> if not available, automatically choose a mirror
+        env = Environment.getInstance()
+        url = urlparse(env.config.getOption(
+            'http_base_url', section='repository'))
 
         return {
-            'mirror_protocol': "http",
-            'mirror_host': "openserver.tuxbued.org",
-            'mirror_path': "/debian/",
-            'suite': "squeeze",
+            'mirror_protocol': url.scheme,
+            'mirror_host': url.netloc,
+            'mirror_path': url.path,
+            'suite': "/".join(release_path.split("/")[1:]),
             }
 
     def __console_layout_code(self, data):
@@ -92,14 +105,50 @@ class DebianPreseed(BaseInstallMethod):
             'partition': self.__partition(data=data),
             }
         mapped_data.update(self.__load_release(data=data))
-        template = data['templateData']
-        return template.format(**mapped_data)
 
-    def getBootParams(self, ):
-        super(DebianPreseed, self).getBootParams()
-        #TODO: fill with life
-        #append vga=normal initrd=debian-installer/i386/initrd.gz netcfg/choose_interface=eth0 locale=de_DE debian-installer/country=DE debian-installer/language=de debian-installer/keymap=de-latin1-nodeadkeys console-keymaps-at/keymap=de-latin1-nodeadkeys auto-install/enable=false preseed/url=http://openserver/preseed.cfg debian/priority=critical hostname=linux-cl-1 domain=tuxbued.org DEBCONF_DEBUG=5
-        return []
+        return data['templateData'].format(**mapped_data)
+
+    def getBootParams(self, device_uuid):
+        super(DebianPreseed, self).getBootParams(device_uuid)
+
+        # Load device data
+        data = load_system(device_uuid)
+
+        arch = data["installArchitecture"][0]
+        keymap = data["installKeyboardLayout"][0] \
+            if "installKeyboardLayout" in data else "us"
+        locale = data["installSystemLocale"][0] \
+            if "installSystemLocale" in data else "en_US.UTF-8"
+
+        url = "%s://%s:%s/%s/%s" % (
+            self.__http.scheme,
+            self.__http.host,
+            self.__http.port,
+            self.path.lstrip("/"),
+            data['macAddress'][0] + ".cfg")
+
+        hostname = 
+        domain = 
+
+        #TODO: needs adaption
+        params = [
+            "vga=normal",
+            "initrd=debian-installer/%s/initrd.gz" % arch,
+            "netcfg/choose_interface=eth0",
+            "locale=%s" % locale[:5],
+            "debian-installer/country=%s" % locale[3:5],
+            "debian-installer/language=%s" % locale[0:2],
+            "debian-installer/keymap=%s" % keymap,
+            "console-keymaps-at/keymap=%s" % keymap,
+            "auto-install/enable=false",
+            "preseed/url=%s" % url,
+            "debian/priority=critical",
+            "hostname=%s" % hostname,
+            "domain=%s" % domain,
+            "DEBCONF_DEBUG=5",
+            ]
+
+        return params
 
 
 class DebianDiskDefinition(DiskDefinition):

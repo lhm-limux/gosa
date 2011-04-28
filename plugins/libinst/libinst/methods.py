@@ -613,11 +613,11 @@ def load_system(device_uuid):
     with lh.get_handle() as conn:
         res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
             "(&(objectClass=installRecipe)(objectClass=device)(deviceUUID=%s))" % device_uuid,
-            ["installTemplateDN", "installNTPServer", "installRootEnabled",
+            ["installTemplateDN", "installNTPServer", "installRootEnabled", "macAddress",
              "installRootPasswordHash", "installKeyboardlayout", "installSystemLocale",
-             "installTimezone", "installMirrorDN", "installTimeUTC",
+             "installTimezone", "installMirrorDN", "installTimeUTC", "installArchitecture",
              "installMirrorPoolDN", "installKernelPackage", "installPartitionTable",
-             "installRecipeDN", "installRelease", "deviceStatus", "deviceKey"])
+             "installRecipeDN", "installRelease", "deviceStatus", "deviceKey", "cn"])
 
         # Unique?
         if not res:

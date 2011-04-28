@@ -24,6 +24,7 @@ deviceStatus: [AI]
 installTemplateDN: cn=Debian-Test,cn=templates,cn=libinst,cn=config,dc=gonicus,dc=de
 installNTPServer: pool.ntpdebian.org
 installNTPServer: 10.89.1.1
+installArchitecture: i386
 installRootEnabled: TRUE
 installRootPasswordHash: $1$Zj7dIUaN$EVD/953QAHwZSBOG4RNcR/
 installKeyboardlayout: de-latin1-nodeadkeys

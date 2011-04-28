@@ -395,33 +395,3 @@ class JSONRPCObjectMapper(object):
             self.__proxy[provider] = AMQPServiceProxy(amqp.url['source'], queue)
 
         return self.__proxy[provider]
-
-
-#TODO: Remove object test 8<---------------------------
-
-class Blumentopf(object):
-
-    __farbe = "braun"
-
-    def giessen(self, menge=1.0):
-        if menge > 1.0:
-            print "----> Blumentopf läuft über"
-            return False
-
-        print "----> Blumentopf giessen mit %fl" % menge
-        return True
-
-    @property
-    def farbe(self):
-        return self.__farbe
-
-    @farbe.setter
-    def farbe(self, value):
-        self.__farbe = value
-
-    @farbe.deleter
-    def farbe(self):
-        self.__farbe = None
-
-PluginRegistry.registerObject('test.blumentopf', Blumentopf)
-#TODO: Remove object test 8<---------------------------
