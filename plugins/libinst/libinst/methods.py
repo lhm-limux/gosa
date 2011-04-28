@@ -607,6 +607,10 @@ class InstallMethod(object):
 def load_system(device_uuid, mac=None):
     result = {}
 
+    # Potentially fix mac
+    if mac:
+        mac = mac.replace("-", ":")
+
     # Load chained entries
     res_queue = []
     lh = LDAPHandler.get_instance()
@@ -618,7 +622,8 @@ def load_system(device_uuid, mac=None):
              "installRootPasswordHash", "installKeyboardlayout", "installSystemLocale",
              "installTimezone", "installMirrorDN", "installTimeUTC", "installArchitecture",
              "installMirrorPoolDN", "installKernelPackage", "installPartitionTable",
-             "installRecipeDN", "installRelease", "deviceStatus", "deviceKey", "cn"])
+             "installRecipeDN", "installRelease", "deviceStatus", "deviceKey",
+             "cn", "deviceUUID"])
 
         # Unique?
         if not res:
