@@ -14,9 +14,6 @@ from libinst.methods import BaseInstallMethod
 from libinst.disk import DiskDefinition, LINUX, ALL
 
 
-#TODO: object registry?
-
-
 class DebianPreseed(BaseInstallMethod):
 
     @staticmethod
