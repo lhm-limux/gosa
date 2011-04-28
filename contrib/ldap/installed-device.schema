@@ -224,6 +224,15 @@ attributetype ( 1.3.6.1.4.1.10098.3.2.1.20 NAME 'templateData'
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
     SINGLE-VALUE )
 
+# Attribute: installArchitecture
+#
+# This attribute specifies the architecture of the client
+attributetype ( 1.3.6.1.4.1.10098.3.2.1.21 NAME 'installArchitecture'
+    DESC 'Architecture to be used for client'
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SINGLE-VALUE )
+
 
 # Object: installProfile
 #
@@ -254,7 +263,8 @@ objectclass ( 1.3.6.1.4.1.10098.3.2.1.1.12 NAME 'installRecipe'
            installRootPasswordHash $ installKeyboardlayout $
            installSystemLocale $ installTimezone $ installMirrorDN $
            installTimeUTC $ installMirrorPoolDN $ installKernelPackage $
-           installPartitionTable $ installRecipeDN $ installRelease ) )
+           installPartitionTable $ installRecipeDN $ installRelease $
+	   installArchitecture ) )
 
 # Object: installTemplate
 #

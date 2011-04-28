@@ -435,13 +435,14 @@ class CommandRegistry(object):
             self.capabilities[methodName]['provider'].append(data.Id.text)
 
         # Add objects
-        for obj in data.NodeObject:
-            oid = obj.OID.text
-            if not oid in self.objects:
-                self.objects[oid] = []
+        if data.get('NodeObject'):
+            for obj in data.NodeObject:
+                oid = obj.OID.text
+                if not oid in self.objects:
+                    self.objects[oid] = []
 
-            # Append the sender as a new provider
-            self.objects[oid].append(data.Id.text)
+                # Append the sender as a new provider
+                self.objects[oid].append(data.Id.text)
 
     def _handleNodeStatus(self, data):
         data = data.NodeStatus
