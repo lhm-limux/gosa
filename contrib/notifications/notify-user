@@ -8,40 +8,47 @@ import dbus.mainloop.glib
 import time
 from optparse import OptionParser, OptionValueError
 
+# Define return codes
+RETURN_ABORTED = 0b10000000
+RETURN_TIMEDOUT = 0b1000000
+RETURN_CLOSED_WITH_ACTION = 0b100000
+RETURN_CLOSED = 0b10000
+# 000 to 111 are selected action types.
+
 
 class Notify(object):
     __actions = None
 
     def __init__(self):
         pynotify.init('gosa-ng')
-    
+
     def __callback(self, notification=None, action=None, data=None):
         """
         __callback acts on notification actions, if actions were defined.
         """
-        self.__res = self.__actions.index(data)
+        self.__res = self.__actions.index(data) | RETURN_WITH_ACTION | RETURN_CLOSED
         self.notify.close()
         self.loop.quit()
 
-    def notification_closed(self,*args, **kwargs):
+    def notification_closed(self, *args, **kwargs):
         """
-        notification_closed is called whenever a notification is closed.
-        If no action was selected from the given ones, then show the 
-        notification again. 
+        notification_closed is called whenever a notification is closed
+        If no action was selected from the given ones, then show the
+        notification again.
         """
         # Is there a valid result selected? If not, then show the dialog again.
-        if self .__actions and self.__res == 255:
+        if self.__actions and self.__res == -1:
             try:
                 time.sleep(self.__recurrenceTime)
-                self.notify.show() 
+                self.notify.show()
             except KeyboardInterrupt:
                 self.loop.quit()
         else:
             self.loop.quit()
-    
+
     def send(self, title, message, icon="dialog-information",
         urgency=pynotify.URGENCY_NORMAL,
-        timeout=pynotify.EXPIRES_DEFAULT, 
+        timeout=pynotify.EXPIRES_DEFAULT,
         recurrence=60, **kwargs):
         """
         send    initiates the notification with the given option details.
@@ -52,7 +59,7 @@ class Notify(object):
 
         # Initially start with result id 0 for non-action notificatiuons
         #  and with 255 for action notifications.
-        self.__res = (0 if not 'actions' in kwargs else 255)
+        self.__res = -1
 
         # Build dialog
         self.notify = pynotify.Notification(title, message, icon)
@@ -72,12 +79,14 @@ class Notify(object):
         self.__recurrenceTime = recurrence
 
         # Register provided actions and then hook in the main loop
-        if self.__actions:
-            dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+        if not self.__actions:
+            return RETURN_CLOSED
+        else:
 
             # Register callback for 'NotificationClosed' event on the dbus.
-            bus = dbus.SessionBus()	
-            bus.add_signal_receiver(self.notification_closed, 
+            dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+            bus = dbus.SessionBus()
+            bus.add_signal_receiver(self.notification_closed,
                 dbus_interface="org.freedesktop.Notifications", signal_name="NotificationClosed")
 
             # Hook in the main loop, to keep the programm running till an actoins
@@ -97,12 +106,12 @@ class Notify(object):
 def checkUrgency(option, opt, value, parser):
     """
     checkUrgency    checks whether the given value for the urgency option
-    is valid or not and then updates the cli-option-parser 
+    is valid or not and then updates the cli-option-parser
     It defaults to pynotify.URGENCY_NORMAL.
     """
 
     # Create a dictionary for all valid values.
-    attrMap = {};    
+    attrMap = {}
     attrMap[None] = pynotify.URGENCY_NORMAL
     attrMap['critical'] = pynotify.URGENCY_CRITICAL
     attrMap['normal'] = pynotify.URGENCY_NORMAL
@@ -120,34 +129,34 @@ if __name__ == '__main__':
     n = Notify()
 
     # Define cli-script parameters
-    parser = OptionParser(description = "Sends a notification dialog "
-        "to a user on the local machine.", 
-        prog = "notify", usage = "%prog <message> <title> [options] ")
+    parser = OptionParser(description="Sends a notification dialog "
+        "to a user on the local machine.",
+        prog="notify", usage="%prog <message> <title> [options] ")
 
-    parser.add_option("-l", "--urgency", type="string", help="Urgency level", 
+    parser.add_option("-l", "--urgency", type="string", help="Urgency level",
         callback=checkUrgency, action="callback", default=pynotify.URGENCY_NORMAL)
-    parser.add_option("-i", "--icon", dest="icon", 
+    parser.add_option("-i", "--icon", dest="icon",
         help="An icon file to use in the notifcation", metavar="FILE")
-    parser.add_option("-t", "--timeout", dest="timeout", 
+    parser.add_option("-t", "--timeout", dest="timeout",
         help="Milliseconds the notification is displayed")
     parser.add_option("-u", "--user", dest="user", help="The target user")
-    parser.add_option("-q", "--quiet", action="store_false", dest="verbose", 
-        default=True,help="don't print status messages to stdout")
-    parser.add_option("-a", "--actions", dest="actions", 
+    parser.add_option("-q", "--quiet", action="store_false", dest="verbose",
+        default=True, help="don't print status messages to stdout")
+    parser.add_option("-a", "--actions", dest="actions",
         help="A list of actions the notification is displayed. E.g. -a 'yes,no'")
-    parser.add_option("-r", "--recurrence-time", dest="recurrence", type="float", 
+    parser.add_option("-r", "--recurrence-time", dest="recurrence", type="float",
         help="Recurrence time of unanswered actions notifications.", default=60)
 
     # Check if at least 'message' and 'title' are given.
     (options, args) = parser.parse_args()
     if len(args) != 2:
-           parser.print_help() 
+        parser.print_help()
     else:
-        
+
         # Prepare actions
         actions = []
         if options.actions:
-            actions = options.actions.split(',');
+            actions = options.actions.split(',')
 
         # Check if actions and timeout are given, timeout will be ignored in this case.
         if options.actions and options.timeout and options.verbose:
@@ -159,7 +168,7 @@ if __name__ == '__main__':
         else:
             options.timeout = pynotify.EXPIRES_DEFAULT
 
-        sys.exit(n.send(args[0], args[1], actions=actions, icon=options.icon, 
+        sys.exit(n.send(args[0], args[1], actions=actions, icon=options.icon,
             urgency=options.urgency, timeout=options.timeout, recurrence=options.recurrence))
 
 
