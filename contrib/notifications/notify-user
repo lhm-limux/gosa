@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import os
 import sys
 import pynotify
 import gobject
@@ -8,6 +9,7 @@ import dbus.mainloop.glib
 import time, sched
 from threading import Timer
 from optparse import OptionParser, OptionValueError
+from pwd import getpwnam
 
 # Define return codes
 RETURN_ABORTED = 0b10000000
@@ -174,6 +176,23 @@ if __name__ == '__main__':
             options.timeout = int(options.timeout)
         else:
             options.timeout = pynotify.EXPIRES_DEFAULT
+    
+        # We've to run as another user
+        if options.user:
+            info = getpwnam(options.user)
+            os.setuid(info[2])
+            args = sys.argv
+            if "-u" in args:
+                args.remove("-u")
+            if "--user" in args:
+                args.remove("--user")
+            args.remove(options.user)
+
+
+            print args
+            sys.exit(os.execv('./', sys.argv))
+            sys.exit(os.execv('./', args))
+
 
         sys.exit(n.send(args[0], args[1], actions=actions, icon=options.icon,
             urgency=options.urgency, timeout=options.timeout, recurrence=options.recurrence))
