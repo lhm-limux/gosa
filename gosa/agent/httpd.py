@@ -28,8 +28,11 @@ class HTTPDispatcher(object):
 
     def __call__(self, environ, start_response):
         path = environ.get('PATH_INFO')
-        if path in self.__app:
-            return self.__app[path].__call__(environ, start_response)
+        for app_path, app in self.__app.items():
+            if hasattr(app, "http_subtree") and path.startswith(app_path + "/"):
+                return app.__call__(environ, start_response)
+            elif path == app_path:
+                return app.__call__(environ, start_response)
 
         # Nothing found
         self.env.log.debug('no resource %s registered!' % path)
@@ -49,6 +52,8 @@ class HTTPDispatcher(object):
 class HTTPService(object):
 
     implements(IInterfaceHandler)
+
+    __register = {}
 
     def __init__(self):
         env = Environment.getInstance()
@@ -73,6 +78,14 @@ class HTTPService(object):
         self.env.log.debug("serving http on %s://%s:%s" % (self.scheme, self.host, self.port))
         thread.start_new_thread(self.srv.serve_forever, ())
 
+        # Register all possible instances that have shown
+        # interrest to be served
+        for path, obj in self.__register.items():
+            self.app.register(path, obj)
+
     def stop(self):
         self.env.log.debug("shutting down HTTP service provider")
         self.srv.server_close()
+
+    def register(self, path, obj):
+        self.__register[path] = obj

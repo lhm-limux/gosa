@@ -1195,9 +1195,10 @@ class RepositoryManager(Plugin):
         return data["configMethod"].lower()
 
     @Command(__doc__=N_("Get device's boot string"))
-    def systemGetBootParams(self, device_uuid):
+    def systemGetBootParams(self, device_uuid, mac=None):
         params = []
-        data = load_system(device_uuid)
+        data = load_system(device_uuid, mac)
+        device_uuid = data['deviceUUID'][0]
         method = self.systemGetBaseInstallMethod(device_uuid, data)
         c_method = self.systemGetConfigMethod(device_uuid, data)
 
@@ -1228,8 +1229,9 @@ class RepositoryManager(Plugin):
         return " ".join(params)
 
     @Command(__doc__=N_("Get device's boot string"))
-    def systemGetBootConfiguration(self, device_uuid):
-        data = load_system(device_uuid)
+    def systemGetBootConfiguration(self, device_uuid, mac=None):
+        data = load_system(device_uuid, mac)
+        device_uuid = data['deviceUUID'][0]
         method = self.systemGetBaseInstallMethod(device_uuid, data)
 
         # Use the method described by "method" and pass evaluated data
