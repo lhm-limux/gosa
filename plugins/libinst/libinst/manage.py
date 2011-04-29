@@ -1242,9 +1242,21 @@ class RepositoryManager(Plugin):
         inst_m = self.base_install_method_reg[method]
         return inst_m.getBootConfiguration(device_uuid)
 
-#------#
-# HIER #
-#------#
+    @Command(__doc__=N_("Get device's base install parameters"))
+    def systemGetBaseInstallParameters(self, device_uuid):
+        data = load_system(device_uuid)
+        method = self.systemGetBaseInstallMethod(device_uuid, data)
+        inst_m = self.base_install_method_reg[method]
+        return inst_m.getBaseInstallParameters(device_uuid, data)
+
+    @Command(__doc__=N_("Set device's base install parameters"))
+    def systemSetBaseInstallParameters(self, device_uuid, data):
+        sys_data = load_system(device_uuid)
+        method = self.systemGetBaseInstallMethod(device_uuid, sys_data)
+        inst_m = self.base_install_method_reg[method]
+        return inst_m.setBaseInstallParameters(device_uuid, data, sys_data)
+
+#---------------------------------------------------------------------------------------------#
 
     def _getArchitecture(self, name, add=False):
         result = None
