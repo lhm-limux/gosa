@@ -6,6 +6,7 @@
  See LICENSE for more information about the licensing.
 """
 import re
+from gosa.common.components.registry import PluginRegistry
 
 LINUX = 2 ** 0
 ALL = 2 ** 1
@@ -509,3 +510,5 @@ class DiskDefinition(object):
         pt = re.compile(r"[a-zA-Z0-9=,.+_-]+")
         if not pt.match(fsOptions):
             raise ValueError("fsOptions %s are not valid" % fsOptions)
+
+PluginRegistry.registerObject("libinst.diskdefinition", DiskDefinition)

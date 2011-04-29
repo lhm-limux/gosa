@@ -147,7 +147,6 @@ class BaseInstallMethod(object):
 
         return res
 
-    #TODO-----------------------------------------
     def setBaseInstallParameters(self, device_uuid, data, current_data=None):
         # Load device
         if not current_data:
@@ -185,18 +184,23 @@ class BaseInstallMethod(object):
             conn.modify_s(dn, mods)
 
 
-    def setBaseInstallDiskSetup(self, device_uuid, obj_ref):
+    #TODO---------------------------------------------------------------------
+    def setDiskSetup(self, device_uuid, obj_ref):
         pass
 
-    def getBaseInstallDiskSetup(self, device_uuid, data=None):
-        pass
+    def openDiskSetup(self, device_uuid, data=None):
+        if not data:
+            data = load_system(device_uuid)
 
+        # Instanciate object and return reference
+        return None
 
     #TODO: getter and setter for that...
     #  installMirrorDN        -> DN des Mirror Systems
     #  installMirrorPoolDN    -> DN einer Mirror-Pool-Definition
     #  installTemplateDN      -> DN eines Templates
     #  installRecipeDN        -> Cascadiertes Rezept
+    #--------------------------------------------------------------------------
 
 
 class InstallMethod(object):
