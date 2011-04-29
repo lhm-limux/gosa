@@ -99,6 +99,7 @@ class BaseInstallMethod(object):
             'installTimezone': 'timezone',
             'installTimeUTC': 'utc',
             'installRelease': 'release',
+            'installPartitionTable': 'disk-setup',
             'installKernelPackage': 'kernel',
         }
 
@@ -182,18 +183,6 @@ class BaseInstallMethod(object):
         lh = LDAPHandler.get_instance()
         with lh.get_handle() as conn:
             conn.modify_s(dn, mods)
-
-
-    #TODO---------------------------------------------------------------------
-    def setDiskSetup(self, device_uuid, obj_ref):
-        pass
-
-    def openDiskSetup(self, device_uuid, data=None):
-        if not data:
-            data = load_system(device_uuid)
-
-        # Instanciate object and return reference
-        return None
 
     #TODO: getter and setter for that...
     #  installMirrorDN        -> DN des Mirror Systems
