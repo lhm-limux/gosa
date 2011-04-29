@@ -5,7 +5,8 @@ import pynotify
 import gobject
 import dbus
 import dbus.mainloop.glib
-import time
+import time, sched
+from threading import Timer
 from optparse import OptionParser, OptionValueError
 
 # Define return codes
@@ -18,6 +19,7 @@ RETURN_CLOSED = 0b10000
 
 class Notify(object):
     __actions = None
+    __loop = None
 
     def __init__(self):
         pynotify.init('gosa-ng')
@@ -26,9 +28,12 @@ class Notify(object):
         """
         __callback acts on notification actions, if actions were defined.
         """
-        self.__res = self.__actions.index(data) | RETURN_WITH_ACTION | RETURN_CLOSED
-        self.notify.close()
-        self.loop.quit()
+            
+        # Get the selected action id, the first is 0 so we just add +1 to it,
+        # to get a more useable return code.
+        self.__res = (self.__actions.index(data) + 1) | RETURN_CLOSED_WITH_ACTION 
+        self.__notify.close()
+        self.__loop.quit()
 
     def notification_closed(self, *args, **kwargs):
         """
@@ -40,11 +45,12 @@ class Notify(object):
         if self.__actions and self.__res == -1:
             try:
                 time.sleep(self.__recurrenceTime)
-                self.notify.show()
+                self.__notify.show()
             except KeyboardInterrupt:
-                self.loop.quit()
+                self.__res = RETURN_ABORTED
+                self.__loop.quit()
         else:
-            self.loop.quit()
+            self.__loop.quit()
 
     def send(self, title, message, icon="dialog-information",
         urgency=pynotify.URGENCY_NORMAL,
@@ -62,25 +68,25 @@ class Notify(object):
         self.__res = -1
 
         # Build dialog
-        self.notify = pynotify.Notification(title, message, icon)
+        self.__notify = pynotify.Notification(title, message, icon)
 
-        # Set up actions - here we want an answer, ignore
-        # timeout.
+        # Set up notification details like actions
+        self.__notify.set_urgency(urgency)
         if 'actions' in kwargs:
-            timeout = pynotify.EXPIRES_NEVER
+            self.__notify.set_timeout(pynotify.EXPIRES_NEVER)
+            self.__recurrenceTime = recurrence
             self.__actions = kwargs['actions']
             for action in kwargs['actions']:
-                self.notify.add_action(action, action, self.__callback, action)
-
-        # Set notification details
-        self.notify.set_timeout(timeout)
-        self.notify.set_urgency(urgency)
-        self.notify.show()
-        self.__recurrenceTime = recurrence
+                self.__notify.add_action(action, action, self.__callback, action)
+        else:
+            self.__notify.set_timeout(timeout)
+            
+        # Display the notification
+        self.__notify.show()
 
         # Register provided actions and then hook in the main loop
         if not self.__actions:
-            return RETURN_CLOSED
+            self.__res = RETURN_CLOSED
         else:
 
             # Register callback for 'NotificationClosed' event on the dbus.
@@ -91,14 +97,15 @@ class Notify(object):
 
             # Hook in the main loop, to keep the programm running till an actoins
             # was selected or the application was closed.
-            self.loop = gobject.MainLoop()
+            self.__loop = gobject.MainLoop()
             try:
-                self.loop.run()
+                self.__loop.run()
             except KeyboardInterrupt:
                 try:
-                    self.notify.close()
+                    self.__notify.close()
                 except gobject.GError:
                     pass
+                self.__res = RETURN_ABORTED
 
         return self.__res
 
