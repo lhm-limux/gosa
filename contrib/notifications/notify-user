@@ -32,8 +32,11 @@ class Notify(object):
         """
         # Is there a valid result selected? If not, then show the dialog again.
         if self .__actions and self.__res == 255:
-            #time.sleep(5)
-            self.notify.show() 
+            try:
+                time.sleep(5)
+                self.notify.show() 
+            except KeyboardInterrupt:
+                self.loop.quit()
         else:
             self.loop.quit()
     
@@ -82,8 +85,10 @@ class Notify(object):
             try:
                 self.loop.run()
             except KeyboardInterrupt:
-                self.notify.close()
-                pass
+                try:
+                    self.notify.close()
+                except gobject.GError:
+                    pass
 
         return self.__res
 
