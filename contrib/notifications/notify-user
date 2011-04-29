@@ -14,28 +14,25 @@ class Notify(object):
 
     def __init__(self):
         pynotify.init('gosa-ng')
-
+    
     def __callback(self, notification=None, action=None, data=None):
+        """
+        __callback acts on notification actions, if actions were defined.
         
-        # If we do not get a data object but have actions defined
-        #  then the notification was just closed without selecting an action.
-        if self.__actions:
-            if data not in self.__actions:
-                self.notify.show()
-                return
-            else:
-                self.__res = self.__actions.index(data)
-        else:
-            self.__res = 100
-
+        """
+        self.__res = self.__actions.index(data)
         self.notify.close()
         self.loop.quit()
 
     def notification_closed(self,*args, **kwargs):
-
+        """
+        notification_closed is called whenever a notification is closed.
+        If no action was selected from the given ones, then show the 
+        notification again. 
+        """
         # Is there a valid result selected? If not, then show the dialog again.
-        if self.__res == 255:
-            time.sleep(5)
+        if self .__actions and self.__res == 255:
+            #time.sleep(5)
             self.notify.show() 
         else:
             self.loop.quit()
@@ -43,11 +40,19 @@ class Notify(object):
     def send(self, title, message, icon="dialog-information",
         urgency=pynotify.URGENCY_NORMAL,
         timeout=pynotify.EXPIRES_DEFAULT, **kwargs):
+        """
+        send    initiates the notification with the given option details.
+        If actions were specified then it hooks in the MainLoop to keep
+        the programm running till an action was selected or the programm
+        was interrupted.
+        """
 
-        self.__res = 255
+        # Initially start with result id 0 for non-action notificatiuons
+        #  and with 255 for action notifications.
+        self.__res = (0 if not 'actions' in kwargs else 255)
 
         # Build dialog
-        notify = pynotify.Notification(title, message, icon)
+        self.notify = pynotify.Notification(title, message, icon)
 
         # Set up actions - here we want an answer, ignore
         # timeout.
@@ -55,52 +60,64 @@ class Notify(object):
             timeout = pynotify.EXPIRES_NEVER
             self.__actions = kwargs['actions']
             for action in kwargs['actions']:
-                notify.add_action(action, action, self.__callback, action)
+                self.notify.add_action(action, action, self.__callback, action)
 
-        notify.set_timeout(timeout)
-        notify.set_urgency(urgency)
-        notify.show()
-        self.notify = notify
+        # Set notification details
+        self.notify.set_timeout(timeout)
+        self.notify.set_urgency(urgency)
+        self.notify.show()
 
+        # Register provided actions and then hook in the main loop
         if self.__actions:
             dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+
+            # Register callback for 'NotificationClosed' event on the dbus.
             bus = dbus.SessionBus()	
+            bus.add_signal_receiver(self.notification_closed, 
+                dbus_interface="org.freedesktop.Notifications", signal_name="NotificationClosed")
 
-            #bus.add_signal_receiver(handler, interface_keyword="dbus_interface", member_keyword="member")
-            bus.add_signal_receiver(self.notification_closed, dbus_interface="org.freedesktop.Notifications", signal_name="NotificationClosed",
-                member_keyword="__member", interface_keyword="__interface")
-
+            # Hook in the main loop, to keep the programm running till an actoins
+            # was selected or the application was closed.
             self.loop = gobject.MainLoop()
             try:
                 self.loop.run()
             except KeyboardInterrupt:
+                self.notify.close()
                 pass
 
         return self.__res
 
 
-# Check the urgency level.
 def checkUrgency(option, opt, value, parser):
+    """
+    checkUrgency    checks whether the given value for the urgency option
+    is valid or not and then updates the cli-option-parser 
+    It defaults to pynotify.URGENCY_NORMAL.
+    """
 
+    # Create a dictionary for all valid values.
     attrMap = {};    
     attrMap[None] = pynotify.URGENCY_NORMAL
     attrMap['critical'] = pynotify.URGENCY_CRITICAL
     attrMap['normal'] = pynotify.URGENCY_NORMAL
     attrMap['low'] = pynotify.URGENCY_LOW
 
+    # If a invalid value was specified, then tell the user and default to normal.
     if value not in attrMap:
         raise OptionValueError("Invalid urgency level specified. (critical, normal, low)")
         value = None
 
+    # Update the cli-option-parser now.
     parser.values.urgency = value
 
 if __name__ == '__main__':
     n = Notify()
 
-    # Define script parameters
-    parser = OptionParser()
-    # parser.add_option("-l", "--urgency", type="string", dest="urgency", help="Urgency level", 
-    # callback=checkUrgency, action="callback")
+    # Define cli-script parameters
+    parser = OptionParser(description = "Sends a notification dialog "
+        "to a user on the local machine.", 
+        prog = "notify", usage = "%prog <message> <title> [options] ")
+
     parser.add_option("-l", "--urgency", type="string", help="Urgency level", 
         callback=checkUrgency, action="callback", default=pynotify.URGENCY_NORMAL)
     parser.add_option("-i", "--icon", dest="icon", 
@@ -113,10 +130,10 @@ if __name__ == '__main__':
     parser.add_option("-q", "--quiet", action="store_false", dest="verbose", 
         default=True,help="don't print status messages to stdout")
 
+    # Check if at least 'message' and 'title' are given.
     (options, args) = parser.parse_args()
-
     if len(args) != 2:
-        print 'Please specify at least a title and a message!'
+           parser.print_help() 
     else:
         actions = []
         if options.actions:
