@@ -1,9 +1,20 @@
-ldap config!
+LDAP layout and object class usage
+==================================
+
+1) Tree layout
+
+   DNS / DHCP / Kerberos / Policy integration
 
 
+2) User objects
 
-Device definition
-=================
+   userClass
+   organizationalStatus
+   mailPreferenceOption -> no-list-inclusion, any-list-inclusion, professional-list-inclusion
+   personalSignature -> G3 fax encoded?
+
+
+3) Device objects
 
 device
  cn

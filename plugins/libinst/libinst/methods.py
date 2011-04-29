@@ -13,7 +13,7 @@ import re
 import os
 import ldap
 from gosa.common.env import Environment
-from gosa.agent.ldap_utils import LDAPHandler
+from gosa.agent.ldap_utils import LDAPHandler, unicode2utf8
 from libinst.entities.config_item import ConfigItem
 
 
@@ -102,6 +102,9 @@ class BaseInstallMethod(object):
             'installKernelPackage': 'kernel',
         }
 
+    def __init__(self):
+        self.rev_attributes = dict((v,k) for k, v in self.attributes.iteritems())
+
     @staticmethod
     def getInfo():
         """
@@ -131,14 +134,10 @@ class BaseInstallMethod(object):
         """
         return None
 
-    #TODO-----------------------------------------
-
-    def setBaseInstallParameters(self, device_uuid, data):
-        pass
-
-    def getBaseInstallParameters(self, device_uuid):
+    def getBaseInstallParameters(self, device_uuid, data=None):
         res = {}
-        data = load_system(device_uuid)
+        if not data:
+            data = load_system(device_uuid)
 
         for key, value in self.attributes.items():
             if key in data:
@@ -146,39 +145,58 @@ class BaseInstallMethod(object):
             else:
                 res[value] = None
 
-        print "-"*80
-        print res
-        print "-"*80
         return res
+
+    #TODO-----------------------------------------
+    def setBaseInstallParameters(self, device_uuid, data, current_data=None):
+        # Load device
+        if not current_data:
+            current_data = load_system(device_uuid)
+        dn = current_data['dn']
+        current_data = self.getBaseInstallParameters(device_uuid, current_data)
+
+        mods = []
+
+        # Transfer changed parameters
+        for ldap_key, key in self.attributes.items():
+
+            # New value?
+            if key in data and not key in current_data:
+                mods.append((ldap.MOD_ADD, ldap_key,
+                    unicode2utf8(data[key])))
+                continue
+
+            # Changed value?
+            if key in data and key in current_data \
+                    and data[key] != current_data[key]:
+
+                mods.append((ldap.MOD_REPLACE, ldap_key,
+                    unicode2utf8(data[key])))
+                continue
+
+        # Removed values
+        for key in current_data.keys():
+            if key in self.rev_attributes and not key in data:
+                mods.append((ldap.MOD_DELETE, key, None))
+
+        # Do LDAP operations to add the system
+        lh = LDAPHandler.get_instance()
+        with lh.get_handle() as conn:
+            conn.modify_s(dn, mods)
+
 
     def setBaseInstallDiskSetup(self, device_uuid, obj_ref):
         pass
 
-    def getBaseInstallDiskSetup(self, device_uuid):
+    def getBaseInstallDiskSetup(self, device_uuid, data=None):
         pass
+
 
     #TODO: getter and setter for that...
     #  installMirrorDN        -> DN des Mirror Systems
     #  installMirrorPoolDN    -> DN einer Mirror-Pool-Definition
     #  installTemplateDN      -> DN eines Templates
     #  installRecipeDN        -> Cascadiertes Rezept
-
-    #TODO: need methods for kickstart stuff
-    #  installTemplateDN      -> Template Objekt definieren
-    #  installNTPServer
-    #  installRootEnabled
-    #  installRootPasswordHash
-    #  installKeyboardlayout  -> Liste
-    #  installSystemLocale    -> Liste
-    #  installTimezone        -> Liste
-    #  installTimeUTC
-    #  installRelease         -> Liste
-    #  installMirrorDN        -> DN des Mirror Systems
-    #  installMirrorPoolDN    -> DN einer Mirror-Pool-Definition
-    #  installKernelPackage   -> Liste
-    #  installPartitionTable  -> Object
-    #  installRecipeDN        -> Cascadiertes Rezept
-
 
 
 class InstallMethod(object):
@@ -632,7 +650,7 @@ def load_system(device_uuid, mac=None):
             raise ValueError("device UUID '%s' is not unique!?" % device_uuid)
 
         # Add initial object
-        dn, obj = res[0]
+        obj_dn, obj = res[0]
         res_queue.append(obj)
 
         # Trace recipes of present
@@ -661,5 +679,8 @@ def load_system(device_uuid, mac=None):
                 result["installMethod"] = res[0][1]["installMethod"][0]
             if "templateData" in res[0][1]:
                 result["templateData"] = unicode(res[0][1]["templateData"][0], 'utf-8')
+
+        # Add DN information
+        result['dn'] = obj_dn
 
     return result

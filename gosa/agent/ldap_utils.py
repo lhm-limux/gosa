@@ -11,6 +11,7 @@ See LICENSE for more information about the licensing.
 import ldap
 import ldapurl
 import ldap.sasl
+import types
 from contextlib import contextmanager
 from gosa.common.env import Environment
 
@@ -103,3 +104,7 @@ class LDAPHandler(object):
         if not LDAPHandler.instance:
             LDAPHandler.instance = LDAPHandler()
         return LDAPHandler.instance
+
+
+def unicode2utf8(data):
+    return map(lambda x: x.encode('utf-8') if type(x) == types.UnicodeType else x, data)
