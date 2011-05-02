@@ -348,6 +348,7 @@ class RepositoryManager(Plugin):
         @return: True for success
         """
         result = None
+        session = None
 
         # sanity checks
         p = re.compile(ALLOWED_CHARS_DISTRIBUTION)
@@ -366,26 +367,33 @@ class RepositoryManager(Plugin):
                 return result != None
 
         if not self._getDistribution(name):
-            if isinstance(type, StringTypes):
-                type = self._getType(type, add=True)
-            if type is not None and type.name in self.type_reg:
-                result = self.type_reg[type.name].createDistribution(self._session, name, mirror=mirror)
-                if result is not None:
-                    result.type = type
-                    result.installation_method = install_method
-                    self._session.add(result)
-                    # pylint: disable-msg=E1101,E1103
-                    self._repository.distributions.append(result)
-                    try:
-                        self._session.commit()
+            try:
+                session = self.getSession()
+                if isinstance(type, StringTypes):
+                    type = self._getType(type, add=True)
+                session.add(type)
+                if type is not None and type.name in self.type_reg:
+                    result = self.type_reg[type.name].createDistribution(session, name, mirror=mirror)
+                    if result is not None:
+                        session.add(result)
+                        result.type = type
+                        result.installation_method = install_method
+                        repository = self._getRepository(path=self.path)
+                        session.add(repository)
+                        repository.distributions.append(result)
+                        session.commit()
                         result.repository._initDirs()
-                    except:
-                        self.env.log.error("Problem creating distribution %s" % result.name)
-                        self._session.rollback()
-                        result = False
-                        raise
-            else:
-                raise ValueError("Name and Type are both needed for creating a distribution!")
+                else:
+                    raise ValueError("Name and Type are both needed for creating a distribution!")
+            except:
+                self.env.log.error("Problem creating distribution %s" % name)
+                session.rollback()
+                result = False
+                raise
+            finally:
+                session.close()
+        else:
+            raise ValueError("A distribution with name '%s' already exists" % name)
 
         return result != None
 
@@ -1290,12 +1298,23 @@ class RepositoryManager(Plugin):
 
     def _getType(self, name, add=False):
         result = None
+        session = None
+
         try:
-            result = self._session.query(Type).filter_by(name=name).one()
-        except NoResultFound:
-            if add:
-                result = Type(name)
-                self._session.add(result)
+            try:
+                session = self.getSession()
+                result = session.query(Type).filter_by(name=name).one()
+            except NoResultFound:
+                if add:
+                    result = Type(name)
+                    session.add(result)
+                    session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
         return result
 
     def _getDistribution(self, name):
@@ -1305,7 +1324,7 @@ class RepositoryManager(Plugin):
         try:
             try:
                 session = self.getSession()
-                result = self._session.query(Distribution).filter_by(name=name).one()
+                result = session.query(Distribution).filter_by(name=name).one()
             except NoResultFound:
                 pass
         except:
