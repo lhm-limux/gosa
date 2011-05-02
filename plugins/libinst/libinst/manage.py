@@ -395,8 +395,8 @@ class RepositoryManager(Plugin):
                         repository = self._getRepository(path=self.path)
                         session.add(repository)
                         repository.distributions.append(result)
-                        session.commit()
                         result.repository._initDirs()
+                        session.commit()
                 else:
                     raise ValueError("Name and Type are both needed for creating a distribution!")
             except:
@@ -922,77 +922,84 @@ class RepositoryManager(Plugin):
         result = None
         download_dir = None
         local_url = None
+        session = None
 
-        if release:
-            if isinstance(release, StringTypes):
-                instance = self._getRelease(release)
-                if instance is not None:
-                    release = instance
-                else:
-                    raise ValueError(N_("Release {release} does not exist!").format(release=release))
-
-        elif distribution:
-            if isinstance(distribution, StringTypes):
-                instance = self._getDistribution(release)
-                if instance is not None:
-                    distribution = instance
-                else:
-                    raise ValueError(N_("Distribution {distribution} does not exist!").format(distribution=distribution))
-        else:
-            raise ValueError(N_("Need either a release or a distribution to add a Package"))
-
-        if url.startswith(('http', 'ftp')):
-            download_dir = tempfile.mkdtemp()
-            request = urllib2.Request(url)
-            try:
-                file = urllib2.urlopen(request)
-                file_name = url.split('/')[-1]
-                local_file = open(download_dir + os.sep + file_name, "w")
-                local_file.write(file.read())
-                local_file.close()
-                local_url = download_dir + os.sep + file_name
-            except urllib2.HTTPError, e:
-                print "HTTP Error:", e.code, url
-            except urllib2.URLError, e:
-                print "URL Error:", e.reason, url
-
-        if os.path.exists(local_url):
-            # get file extension
-            file_ext = local_url.split('.')[-1]
-            type_name = None
+        try:
+            session = self.getSession()
             if release:
-                type_name = release.distribution.type.name
+                if isinstance(release, StringTypes):
+                    instance = self._getRelease(release)
+                    if instance is not None:
+                        release = instance
+                    else:
+                        raise ValueError(N_("Release {release} does not exist!").format(release=release))
+                session.add(release)
+
             elif distribution:
-                type_name = distribution.type.name
-            elif file_ext in self.type_reg:
-                type_name = file_ext
+                if isinstance(distribution, StringTypes):
+                    instance = self._getDistribution(release)
+                    if instance is not None:
+                        distribution = instance
+                    else:
+                        raise ValueError(N_("Distribution {distribution} does not exist!").format(distribution=distribution))
+                session.add(distribution)
             else:
-                raise ValueError(N_("Don't know how to handle {url}").format(url=url))
+                raise ValueError(N_("Need either a release or a distribution to add a Package"))
 
-            # Distribution specific method must handle duplicates
-            result = self.type_reg[file_ext].addPackage(self._session,
-                                                        local_url,
-                                                        distribution=distribution,
-                                                        release=release,
-                                                        component=component,
-                                                        origin=url)
-        else:
-            raise ValueError(N_("Path '{url}' is not readable").format(url=url))
+            if url.startswith(('http', 'ftp')):
+                download_dir = tempfile.mkdtemp()
+                request = urllib2.Request(url)
+                try:
+                    file = urllib2.urlopen(request)
+                    file_name = url.split('/')[-1]
+                    local_file = open(download_dir + os.sep + file_name, "w")
+                    local_file.write(file.read())
+                    local_file.close()
+                    local_url = download_dir + os.sep + file_name
+                except urllib2.HTTPError, e:
+                    print "HTTP Error:", e.code, url
+                except urllib2.URLError, e:
+                    print "URL Error:", e.reason, url
 
-        if result is not None:
-            result.origin = url
-            try:
-                self._session.commit()
-                if updateInventory:
-                    self._updateInventory(release=release, distribution=distribution)
-            except:
-                self._session.rollback()
+            if os.path.exists(local_url):
+                # get file extension
+                file_ext = local_url.split('.')[-1]
+                type_name = None
+                if release:
+                    type_name = release.distribution.type.name
+                elif distribution:
+                    type_name = distribution.type.name
+                elif file_ext in self.type_reg:
+                    type_name = file_ext
+                else:
+                    raise ValueError(N_("Don't know how to handle {url}").format(url=url))
 
-        if download_dir:
-            try:
+                # Distribution specific method must handle duplicates
+                result = self.type_reg[file_ext].addPackage(session,
+                                                            local_url,
+                                                            distribution=distribution,
+                                                            release=release,
+                                                            component=component,
+                                                            origin=url)
+                if result is not None:
+                    session.add(result)
+                    result.origin = url
+                    session.commit()
+                    if updateInventory:
+                        self._updateInventory(release=release, distribution=distribution)
+            else:
+                raise ValueError(N_("Path '{url}' is not readable").format(url=url))
+
+            if download_dir:
                 shutil.rmtree(download_dir)
-            except:
-                raise
+
+        except ValueError:
+            raise
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
 
         return result != None
 
@@ -1297,20 +1304,31 @@ class RepositoryManager(Plugin):
 
     def _getFile(self, url, add=False):
         result = None
+        session = None
+
         try:
-            result = self._session.query(File).filter_by(name=os.path.basename(url)).one()
-        except NoResultFound:
-            if add:
-                result = File(name=os.path.basename(url))
-                if os.path.exists(url):
-                    infile = open(url, 'rb')
-                    content = infile.read()
-                    infile.close()
-                    m = hashlib.md5()
-                    m.update(content)
-                    result.md5sum = m.hexdigest()
-                    result.size = os.path.getsize(url)
-                self._session.add(result)
+            try:
+                session = self.getSession()
+                result = self._session.query(File).filter_by(name=os.path.basename(url)).one()
+            except NoResultFound:
+                if add:
+                    result = File(name=os.path.basename(url))
+                    session.add(result)
+                    if os.path.exists(url):
+                        infile = open(url, 'rb')
+                        content = infile.read()
+                        infile.close()
+                        m = hashlib.md5()
+                        m.update(content)
+                        result.md5sum = m.hexdigest()
+                        result.size = os.path.getsize(url)
+                    session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
         return result
 
     def _getType(self, name, add=False):
@@ -1418,44 +1436,55 @@ class RepositoryManager(Plugin):
         @return: True for success
         """
         result = None
-        if release:
-            if isinstance(release, StringTypes):
-                release = self._getRelease(release)
-            result = self.type_reg[release.distribution.type.name]._updateInventory(self._session, release=release)
-        elif distribution:
-            if isinstance(distribution, StringTypes):
-                distribution = self._getDistribution(distribution)
-            result = self.type_reg[distribution.type.name]._updateInventory(self._session, distribution=distribution)
+        session = None
+
         try:
-            self._session.commit()
+            session = self.getSession()
+            if release:
+                if isinstance(release, StringTypes):
+                    release = self._getRelease(release)
+                release = session.merge(release)
+                result = self.type_reg[release.distribution.type.name]._updateInventory(session, release=release)
+            elif distribution:
+                if isinstance(distribution, StringTypes):
+                    distribution = self._getDistribution(distribution)
+                distribution = session.merge(distribution)
+                result = self.type_reg[distribution.type.name]._updateInventory(session, distribution=distribution)
+            session.commit()
         except:
-            self._session.rollback()
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
         return result
 
     def _getConfigItem(self, name, item_type, release=None, add=False):
         result = None
-        sesion = self.getDatabaseSession()
+        session = None
+
         try:
-            result = self._session.query(ConfigItem)
-            if name:
-                result = result.filter_by(name=name)
-            if item_type:
-                result = result.filter_by(item_type=item_type)
-            if release:
-                result = result.join(ConfigItemReleases).join(Release).filter_by(name=release)
-            result = result.one()
-        except NoResultFound:
-            result = ConfigItem(name=name, item_type=item_type)
-            self._session.add(result)
-            if add:
-                session.add(result)
-                try:
+            try:
+                session = self.getSession()
+                result = session.query(ConfigItem)
+                if name:
+                    result = result.filter_by(name=name)
+                if item_type:
+                    result = result.filter_by(item_type=item_type)
+                if release:
+                    result = result.join(ConfigItemReleases).join(Release).filter_by(name=release)
+                result = result.one()
+            except NoResultFound:
+                result = ConfigItem(name=name, item_type=item_type)
+                if add:
+                    session.add(result)
                     session.commit()
-                except:
-                    session.rollback()
-                    raise
-                finally:
-                    session.close()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
         return result
 
     def _replaceConfigItems(self, release, items):

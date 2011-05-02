@@ -114,12 +114,15 @@ class DebianHandler(DistributionHandler):
         if distribution:
             if isinstance(distribution, (str, unicode)):
                 distribution = self._getDistribution(session, distribution)
+                distribution = session.merge(distribution)
         if release:
             if isinstance(release, (str, unicode)):
                 release = self._getRelease(session, release)
+                release = session.merge(release)
 
-        result = self._getPackageFromUrl(session, url, origin=origin,
-                                         component=component)
+        result = self._getPackageFromUrl(session, url, origin=origin, component=component)
+        session.add(result)
+
         if release:
             # TODO: Find a better way to code this
             present = False
@@ -136,7 +139,7 @@ class DebianHandler(DistributionHandler):
             if present:
                 result = None
             else:
-                if upgrade: # upgrade means also downgrade
+                if upgrade: # upgrade also means downgrade
                     if not self.removePackage(session, result.name, arch = result.arch, release = release):
                         result = None
 
