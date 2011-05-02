@@ -82,7 +82,7 @@ class RepositoryManager(Plugin):
         self.env = env
         engine = env.getDatabaseEngine("repository")
         Session = scoped_session(sessionmaker(autoflush=True, bind=engine))
-        self._session = Session()
+        #self._session = Session()
         self.path = env.config.getOption('path', section='repository')
         if not os.path.exists(self.path):
             try:
@@ -1298,8 +1298,10 @@ class RepositoryManager(Plugin):
     def _getRepository(self, name=None, path=None, add=False):
         result = None
 
+        session = self.getSession()
+
         try:
-            result = self._session.query(Repository)
+            result = session.query(Repository)
             if name:
                 result = result.filter_by(name=name)
             elif path:
@@ -1308,7 +1310,17 @@ class RepositoryManager(Plugin):
         except NoResultFound:
             if add:
                 result = Repository(name=name, path=path)
-                self._session.add(result)
+                session.add(result)
+                try:
+                    session.commit()
+                except:
+                    session.rollback()
+                    raise
+                finally:
+                    session.close()
+            else:
+                session.close()
+
         return result
 
     def _getPackage(self, name, arch=None):
@@ -1352,6 +1364,7 @@ class RepositoryManager(Plugin):
 
     def _getConfigItem(self, name, item_type, release=None, add=False):
         result = None
+        sesion = self.getDatabaseSession()
         try:
             result = self._session.query(ConfigItem)
             if name:
@@ -1364,6 +1377,15 @@ class RepositoryManager(Plugin):
         except NoResultFound:
             result = ConfigItem(name=name, item_type=item_type)
             self._session.add(result)
+            if add:
+                session.add(result)
+                try:
+                    session.commit()
+                except:
+                    session.rollback()
+                    raise
+                finally:
+                    session.close()
         return result
 
     def _replaceConfigItems(self, release, items):
@@ -1443,7 +1465,7 @@ class RepositoryManager(Plugin):
     # return the session to be used in the tests.
     #============================================
     def getSession(self):
-        return self._session
+        return self.env.getDatabaseSession("repository")
 
     def _getGPGEnvironment(self):
         result = None
