@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+import grp
 import pynotify
 import gobject
 import dbus
@@ -179,8 +180,24 @@ if __name__ == '__main__':
     
         # We've to run as another user
         if options.user:
+
+            # Detecting groups of user hickert
+            gids = []
+            for a in grp.getgrall():
+                if options.user in a.gr_mem:
+                    gids.append(a.gr_gid)
+
+            # Now Switch to the selected user, primary group und uid 
+            #  for the current os environment
             info = getpwnam(options.user)
+
+            # Set the users groups 
+            os.setgroups(gids)
+            os.setgid(info[3])
             os.setuid(info[2])
+
+            # Remove --user and -u parameter from the 
+            #  parameter list to avoid an endless recursion
             args = sys.argv
             if "-u" in args:
                 args.remove("-u")
@@ -188,6 +205,7 @@ if __name__ == '__main__':
                 args.remove("--user")
             args.remove(options.user)
 
+            # Execute the notification script as the given user.
             sys.exit(os.execv(sys.argv[0], args))
 
 
