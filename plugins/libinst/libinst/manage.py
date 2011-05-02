@@ -1169,8 +1169,6 @@ class RepositoryManager(Plugin):
 
         return data["installMethod"].lower()
 
-    #TODO: Command can be removed later on, because we're going to download
-    #      the template over the network
     @Command(__doc__=N_("Get device's filled install template"))
     def systemGetTemplate(self, device_uuid):
         """ Evaulate template for system with device_uuid 'device_uuid' """

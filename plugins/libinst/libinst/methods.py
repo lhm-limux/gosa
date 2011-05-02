@@ -152,10 +152,16 @@ class BaseInstallMethod(object):
         # Load device
         if not current_data:
             current_data = load_system(device_uuid)
+
+        is_new = not 'installRecipe' in current_data['objectClass']
         dn = current_data['dn']
         current_data = self.getBaseInstallParameters(device_uuid, current_data)
 
         mods = []
+
+        # Add eventually missing objectclass
+        if is_new:
+            mods.append((ldap.MOD_ADD, 'objectClass', 'installRecipe'))
 
         # Transfer changed parameters
         for ldap_key, key in self.attributes.items():
@@ -177,7 +183,7 @@ class BaseInstallMethod(object):
         # Removed values
         for key in current_data.keys():
             if key in self.rev_attributes and not key in data:
-                mods.append((ldap.MOD_DELETE, key, None))
+                mods.append((ldap.MOD_DELETE, self.rev_attributes[key], None))
 
         # Do LDAP operations to add the system
         lh = LDAPHandler.get_instance()
@@ -628,17 +634,19 @@ def load_system(device_uuid, mac=None):
     with lh.get_handle() as conn:
         fltr = "macAddress=%s" % mac if mac else "deviceUUID=%s" % device_uuid
         res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
-            "(&(objectClass=installRecipe)(objectClass=device)(%s))" % fltr,
+            "(&(objectClass=registeredDevice)(%s))" % fltr,
             ["installTemplateDN", "installNTPServer", "installRootEnabled", "macAddress",
              "installRootPasswordHash", "installKeyboardlayout", "installSystemLocale",
              "installTimezone", "installMirrorDN", "installTimeUTC", "installArchitecture",
              "installMirrorPoolDN", "installKernelPackage", "installPartitionTable",
              "installRecipeDN", "installRelease", "deviceStatus", "deviceKey",
-             "cn", "deviceUUID"])
+             "cn", "deviceUUID", "objectClass"])
+
+        # Nothing here...
+        if not res:
+            raise ValueError("device UUID '%s' does not exist" % device_uuid)
 
         # Unique?
-        if not res:
-            raise ValueError("device UUID '%s' cannot be found" % device_uuid)
         if len(res) != 1:
             raise ValueError("device UUID '%s' is not unique!?" % device_uuid)
 
