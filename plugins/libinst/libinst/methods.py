@@ -190,6 +190,19 @@ class BaseInstallMethod(object):
         with lh.get_handle() as conn:
             conn.modify_s(dn, mods)
 
+    def removeBaseInstallParameters(self, device_uuid, data=None):
+        if not data:
+            data = load_system(device_uuid)
+
+        mods = [(ldap.MOD_DELETE, 'objectClass', 'installRecipe')]
+        for attr in self.attributes.keys():
+            mods.append((ldap.MOD_DELETE, attr, None))
+
+        # Do LDAP operations to remove the device
+        lh = LDAPHandler.get_instance()
+        with lh.get_handle() as conn:
+            conn.modify_s(dn, mods)
+
     #TODO: getter and setter for that...
     #  installMirrorDN        -> DN des Mirror Systems
     #  installMirrorPoolDN    -> DN einer Mirror-Pool-Definition

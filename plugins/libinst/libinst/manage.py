@@ -1154,6 +1154,13 @@ class RepositoryManager(Plugin):
         pname = self.type_reg[repo_type].getKernelPackageFilter()
         return self.getPackages(release=release.name, custom_filter={'name': pname})
 
+    @Command(__doc__=N_("Completely remove device's installation parameters"))
+    def removeBaseInstallParameters(self, device_uuid):
+        data = load_system(device_uuid)
+        method = self.systemGetBaseInstallMethod(device_uuid, data)
+        inst_m = self.base_install_method_reg[method]
+        return inst_m.removeBaseInstallParameters(device_uuid, data)
+
     @Command(__doc__=N_("Get device's installation method"))
     def systemGetBaseInstallMethod(self, device_uuid, data=None):
         # Load system
