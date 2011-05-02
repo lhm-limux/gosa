@@ -45,11 +45,11 @@ LcWMU6gayNYj7eMgCOFM6ywySRS81FC+PPnr147xbp5FwgmoPRK52MURsHJ+
     #print manager.getSupportedInstallMethods()
 
     manager.addKeys(keyring)
-    print "createDistribution:", manager.createDistribution("debian", "deb",
-            {"mirror": "http://archive.debian.org/debian"},
-            install_method="puppet")
-    print("getDistributions", manager.getDistributions())
-    print "createRelease:", manager.createRelease("debian", "test")
+    #print "createDistribution:", manager.createDistribution("debian", "deb",
+    #        {"mirror": "http://archive.debian.org/debian"},
+    #        install_method="puppet")
+    #print("getDistributions", manager.getDistributions())
+    #print "createRelease:", manager.createRelease("debian", "test")
     #print("getDistributions", manager.getDistributions())
     #manager._getRelease("bo").distribution.architectures.append(manager._getArchitecture("i386", add=True))
     #manager.addMirrorProperty(distribution="debian", arch="i386", component="main")
@@ -57,7 +57,7 @@ LcWMU6gayNYj7eMgCOFM6ywySRS81FC+PPnr147xbp5FwgmoPRK52MURsHJ+
     #manager.updateMirror(distribution="debian")
     ##manager._getRelease("bo").distribution.components.append(manager._getComponent("main", add=True))
     ##print("getDistributions", manager.getDistributions())
-    print(manager.getReleases({"distribution": "debian"}))
+    #print(manager.getReleases({"distribution": "debian"}))
     ##manager._getRelease("bo").distribution._sync()
     ##print "createRelease:", manager.createRelease("debian", "lenny/1.0")
     #print "createRelease:", manager.createRelease("debian", "squeeze")
@@ -66,13 +66,13 @@ LcWMU6gayNYj7eMgCOFM6ywySRS81FC+PPnr147xbp5FwgmoPRK52MURsHJ+
     #print("addPackage: kalign_2.03-2_i386.deb", manager.addPackage("http://ftp2.de.debian.org/debian/pool/main/k/kalign/kalign_2.03-2_i386.deb", release = "lenny"))
     #print("addPackage: kalign_2.03-2_i386.deb", manager.addPackage("http://ftp2.de.debian.org/debian/pool/main/k/kalign/kalign_2.03-2_i386.deb", release = "squeeze"))
     #print("addPackage: a2ps_4.14-1.1_i386.deb", manager.addPackage("http://ftp2.de.debian.org/debian/pool/main/a/a2ps/a2ps_4.14-1.1_i386.deb", release = "lenny"))
-    print("addPackage: jaaa_0.4.2-1_amd64.deb", manager.addPackage("http://ftp2.de.debian.org/debian/pool/main/j/jaaa/jaaa_0.4.2-1_amd64.deb", {"release": "test"}))
+    #print("addPackage: jaaa_0.4.2-1_amd64.deb", manager.addPackage("http://ftp2.de.debian.org/debian/pool/main/j/jaaa/jaaa_0.4.2-1_amd64.deb", {"release": "test"}))
     #print("addPackage: jaaa_0.4.2-1_amd64.deb", manager.addPackage("http://ftp2.de.debian.org/debian/pool/main/j/jaaa/jaaa_0.4.2-1_amd64.deb", release = "squeeze"))
     #print("getPackages: ", manager.getPackages(release="lenny", arch="i386", section="text"))
     #print("removePackage: jaaa", manager.removePackage("jaaa", release="lenny", arch="source"))
     #print("removePackage: kalign", manager.removePackage("kalign", release="lenny"))
     #print("removePackage: a2ps", manager.removePackage("a2ps"))
-    print("removePackage: jaaa", manager.removePackage("jaaa"))
+    #print("removePackage: jaaa", manager.removePackage("jaaa"))
     #print("addPackage: jaaa_0.6.0-1+b1_amd64.deb", manager.addPackage("http://ftp2.de.debian.org/debian/pool/main/j/jaaa/jaaa_0.6.0-1+b1_amd64.deb", release = "lenny"))
     #print("addPackage: jaaa_0.4.2-1_amd64.deb", manager.addPackage("http://ftp2.de.debian.org/debian/pool/main/j/jaaa/jaaa_0.4.2-1_amd64.deb", release = "lenny"))
     #print(manager.getPackages())

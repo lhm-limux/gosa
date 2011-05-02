@@ -18,7 +18,6 @@ class TestDebianRepository(unittest.TestCase):
         self.env = Environment.getInstance()
         self.mgr = RepositoryManager()
         engine = self.env.getDatabaseEngine("repository")
-        self._session = self.mgr.getSession()
 
         keyring = """-----BEGIN PGP PRIVATE KEY BLOCK-----
         Version: GnuPG v1.4.10 (GNU/Linux)
@@ -207,7 +206,7 @@ class TestDebianRepository(unittest.TestCase):
 
     def test_getArchitectures(self):
         self.assertEquals(len(self.mgr.getArchitectures()), 0)
-        self.assertTrue(self.mgr.addPackage("http://ftp2.de.debian.org/debian/pool/main/k/kalign/kalign_2.03-2_i386.deb", release = "lenny"))
+        self.assertTrue(self.mgr.addPackage("http://ftp.de.debian.org/debian/pool/main/k/kalign/kalign_2.03-2_i386.deb", release = "lenny"))
         self.assertEquals(len(self.mgr.getArchitectures()), 1)
 
 
@@ -302,11 +301,18 @@ class TestDebianRepository(unittest.TestCase):
 
 
     def helperAddRepositoryTypes(self):
-        deb = Type("deb", description = "Debian Package")
-        rpm = Type("rpm", description = "Redhat Package")
-        msi = Type("msi", description = "Windows MSI Package")
-        self._session.add_all([deb,rpm,msi])
-        self._session.commit()
+        session = None
+        try:
+            session = self.mgr.getSession()
+            deb = Type("deb", description = "Debian Package")
+            rpm = Type("rpm", description = "Redhat Package")
+            msi = Type("msi", description = "Windows MSI Package")
+            session.add_all([deb,rpm,msi])
+            session.commit()
+        except:
+            session.rollback()
+        finally:
+            session.close()
 
 
 if __name__ == '__main__':

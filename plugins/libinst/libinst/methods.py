@@ -241,23 +241,29 @@ class InstallMethod(object):
         @rtype: bool
         @return: True - success
         """
-        if parent:
-            self.env.log.info("creating release '%s' with parent '%s'" % (name,
-                parent))
-        else:
-            self.env.log.info("creating release '%s'" % name)
+        session = None
 
-        # Add root node
-        release = self._manager._getRelease(name)
-        # pylint: disable-msg=E1101
-        release.config_items.append(ConfigItem(name="/", item_type=self._root))
-
-        # Try to commit the changes
         try:
-            self._manager._session.commit()
+            session = self._manager.getSession()
+            if parent:
+                parent = session.merge(parent)
+                self.env.log.info("creating release '%s' with parent '%s'" % (name, parent))
+            else:
+                self.env.log.info("creating release '%s'" % name)
+
+            # Add root node
+            release = self._manager._getRelease(name)
+            session.add(release)
+            # pylint: disable-msg=E1101
+            release.config_items.append(ConfigItem(name="/", item_type=self._root))
+
+            # Try to commit the changes
+            session.commit()
         except:
-            self._manager._session.rollback()
+            session.rollback()
             raise
+        finally:
+            session.close()
 
     def removeRelease(self, name, recursive=False):
         """
