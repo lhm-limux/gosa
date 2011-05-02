@@ -216,8 +216,22 @@ class RepositoryManager(Plugin):
                  discription pairs.
         """
         result = None
-        if self._repository.distributions:
-            result = [distribution.getInfo() for distribution in self._repository.distributions]
+        session = None
+        repository = None
+
+        try:
+            session = self.getSession()
+            repository = self._getRepository(path=self.path)
+            session.add(repository)
+            if repository.distributions:
+                result = [distribution.getInfo() for distribution in repository.distributions]
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
         return result
 
     @Command(__doc__=N_("List available releases for the given distribution"))
