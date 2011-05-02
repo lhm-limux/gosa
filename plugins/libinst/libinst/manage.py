@@ -407,7 +407,7 @@ class RepositoryManager(Plugin):
             finally:
                 session.close()
         else:
-            raise ValueError("A distribution with name '%s' already exists" % name)
+            raise ValueError(N_("Distribution {distribution} already exists!").format(distribution=name))
 
         return result != None
 
@@ -477,6 +477,8 @@ class RepositoryManager(Plugin):
         @return: True for success
         """
         result = None
+        session = None
+
         if not self._getRelease(name):
             p = re.compile(ALLOWED_CHARS_RELEASE)
             if not p.match(name):
@@ -484,34 +486,35 @@ class RepositoryManager(Plugin):
             if name == "master":
                 raise ValueError(N_("master is a reserved keyword!"))
 
-            if isinstance(distribution, StringTypes):
-                instance = self._getDistribution(distribution)
-                if instance:
-                    distribution = instance
-                else:
-                    raise ValueError(N_("Distribution {distribution} does not exist!").format(distribution=distribution))
+            try:
+                session = self.getSession()
+                if isinstance(distribution, StringTypes):
+                    instance = self._getDistribution(distribution)
+                    if instance:
+                        distribution = instance
+                    else:
+                        raise ValueError(N_("Distribution {distribution} does not exist!").format(distribution=distribution))
+                session.add(distribution)
 
-            if '/' in name and not self._getRelease(name.rsplit('/', 1)[0]):
-                raise ValueError(N_("Parent release {release} not found!").format(release=name.rsplit('/', 1)[0]))
+                if '/' in name and not self._getRelease(name.rsplit('/', 1)[0]):
+                    raise ValueError(N_("Parent release {release} not found!").format(release=name.rsplit('/', 1)[0]))
 
-            result = self.type_reg[distribution.type.name].createRelease(self._session, distribution, name)
-            if result is not None:
-                self._session.add(result)
-                distribution.releases.append(result)
-                if result.parent is not None:
-                    for package in result.parent.packages[:]:
-                        result.packages.append(package)
-                try:
-                    self._session.commit()
+                result = self.type_reg[distribution.type.name].createRelease(session, distribution, name)
+                if result is not None:
+                    session.add(result)
+                    distribution.releases.append(result)
+                    if result.parent is not None:
+                        for package in result.parent.packages[:]:
+                            result.packages.append(package)
+                    session.commit()
                     distribution.repository._initDirs()
-                except:
-                    self._session.rollback()
-                    raise
-                if result.distribution.installation_method is not None:
-                    try:
+                    if result.distribution.installation_method is not None:
                         self.install_method_reg[result.distribution.installation_method].createRelease(result.name, result.parent)
-                    except:
-                        raise
+            except:
+                session.rollback()
+                raise
+            finally:
+                session.close()
         else:
             raise ValueError(N_("Release {release} already exists!").format(release=name))
         return result != None
@@ -1352,10 +1355,16 @@ class RepositoryManager(Plugin):
 
     def _getRelease(self, name):
         result = None
+        session = None
+
         try:
-            result = self._session.query(Release).filter_by(name=name).one()
+            session = self.getSession()
+            result = session.query(Release).filter_by(name=name).one()
         except NoResultFound:
             pass
+        finally:
+            session.close()
+
         return result
 
     def _getRepository(self, name=None, path=None, add=False):
