@@ -7,7 +7,8 @@ import pynotify
 import gobject
 import dbus
 import dbus.mainloop.glib
-import time, sched
+import sched
+import time
 from threading import Timer
 from optparse import OptionParser, OptionValueError
 from pwd import getpwnam
@@ -31,10 +32,10 @@ class Notify(object):
         """
         __callback acts on notification actions, if actions were defined.
         """
-            
+
         # Get the selected action id, the first is 0 so we just add +1 to it,
         # to get a more useable return code.
-        self.__res = (self.__actions.index(data) + 1) | RETURN_CLOSED_WITH_ACTION 
+        self.__res = (self.__actions.index(data) + 1) | RETURN_CLOSED_WITH_ACTION
         self.__notify.close()
         self.__loop.quit()
 
@@ -83,7 +84,7 @@ class Notify(object):
                 self.__notify.add_action(action, action, self.__callback, action)
         else:
             self.__notify.set_timeout(timeout)
-            
+
         # Display the notification
         self.__notify.show()
 
@@ -177,7 +178,7 @@ if __name__ == '__main__':
             options.timeout = int(options.timeout)
         else:
             options.timeout = pynotify.EXPIRES_DEFAULT
-    
+
         # We've to run as another user
         if options.user:
 
@@ -187,16 +188,16 @@ if __name__ == '__main__':
                 if options.user in a.gr_mem:
                     gids.append(a.gr_gid)
 
-            # Now Switch to the selected user, primary group und uid 
+            # Now Switch to the selected user, primary group und uid
             #  for the current os environment
             info = getpwnam(options.user)
 
-            # Set the users groups 
+            # Set the users groups
             os.setgroups(gids)
             os.setgid(info[3])
             os.setuid(info[2])
 
-            # Remove --user and -u parameter from the 
+            # Remove --user and -u parameter from the
             #  parameter list to avoid an endless recursion
             args = sys.argv
             if "-u" in args:
@@ -208,9 +209,11 @@ if __name__ == '__main__':
             # Execute the notification script as the given user.
             sys.exit(os.execv(sys.argv[0], args))
 
+        else:
 
-        sys.exit(n.send(args[0], args[1], actions=actions, icon=options.icon,
-            urgency=options.urgency, timeout=options.timeout, recurrence=options.recurrence))
+            # Try to send the notification now.
+            sys.exit(n.send(args[0], args[1], actions=actions, icon=options.icon,
+                urgency=options.urgency, timeout=options.timeout, recurrence=options.recurrence))
 
 
 ###############################################
