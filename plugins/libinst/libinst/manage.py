@@ -116,8 +116,9 @@ class RepositoryManager(Plugin):
         db_purge = env.config.getOption('db_purge', section='repository')
         if db_purge == "True":
             self.initializeDatabase(engine)
-        # Initialize internal repository instance
-        self._repository = self._getRepository(path=self.path, add=True)
+
+        # Initialize Repository instance
+        self._getRepository(path=self.path, add=True)
 
         # Load keyboard models
         self.keyboardModels = KeyboardModels().get_models()
@@ -1008,24 +1009,42 @@ class RepositoryManager(Plugin):
 
     def addKeys(self, keys):
         result = False
-        if not self._repository.keyring:
-            self._repository.keyring = RepositoryKeyring(data=keys)
-            work_dir = self._getGPGEnvironment()
-            gpg = gnupg.GPG(gnupghome=work_dir)
-            for key in gpg.list_keys(True):
-                if key['type'] == "sec":
-                    self._repository.keyring.name = key['fingerprint']
-                    break
-            shutil.rmtree(work_dir)
-            result = True
-        else:
-            work_dir = self._getGPGEnvironment()
-            gpg = gnupg.GPG(gnupghome=work_dir)
-            # pylint: disable-msg=E1101
-            import_result = gpg.import_keys(keys)
-            if import_result.count > 0:
+        session = None
+        repository = None
+
+        try:
+            session = self.getSession()
+            repository = self._getRepository(path=self.path)
+            session.add(repository)
+
+            if not repository.keyring:
+                self._addRepositoryKeyring(repository=repository, keyring=RepositoryKeyring(data=keys))
+                session.refresh(repository)
+                work_dir = self._getGPGEnvironment()
+                gpg = gnupg.GPG(gnupghome=work_dir)
+                for key in gpg.list_keys(True):
+                    if key['type'] == "sec":
+                        repository.keyring.name = key['fingerprint']
+                        break
+                shutil.rmtree(work_dir)
                 result = True
-            shutil.rmtree(work_dir)
+            else:
+                work_dir = self._getGPGEnvironment()
+                gpg = gnupg.GPG(gnupghome=work_dir)
+                # pylint: disable-msg=E1101
+                import_result = gpg.import_keys(keys)
+                if import_result.count > 0:
+                    result = True
+                shutil.rmtree(work_dir)
+
+            session.commit()
+
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
         return result
 
     def removeKey(self, key_id):
@@ -1281,10 +1300,21 @@ class RepositoryManager(Plugin):
 
     def _getDistribution(self, name):
         result = None
+        session = None
+
         try:
-            result = self._session.query(Distribution).filter_by(name=name).one()
-        except NoResultFound:
-            pass
+            try:
+                session = self.getSession()
+                result = self._session.query(Distribution).filter_by(name=name).one()
+            except NoResultFound:
+                pass
+        except:
+            session.rollback()
+            raise
+
+        finally:
+            session.close()
+
         return result
 
     def _getRelease(self, name):
@@ -1297,29 +1327,27 @@ class RepositoryManager(Plugin):
 
     def _getRepository(self, name=None, path=None, add=False):
         result = None
-
-        session = self.getSession()
+        session = None
 
         try:
-            result = session.query(Repository)
-            if name:
-                result = result.filter_by(name=name)
-            elif path:
-                result = result.filter_by(path=path)
-            result = result.one()
-        except NoResultFound:
-            if add:
-                result = Repository(name=name, path=path)
-                session.add(result)
-                try:
+            try:
+                session = self.getSession()
+                result = session.query(Repository)
+                if name:
+                    result = result.filter_by(name=name)
+                elif path:
+                    result = result.filter_by(path=path)
+                result = result.one()
+            except NoResultFound:
+                if add:
+                    result = Repository(name=name, path=path)
+                    session.add(result)
                     session.commit()
-                except:
-                    session.rollback()
-                    raise
-                finally:
-                    session.close()
-            else:
-                session.close()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
 
         return result
 
@@ -1467,22 +1495,54 @@ class RepositoryManager(Plugin):
     def getSession(self):
         return self.env.getDatabaseSession("repository")
 
+
+    def _addRepositoryKeyring(self, repository=None, keyring=None):
+        result = None
+        session = None
+
+        try:
+            session = self.getSession()
+            repository = session.merge(repository)
+            repository.keyring = keyring
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+        return result
+
+
     def _getGPGEnvironment(self):
         result = None
-        work_dir = tempfile.mkdtemp()
-        gpg = gnupg.GPG(gnupghome=work_dir)
-        if not self._repository.keyring:
-            #TODO: Config options for key type and length?
-            key_type = "RSA"
-            key_length = 1024
-            self.env.log.debug("Generating GPG Key, type %s and length %s Bit" % (key_type, key_length))
-            input_data = gpg.gen_key_input(key_type=key_type, key_length=key_length)
-            key = gpg.gen_key(input_data)
-            self._repository.keyring = RepositoryKeyring(name=key.fingerprint, data=gpg.export_keys(key, True))
-            self._session.commit()
-        else:
-            gpg.import_keys(self._repository.keyring.data)
-        result = work_dir
+        session = None
+        repository = None
+
+        try:
+            session = self.getSession()
+            repository = self._getRepository(path=self.path)
+            session.add(repository)
+
+            work_dir = tempfile.mkdtemp()
+            gpg = gnupg.GPG(gnupghome=work_dir)
+            if not repository.keyring:
+                #TODO: Config options for key type and length?
+                key_type = "RSA"
+                key_length = 1024
+                self.env.log.debug("Generating GPG Key, type %s and length %s Bit" % (key_type, key_length))
+                input_data = gpg.gen_key_input(key_type=key_type, key_length=key_length)
+                key = gpg.gen_key(input_data)
+                self._addRepositoryKeyring(repository=repository, keyring=RepositoryKeyring(name=key.fingerprint, data=gpg.export_keys(key, True)))
+            else:
+                gpg.import_keys(repository.keyring.data)
+            result = work_dir
+
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
         return result
 
     def __load_system(self, mac):
