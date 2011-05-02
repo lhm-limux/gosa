@@ -207,7 +207,16 @@ if __name__ == '__main__':
             args.remove(options.user)
 
             # Execute the notification script as the given user.
-            sys.exit(os.execv(sys.argv[0], args))
+
+            #parent_pid = os.getpid()
+            #child_pid = os.fork()
+            #if os.getpid() == parent_pid:
+            #    pass
+            #else:
+            # Try to send the notification now.
+            sys.exit(n.send(args[0], args[1], actions=actions, icon=options.icon,
+                urgency=options.urgency, timeout=options.timeout, recurrence=options.recurrence))
+
 
         else:
 
