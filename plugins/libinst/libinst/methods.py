@@ -99,6 +99,7 @@ class BaseInstallMethod(object):
             'installTimezone': 'timezone',
             'installTimeUTC': 'utc',
             'installRelease': 'release',
+            'installPartitionTable': 'disk-setup',
             'installKernelPackage': 'kernel',
         }
 
@@ -147,7 +148,6 @@ class BaseInstallMethod(object):
 
         return res
 
-    #TODO-----------------------------------------
     def setBaseInstallParameters(self, device_uuid, data, current_data=None):
         # Load device
         if not current_data:
@@ -184,19 +184,12 @@ class BaseInstallMethod(object):
         with lh.get_handle() as conn:
             conn.modify_s(dn, mods)
 
-
-    def setBaseInstallDiskSetup(self, device_uuid, obj_ref):
-        pass
-
-    def getBaseInstallDiskSetup(self, device_uuid, data=None):
-        pass
-
-
     #TODO: getter and setter for that...
     #  installMirrorDN        -> DN des Mirror Systems
     #  installMirrorPoolDN    -> DN einer Mirror-Pool-Definition
     #  installTemplateDN      -> DN eines Templates
     #  installRecipeDN        -> Cascadiertes Rezept
+    #--------------------------------------------------------------------------
 
 
 class InstallMethod(object):

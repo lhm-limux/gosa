@@ -435,7 +435,7 @@ class CommandRegistry(object):
             self.capabilities[methodName]['provider'].append(data.Id.text)
 
         # Add objects
-        if data.get('NodeObject'):
+        if hasattr(data, 'NodeObject'):
             for obj in data.NodeObject:
                 oid = obj.OID.text
                 if not oid in self.objects:

@@ -358,3 +358,5 @@ d-i partman/confirm_nooverwrite boolean true
                 return nr
 
         return None
+
+PluginRegistry.registerObject("libinst.preseed.diskdefinition", DebianDiskDefinition)
