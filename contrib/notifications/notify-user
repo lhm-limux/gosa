@@ -182,7 +182,7 @@ if __name__ == '__main__':
         # We've to run as another user
         if options.user:
 
-            # Detecting groups of user hickert
+            # Detecting groups of user options.user
             gids = []
             for a in grp.getgrall():
                 if options.user in a.gr_mem:
@@ -193,30 +193,20 @@ if __name__ == '__main__':
             info = getpwnam(options.user)
 
             # Set the users groups
-            os.setgroups(gids)
-            os.setgid(info[3])
-            os.setuid(info[2])
+            if os.geteuid() != info[2]:
+                os.setgroups(gids)
+                os.setgid(info[3])
+                os.seteuid(info[2])
 
-            # Remove --user and -u parameter from the
-            #  parameter list to avoid an endless recursion
-            args = sys.argv
-            if "-u" in args:
-                args.remove("-u")
-            if "--user" in args:
-                args.remove("--user")
-            args.remove(options.user)
-
-            # Execute the notification script as the given user.
-
-            #parent_pid = os.getpid()
-            #child_pid = os.fork()
-            #if os.getpid() == parent_pid:
-            #    pass
-            #else:
-            # Try to send the notification now.
-            sys.exit(n.send(args[0], args[1], actions=actions, icon=options.icon,
+            # Fork a new process to send the notification 
+            parent_pid = os.getpid()
+            child_pid = os.fork()
+            if os.getpid() == parent_pid:
+                pass
+            else:
+                # Try to send the notification now.
+                sys.exit(n.send(args[0], args[1], actions=actions, icon=options.icon,
                 urgency=options.urgency, timeout=options.timeout, recurrence=options.recurrence))
-
 
         else:
 
