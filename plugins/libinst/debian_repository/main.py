@@ -186,7 +186,7 @@ class DebianHandler(DistributionHandler):
         return result
 
     def removePackage(self, session, package, arch=None, release=None, distribution=None):
-        result = False
+        result = None
 
         if isinstance(arch, (str, unicode)):
             arch = self._getArchitecture(session, arch)
@@ -518,7 +518,7 @@ class DebianHandler(DistributionHandler):
             self.env.log.debug("Exported key '%s' to repository" % key)
         else:
             gpg.import_keys(repository.keyring.data)
-            self.env.log.debug("Using existing secret key '%s'" % repository.keyring.name)
+            #self.env.log.debug("Using existing secret key '%s'" % repository.keyring.name)
         result = work_dir
         return result
 

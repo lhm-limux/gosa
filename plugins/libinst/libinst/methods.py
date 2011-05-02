@@ -137,7 +137,7 @@ class InstallMethod(object):
         try:
             session = self._manager.getSession()
             if parent:
-                session.add(parent)
+                parent = session.merge(parent)
                 self.env.log.info("creating release '%s' with parent '%s'" % (name, parent))
             else:
                 self.env.log.info("creating release '%s'" % name)
