@@ -188,10 +188,7 @@ if __name__ == '__main__':
                 args.remove("--user")
             args.remove(options.user)
 
-
-            print args
-            sys.exit(os.execv('./', sys.argv))
-            sys.exit(os.execv('./', args))
+            sys.exit(os.execv(sys.argv[0], args))
 
 
         sys.exit(n.send(args[0], args[1], actions=actions, icon=options.icon,
