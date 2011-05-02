@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
+import re
 import sys
 import grp
 import pynotify
@@ -11,7 +12,7 @@ import sched
 import time
 from threading import Timer
 from optparse import OptionParser, OptionValueError
-from pwd import getpwnam
+import pwd
 
 # Define return codes
 RETURN_ABORTED = 0b10000000
@@ -114,6 +115,32 @@ class Notify(object):
         return self.__res
 
 
+def getDBUSAddressesForUser(user):
+    """ 
+    Searches the process list for a DBUS Sessions that were opened by 
+    the gieven user, the found DBUS addresses will be returned
+    """
+
+    # Prepare regular expressions to find processes for X sessions
+    prog = re.compile('(gnome-session|x-session-manager|/bin/sh /usr/bin/startkde)')
+
+    # Walk through process ids and search for processes owned by 'user'
+    #  which represents a X Session.
+    dbusAddresses = []
+    pids= [pid for pid in os.listdir('/proc') if pid.isdigit()]
+    for pid in pids:
+
+        # Get the command line statement for the process and check if it represents
+        #  an X Session.
+        cmdline = open(os.path.join('/proc', pid, 'cmdline'), 'rb').read()
+        if prog.match(cmdline) and user == pwd.getpwuid(os.stat(os.path.join('/proc', pid, 'cmdline')).st_uid).pw_name:
+
+            # Extract the DBUS Session address, to be able to connect to it later.
+            environment = open(os.path.join('/proc', pid, 'environ'), 'rb').read()
+            m = re.search('^.*DBUS_SESSION_BUS_ADDRESS=([^\0]*).*$', environment + "test")
+            dbusAddresses.append(m.group(1))
+    return dbusAddresses
+
 def checkUrgency(option, opt, value, parser):
     """
     checkUrgency    checks whether the given value for the urgency option
@@ -179,40 +206,51 @@ if __name__ == '__main__':
         else:
             options.timeout = pynotify.EXPIRES_DEFAULT
 
-        # We've to run as another user
-        if options.user:
-
-            # Detecting groups of user options.user
-            gids = []
-            for a in grp.getgrall():
-                if options.user in a.gr_mem:
-                    gids.append(a.gr_gid)
-
-            # Now Switch to the selected user, primary group und uid
-            #  for the current os environment
-            info = getpwnam(options.user)
-
-            # Set the users groups
-            if os.geteuid() != info[2]:
-                os.setgroups(gids)
-                os.setgid(info[3])
-                os.seteuid(info[2])
-
-            # Fork a new process to send the notification 
-            parent_pid = os.getpid()
-            child_pid = os.fork()
-            if os.getpid() == parent_pid:
-                pass
-            else:
-                # Try to send the notification now.
-                sys.exit(n.send(args[0], args[1], actions=actions, icon=options.icon,
-                    urgency=options.urgency, timeout=options.timeout, recurrence=options.recurrence))
-
+        # Send the notification to each found dbus address
+        dbusSessions = getDBUSAddressesForUser(options.user)
+        if not dbusSessions:
+            print "No DBUS sessions found for user " + options.user
         else:
 
-            # Try to send the notification now.
-            sys.exit(n.send(args[0], args[1], actions=actions, icon=options.icon,
-                urgency=options.urgency, timeout=options.timeout, recurrence=options.recurrence))
+            # Initiate a notification for each found DBUS session
+            for dbus in dbusSessions:
+                os.environ['DBUS_SESSION_BUS_ADDRESS']=dbus
+
+                # We've to run as another user
+                if options.user:
+
+                    # Detecting groups of user options.user
+                    gids = []
+                    for a in grp.getgrall():
+                        if options.user in a.gr_mem:
+                            gids.append(a.gr_gid)
+
+                    # Now Switch to the selected user, primary group und uid
+                    #  for the current os environment
+                    info = pwd.getpwnam(options.user)
+
+                    # Set the users groups
+                    if os.geteuid() != info[2]:
+                        os.setgroups(gids)
+                        os.setgid(info[3])
+                        os.seteuid(info[2])
+
+                    # Fork a new process to send the notification 
+                    parent_pid = os.getpid()
+                    child_pid = os.fork()
+                    if os.getpid() == parent_pid:
+                        pass
+                    else:
+
+                        # Try to send the notification now.
+                        sys.exit(n.send(args[0], args[1], actions=actions, icon=options.icon,
+                            urgency=options.urgency, timeout=options.timeout, recurrence=options.recurrence))
+
+                else:
+
+                    # Try to send the notification now.
+                    sys.exit(n.send(args[0], args[1], actions=actions, icon=options.icon,
+                        urgency=options.urgency, timeout=options.timeout, recurrence=options.recurrence))
 
 
 ###############################################

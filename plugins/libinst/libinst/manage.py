@@ -82,9 +82,8 @@ class RepositoryManager(Plugin):
         self.env = env
         engine = env.getDatabaseEngine("repository")
         Session = scoped_session(sessionmaker(autoflush=True, bind=engine))
-        self._session = Session()
+        #self._session = Session()
         self.path = env.config.getOption('path', section='repository')
-
         if not os.path.exists(self.path):
             try:
                 os.makedirs(self.path)
@@ -117,8 +116,9 @@ class RepositoryManager(Plugin):
         db_purge = env.config.getOption('db_purge', section='repository')
         if db_purge == "True":
             self.initializeDatabase(engine)
-        # Initialize internal repository instance
-        self._repository = self._getRepository(path=self.path, add=True)
+
+        # Initialize Repository instance
+        self._getRepository(path=self.path, add=True)
 
         # Load keyboard models
         self.keyboardModels = KeyboardModels().get_models()
@@ -181,29 +181,50 @@ class RepositoryManager(Plugin):
         @return: dictionary containing types and discriptions of available
                  repository types.
         """
-        return dict([(type.name, type.description)
-            for type in self._session.query(Type).all()])
+        result = None
+        session = None
+        try:
+            session = self.getSession()
+            result = dict([(type.name, type.description) for type in session.query(Type).all()])
+            session.commit()
+        except:
+            session.rollback()
+        finally:
+            session.close()
+        return result
 
     @Command(__doc__=N_("Get the external Repository URL for the given Release"))
     def getMirrorURL(self, release):
         result = None
-        if not self.env.config.getOption('http_base_url', section='repository'):
-            raise ValueError(N_("Option 'http_base_url' in section 'repository' is not configured!"))
-        distribution = self._getDistribution(release.split('/')[0])
-        if distribution:
-            release = release.split('/', 1)[1]
-        if not self._getRelease(release):
-            raise ValueError(N_("Release {release} was not found!").format(release=release))
-        else:
-            release = self._getRelease(release)
-        result = self.env.config.getOption('http_base_url', section='repository')
-        if not result.endswith('/'):
-            result += '/'
-        if distribution is not None:
-            result += distribution.name + '/'
-        else:
-            result += release.distribution.name + '/'
-        result += release.name
+        session = None
+
+        try:
+            session = self.getSession()
+            if not self.env.config.getOption('http_base_url', section='repository'):
+                raise ValueError(N_("Option 'http_base_url' in section 'repository' is not configured!"))
+            distribution = self._getDistribution(release.split('/')[0])
+            if distribution:
+                distribution = session.merge(distribution)
+                release = release.split('/', 1)[1]
+            if not self._getRelease(release):
+                raise ValueError(N_("Release {release} was not found!").format(release=release))
+            else:
+                release = self._getRelease(release)
+                release = session.merge(release)
+            result = self.env.config.getOption('http_base_url', section='repository')
+            if not result.endswith('/'):
+                result += '/'
+            if distribution is not None:
+                result += distribution.name + '/'
+            else:
+                result += release.distribution.name + '/'
+            result += release.name
+        except ValueError:
+            raise
+        except:
+            session.rollback()
+        finally:
+            session.close()
         return result
 
     @Command(__doc__=N_("List available distributions"))
@@ -216,8 +237,22 @@ class RepositoryManager(Plugin):
                  discription pairs.
         """
         result = None
-        if self._repository.distributions:
-            result = [distribution.getInfo() for distribution in self._repository.distributions]
+        session = None
+        repository = None
+
+        try:
+            session = self.getSession()
+            repository = self._getRepository(path=self.path)
+            session.add(repository)
+            if repository.distributions:
+                result = [distribution.getInfo() for distribution in repository.distributions]
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
         return result
 
     @Command(__doc__=N_("List available releases for the given distribution"))
@@ -234,20 +269,32 @@ class RepositoryManager(Plugin):
                  discription pairs.
         """
         result = None
-        if distribution:
-            if isinstance(distribution, StringTypes):
-                instance = self._getDistribution(distribution)
-                if not instance:
-                    raise ValueError(N_("Distribution %s not found" % distribution))
-                else:
-                    distribution = instance
-            result = distribution.releases
-        else:
-            try:
-                result = self._session.query(Release).all()
-            except:
-                result = None
-        return None if not result else [release.getInfo() for release in result]
+        session = None
+
+        try:
+            session = self.getSession()
+            if distribution:
+                if isinstance(distribution, StringTypes):
+                    instance = self._getDistribution(distribution)
+                    if not instance:
+                        raise ValueError(N_("Distribution %s not found" % distribution))
+                    else:
+                        distribution = instance
+                    distribution = session.merge(distribution)
+                result = distribution.releases
+            else:
+                result = session.query(Release).all()
+            result = [release.getInfo() for release in result]
+        except ValueError:
+            raise
+        except:
+            result = None
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+        return result
 
     @Command(__doc__=N_("List available architectures for the given distribution"))
     @NamedArgs("m_hash")
@@ -266,29 +313,33 @@ class RepositoryManager(Plugin):
         @return: list of architectures
         """
         result = None
-        if distribution:
-            if isinstance(distribution, StringTypes):
-                distribution = self._getDistribution(distribution)
-            try:
-                result = self._session.query(Distribution).filter_by(name=distribution.name).one().architectures
-            except:
-                result = None
-        elif release:
-            if isinstance(release, StringTypes):
-                release = self._getRelease(release)
-            try:
+        session = None
+
+        try:
+            session = self.getSession()
+            if distribution:
+                if isinstance(distribution, StringTypes):
+                    distribution = self._getDistribution(distribution)
+                distribution = session.merge(distribution)
+                result = session.query(Distribution).filter_by(name=distribution.name).one().architectures
+            elif release:
+                if isinstance(release, StringTypes):
+                    release = self._getRelease(release)
+                release = session.merge(release)
                 result = set()
                 for package in release.packages:
                     result.add(package.arch)
                 result = list(result)
-            except:
-                result = None
-        else:
-            try:
-                result = self._session.query(Architecture).all()
-            except:
-                result = None
-        return [architecture.getInfo() for architecture in result]
+            else:
+                result = session.query(Architecture).all()
+            result = [architecture.getInfo() for architecture in result]
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+        return result
 
     @Command(__doc__=N_("List available sections for the given distribution"))
     @NamedArgs("m_hash")
@@ -304,29 +355,31 @@ class RepositoryManager(Plugin):
         @return: list of sections
         """
         result = None
-        if distribution:
-            if isinstance(distribution, StringTypes):
-                distribution = self._getDistribution(distribution)
-            try:
-                result = self._session.query(Distribution).filter_by(name=distribution.name).one().sections
-            except:
-                result = None
-        elif release:
-            if isinstance(release, StringTypes):
-                release = self._getRelease(release)
-            try:
+        session = None
+        try:
+            session = self.getSession()
+            if distribution:
+                if isinstance(distribution, StringTypes):
+                    distribution = self._getDistribution(distribution)
+                distribution = session.merge(distribution)
+                result = session.query(Distribution).filter_by(name=distribution.name).one().sections
+            elif release:
+                if isinstance(release, StringTypes):
+                    release = self._getRelease(release)
+                release = session.merge(release)
                 result = set()
                 for package in release.packages:
                     result.add(package.section)
                 result = list(result)
-            except:
-                result = None
-        else:
-            try:
-                result = self._session.query(Section).all()
-            except:
-                result = None
-        return [release.getInfo() for release in result]
+            else:
+                result = session.query(Section).all()
+            result = [release.getInfo() for release in result]
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+        return result
 
     @Command(__doc__=N_("Create a new distribution based on type, mirror and installation method"))
     @NamedArgs("m_hash")
@@ -348,6 +401,7 @@ class RepositoryManager(Plugin):
         @return: True for success
         """
         result = None
+        session = None
 
         # sanity checks
         p = re.compile(ALLOWED_CHARS_DISTRIBUTION)
@@ -366,26 +420,33 @@ class RepositoryManager(Plugin):
                 return result != None
 
         if not self._getDistribution(name):
-            if isinstance(type, StringTypes):
-                type = self._getType(type, add=True)
-            if type is not None and type.name in self.type_reg:
-                result = self.type_reg[type.name].createDistribution(self._session, name, mirror=mirror)
-                if result is not None:
-                    result.type = type
-                    result.installation_method = install_method
-                    self._session.add(result)
-                    # pylint: disable=E1101,E1103
-                    self._repository.distributions.append(result)
-                    try:
-                        self._session.commit()
+            try:
+                session = self.getSession()
+                if isinstance(type, StringTypes):
+                    type = self._getType(type, add=True)
+                session.add(type)
+                if type is not None and type.name in self.type_reg:
+                    result = self.type_reg[type.name].createDistribution(session, name, mirror=mirror)
+                    if result is not None:
+                        session.add(result)
+                        result.type = type
+                        result.installation_method = install_method
+                        repository = self._getRepository(path=self.path)
+                        session.add(repository)
+                        repository.distributions.append(result)
                         result.repository._initDirs()
-                    except:
-                        self.env.log.error("Problem creating distribution %s" % result.name)
-                        self._session.rollback()
-                        result = False
-                        raise
-            else:
-                raise ValueError("Name and Type are both needed for creating a distribution!")
+                        session.commit()
+                else:
+                    raise ValueError("Name and Type are both needed for creating a distribution!")
+            except:
+                self.env.log.error("Problem creating distribution %s" % name)
+                session.rollback()
+                result = False
+                raise
+            finally:
+                session.close()
+        else:
+            raise ValueError(N_("Distribution {distribution} already exists!").format(distribution=name))
 
         return result != None
 
@@ -406,37 +467,41 @@ class RepositoryManager(Plugin):
         @rtype: boolean
         @return: True for success
         """
-        result = False
-        if isinstance(distribution, StringTypes):
-            instance = self._getDistribution(distribution)
-            if not instance:
-                raise ValueError(N_("Distribution %s not found", distribution))
+        result = None
+        session = None
+        try:
+            session = self.getSession()
+            if isinstance(distribution, StringTypes):
+                instance = self._getDistribution(distribution)
+                if not instance:
+                    raise ValueError(N_("Distribution %s not found", distribution))
+                else:
+                    distribution = instance
+            distribution = session.merge(distribution)
+
+            if distribution.releases and recursive is not True:
+                raise ValueError(N_("Distribution {distribution} contains releases. Need to set recursive or remove all releases to allow removal!").format(distribution=distribution.name))
             else:
-                distribution = instance
+                for release in distribution.releases[:]:
+                    # We only remove top-level releases
+                    if not '/' in release.name:
+                        self.env.log.debug("Removing release %s/%s" % (distribution.name,  release.name))
+                        self.removeRelease(release, recursive=recursive)
+                session.refresh(distribution)
 
-        if distribution.releases and recursive is not True:
-            raise ValueError(N_("Distribution {distribution} contains releases. Need to set recursive or remove all releases to allow removal!").format(distribution=distribution.name))
-        else:
-            for release in distribution.releases[:]:
-                # We only remove top-level releases
-                if not '/' in release.name:
-                    self.env.log.debug("Removing release %s/%s" % (distribution.name,  release.name))
-                    self.removeRelease(release, recursive=recursive)
-
-        result = self.type_reg[distribution.type.name].removeDistribution(self._session, distribution, recursive=recursive)
-        if result is not None:
-            try:
+            result = self.type_reg[distribution.type.name].removeDistribution(session, distribution, recursive=recursive)
+            if result is not None:
                 distribution.repository.distributions.remove(distribution)
-                self._session.delete(distribution)
-                self._session.commit()
+                session.delete(distribution)
+                session.commit()
                 result = True
-            except:
-                raise
-                self.env.log.error("Problem removing distribution %s" % distribution.name)
-                self._session.rollback()
-                result = None
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
 
-        return result
+        return result != None
 
     @Command(__doc__=N_("Create a new release belonging to distribution"))
     def createRelease(self, distribution, name):
@@ -455,6 +520,8 @@ class RepositoryManager(Plugin):
         @return: True for success
         """
         result = None
+        session = None
+
         if not self._getRelease(name):
             p = re.compile(ALLOWED_CHARS_RELEASE)
             if not p.match(name):
@@ -462,34 +529,35 @@ class RepositoryManager(Plugin):
             if name == "master":
                 raise ValueError(N_("master is a reserved keyword!"))
 
-            if isinstance(distribution, StringTypes):
-                instance = self._getDistribution(distribution)
-                if instance:
-                    distribution = instance
-                else:
-                    raise ValueError(N_("Distribution {distribution} does not exist!").format(distribution=distribution))
+            try:
+                session = self.getSession()
+                if isinstance(distribution, StringTypes):
+                    instance = self._getDistribution(distribution)
+                    if instance:
+                        distribution = instance
+                    else:
+                        raise ValueError(N_("Distribution {distribution} does not exist!").format(distribution=distribution))
+                session.add(distribution)
 
-            if '/' in name and not self._getRelease(name.rsplit('/', 1)[0]):
-                raise ValueError(N_("Parent release {release} not found!").format(release=name.rsplit('/', 1)[0]))
+                if '/' in name and not self._getRelease(name.rsplit('/', 1)[0]):
+                    raise ValueError(N_("Parent release {release} not found!").format(release=name.rsplit('/', 1)[0]))
 
-            result = self.type_reg[distribution.type.name].createRelease(self._session, distribution, name)
-            if result is not None:
-                self._session.add(result)
-                distribution.releases.append(result)
-                if result.parent is not None:
-                    for package in result.parent.packages[:]:
-                        result.packages.append(package)
-                try:
-                    self._session.commit()
+                result = self.type_reg[distribution.type.name].createRelease(session, distribution, name)
+                if result is not None:
+                    session.add(result)
+                    distribution.releases.append(result)
+                    if result.parent is not None:
+                        for package in result.parent.packages[:]:
+                            result.packages.append(package)
+                    session.commit()
                     distribution.repository._initDirs()
-                except:
-                    self._session.rollback()
-                    raise
-                if result.distribution.installation_method is not None:
-                    try:
+                    if result.distribution.installation_method is not None:
                         self.install_method_reg[result.distribution.installation_method].createRelease(result.name, result.parent)
-                    except:
-                        raise
+            except:
+                session.rollback()
+                raise
+            finally:
+                session.close()
         else:
             raise ValueError(N_("Release {release} already exists!").format(release=name))
         return result != None
@@ -511,40 +579,50 @@ class RepositoryManager(Plugin):
         @return: True for success
         """
         result = None
-        if isinstance(release, StringTypes):
-            instance = self._getRelease(release)
-            if not instance:
-                raise ValueError(N_("Release %s not found" % release))
-            else:
-                release = instance
-        if release.children and recursive is not True:
-            raise ValueError("Won't remove a parent release without being recursived!")
-        elif release.children and recursive is True:
-            for child_release in release.children[:]:
-                self.env.log.debug("Removing child release %s" % child_release)
-                self.removeRelease(child_release, recursive=True)
-        else:
-            # pylint: disable=E1101
-            for package in release.packages[:]:
-                result = self.removePackage(package, arch=package.arch.name, release=release)
-                if result is not True:
-                    self.env.log.error("Could not remove package %s from release %s" % (package.name, release.name))
+        session = None
+
+        try:
+            session = self.getSession()
+            if isinstance(release, StringTypes):
+                instance = self._getRelease(release)
+                if not instance:
+                    raise ValueError(N_("Release %s not found" % release))
                 else:
-                    self.env.log.debug("Package %s/%s/%s was removed from release %s" % (package.name, package.version, package.arch.name, release.name))
+                    release = instance
+            release = session.merge(release)
+            if release.children and recursive is not True:
+                raise ValueError("Won't remove a parent release without being recursived!")
+            elif release.children and recursive is True:
+                for child_release in release.children[:]:
+                    self.env.log.debug("Removing child release %s" % child_release)
+                    self.removeRelease(child_release, recursive=True)
+                session.refresh(release)
+            else:
+                # pylint: disable-msg=E1101
+                for package in release.packages[:]:
+                    result = self.removePackage(package, arch=package.arch.name, release=release)
+                    if result is not True:
+                        self.env.log.error("Could not remove package %s from release %s" % (package.name, release.name))
+                    else:
+                        self.env.log.debug("Package %s/%s/%s was removed from release %s" % (package.name, package.version, package.arch.name, release.name))
+                session.refresh(release)
 
-        if release.distribution.installation_method is not None:
-            self.install_method_reg[release.distribution.installation_method].removeRelease(release.name, recursive=recursive)
+            if release.distribution.installation_method is not None:
+                self.install_method_reg[release.distribution.installation_method].removeRelease(release.name, recursive=recursive)
+                session.refresh(release)
 
-        result = self.type_reg[release.distribution.type.name].removeRelease(self._session, release, recursive=recursive)
-        if result is not None:
-            try:
+            result = self.type_reg[release.distribution.type.name].removeRelease(session, release, recursive=recursive)
+            if result is not None:
                 release.distribution.releases.remove(release)
-                self._session.delete(release)
-                self._session.commit()
-            except:
-                self._session.rollback()
-                raise
-        return result
+                session.delete(release)
+                session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+        return result != None
 
     @Command(__doc__=N_("Rename a release"))
     def renameRelease(self, source, target):
@@ -561,17 +639,28 @@ class RepositoryManager(Plugin):
         @return: True for success
         """
         result = None
+        session = None
 
-        if isinstance(source, StringTypes):
-            release = self._getRelease(source)
-
-        if release is None:
-            raise ValueError(N_("Source release {release} not found").format(release=source))
-        instance = self._getRelease(target)
-        if instance is not None:
-            raise ValueError(N_("Release {release} already exists").format(release=target))
-        else:
-            result = self.type_reg[release.distribution.type.name].renameRelease(self._session, release, target)
+        try:
+            session = self.getSession()
+            if isinstance(source, StringTypes):
+                release = self._getRelease(source)
+            if release is None:
+                raise ValueError(N_("Source release {release} not found").format(release=source))
+            release = session.merge(release)
+            instance = self._getRelease(target)
+            if instance is not None:
+                raise ValueError(N_("Release {release} already exists").format(release=target))
+            else:
+                result = self.type_reg[release.distribution.type.name].renameRelease(session, release, target)
+                session.commit()
+        except ValueError:
+            raise
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
         return result
 
     @Command(__doc__=N_("Replace distribution properties"))
@@ -795,31 +884,43 @@ class RepositoryManager(Plugin):
             return True
 
         result = None
-        if arch and isinstance(arch, Architecture):
-            arch = arch.name
-        if section and isinstance(section, Section):
-            section = section.name
-        if release and isinstance(release, StringTypes):
-            release = self._getRelease(release)
-            if release is None:
-                return result
-            else:
-                result = filter(package_filter, release.packages)
-        else:
-            if custom_filter:
-                result = self._session.query(Package.name.like(custom_filter))
-            elif arch or section:
-                result = self._session.query(Package)
-                if arch:
-                    result = result.join(Architecture).filter_by(name=arch)
-                if section:
-                    result = result.join(Section).filter_by(name=section)
-            else:
-                result = self._session.query(Package).all()
-        if limit or offset:
-            result = result[offset:][:limit]
+        session = None
 
-        return [package.getInfo() for package in result]
+        try:
+            session = self.getSession()
+            if arch and isinstance(arch, Architecture):
+                arch = session.merge(arch)
+                arch = arch.name
+            if section and isinstance(section, Section):
+                section = session.merge(section)
+                section = section.name
+            if release and isinstance(release, StringTypes):
+                release = self._getRelease(release)
+                if release is None:
+                    return result
+                else:
+                    release = session.merge(release)
+                    result = filter(package_filter, release.packages)
+            else:
+                if custom_filter:
+                    result = session.query(Package.name.like(custom_filter))
+                elif arch or section:
+                    result = session.query(Package)
+                    if arch:
+                        result = result.join(Architecture).filter_by(name=arch)
+                    if section:
+                        result = result.join(Section).filter_by(name=section)
+                else:
+                    result = session.query(Package).all()
+            if limit or offset:
+                result = result[offset:][:limit]
+            result = [package.getInfo() for package in result]
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+        return result
 
     @Command(__doc__=N_("Get complete package information based on various criteria"))
     @NamedArgs("m_hash")
@@ -897,77 +998,84 @@ class RepositoryManager(Plugin):
         result = None
         download_dir = None
         local_url = None
+        session = None
 
-        if release:
-            if isinstance(release, StringTypes):
-                instance = self._getRelease(release)
-                if instance is not None:
-                    release = instance
-                else:
-                    raise ValueError(N_("Release {release} does not exist!").format(release=release))
-
-        elif distribution:
-            if isinstance(distribution, StringTypes):
-                instance = self._getDistribution(release)
-                if instance is not None:
-                    distribution = instance
-                else:
-                    raise ValueError(N_("Distribution {distribution} does not exist!").format(distribution=distribution))
-        else:
-            raise ValueError(N_("Need either a release or a distribution to add a Package"))
-
-        if url.startswith(('http', 'ftp')):
-            download_dir = tempfile.mkdtemp()
-            request = urllib2.Request(url)
-            try:
-                file = urllib2.urlopen(request)
-                file_name = url.split('/')[-1]
-                local_file = open(download_dir + os.sep + file_name, "w")
-                local_file.write(file.read())
-                local_file.close()
-                local_url = download_dir + os.sep + file_name
-            except urllib2.HTTPError, e:
-                print "HTTP Error:", e.code, url
-            except urllib2.URLError, e:
-                print "URL Error:", e.reason, url
-
-        if os.path.exists(local_url):
-            # get file extension
-            file_ext = local_url.split('.')[-1]
-            type_name = None
+        try:
+            session = self.getSession()
             if release:
-                type_name = release.distribution.type.name
+                if isinstance(release, StringTypes):
+                    instance = self._getRelease(release)
+                    if instance is not None:
+                        release = instance
+                    else:
+                        raise ValueError(N_("Release {release} does not exist!").format(release=release))
+                session.add(release)
+
             elif distribution:
-                type_name = distribution.type.name
-            elif file_ext in self.type_reg:
-                type_name = file_ext
+                if isinstance(distribution, StringTypes):
+                    instance = self._getDistribution(release)
+                    if instance is not None:
+                        distribution = instance
+                    else:
+                        raise ValueError(N_("Distribution {distribution} does not exist!").format(distribution=distribution))
+                session.add(distribution)
             else:
-                raise ValueError(N_("Don't know how to handle {url}").format(url=url))
+                raise ValueError(N_("Need either a release or a distribution to add a Package"))
 
-            # Distribution specific method must handle duplicates
-            result = self.type_reg[file_ext].addPackage(self._session,
-                                                        local_url,
-                                                        distribution=distribution,
-                                                        release=release,
-                                                        component=component,
-                                                        origin=url)
-        else:
-            raise ValueError(N_("Path '{url}' is not readable").format(url=url))
+            if url.startswith(('http', 'ftp')):
+                download_dir = tempfile.mkdtemp()
+                request = urllib2.Request(url)
+                try:
+                    file = urllib2.urlopen(request)
+                    file_name = url.split('/')[-1]
+                    local_file = open(download_dir + os.sep + file_name, "w")
+                    local_file.write(file.read())
+                    local_file.close()
+                    local_url = download_dir + os.sep + file_name
+                except urllib2.HTTPError, e:
+                    print "HTTP Error:", e.code, url
+                except urllib2.URLError, e:
+                    print "URL Error:", e.reason, url
 
-        if result is not None:
-            result.origin = url
-            try:
-                self._session.commit()
-                if updateInventory:
-                    self._updateInventory(release=release, distribution=distribution)
-            except:
-                self._session.rollback()
+            if os.path.exists(local_url):
+                # get file extension
+                file_ext = local_url.split('.')[-1]
+                type_name = None
+                if release:
+                    type_name = release.distribution.type.name
+                elif distribution:
+                    type_name = distribution.type.name
+                elif file_ext in self.type_reg:
+                    type_name = file_ext
+                else:
+                    raise ValueError(N_("Don't know how to handle {url}").format(url=url))
 
-        if download_dir:
-            try:
+                # Distribution specific method must handle duplicates
+                result = self.type_reg[file_ext].addPackage(session,
+                                                            local_url,
+                                                            distribution=distribution,
+                                                            release=release,
+                                                            component=component,
+                                                            origin=url)
+                if result is not None:
+                    session.add(result)
+                    result.origin = url
+                    session.commit()
+                    if updateInventory:
+                        self._updateInventory(release=release, distribution=distribution)
+            else:
+                raise ValueError(N_("Path '{url}' is not readable").format(url=url))
+
+            if download_dir:
                 shutil.rmtree(download_dir)
-            except:
-                raise
+
+        except ValueError:
+            raise
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
 
         return result != None
 
@@ -986,47 +1094,70 @@ class RepositoryManager(Plugin):
         @rtype: boolean
         @return: adding package successfull
         """
-        result = False
+        result = None
+        session = None
         package_name = package
 
-        if isinstance(package, StringTypes):
-            package = self._getPackage(package, arch=arch)
+        try:
+            session = self.getSession()
+            if isinstance(package, StringTypes):
+                package = self._getPackage(package, arch=arch)
 
-        if package is not None:
-            package_name = package.name
-            result = self.type_reg[package.type.name].removePackage(self._session, package, arch=arch, release=release, distribution=distribution)
-            if result:
-                try:
-                    self._session.commit()
-                except:
-                    self.env.log.error("Commiting changes when deleting package %s failed!" % package_name)
-                    self._session.rollback()
-                    result = False
-                    raise
-        else:
-            raise ValueError(N_("Package {package} not found!").format(package=package_name))
-        return result
+            if package is not None:
+                package = session.merge(package)
+                package_name = package.name
+                result = self.type_reg[package.type.name].removePackage(session, package, arch=arch, release=release, distribution=distribution)
+                session.commit()
+            else:
+                raise ValueError(N_("Package {package} not found!").format(package=package_name))
+        except ValueError:
+            raise
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+        return result != None
 
     def addKeys(self, keys):
         result = False
-        if not self._repository.keyring:
-            self._repository.keyring = RepositoryKeyring(data=keys)
-            work_dir = self._getGPGEnvironment()
-            gpg = gnupg.GPG(gnupghome=work_dir)
-            for key in gpg.list_keys(True):
-                if key['type'] == "sec":
-                    self._repository.keyring.name = key['fingerprint']
-                    break
-            shutil.rmtree(work_dir)
-            result = True
-        else:
-            work_dir = self._getGPGEnvironment()
-            gpg = gnupg.GPG(gnupghome=work_dir)
-            # pylint: disable=E1101
-            import_result = gpg.import_keys(keys)
-            if import_result.count > 0:
+        session = None
+        repository = None
+
+        try:
+            session = self.getSession()
+            repository = self._getRepository(path=self.path)
+            session.add(repository)
+
+            if not repository.keyring:
+                self._addRepositoryKeyring(repository=repository, keyring=RepositoryKeyring(data=keys))
+                session.refresh(repository)
+                work_dir = self._getGPGEnvironment()
+                gpg = gnupg.GPG(gnupghome=work_dir)
+                for key in gpg.list_keys(True):
+                    if key['type'] == "sec":
+                        repository.keyring.name = key['fingerprint']
+                        break
+                shutil.rmtree(work_dir)
                 result = True
-            shutil.rmtree(work_dir)
+            else:
+                work_dir = self._getGPGEnvironment()
+                gpg = gnupg.GPG(gnupghome=work_dir)
+                # pylint: disable-msg=E1101
+                import_result = gpg.import_keys(keys)
+                if import_result.count > 0:
+                    result = True
+                shutil.rmtree(work_dir)
+
+            session.commit()
+
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
         return result
 
     def removeKey(self, key_id):
@@ -1265,104 +1396,192 @@ class RepositoryManager(Plugin):
 
     def _getArchitecture(self, name, add=False):
         result = None
+        session = None
+
         try:
-            result = self._session.query(Architecture).filter_by(name=name).one()
-        except NoResultFound:
-            if add:
-                result = Architecture(name)
-                self._session.add(result)
+            try:
+                session = self.getSession()
+                result = session.query(Architecture).filter_by(name=name).one()
+            except NoResultFound:
+                if add:
+                    result = Architecture(name)
+                    session.add(result)
+                    session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
         return result
 
     def _getSection(self, name, add=False):
         result = None
+        session = None
+
         try:
-            result = self._session.query(Section).filter_by(name=name).one()
-        except NoResultFound:
-            if add:
-                result = Section(name)
-                self._session.add(result)
+            try:
+                session = self.getSession()
+                result = session.query(Section).filter_by(name=name).one()
+            except NoResultFound:
+                if add:
+                    result = Section(name)
+                    session.add(result)
+                    session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
         return result
 
     def _getComponent(self, name, add=False):
         result = None
+        session = None
+
         try:
-            result = self._session.query(Component).filter_by(name=name).one()
-        except NoResultFound:
-            if add:
-                result = Component(name)
-                self._session.add(result)
+            try:
+                session = self.getSession()
+                result = session.query(Component).filter_by(name=name).one()
+            except NoResultFound:
+                if add:
+                    result = Component(name)
+                    session.add(result)
+                    session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
         return result
 
     def _getFile(self, url, add=False):
         result = None
+        session = None
+
         try:
-            result = self._session.query(File).filter_by(name=os.path.basename(url)).one()
-        except NoResultFound:
-            if add:
-                result = File(name=os.path.basename(url))
-                if os.path.exists(url):
-                    infile = open(url, 'rb')
-                    content = infile.read()
-                    infile.close()
-                    m = hashlib.md5()
-                    m.update(content)
-                    result.md5sum = m.hexdigest()
-                    result.size = os.path.getsize(url)
-                self._session.add(result)
+            try:
+                session = self.getSession()
+                result = self._session.query(File).filter_by(name=os.path.basename(url)).one()
+            except NoResultFound:
+                if add:
+                    result = File(name=os.path.basename(url))
+                    session.add(result)
+                    if os.path.exists(url):
+                        infile = open(url, 'rb')
+                        content = infile.read()
+                        infile.close()
+                        m = hashlib.md5()
+                        m.update(content)
+                        result.md5sum = m.hexdigest()
+                        result.size = os.path.getsize(url)
+                    session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
         return result
 
     def _getType(self, name, add=False):
         result = None
+        session = None
+
         try:
-            result = self._session.query(Type).filter_by(name=name).one()
-        except NoResultFound:
-            if add:
-                result = Type(name)
-                self._session.add(result)
+            try:
+                session = self.getSession()
+                result = session.query(Type).filter_by(name=name).one()
+            except NoResultFound:
+                if add:
+                    result = Type(name)
+                    session.add(result)
+                    session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
         return result
 
     def _getDistribution(self, name):
         result = None
+        session = None
+
         try:
-            result = self._session.query(Distribution).filter_by(name=name).one()
-        except NoResultFound:
-            pass
+            try:
+                session = self.getSession()
+                result = session.query(Distribution).filter_by(name=name).one()
+            except NoResultFound:
+                pass
+        except:
+            session.rollback()
+            raise
+
+        finally:
+            session.close()
+
         return result
 
     def _getRelease(self, name):
         result = None
+        session = None
+
         try:
-            result = self._session.query(Release).filter_by(name=name).one()
+            session = self.getSession()
+            result = session.query(Release).filter_by(name=name).one()
         except NoResultFound:
             pass
+        finally:
+            session.close()
+
         return result
 
     def _getRepository(self, name=None, path=None, add=False):
         result = None
+        session = None
 
         try:
-            result = self._session.query(Repository)
-            if name:
-                result = result.filter_by(name=name)
-            elif path:
-                result = result.filter_by(path=path)
-            result = result.one()
-        except NoResultFound:
-            if add:
-                result = Repository(name=name, path=path)
-                self._session.add(result)
+            try:
+                session = self.getSession()
+                result = session.query(Repository)
+                if name:
+                    result = result.filter_by(name=name)
+                elif path:
+                    result = result.filter_by(path=path)
+                result = result.one()
+            except NoResultFound:
+                if add:
+                    result = Repository(name=name, path=path)
+                    session.add(result)
+                    session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
         return result
 
     def _getPackage(self, name, arch=None):
+        result = None
+        session = None
+
         try:
-            result = self._session.query(Package).filter_by(name=name)
+            session = self.getSession()
+            result = session.query(Package).filter_by(name=name)
             if arch:
                 if isinstance(arch, StringTypes):
                     arch = self._getArchitecture(arch)
+                arch = session.merge(arch)
                 result = result.filter_by(arch=arch)
             result = result.one()
         except:
+            session.rollback()
             raise
+        finally:
+            session.close()
+
         return result
 
     def _updateInventory(self, distribution=None, release=None):
@@ -1378,34 +1597,55 @@ class RepositoryManager(Plugin):
         @return: True for success
         """
         result = None
-        if release:
-            if isinstance(release, StringTypes):
-                release = self._getRelease(release)
-            result = self.type_reg[release.distribution.type.name]._updateInventory(self._session, release=release)
-        elif distribution:
-            if isinstance(distribution, StringTypes):
-                distribution = self._getDistribution(distribution)
-            result = self.type_reg[distribution.type.name]._updateInventory(self._session, distribution=distribution)
+        session = None
+
         try:
-            self._session.commit()
+            session = self.getSession()
+            if release:
+                if isinstance(release, StringTypes):
+                    release = self._getRelease(release)
+                release = session.merge(release)
+                result = self.type_reg[release.distribution.type.name]._updateInventory(session, release=release)
+            elif distribution:
+                if isinstance(distribution, StringTypes):
+                    distribution = self._getDistribution(distribution)
+                distribution = session.merge(distribution)
+                result = self.type_reg[distribution.type.name]._updateInventory(session, distribution=distribution)
+            session.commit()
         except:
-            self._session.rollback()
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
         return result
 
     def _getConfigItem(self, name, item_type, release=None, add=False):
         result = None
+        session = None
+
         try:
-            result = self._session.query(ConfigItem)
-            if name:
-                result = result.filter_by(name=name)
-            if item_type:
-                result = result.filter_by(item_type=item_type)
-            if release:
-                result = result.join(ConfigItemReleases).join(Release).filter_by(name=release)
-            result = result.one()
-        except NoResultFound:
-            result = ConfigItem(name=name, item_type=item_type)
-            self._session.add(result)
+            try:
+                session = self.getSession()
+                result = session.query(ConfigItem)
+                if name:
+                    result = result.filter_by(name=name)
+                if item_type:
+                    result = result.filter_by(item_type=item_type)
+                if release:
+                    result = result.join(ConfigItemReleases).join(Release).filter_by(name=release)
+                result = result.one()
+            except NoResultFound:
+                result = ConfigItem(name=name, item_type=item_type)
+                if add:
+                    session.add(result)
+                    session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
         return result
 
     def _replaceConfigItems(self, release, items):
@@ -1485,24 +1725,56 @@ class RepositoryManager(Plugin):
     # return the session to be used in the tests.
     #============================================
     def getSession(self):
-        return self._session
+        return self.env.getDatabaseSession("repository")
+
+
+    def _addRepositoryKeyring(self, repository=None, keyring=None):
+        result = None
+        session = None
+
+        try:
+            session = self.getSession()
+            repository = session.merge(repository)
+            repository.keyring = keyring
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+        return result
+
 
     def _getGPGEnvironment(self):
         result = None
-        work_dir = tempfile.mkdtemp()
-        gpg = gnupg.GPG(gnupghome=work_dir)
-        if not self._repository.keyring:
-            #TODO: Config options for key type and length?
-            key_type = "RSA"
-            key_length = 1024
-            self.env.log.debug("Generating GPG Key, type %s and length %s Bit" % (key_type, key_length))
-            input_data = gpg.gen_key_input(key_type=key_type, key_length=key_length)
-            key = gpg.gen_key(input_data)
-            self._repository.keyring = RepositoryKeyring(name=key.fingerprint, data=gpg.export_keys(key, True))
-            self._session.commit()
-        else:
-            gpg.import_keys(self._repository.keyring.data)
-        result = work_dir
+        session = None
+        repository = None
+
+        try:
+            session = self.getSession()
+            repository = self._getRepository(path=self.path)
+            session.add(repository)
+
+            work_dir = tempfile.mkdtemp()
+            gpg = gnupg.GPG(gnupghome=work_dir)
+            if not repository.keyring:
+                #TODO: Config options for key type and length?
+                key_type = "RSA"
+                key_length = 1024
+                self.env.log.debug("Generating GPG Key, type %s and length %s Bit" % (key_type, key_length))
+                input_data = gpg.gen_key_input(key_type=key_type, key_length=key_length)
+                key = gpg.gen_key(input_data)
+                self._addRepositoryKeyring(repository=repository, keyring=RepositoryKeyring(name=key.fingerprint, data=gpg.export_keys(key, True)))
+            else:
+                gpg.import_keys(repository.keyring.data)
+            result = work_dir
+
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
         return result
 
 
