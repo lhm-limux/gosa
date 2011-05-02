@@ -206,7 +206,7 @@ if __name__ == '__main__':
             else:
                 # Try to send the notification now.
                 sys.exit(n.send(args[0], args[1], actions=actions, icon=options.icon,
-                urgency=options.urgency, timeout=options.timeout, recurrence=options.recurrence))
+                    urgency=options.urgency, timeout=options.timeout, recurrence=options.recurrence))
 
         else:
 
