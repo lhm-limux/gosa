@@ -11,9 +11,7 @@ import pynotify
 import gobject
 import dbus
 import dbus.mainloop.glib
-import sched
 import time
-from threading import Timer
 from optparse import OptionParser, OptionValueError
 import pwd
 import getpass
@@ -27,28 +25,37 @@ RETURN_CLOSED = 0b10000
 
 
 class Notify(object):
+    """
+    Allows to send desktop notifications to users.
+    """
     __actions = None
     __loop = None
+    __recurrenceTime = 60
 
     def __init__(self):
         pynotify.init('gosa-ng')
 
     def __close_all(self):
-        for n in self.__notify:
-            n.close()
+        """
+        Closes all opened notification windows.
+        """
+        for noti in self.__notify:
+            noti.close()
 
     def __show_all(self):
-        for n in self.__notify:
-            n.show()
+        """
+        Shows all notification windows.
+        """
+        for noti in self.__notify:
+            noti.show()
 
-    def __callback(self, notification=None, action=None, data=None):
+    def __callback(self, notification=None, action=None):
         """
         __callback acts on notification actions, if actions were defined.
         """
-
         # Get the selected action id, the first is 0 so we just add +1 to it,
         # to get a more useable return code.
-        self.__res = (self.__actions.index(data) + 1) | RETURN_CLOSED_WITH_ACTION
+        self.__res = (self.__actions.index(action) + 1) | RETURN_CLOSED_WITH_ACTION
         self.__close_all()
         self.__loop.quit()
 
@@ -73,7 +80,7 @@ class Notify(object):
     def send(self, title, message, icon="dialog-information",
         urgency=pynotify.URGENCY_NORMAL,
         timeout=pynotify.EXPIRES_DEFAULT,
-        recurrence=60, 
+        recurrence=60,
         dbus_sessions=[],
         **kwargs):
         """
@@ -92,9 +99,9 @@ class Notify(object):
         self.__notify = []
         if dbus_sessions:
             for dbus_sess in dbus_sessions:
-               
-                # Set DBUS address in the environment 
-                os.environ['DBUS_SESSION_BUS_ADDRESS']=dbus_sess
+
+                # Set DBUS address in the environment
+                os.environ['DBUS_SESSION_BUS_ADDRESS'] = dbus_sess
 
                 # Build dialog
                 notify = pynotify.Notification(title, message, icon)
@@ -107,7 +114,7 @@ class Notify(object):
                     self.__recurrenceTime = recurrence
                     self.__actions = kwargs['actions']
                     for action in kwargs['actions']:
-                        notify.add_action(action, action, self.__callback, action)
+                        notify.add_action(action, action, self.__callback)
                 else:
                     notify.set_timeout(timeout)
 
@@ -115,7 +122,7 @@ class Notify(object):
             self.__show_all()
 
         else:
-        
+
             print "Requires at least one DBUS address"
             return
 
@@ -150,22 +157,26 @@ class Notify(object):
         timeout=pynotify.EXPIRES_DEFAULT,
         recurrence=60, **kwargs):
 
+        """
+        Sends a notification message to a given user.
+        """
+
         # Use current user if none was given
         if not user:
             user = getpass.getuser()
 
         # Send the notification to each found dbus address
-        dbusSessions = self.getDBUSAddressesForUser(user)
+        dbus_sessions = self.getDBUSAddressesForUser(user)
         res = None
-        if not dbusSessions:
+        if not dbus_sessions:
             print "No DBUS sessions found for user " + user
         else:
 
             # Detecting groups of user options.user
             gids = []
-            for a in grp.getgrall():
-                if options.user in a.gr_mem:
-                    gids.append(a.gr_gid)
+            for agrp in grp.getgrall():
+                if options.user in agrp.gr_mem:
+                    gids.append(agrp.gr_gid)
 
             # Now Switch to the selected user, primary group und uid
             #  for the current os environment
@@ -177,7 +188,7 @@ class Notify(object):
                 os.setgid(info[3])
                 os.seteuid(info[2])
 
-            # Fork a new process to send the notification 
+            # Fork a new process to send the notification
             parent_pid = os.getpid()
             child_pid = os.fork()
 
@@ -186,26 +197,25 @@ class Notify(object):
 
                 # Try to send the notification now.
                 res = n.send(args[0], args[1], actions=actions, icon=icon,
-                    urgency=urgency, timeout=timeout, recurrence=recurrence, 
-                    dbus_sessions=dbusSessions)
+                    urgency=urgency, timeout=timeout, recurrence=recurrence,
+                    dbus_sessions=dbus_sessions)
 
                 # Exit the cild process
                 sys.exit(res)
             else:
 
                 # Get the cild process return code.
-                (pid, returnCode) = os.waitpid(child_pid, 0)
-                
-                # Dont know why, but we receive an 16 Bit long return code, 
+                (pid, ret_code) = os.waitpid(child_pid, 0)
+
+                # Dont know why, but we receive an 16 Bit long return code,
                 # but only send an 8 Bit value.
-                res = returnCode >> 8
+                res = ret_code >> 8
 
-            return res      
-
+            return res
 
     def getDBUSAddressesForUser(self, user):
-        """ 
-        Searches the process list for a DBUS Sessions that were opened by 
+        """
+        Searches the process list for a DBUS Sessions that were opened by
         the given user, the found DBUS addresses will be returned
         """
 
@@ -215,7 +225,7 @@ class Notify(object):
         # Walk through process ids and search for processes owned by 'user'
         #  which represents a X Session.
         dbusAddresses = []
-        pids= [pid for pid in os.listdir('/proc') if pid.isdigit()]
+        pids = [pid for pid in os.listdir('/proc') if pid.isdigit()]
         for pid in pids:
 
             # Get the command line statement for the process and check if it represents
@@ -248,8 +258,8 @@ def checkUrgency(option, opt, value, parser):
 
     # If a invalid value was specified, then tell the user and default to normal.
     if value not in attrMap:
-        raise OptionValueError("Invalid urgency level specified. (critical, normal, low)")
         value = None
+        raise OptionValueError("Invalid urgency level specified. (critical, normal, low)")
 
     # Update the cli-option-parser now.
     parser.values.urgency = value
@@ -297,7 +307,7 @@ if __name__ == '__main__':
         else:
             options.timeout = pynotify.EXPIRES_DEFAULT
 
-        
+        # Call the send method for our notification instance
         sys.exit(n.send_to_user(args[0], args[1], user=options.user, actions=actions, icon=options.icon,
             urgency=options.urgency, timeout=options.timeout, recurrence=options.recurrence))
 
