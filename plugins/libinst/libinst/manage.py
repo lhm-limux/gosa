@@ -1453,19 +1453,69 @@ class RepositoryManager(Plugin):
 
         return entry
 
-#Templates HIER:
-# Name
-# Description
-# Method
-# Data
-
     @Command(__doc__=N_("Set template by name"))
     def installSetTemplate(self, name, data):
-        pass
+        lh = LDAPHandler.get_instance()
+        fltr = "cn=%s" % name
+
+        if not name:
+            raise ValueError("template needs a name")
+
+        data['name'] = name
+
+        with lh.get_handle() as conn:
+            res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
+                "(&(objectClass=installTemplate)(%s))" % fltr,
+                self.template_map.keys())
+
+            create_new = len(res) == 0
+
+            if len(res) > 1:
+                raise ValueError("no template named '%s' available" % name)
+
+            mods = []
+            if create_new:
+                mods.append(('objectClass', ['gosaConfigItem', 'installTemplate']))
+                dn = ",".join(["cn=" + name,
+                    self.env.config.getOption("template-rdn", "libinst", "cn=templates,cn=libinst,cn=config"),
+                    lh.get_base()])
+                res = {}
+            else:
+                dn = res[0][0]
+                res = res[0][1]
+
+            for ldap_key, key in self.template_map.items():
+                if ldap_key in res and not key in data:
+                    mods.append((ldap.MOD_DELETE, ldap_key, None))
+                elif ldap_key in res and key in data and res[ldap_key][0] != data[key]:
+                    mods.append((ldap.MOD_REPLACE, ldap_key, [data[key]]))
+                elif key in data and not ldap_key in res:
+                    if create_new:
+                        mods.append((ldap_key, [data[key]]))
+                    else:
+                        mods.append((ldap.MOD_ADD, ldap_key, [data[key]]))
+
+            # Assemble entry and write it to the directory
+            if create_new:
+                print mods
+                conn.add_s(dn, mods)
+            else:
+                conn.modify_s(dn, mods)
 
     @Command(__doc__=N_("Remove template by name"))
     def installRemoveTemplate(self, name):
-        pass
+        lh = LDAPHandler.get_instance()
+        fltr = "cn=%s" % name
+
+        with lh.get_handle() as conn:
+            res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
+                "(&(objectClass=installTemplate)(%s))" % fltr,
+                self.template_map.keys())
+
+            if len(res) != 1:
+                raise ValueError("no template named '%s' available" % name)
+
+            conn.delete(res[0][0])
 
 #---------------------------------------------------------------------------------------------#
 
