@@ -22,6 +22,7 @@ import pytz
 import gettext
 import ldap
 from types import StringTypes, DictType
+from base64 import encodestring
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
@@ -69,6 +70,10 @@ class RepositoryManager(Plugin):
     """
     _target_ = 'libinst'
     recipeRecursionDepth = 3
+    template_map = {"cn": "name",
+        "description": "description",
+        "installMethod": "method",
+        "templateData": "data"}
 
     def __init__(self):
         """
@@ -1412,6 +1417,55 @@ class RepositoryManager(Plugin):
         method = self.systemGetBaseInstallMethod(device_uuid, sys_data)
         inst_m = self.base_install_method_reg[method]
         return inst_m.setBaseInstallParameters(device_uuid, data, sys_data)
+
+    @Command(__doc__=N_("Get list of templates, filter by method"))
+    def installListTemplates(self, method=None):
+        result = {}
+        lh = LDAPHandler.get_instance()
+        fltr = "method=%s" % method if method else "cn=*"
+
+        with lh.get_handle() as conn:
+            res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
+                "(&(objectClass=installTemplate)(%s))" % fltr,
+                ["cn", "description"])
+
+        for entry in res:
+            entry = dict(map(lambda x: (self.template_map[x[0]], x[1][0]), entry[1].items()))
+            result[entry['name']] = entry['description']
+
+        return result
+
+    @Command(__doc__=N_("Get template by name"))
+    def installGetTemplate(self, name):
+        lh = LDAPHandler.get_instance()
+        fltr = "cn=%s" % name
+
+        with lh.get_handle() as conn:
+            res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
+                "(&(objectClass=installTemplate)(%s))" % fltr,
+                self.template_map.keys())
+
+        if len(res) != 1:
+            raise ValueError("no template named '%s' available" % name)
+
+        entry = dict(map(lambda x: (self.template_map[x[0]], x[1][0]), res[0][1].items()))
+        entry['data'] = encodestring(entry['data'])
+
+        return entry
+
+#Templates HIER:
+# Name
+# Description
+# Method
+# Data
+
+    @Command(__doc__=N_("Set template by name"))
+    def installSetTemplate(self, name, data):
+        pass
+
+    @Command(__doc__=N_("Remove template by name"))
+    def installRemoveTemplate(self, name):
+        pass
 
 #---------------------------------------------------------------------------------------------#
 
