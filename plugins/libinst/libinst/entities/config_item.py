@@ -52,6 +52,9 @@ class ConfigItem(Base, UseInnoDB):
             "release": None if not self.release else self.relase.name,
         }
 
+    def getAssigneableElements(self):
+        return {}
+
 ConfigItem.parent = relationship(ConfigItem, remote_side=ConfigItem.id, uselist=False, backref=backref('children', uselist=True))
 # pylint: disable-msg=E1101
 ConfigItem.__table__.append_constraint(UniqueConstraint('item_type', 'path'))

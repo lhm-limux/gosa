@@ -83,6 +83,9 @@ class InstallItem(object):
     def scan(self):
         return {}
 
+    def getAssignableElements(self):
+        return {}
+
 
 class BaseInstallMethod(object):
     """
@@ -459,6 +462,9 @@ class InstallMethod(object):
         # Check if item will be renamed
         if "name" in data and name != data["name"]:
             item.name = data["name"]
+
+        # Updated marker for assigneable elements
+        item.assignable = bool(item.getAssignableElements())
 
         # Add us as child
         release_object = self._manager._getRelease(release)
