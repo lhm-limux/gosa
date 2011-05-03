@@ -414,44 +414,50 @@ class InstallMethod(object):
         @rtype: bool
         @return: True = success
         """
-
-        # Check if this item type is supported
-        if not item_type in self._supportedItems:
-            raise ValueError("unknown item type '%s'" % item_type)
-
-        # Acquire name from path
-        name = os.path.basename(path)
-
-        # Load parent object
-        parent = self._get_parent(release, path)
-        if not parent:
-            raise ValueError("cannot find parent object for '%s'" % path)
-
-        # Check if the current path is a container for that kind of
-        # item type
-        if not item_type in self._supportedItems[parent.item_type]['container']:
-            raise ValueError("'%s' is not allowed for container '%s'" %
-                    (item_type, parent.item_type))
-
-        # Load instance of ConfigItem
-        item = self._manager._getConfigItem(name=name, item_type=item_type, add=True)
-        item.path = path
-
-        # Check if item will be renamed
-        if "name" in data and name != data["name"]:
-            item.name = data["name"]
-
-        # Add us as child
-        release_object = self._manager._getRelease(release)
-        release_object.config_items.append(item)
-        parent.children.append(item)
-
-        # Try to commit the changes
+        session = None
         try:
-            self._manager._session.commit()
+            session = self._manager.getSession()
+
+            # Check if this item type is supported
+            if not item_type in self._supportedItems:
+                raise ValueError("unknown item type '%s'" % item_type)
+
+            # Acquire name from path
+            name = os.path.basename(path)
+
+            # Load parent object
+            parent = self._get_parent(release, path)
+            if not parent:
+                raise ValueError("cannot find parent object for '%s'" % path)
+            parent = session.merge(parent)
+
+            # Check if the current path is a container for that kind of
+            # item type
+            if not item_type in self._supportedItems[parent.item_type]['container']:
+                raise ValueError("'%s' is not allowed for container '%s'" %
+                        (item_type, parent.item_type))
+
+            # Load instance of ConfigItem
+            item = self._manager._getConfigItem(name=name, item_type=item_type, add=True)
+            item = session.merge(item)
+            item.path = path
+
+            # Check if item will be renamed
+            if "name" in data and name != data["name"]:
+                item.name = data["name"]
+
+            # Add us as child
+            release_object = self._manager._getRelease(release)
+            release_object.config_items.append(item)
+            parent.children.append(item)
+
+            # Try to commit the changes
+            session.commit()
         except:
-            self._manager._session.rollback()
+            session.rollback()
             raise
+        finally:
+            session.close()
 
     def removeItem(self, release, path, children=None):
         """
