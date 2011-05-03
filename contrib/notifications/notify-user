@@ -165,6 +165,16 @@ class Notify(object):
                     # Try to send the notification now.
                     res = n.send(args[0], args[1], actions=actions, icon=icon,
                         urgency=urgency, timeout=timeout, recurrence=recurrence)
+                    print res
+                    sys.exit(res)
+                else:
+                    (pid, returnCode) = os.waitpid(child_pid, 0)
+                    
+                    # Dont know why, but we receive an 16 Bit long return code, 
+                    # but only send an 6 Bit value.
+                    returnCode = returnCode >> 8
+                    res = returnCode
+
             return res      
 
 
