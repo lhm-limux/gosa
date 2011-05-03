@@ -1208,6 +1208,27 @@ class RepositoryManager(Plugin):
             result = self.install_method_reg[release.distribution.installation_method].listItems(release.name, item_type=item_type, path=path, children=children)
         return result
 
+    @Command(__doc__=N_("Returns a list of all asignable elements for a release"))
+    def listAssignableElements(self, release):
+        result = None
+        if isinstance(release, StringTypes):
+            instance = self._getRelease(release)
+            if instance is None:
+                raise ValueError("Unknown release %s" % release)
+            else:
+                release = instance
+        elif isinstance(release, DictType):
+            pass
+        elif not isinstance(release, Release):
+            raise ValueError(N_("Argument release must either be a String or a Release"))
+        if release.distribution.installation_method is None:
+            raise ValueError("Release %s has no installation method!" % release.name)
+        elif release.distribution.installation_method not in self.install_method_reg:
+            raise ValueError("Unsupported installation method %s found for release %s " % (release.distribution.installation_method, release.name))
+        else:
+            result = self.install_method_reg[release.distribution.installation_method].listAssignableElements(release.name)
+        return result
+
     @Command(__doc__=N_("Set the data for the specified item"))
     def setConfigItem(self, release, path, item_type, data):
         result = None
@@ -1615,6 +1636,23 @@ class RepositoryManager(Plugin):
         except:
             session.rollback()
             raise
+        finally:
+            session.close()
+
+        return result
+
+    def _getAssignableElements(self, release=None):
+        result = []
+        session = None
+
+        try:
+            session = self.getSession()
+            result = session.query(ConfigItem).filter(assignable=True)
+            result = result.join(ConfigItemReleases).join(Release).filter_by(name=release)
+
+        except:
+            pass
+
         finally:
             session.close()
 

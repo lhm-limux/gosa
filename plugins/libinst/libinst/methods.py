@@ -357,6 +357,12 @@ class InstallMethod(object):
                         res[item]['options'][oitem][ditem] = dvalue
         return res
 
+    def listAssignableElements(self, release):
+        res = {}
+        for item in self._manager._getAssignableElements(release):
+            res.append(item.getAssignableElements())
+        return res
+
     def listItems(self, release, item_type=None, path=None, children=None):
         """
         Returns a list of items of item_type (if given) for
