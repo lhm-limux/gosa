@@ -71,7 +71,7 @@ setup(
 
     include_package_data = True,
     package_data = {
-        'gosa.common': ['data/*.xsd'],
+        'gosa.common': ['data/stylsheets/*', 'data/events/*'],
     },
 
     test_suite = "nose.collector",
@@ -337,6 +337,7 @@ setup(
 
         [gosa_dbus.modules]
         gosa-dbus.shell = gosa.dbus.plugins.shell.main:DBusShellHandler
+        gosa-dbus.notify = gosa.dbus.plugins.notify.main:DBusNotifyHandler
         gosa-dbus.puppet = gosa.dbus.plugins.puppet.main:PuppetDBusHandler
     """,
 )

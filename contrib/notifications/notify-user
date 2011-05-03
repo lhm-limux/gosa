@@ -153,6 +153,7 @@ class Notify(object):
 
     def send_to_user(self, title, message, user,
         icon="dialog-information",
+        actions=[],
         urgency=pynotify.URGENCY_NORMAL,
         timeout=pynotify.EXPIRES_DEFAULT,
         recurrence=60, **kwargs):
@@ -176,7 +177,7 @@ class Notify(object):
             # Detecting groups of user options.user
             gids = []
             for agrp in grp.getgrall():
-                if options.user in agrp.gr_mem:
+                if user in agrp.gr_mem:
                     gids.append(agrp.gr_gid)
 
             # Now Switch to the selected user, primary group und uid
@@ -197,7 +198,7 @@ class Notify(object):
             if child_pid == 0:
 
                 # Try to send the notification now.
-                res = n.send(args[0], args[1], actions=actions, icon=icon,
+                res = self.send(title, message, actions=actions, icon=icon,
                     urgency=urgency, timeout=timeout, recurrence=recurrence,
                     dbus_sessions=dbus_sessions)
 
