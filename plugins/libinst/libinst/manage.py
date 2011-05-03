@@ -82,7 +82,6 @@ class RepositoryManager(Plugin):
         self.env = env
         engine = env.getDatabaseEngine("repository")
         Session = scoped_session(sessionmaker(autoflush=True, bind=engine))
-        #self._session = Session()
         self.path = env.config.getOption('path', section='repository')
         if not os.path.exists(self.path):
             try:
@@ -667,64 +666,70 @@ class RepositoryManager(Plugin):
     @NamedArgs("m_hash")
     def setDistribution(self, m_hash=None, distribution=None, arch=None, component=None, mirror_sources=None):
         result = None
-        if distribution:
-            if isinstance(distribution, StringTypes):
-                instance = self._getDistribution(distribution)
-                if not instance:
-                    raise ValueError(N_("Distribution %s was not found", distribution))
-                else:
-                    distribution = instance
+        session = None
 
-            # Handle architectures
-            if not arch:
-                arch = []
-
-            # Clean architectures that are not used anymore
-            for ar in distribution.architectures:
-                if not ar.name in arch:
-                    del distribution.architectures[distribution.architectures.index(ar)]
-
-            # Add new architectures
-            for ar in arch:
-                if isinstance(ar, StringTypes):
-                    instance = self._getArchitecture(ar, add=True)
-                    if not instance:
-                        raise ValueError(N_("Architecture %s was not found", ar))
-                    else:
-                        ar = instance
-                if ar not in distribution.architectures:
-                    distribution.architectures.append(ar)
-
-            # Handle components
-            if not component:
-                component = []
-
-            # Clean components that are not used anymore
-            for cp in distribution.components:
-                if not cp.name in component:
-                    del distribution.components[distribution.components.index(cp)]
-
-            # Add new components
-            for cp in component:
-                if isinstance(cp, StringTypes):
-                    instance = self._getComponent(cp, add=True)
-                    if not instance:
-                        raise ValueError(N_("Component %s was not found", cp))
-                    else:
-                        cp = instance
-                if cp not in distribution.components:
-                    distribution.components.append(cp)
-
-            if mirror_sources:
-                distribution.mirror_sources = mirror_sources
-        else:
-            raise ValueError(N_("Need a distribution to add properties"))
         try:
-            self._session.commit()
+            session = self.getSession()
+            if distribution:
+                if isinstance(distribution, StringTypes):
+                    instance = self._getDistribution(distribution)
+                    if not instance:
+                        raise ValueError(N_("Distribution %s was not found", distribution))
+                    else:
+                        distribution = instance
+                        distribution = session.merge(distribution)
+
+                # Handle architectures
+                if not arch:
+                    arch = []
+
+                # Clean architectures that are not used anymore
+                for ar in distribution.architectures:
+                    if not ar.name in arch:
+                        del distribution.architectures[distribution.architectures.index(ar)]
+
+                # Add new architectures
+                for ar in arch:
+                    if isinstance(ar, StringTypes):
+                        instance = self._getArchitecture(ar, add=True)
+                        if not instance:
+                            raise ValueError(N_("Architecture %s was not found", ar))
+                        else:
+                            ar = instance
+                    if ar not in distribution.architectures:
+                        distribution.architectures.append(ar)
+
+                # Handle components
+                if not component:
+                    component = []
+
+                # Clean components that are not used anymore
+                for cp in distribution.components:
+                    if not cp.name in component:
+                        del distribution.components[distribution.components.index(cp)]
+
+                # Add new components
+                for cp in component:
+                    if isinstance(cp, StringTypes):
+                        instance = self._getComponent(cp, add=True)
+                        if not instance:
+                            raise ValueError(N_("Component %s was not found", cp))
+                        else:
+                            cp = instance
+                    if cp not in distribution.components:
+                        distribution.components.append(cp)
+
+                if mirror_sources:
+                    distribution.mirror_sources = mirror_sources
+            else:
+                raise ValueError(N_("Need a distribution to add properties"))
+            session.commit()
             result = True
         except:
-            self._session.rollback()
+            session.rollback()
             raise
+        finally:
+            session.close()
         return result
 
     @Command(__doc__=N_("Add new properties to a mirrored distribution"))
