@@ -288,6 +288,92 @@ class PuppetManifest(InstallItem):
 
         return items
 
+    def getAssignableElements(self):
+        class_re = re.compile(r"^\s*#\s*Class:\s*(.+)\s*$", re.IGNORECASE)
+        parameter_re = re.compile(r"^\s*#\s*Parameters:\s*$", re.IGNORECASE)
+        parameterv_re = re.compile(r"^\s*#\s*\$(.*):\s*$", re.IGNORECASE)
+        breaker = re.compile(r"^\s*([^#]*|#\s*\w+:\s*)$", re.IGNORECASE)
+
+        manifest_file = os.path.join(self.__path, self.__name + ".pp")
+
+        with open(manifest_file, "r") as f:
+
+            search_description = False
+            search_parameters = False
+            search_parameter_value = False
+
+            classes = {}
+            class_name = None
+            description = ""
+            parameters = {}
+            parameter = ""
+
+            # Parse line by line
+            for line in f.readlines():
+                line = line.strip()
+
+                if breaker.match(line):
+                    search_description = False
+                    search_parameters = False
+                    search_parameter_value = False
+
+                # Look for new class line
+                cm = class_re.match(line)
+                if cm:
+
+                    if class_name:
+                        classes[class_name] = {
+                                'description': description.strip(),
+                                'parameter': parameters,
+                                }
+                        class_name = None
+                        description = ""
+                        parameters = {}
+                        parameter = ""
+
+                    class_name = cm.groups()[0]
+                    search_description = True
+                    continue
+
+                # Look for parameters
+                if parameter_re.match(line):
+                    search_parameters = True
+                    continue
+
+                # Look for requires
+
+                if search_parameters and line != "#":
+                    para = parameterv_re.match(line)
+                    if para:
+                        parameter = para.groups()[0]
+                        parameters[parameter] = ""
+                        search_parameter_value = True
+                        continue
+
+                # Fill description
+                if search_parameter_value:
+                    if not parameters[parameter] and line == "#":
+                        continue
+                    parameters[parameter] += line.strip("#").strip() + "\n"
+
+                # Fill description
+                if search_description:
+                    if not description and line == "#":
+                        continue
+                    description += line.strip("#").strip() + "\n"
+
+            if not class_name in classes:
+                classes[class_name] = {
+                        'description': description.strip(),
+                        'parameter': parameters,
+                        }
+                class_name = None
+                description = ""
+                parameters = {}
+                parameter = ""
+
+        return classes
+
 
 class PuppetFile(InstallItem):
     _name = "File"

@@ -72,7 +72,7 @@ def main():
                 break
 
         # Read default config and write it back to config_file
-        config = open(resource_filename("gosa.client", "data/config")).read()
+        config = open(resource_filename("gosa.client", "data/client.conf")).read()
         with open(config_file, "w") as f:
             f.write(config)
 

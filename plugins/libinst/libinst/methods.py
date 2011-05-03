@@ -83,6 +83,9 @@ class InstallItem(object):
     def scan(self):
         return {}
 
+    def getAssignableElements(self):
+        return {}
+
 
 class BaseInstallMethod(object):
     """
@@ -152,10 +155,16 @@ class BaseInstallMethod(object):
         # Load device
         if not current_data:
             current_data = load_system(device_uuid)
+
+        is_new = not 'installRecipe' in current_data['objectClass']
         dn = current_data['dn']
         current_data = self.getBaseInstallParameters(device_uuid, current_data)
 
         mods = []
+
+        # Add eventually missing objectclass
+        if is_new:
+            mods.append((ldap.MOD_ADD, 'objectClass', 'installRecipe'))
 
         # Transfer changed parameters
         for ldap_key, key in self.attributes.items():
@@ -177,9 +186,22 @@ class BaseInstallMethod(object):
         # Removed values
         for key in current_data.keys():
             if key in self.rev_attributes and not key in data:
-                mods.append((ldap.MOD_DELETE, key, None))
+                mods.append((ldap.MOD_DELETE, self.rev_attributes[key], None))
 
         # Do LDAP operations to add the system
+        lh = LDAPHandler.get_instance()
+        with lh.get_handle() as conn:
+            conn.modify_s(dn, mods)
+
+    def removeBaseInstallParameters(self, device_uuid, data=None):
+        if not data:
+            data = load_system(device_uuid)
+
+        mods = [(ldap.MOD_DELETE, 'objectClass', 'installRecipe')]
+        for attr in self.attributes.keys():
+            mods.append((ldap.MOD_DELETE, attr, None))
+
+        # Do LDAP operations to remove the device
         lh = LDAPHandler.get_instance()
         with lh.get_handle() as conn:
             conn.modify_s(dn, mods)
@@ -335,6 +357,12 @@ class InstallMethod(object):
                         res[item]['options'][oitem][ditem] = dvalue
         return res
 
+    def listAssignableElements(self, release):
+        res = {}
+        for item in self._manager._getAssignableElements(release):
+            res.append(item.getAssignableElements())
+        return res
+
     def listItems(self, release, item_type=None, path=None, children=None):
         """
         Returns a list of items of item_type (if given) for
@@ -414,50 +442,49 @@ class InstallMethod(object):
         @rtype: bool
         @return: True = success
         """
-        session = None
+
+        # Check if this item type is supported
+        if not item_type in self._supportedItems:
+            raise ValueError("unknown item type '%s'" % item_type)
+
+        # Acquire name from path
+        name = os.path.basename(path)
+
+        # Load parent object
+        parent = self._get_parent(release, path)
+        if not parent:
+            raise ValueError("cannot find parent object for '%s'" % path)
+
+        # Check if the current path is a container for that kind of
+        # item type
+        if not item_type in self._supportedItems[parent.item_type]['container']:
+            raise ValueError("'%s' is not allowed for container '%s'" %
+                    (item_type, parent.item_type))
+
+        # Load instance of ConfigItem
+        item = self._manager._getConfigItem(name=name, item_type=item_type, add=True)
+        item.path = path
+
+        # Check if item will be renamed
+        if "name" in data and name != data["name"]:
+            item.name = data["name"]
+
+        # Updated marker for assigneable elements
+        item.assignable = bool(item.getAssignableElements())
+
+        # Add us as child
+        release_object = self._manager._getRelease(release)
+        release_object.config_items.append(item)
+        parent.children.append(item)
+
+        # Try to commit the changes
         try:
-            session = self._manager.getSession()
-
-            # Check if this item type is supported
-            if not item_type in self._supportedItems:
-                raise ValueError("unknown item type '%s'" % item_type)
-
-            # Acquire name from path
-            name = os.path.basename(path)
-
-            # Load parent object
-            parent = self._get_parent(release, path)
-            if not parent:
-                raise ValueError("cannot find parent object for '%s'" % path)
-            parent = session.merge(parent)
-
-            # Check if the current path is a container for that kind of
-            # item type
-            if not item_type in self._supportedItems[parent.item_type]['container']:
-                raise ValueError("'%s' is not allowed for container '%s'" %
-                        (item_type, parent.item_type))
-
-            # Load instance of ConfigItem
-            item = self._manager._getConfigItem(name=name, item_type=item_type, add=True)
-            item = session.merge(item)
-            item.path = path
-
-            # Check if item will be renamed
-            if "name" in data and name != data["name"]:
-                item.name = data["name"]
-
-            # Add us as child
-            release_object = self._manager._getRelease(release)
-            release_object.config_items.append(item)
-            parent.children.append(item)
-
-            # Try to commit the changes
-            session.commit()
+            self._manager._session.commit()
         except:
-            session.rollback()
+            self._manager._session.rollback()
             raise
         finally:
-            session.close()
+            self._manager.session.close()
 
     def removeItem(self, release, path, children=None):
         """
@@ -640,17 +667,19 @@ def load_system(device_uuid, mac=None):
     with lh.get_handle() as conn:
         fltr = "macAddress=%s" % mac if mac else "deviceUUID=%s" % device_uuid
         res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
-            "(&(objectClass=installRecipe)(objectClass=device)(%s))" % fltr,
+            "(&(objectClass=registeredDevice)(%s))" % fltr,
             ["installTemplateDN", "installNTPServer", "installRootEnabled", "macAddress",
              "installRootPasswordHash", "installKeyboardlayout", "installSystemLocale",
              "installTimezone", "installMirrorDN", "installTimeUTC", "installArchitecture",
              "installMirrorPoolDN", "installKernelPackage", "installPartitionTable",
              "installRecipeDN", "installRelease", "deviceStatus", "deviceKey",
-             "cn", "deviceUUID"])
+             "cn", "deviceUUID", "objectClass"])
+
+        # Nothing here...
+        if not res:
+            raise ValueError("device UUID '%s' does not exist" % device_uuid)
 
         # Unique?
-        if not res:
-            raise ValueError("device UUID '%s' cannot be found" % device_uuid)
         if len(res) != 1:
             raise ValueError("device UUID '%s' is not unique!?" % device_uuid)
 

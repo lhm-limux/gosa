@@ -9,7 +9,7 @@
 """
 import os
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Table, Column, Integer, String, ForeignKey, Sequence, UniqueConstraint
+from sqlalchemy import Table, Column, Integer, String, ForeignKey, Sequence, UniqueConstraint, Boolean
 from sqlalchemy.orm import relationship, backref
 
 from libinst.entities import Base, UseInnoDB
@@ -28,6 +28,7 @@ class ConfigItem(Base, UseInnoDB):
     name = Column(String(255))
     item_type = Column(String(255))
     path = Column(String(255))
+    assignable = Column(Boolean())
     parent_id = Column(Integer, ForeignKey('config_item.id'))
     # pylint: disable-msg=E1101
     release = relationship(Release, secondary=ConfigItemReleases.__table__, backref=backref('config_items'))
@@ -50,6 +51,9 @@ class ConfigItem(Base, UseInnoDB):
             "path": self.path,
             "release": None if not self.release else self.relase.name,
         }
+
+    def getAssigneableElements(self):
+        return {}
 
 ConfigItem.parent = relationship(ConfigItem, remote_side=ConfigItem.id, uselist=False, backref=backref('children', uselist=True))
 # pylint: disable-msg=E1101
