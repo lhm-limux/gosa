@@ -34,8 +34,9 @@ class Notify(object):
     __recurrenceTime = 60
     quiet = False
     verbose = False
+    children = []
 
-    def __init__(self, quiet = False, verbose = False):
+    def __init__(self, quiet=False, verbose=False):
         pynotify.init('gosa-ng')
         self.quiet = quiet
         self.verbose = verbose
@@ -50,9 +51,22 @@ class Notify(object):
 
         if self.verbose:
             print "%s: Action selected (%s) " % (str(os.getpid()), str(action))
-        
-        self.__notify.close()
-        self.__loop.quit()
+
+        self.__close()
+
+    def __close(self, *args, **kwargs):
+
+        """
+        Closes the corrent show notification and its mainloop if it exists.
+        """
+        if self.verbose:
+            print "%s: Closing" % (str(os.getpid()))
+
+        if self.__notify:
+            self.__notify.close()
+
+        if self.__loop:
+            self.__loop.quit()
 
     def notification_closed(self, *args, **kwargs):
         """
@@ -75,18 +89,17 @@ class Notify(object):
                     print "%s: Keyboard interrupt. CLOSING" % (str(os.getpid()))
 
                 self.__res = RETURN_ABORTED
-                self.__notify.close()
-                self.__loop.quit()
+                self.__close()
 
         else:
             self.__loop.quit()
 
-    def send(self, title, message, icon="dialog-information",
+    def send(self, title, message, dbus_session,
+        icon="dialog-information",
         urgency=pynotify.URGENCY_NORMAL,
         timeout=pynotify.EXPIRES_DEFAULT,
         recurrence=60,
         actions=[],
-        dbus_session=None,
         **kwargs):
         """
         send    initiates the notification with the given option details.
@@ -94,7 +107,7 @@ class Notify(object):
         the programm running till an action was selected or the programm
         was interrupted.
         """
-        
+
         # Keep 'actions' value to be able to act on callbacks later
         self.__actions = actions
 
@@ -102,18 +115,25 @@ class Notify(object):
         if timeout != pynotify.EXPIRES_DEFAULT:
             timeout *= 1000
 
-        # Initially start with result id 0 for non-action notificatiuons
-        #  and with 255 for action notifications.
+        # Initially start with result id -1
         self.__res = -1
 
         # If a list of dbus session addresses was given then
         #  initiate a notification for each.
-        if dbus_session:
+        if not dbus_session:
+
+            # No dbus session was specified, abort here.
+            if not self.quiet:
+                print "Requires a DBUS address to send notifications"
+
+            return(RETURN_ABORTED)
+
+        else:
 
             # Set DBUS address in the environment
             os.environ['DBUS_SESSION_BUS_ADDRESS'] = dbus_session
 
-            # Build dialog
+            # Build notification
             notify = pynotify.Notification(title, message, icon)
 
             # Set up notification details like actions
@@ -129,12 +149,6 @@ class Notify(object):
             # Display all created notifications
             self.__notify = notify
             self.__notify.show()
-
-        else:
-
-            if not self.quiet:
-                print "Requires a DBUS address to send notifications"
-            return
 
         # Register provided actions and then hook in the main loop
         if not actions:
@@ -153,11 +167,8 @@ class Notify(object):
             try:
                 self.__loop.run()
             except KeyboardInterrupt:
-                try:
-                    self.__notify.close()
-                except gobject.GError:
-                    pass
                 self.__res = RETURN_ABORTED
+                self.__close()
 
         return self.__res
 
@@ -178,7 +189,6 @@ class Notify(object):
 
         # Send the notification to each found dbus address
         dbus_sessions = self.getDBUSAddressesForUser(user)
-
         res = None
         if not dbus_sessions:
             if not self.quiet:
@@ -187,47 +197,49 @@ class Notify(object):
             res = RETURN_ABORTED
         else:
 
+            # Walk through found dbus sessions and fork a process for each
             parent_pid = os.getpid()
-            children = []
+            self.children = []
             for use_user in dbus_sessions:
-
-                if self.verbose:
-                    print "\nInitiating notifications for user: %s" % use_user
-
                 for d_session in dbus_sessions[use_user]:
-                
+
+                    # Some verbose output
                     if self.verbose:
+                        print "\nInitiating notifications for user: %s" % use_user
                         print "Session: %s" % d_session
 
-                    # Detecting groups of user options.user
+                    # Detecting groups for user
                     gids = []
                     for agrp in grp.getgrall():
                         if use_user in agrp.gr_mem:
                             gids.append(agrp.gr_gid)
 
-
-                    # Now Switch to the selected user, primary group und uid
-                    #  for the current os environment
+                    # Get system information for the user
                     info = pwd.getpwnam(use_user)
 
-                    # Fork a new process to send the notification
+                    # Fork a new sub-process to be able to set the user details
+                    # in a save way, the parent should not be affected by this.
                     child_pid = os.fork()
 
                     # Call the send method in the fork only
                     if child_pid == 0:
-                    
+
                         if self.verbose:
                             print "%s: Forking process for user %s" % (str(os.getpid()), str(info[2]))
-                        
+
                         # Set the users groups
                         if os.geteuid() != info[2]:
                             os.setgroups(gids)
                             os.setgid(info[3])
                             os.seteuid(info[2])
 
+                        # Act on termniation events this process receives,
+                        #  by closing the main loop and the notification window.
+                        signal.signal(signal.SIGTERM, self.__close)
+
                         if self.verbose:
                             print "%s: Setting process uid(%s), gid(%s) and groups(%s)" % (
-                                str(os.getpid()),str(info[2]),str(info[3]), str(gids))
+                                str(os.getpid()), str(info[2]), str(info[3]), str(gids))
 
                         # Try to send the notification now.
                         res = self.send(title, message, actions=actions, icon=icon,
@@ -237,36 +249,39 @@ class Notify(object):
                         # Exit the cild process
                         sys.exit(res)
                     else:
-                        children.append(child_pid)
+                        self.children.append(child_pid)
 
             # Wait for first child returning with an return code.
             if os.getpid() == parent_pid:
- 
-                # Get the cild process return code.
-                (pid, ret_code) = os.waitpid(-1, 0)
+
+                try:
+                    # Get the cild process return code.
+                    (cpid, ret_code) = os.waitpid(-1, 0)
+
+                    # Dont know why, but we receive an 16 Bit long return code,
+                    # but only send an 8 Bit value.
+                    res = ret_code >> 8
+
+                except KeyboardInterrupt as inst:
+                    res = RETURN_ABORTED
+                    pass
 
                 # Now kill all remaining children
-                for pid in children:
+                for pid in self.children:
                     try:
-                        os.kill(pid, signal.SIGHUP) 
+                        os.kill(pid, signal.SIGTERM)
                         if self.verbose:
                             print "Killed process %s" % pid
                     except Exception as inst:
-                        if self.verbose:
-                            print inst
                         pass
-
-                # Dont know why, but we receive an 16 Bit long return code,
-                # but only send an 8 Bit value.
-                res = ret_code >> 8
-            
 
         return res
 
     def getDBUSAddressesForUser(self, user):
         """
         Searches the process list for a DBUS Sessions that were opened by
-        the given user, the found DBUS addresses will be returned
+        the given user, the found DBUS addresses will be returned in a dictionary
+        indexed by the username.
         """
 
         # Prepare regular expressions to find processes for X sessions
@@ -281,7 +296,7 @@ class Notify(object):
             # Get the command line statement for the process and check if it represents
             #  an X Session.
             cmdline = open(os.path.join('/proc', pid, 'cmdline'), 'rb').read()
-            if prog.match(cmdline) and (user =='*' or 
+            if prog.match(cmdline) and (user == '*' or
                     user == pwd.getpwuid(os.stat(os.path.join('/proc', pid, 'cmdline')).st_uid).pw_name):
 
                 # Extract user name from running DBUS session
@@ -373,7 +388,7 @@ def main():
                 print "The option -b/--broadcast cannot be combined with the option -u/--user"
 
             options.user = "*"
-        
+
         # If verbose output is enabled, then disable quiet mode.
         if options.verbose:
             options.quiet = False
@@ -383,13 +398,13 @@ def main():
             options.timeout = int(options.timeout)
         else:
             options.timeout = pynotify.EXPIRES_DEFAULT
-   
-        # Create notifcation object 
+
+        # Create notifcation object
         n = Notify(options.quiet, options.verbose)
 
         # Call the send method for our notification instance
         sys.exit(n.send_to_user(args[0], args[1], user=options.user, actions=actions, icon=options.icon,
-            urgency=options.urgency, timeout=options.timeout, recurrence=options.recurrence)) 
+            urgency=options.urgency, timeout=options.timeout, recurrence=options.recurrence))
 
 
 if __name__ == '__main__':
