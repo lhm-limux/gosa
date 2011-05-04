@@ -91,6 +91,10 @@ class Notify(object):
         was interrupted.
         """
 
+        # Prepare timeout, use seconds not milliseconds
+        if timeout != pynotify.EXPIRES_DEFAULT:
+            timeout *= 1000
+
         # Initially start with result id 0 for non-action notificatiuons
         #  and with 255 for action notifications.
         self.__res = -1
@@ -305,7 +309,7 @@ if __name__ == '__main__':
 
         # Ensure that the timeout is valid
         if options.timeout:
-            options.timeout = int(options.timeout) * 1000
+            options.timeout = int(options.timeout)
         else:
             options.timeout = pynotify.EXPIRES_DEFAULT
 
