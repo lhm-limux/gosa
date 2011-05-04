@@ -1475,6 +1475,7 @@ class RepositoryManager(Plugin):
 
             mods = []
             if create_new:
+                #TODO: unique check
                 mods.append(('objectClass', ['gosaConfigItem', 'installTemplate']))
                 dn = ",".join(["cn=" + name,
                     self.env.config.getOption("template-rdn", "libinst", "cn=templates,cn=libinst,cn=config"),
