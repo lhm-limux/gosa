@@ -259,8 +259,10 @@ class PuppetInstallMethod(InstallMethod):
             return
 
         # Add changes to git
+        changed = False
         cmd = Git(self.getBaseDir(release))
         for line in cmd.status("--porcelain").splitlines():
+            changed = True
             line = line.lstrip()
             self.env.log.info("staging changes for module %s" % line)
 
@@ -274,6 +276,10 @@ class PuppetInstallMethod(InstallMethod):
             # Add data...
             else:
                 cmd.add(file_path)
+
+        # No need to deal...
+        if not changed:
+            return
 
         # Commit changes
         if not comment:
