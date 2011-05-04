@@ -89,18 +89,17 @@ class Notify(object):
                     print "%s: Keyboard interrupt. CLOSING" % (str(os.getpid()))
 
                 self.__res = RETURN_ABORTED
-                self.__notify.close()
-                self.__loop.quit()
+                self.__close()
 
         else:
             self.__loop.quit()
 
-    def send(self, title, message, icon="dialog-information",
+    def send(self, title, message, dbus_session,
+        icon="dialog-information",
         urgency=pynotify.URGENCY_NORMAL,
         timeout=pynotify.EXPIRES_DEFAULT,
         recurrence=60,
         actions=[],
-        dbus_session=None,
         **kwargs):
         """
         send    initiates the notification with the given option details.
@@ -116,18 +115,25 @@ class Notify(object):
         if timeout != pynotify.EXPIRES_DEFAULT:
             timeout *= 1000
 
-        # Initially start with result id 0 for non-action notificatiuons
-        #  and with 255 for action notifications.
-        self.__res = -1
+        # Initially start with result id 0
+        self.__res = 0
 
         # If a list of dbus session addresses was given then
         #  initiate a notification for each.
-        if dbus_session:
+        if not dbus_session:
+
+            # No dbus session was specified, abort here.
+            if not self.quiet:
+                print "Requires a DBUS address to send notifications"
+
+            return(RETURN_ABORTED)
+
+        else:
 
             # Set DBUS address in the environment
             os.environ['DBUS_SESSION_BUS_ADDRESS'] = dbus_session
 
-            # Build dialog
+            # Build notification
             notify = pynotify.Notification(title, message, icon)
 
             # Set up notification details like actions
@@ -143,12 +149,6 @@ class Notify(object):
             # Display all created notifications
             self.__notify = notify
             self.__notify.show()
-
-        else:
-
-            if not self.quiet:
-                print "Requires a DBUS address to send notifications"
-            return
 
         # Register provided actions and then hook in the main loop
         if not actions:
@@ -189,7 +189,6 @@ class Notify(object):
 
         # Send the notification to each found dbus address
         dbus_sessions = self.getDBUSAddressesForUser(user)
-
         res = None
         if not dbus_sessions:
             if not self.quiet:
@@ -198,29 +197,28 @@ class Notify(object):
             res = RETURN_ABORTED
         else:
 
+            # Walk through found dbus sessions and fork a process for each
             parent_pid = os.getpid()
             self.children = []
             for use_user in dbus_sessions:
-
-                if self.verbose:
-                    print "\nInitiating notifications for user: %s" % use_user
-
                 for d_session in dbus_sessions[use_user]:
 
+                    # Some verbose output
                     if self.verbose:
+                        print "\nInitiating notifications for user: %s" % use_user
                         print "Session: %s" % d_session
 
-                    # Detecting groups of user options.user
+                    # Detecting groups for user
                     gids = []
                     for agrp in grp.getgrall():
                         if use_user in agrp.gr_mem:
                             gids.append(agrp.gr_gid)
 
-                    # Now Switch to the selected user, primary group und uid
-                    #  for the current os environment
+                    # Get system information for the user
                     info = pwd.getpwnam(use_user)
 
-                    # Fork a new process to send the notification
+                    # Fork a new sub-process to be able to set the user details
+                    # in a save way, the parent should not be affected by this.
                     child_pid = os.fork()
 
                     # Call the send method in the fork only
@@ -235,6 +233,8 @@ class Notify(object):
                             os.setgid(info[3])
                             os.seteuid(info[2])
 
+                        # Act on termniation events this process receives,
+                        #  by closing the main loop and the notification window.
                         signal.signal(signal.SIGTERM, self.__close)
 
                         if self.verbose:
@@ -263,6 +263,7 @@ class Notify(object):
                     res = ret_code >> 8
 
                 except KeyboardInterrupt as inst:
+                    res = RETURN_ABORTED
                     pass
 
                 # Now kill all remaining children
@@ -272,8 +273,6 @@ class Notify(object):
                         if self.verbose:
                             print "Killed process %s" % pid
                     except Exception as inst:
-                        if self.verbose:
-                            print inst
                         pass
 
         return res
@@ -281,7 +280,8 @@ class Notify(object):
     def getDBUSAddressesForUser(self, user):
         """
         Searches the process list for a DBUS Sessions that were opened by
-        the given user, the found DBUS addresses will be returned
+        the given user, the found DBUS addresses will be returned in a dictionary
+        indexed by the username.
         """
 
         # Prepare regular expressions to find processes for X sessions
