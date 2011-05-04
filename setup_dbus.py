@@ -62,6 +62,7 @@ setup(
     entry_points = """
         [console_scripts]
         gosa-dbus = gosa.dbus.main:main
+        notify-user = gosa.dbus.notify:main
 
         [gosa_dbus.modules]
         gosa-dbus.shell = gosa.dbus.plugins.shell.main:DBusShellHandler
