@@ -29,6 +29,9 @@ class CursesGUI(join_method):
 
     def start_gui(self):
         self.screen = curses.initscr()
+	self.height, self.width = self.screen.getmaxyx()
+
+        curses.start_color()
 
     def end_gui(self):
         curses.endwin()
@@ -38,7 +41,7 @@ class CursesGUI(join_method):
         curses.cbreak()
         password=""
         pos=0
-        self.screen.move(11, 25 + pos)
+        self.screen.move(self.start_y + 4, self.start_x + 11 + pos)
 
         while 1:
             c = self.screen.getch()
@@ -49,13 +52,13 @@ class CursesGUI(join_method):
                 if (pos > 0):
                     pos = pos - 1
 
-                self.screen.move(11, 25 + pos)
+                self.screen.move(self.start_y + 4, self.start_x + 11 + pos)
                 self.screen.addch(" ")
-                self.screen.move(11, 25 + pos)
+                self.screen.move(self.start_y + 4, self.start_x + 11 + pos)
                 self.screen.refresh()
                 password = password[0:len(password)-1]
             else:
-                self.screen.move(11, 25 + pos)
+                self.screen.move(self.start_y + 4, self.start_x + 11 + pos)
                 pos = pos + 1
                 self.screen.addch("*")
                 self.screen.refresh()
@@ -69,23 +72,29 @@ class CursesGUI(join_method):
     def join_dialog(self):
         key = None
         self.start_gui()
+	headline = _("Please enter the credentials of an administrative user to join this client.")
+	self.start_x = (self.width - len(headline)) / 2 - 1
+	self.start_y = self.height / 2 - 5
 
         while not key:
             self.screen.border(0)
-            self.screen.addstr(7, 14, _("Please enter username and password to join GOsa"))
-            self.screen.addstr(8, 14, "(" + _("press Ctrl-C to cancel") + ")")
-            self.screen.addstr(10, 14, _("Username") + ":")
-            self.screen.addstr(11, 14, _("Password") + ":")
+            self.screen.addstr(self.start_y, self.start_x, headline)
+            self.screen.addstr(self.start_y + 1, self.start_x, "(" + _("Press Ctrl-C to cancel") + ")")
+            self.screen.addstr(self.start_y + 3, self.start_x, _("User name") + ":")
+            self.screen.addstr(self.start_y + 4, self.start_x, _("Password") + ":")
             self.screen.refresh()
 
-            username = self.screen.getstr(10, 25, 16)
+            username = self.screen.getstr(self.start_y + 3, self.start_x + 11, 16)
             password = self.get_pw()
+            if not username or not password:
+		self.show_error("Please enter a user name and a password!")
+                continue
             key = self.join(username, password)
 
         self.end_gui()
 
     def show_error(self, error):
-        self.screen.addstr(13, 14, error)
+        self.screen.addstr(self.start_y + 6, self.start_x, error)
         self.screen.refresh()
         time.sleep(3)
         self.screen.clear()

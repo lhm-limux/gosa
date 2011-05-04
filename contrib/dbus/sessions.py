@@ -25,17 +25,17 @@ class SeatKeeper(object):
 
         def runner():
             self.__update_sessions()
-        
+
             # register a signal receiver
             self.__bus.add_signal_receiver(self.event_handler,
                 dbus_interface = "org.freedesktop.ConsoleKit.Seat",
                 message_keyword='dbus_message')
-        
+
             self.__loop = gobject.MainLoop()
             gobject.threads_init()
             dbus.glib.init_threads()
             context = gobject.MainLoop().get_context()
-        
+
             while self.active:
                 context.iteration(True)
 
@@ -51,12 +51,12 @@ class SeatKeeper(object):
         self.__update_sessions()
         if self.__callback:
             self.__callback(dbus_message.get_member(), msg_string)
-    
+
     def __update_sessions(self):
         obj = self.__bus.get_object("org.freedesktop.ConsoleKit",
             "/org/freedesktop/ConsoleKit/Manager")
         sessions = {}
-    
+
         for session_name in obj.GetSessions():
             session_o = self.__bus.get_object("org.freedesktop.ConsoleKit",
                 session_name)
