@@ -36,7 +36,7 @@ class DBusNotifyHandler(dbus.service.Object, Plugin):
 
             # Build up the subprocess command 
             # and add parameters on demand.
-            cmd = ["/home/hickert/gosa-ng/contrib/notifications/notify-user"]
+            cmd = ["notify-user"]
             cmd += [str(title)]
             cmd += [str(message)]
             cmd += ["--user"]
