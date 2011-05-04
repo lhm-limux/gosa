@@ -90,6 +90,9 @@ class Notify(object):
         the programm running till an action was selected or the programm
         was interrupted.
         """
+        
+        # Keep 'actions' value to be able to act on callbacks later
+        self.__actions = actions
 
         # Prepare timeout, use seconds not milliseconds
         if timeout != pynotify.EXPIRES_DEFAULT:
@@ -131,7 +134,7 @@ class Notify(object):
             return
 
         # Register provided actions and then hook in the main loop
-        if not self.__actions:
+        if not actions:
             self.__res = RETURN_CLOSED
         else:
 
@@ -314,12 +317,12 @@ def main():
         # Check if we've to send the message to all users instead of just one.
         if options.to_all:
             options.user = "*"
-            print "The option -d/--to-all is not supported yet!"
+            print "The option -b/--broadcast is not supported yet!"
             sys.exit(RETURN_ABORTED)
 
             # Check if --user/-u was specified additionally.
             if options.user and options.verbose:
-                print "The option -d/--to-all cannot be combined with the option -u/--user"
+                print "The option -b/--broadcast cannot be combined with the option -u/--user"
 
         # Ensure that the timeout is valid
         if options.timeout:
