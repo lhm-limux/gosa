@@ -15,6 +15,7 @@ import time
 from optparse import OptionParser, OptionValueError
 import pwd
 import getpass
+import signal
 
 # Define return codes
 RETURN_ABORTED = 0b10000000
@@ -76,6 +77,7 @@ class Notify(object):
                 self.__res = RETURN_ABORTED
                 self.__notify.close()
                 self.__loop.quit()
+
         else:
             self.__loop.quit()
 
@@ -186,6 +188,7 @@ class Notify(object):
         else:
 
             parent_pid = os.getpid()
+            children = []
             for use_user in dbus_sessions:
 
                 if self.verbose:
@@ -233,12 +236,25 @@ class Notify(object):
 
                         # Exit the cild process
                         sys.exit(res)
+                    else:
+                        children.append(child_pid)
 
             # Wait for first child returning with an return code.
             if os.getpid() == parent_pid:
  
                 # Get the cild process return code.
-                (pid, ret_code) = os.waitpid(child_pid, 0)
+                (pid, ret_code) = os.waitpid(-1, 0)
+
+                # Now kill all remaining children
+                for pid in children:
+                    try:
+                        os.kill(pid, signal.SIGHUP) 
+                        if self.verbose:
+                            print "Killed process %s" % pid
+                    except Exception as inst:
+                        if self.verbose:
+                            print inst
+                        pass
 
                 # Dont know why, but we receive an 16 Bit long return code,
                 # but only send an 8 Bit value.
