@@ -115,8 +115,8 @@ class Notify(object):
         if timeout != pynotify.EXPIRES_DEFAULT:
             timeout *= 1000
 
-        # Initially start with result id 0
-        self.__res = 0
+        # Initially start with result id -1
+        self.__res = -1
 
         # If a list of dbus session addresses was given then
         #  initiate a notification for each.
