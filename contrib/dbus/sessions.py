@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import gobject
 import dbus
+import pwd
 import dbus.glib
 import dbus.mainloop.glib
 from threading import Thread
@@ -61,8 +62,9 @@ class SeatKeeper(object):
             session_o = self.__bus.get_object("org.freedesktop.ConsoleKit",
                 session_name)
 
+            uid = pwd.getpwuid(int(session_o.GetUser())).pw_name
             sessions[str(session_name).split("/")[-1]] = {
-                "uid": int(session_o.GetUser()),
+                "uid": uid,
                 "active": bool(session_o.IsActive()),
                 "created": parse(str(session_o.GetCreationTime())),
                 "display": str(session_o.GetX11Display()),
