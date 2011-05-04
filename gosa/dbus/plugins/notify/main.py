@@ -22,7 +22,7 @@ class DBusNotifyHandler(dbus.service.Object, Plugin):
         self.env = Environment.getInstance()
 
     @dbus.service.method('com.gonicus.gosa', in_signature='', out_signature='')
-    def send(self, message, title, user,
+    def notify(self, message, title, user,
         timeout="",
         actions="",
         urgency="",
@@ -62,7 +62,7 @@ class DBusNotifyHandler(dbus.service.Object, Plugin):
                 cmd += ["--recurrence"]
                 cmd += [str(recurrence)]
 
-            return subprocess.Popen(cmd)
+            subprocess.call(cmd)
         except Exception as inst:
             traceback.print_exc(file=sys.stdout)
 

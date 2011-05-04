@@ -38,6 +38,7 @@ else:
 
     modules = """
         gosa-client.plugins.wakeonlan = gosa.client.plugins.wakeonlan.utils:WakeOnLan
+        gosa-client.plugins.notify = gosa.client.plugins.notify.utils:Notify
         gosa-client.plugins.powermanagement = gosa.client.plugins.powermanagement.utils:PowerManagement
     """
     joiner = """
