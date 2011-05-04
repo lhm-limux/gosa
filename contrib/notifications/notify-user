@@ -237,7 +237,8 @@ class Notify(object):
             # Get the command line statement for the process and check if it represents
             #  an X Session.
             cmdline = open(os.path.join('/proc', pid, 'cmdline'), 'rb').read()
-            if prog.match(cmdline) and user == pwd.getpwuid(os.stat(os.path.join('/proc', pid, 'cmdline')).st_uid).pw_name:
+            if prog.match(cmdline) and (user =='*' or 
+                    user == pwd.getpwuid(os.stat(os.path.join('/proc', pid, 'cmdline')).st_uid).pw_name):
 
                 # Extract the DBUS Session address, to be able to connect to it later.
                 environment = open(os.path.join('/proc', pid, 'environ'), 'rb').read()
@@ -285,6 +286,8 @@ if __name__ == '__main__':
     parser.add_option("-t", "--timeout", dest="timeout",
         help="Seconds the notification is displayed")
     parser.add_option("-u", "--user", dest="user", help="The target user")
+    parser.add_option("-d", "--to-all", action="store_true", dest="to_all",
+        default=False, help="send message to all users")
     parser.add_option("-q", "--quiet", action="store_false", dest="verbose",
         default=True, help="don't print status messages to stdout")
     parser.add_option("-a", "--actions", dest="actions",
@@ -306,6 +309,16 @@ if __name__ == '__main__':
         # Check if actions and timeout are given, timeout will be ignored in this case.
         if options.actions and options.timeout and options.verbose:
             print "The options 'timeout' and 'actions' cannot be combined, timeout will be ingored!"
+
+        # Check if we've to send the message to all users instead of just one.
+        if options.to_all:
+            options.user = "*"
+            print "The option -d/--to-all is not supported yet!"
+            sys.exit(RETURN_ABORTED)
+
+            # Check if --user/-u was specified additionally.
+            if options.user and options.verbose:
+                print "The option -d/--to-all cannot be combined with the option -u/--user"
 
         # Ensure that the timeout is valid
         if options.timeout:
