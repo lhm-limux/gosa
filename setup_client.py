@@ -39,7 +39,7 @@ else:
     modules = """
         gosa-client.plugins.wakeonlan = gosa.client.plugins.wakeonlan.utils:WakeOnLan
         gosa-client.plugins.powermanagement = gosa.client.plugins.powermanagement.utils:PowerManagement
-        #gosa-client.plugins.session = gosa.client.plugins.sessions.main:SessionKeeper
+        gosa-client.plugins.session = gosa.client.plugins.sessions.main:SessionKeeper
     """
     joiner = """
         join.curses = gosa.client.plugins.join.curses_gui:CursesGUI

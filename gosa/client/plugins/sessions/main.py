@@ -19,6 +19,8 @@ from dateutil.parser import parse
 from gosa.common.components.plugin import Plugin
 from gosa.common.components.command import Command
 from gosa.common.env import Environment
+from zope.interface import implements
+from gosa.common.handler import IInterfaceHandler
 
 
 class SessionKeeper(Plugin):
@@ -26,6 +28,8 @@ class SessionKeeper(Plugin):
     Utility class that contains methods needed to handle WakeOnLAN
     functionality.
     """
+    implements(IInterfaceHandler)
+
     _target_ = 'session'
     __sessions = {}
     __callback = None
@@ -37,17 +41,13 @@ class SessionKeeper(Plugin):
         self.__bus = None
         self.__loop = None
         self.__thread = None
-        self.start()
-
-    def __del__(self):
-        self.stop()
 
     @Command()
     def getSessions(self):
         """ Return the list of active sessions """
         return self.__sessions
 
-    def start(self):
+    def serve(self):
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
         self.__bus = dbus.SystemBus()
         self.active = True
