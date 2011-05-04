@@ -272,7 +272,7 @@ if __name__ == '__main__':
     # Define cli-script parameters
     parser = OptionParser(description="Sends a notification dialog "
         "to a user on the local machine.",
-        prog="notify", usage="%prog <message> <title> [options] ")
+        prog="notify", usage="%prog <title> <message> [options] ")
 
     parser.add_option("-l", "--urgency", type="string", help="Urgency level",
         callback=checkUrgency, action="callback", default=pynotify.URGENCY_NORMAL)
