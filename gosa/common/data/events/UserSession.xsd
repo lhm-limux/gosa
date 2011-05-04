@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.gonicus.de/Events" elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:gosa="http://www.gonicus.de/Events">
+
+    <complexType name="UserSession">
+    	<annotation>
+    		<documentation>
+    			The UserSession event is fired when a user logs on or off.
+    		</documentation>
+    	</annotation>
+        <all>
+    		<element name="User" type="string" maxOccurs="1" minOccurs="1"></element>
+    		<element name="Status" type="string" maxOccurs="1" minOccurs="1"></element>
+    	</all>
+    </complexType>
+    
+    <element name="UserSession" type="gosa:UserSession"></element>
+
+
+</schema>
