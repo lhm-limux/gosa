@@ -149,6 +149,8 @@ class BaseInstallMethod(object):
             else:
                 res[value] = None
 
+        #HIER: handle template
+
         return res
 
     def setBaseInstallParameters(self, device_uuid, data, current_data=None):
@@ -187,6 +189,8 @@ class BaseInstallMethod(object):
         for key in current_data.keys():
             if key in self.rev_attributes and not key in data:
                 mods.append((ldap.MOD_DELETE, self.rev_attributes[key], None))
+
+        #HIER: handle template
 
         # Do LDAP operations to add the system
         lh = LDAPHandler.get_instance()

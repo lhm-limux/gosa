@@ -271,7 +271,8 @@ def checkUrgency(option, opt, value, parser):
     # Update the cli-option-parser now.
     parser.values.urgency = value
 
-if __name__ == '__main__':
+
+def main():
     n = Notify()
 
     # Define cli-script parameters
@@ -286,7 +287,7 @@ if __name__ == '__main__':
     parser.add_option("-t", "--timeout", dest="timeout",
         help="Seconds the notification is displayed")
     parser.add_option("-u", "--user", dest="user", help="The target user")
-    parser.add_option("-d", "--to-all", action="store_true", dest="to_all",
+    parser.add_option("-b", "--broadcast", action="store_true", dest="to_all",
         default=False, help="send message to all users")
     parser.add_option("-q", "--quiet", action="store_false", dest="verbose",
         default=True, help="don't print status messages to stdout")
@@ -331,29 +332,5 @@ if __name__ == '__main__':
             urgency=options.urgency, timeout=options.timeout, recurrence=options.recurrence))
 
 
-###############################################
-# Usecases:
-#
-# 1) Simple Nachricht
-#    Timeout, Titel, Nachricht (HTML), Icon, Urgency (low, normal, critical)
-#
-#    Timeout:
-#    EXPIRES_DEFAULT = -1
-#    EXPIRES_NEVER = 0
-#
-#    Urgency:
-#    URGENCY_CRITICAL
-#    URGENCY_LOW
-#    URGENCY_NORMAL
-#
-#    Icon (z.B.):
-#    dialog-information
-#    dialog-warning
-#    dialog-error
-#    dialog-question
-#
-# 2) Nachricht mit Callbacks
-#    Timeout (mandatory), Titel, Nachricht (HTML), Icon, Urgency (low, normal, critical)
-#    "Button 1", "Button 2", ...
-#
-#    -> wartet auf bestätigung, max. timeout -> -1
+if __name__ == '__main__':
+    main()
