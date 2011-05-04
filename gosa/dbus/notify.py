@@ -282,7 +282,7 @@ def main():
 
     parser.add_option("-l", "--urgency", type="string", help="Urgency level",
         callback=checkUrgency, action="callback", default=pynotify.URGENCY_NORMAL)
-    parser.add_option("-i", "--icon", dest="icon",
+    parser.add_option("-i", "--icon", dest="icon", default="dialog-information",
         help="An icon file to use in the notifcation", metavar="FILE")
     parser.add_option("-t", "--timeout", dest="timeout",
         help="Seconds the notification is displayed")
