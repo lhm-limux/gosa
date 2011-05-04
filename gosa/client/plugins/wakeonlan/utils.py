@@ -31,7 +31,5 @@ class WakeOnLan(Plugin):
         """ Sent a WakeOnLAN paket to the given MAC address. """
         bus = dbus.SystemBus()
         gosa_dbus = bus.get_object('com.gonicus.gosa',
-                                   '/com/gonicus/gosa/object')
-        ret = gosa_dbus.wakeOnLan(macaddr, dbus_interface="com.gonicus.gosa")
-
-        return "WOL packet sent to %s" % macaddr
+                                   '/com/gonicus/gosa/wol')
+        return gosa_dbus.wakeOnLan(macaddr, dbus_interface="com.gonicus.gosa")
