@@ -34,8 +34,9 @@ class Notify(object):
     __recurrenceTime = 60
     quiet = False
     verbose = False
+    children = []
 
-    def __init__(self, quiet = False, verbose = False):
+    def __init__(self, quiet=False, verbose=False):
         pynotify.init('gosa-ng')
         self.quiet = quiet
         self.verbose = verbose
@@ -50,9 +51,22 @@ class Notify(object):
 
         if self.verbose:
             print "%s: Action selected (%s) " % (str(os.getpid()), str(action))
-        
-        self.__notify.close()
-        self.__loop.quit()
+
+        self.__close()
+
+    def __close(self, *args, **kwargs):
+
+        """
+        Closes the corrent show notification and its mainloop if it exists.
+        """
+        if self.verbose:
+            print "%s: Closing" % (str(os.getpid()))
+
+        if self.__notify:
+            self.__notify.close()
+
+        if self.__loop:
+            self.__loop.quit()
 
     def notification_closed(self, *args, **kwargs):
         """
@@ -94,7 +108,7 @@ class Notify(object):
         the programm running till an action was selected or the programm
         was interrupted.
         """
-        
+
         # Keep 'actions' value to be able to act on callbacks later
         self.__actions = actions
 
@@ -153,11 +167,8 @@ class Notify(object):
             try:
                 self.__loop.run()
             except KeyboardInterrupt:
-                try:
-                    self.__notify.close()
-                except gobject.GError:
-                    pass
                 self.__res = RETURN_ABORTED
+                self.__close()
 
         return self.__res
 
@@ -188,14 +199,14 @@ class Notify(object):
         else:
 
             parent_pid = os.getpid()
-            children = []
+            self.children = []
             for use_user in dbus_sessions:
 
                 if self.verbose:
                     print "\nInitiating notifications for user: %s" % use_user
 
                 for d_session in dbus_sessions[use_user]:
-                
+
                     if self.verbose:
                         print "Session: %s" % d_session
 
@@ -204,7 +215,6 @@ class Notify(object):
                     for agrp in grp.getgrall():
                         if use_user in agrp.gr_mem:
                             gids.append(agrp.gr_gid)
-
 
                     # Now Switch to the selected user, primary group und uid
                     #  for the current os environment
@@ -215,19 +225,21 @@ class Notify(object):
 
                     # Call the send method in the fork only
                     if child_pid == 0:
-                    
+
                         if self.verbose:
                             print "%s: Forking process for user %s" % (str(os.getpid()), str(info[2]))
-                        
+
                         # Set the users groups
                         if os.geteuid() != info[2]:
                             os.setgroups(gids)
                             os.setgid(info[3])
                             os.seteuid(info[2])
 
+                        signal.signal(signal.SIGTERM, self.__close)
+
                         if self.verbose:
                             print "%s: Setting process uid(%s), gid(%s) and groups(%s)" % (
-                                str(os.getpid()),str(info[2]),str(info[3]), str(gids))
+                                str(os.getpid()), str(info[2]), str(info[3]), str(gids))
 
                         # Try to send the notification now.
                         res = self.send(title, message, actions=actions, icon=icon,
@@ -237,29 +249,32 @@ class Notify(object):
                         # Exit the cild process
                         sys.exit(res)
                     else:
-                        children.append(child_pid)
+                        self.children.append(child_pid)
 
             # Wait for first child returning with an return code.
             if os.getpid() == parent_pid:
- 
-                # Get the cild process return code.
-                (pid, ret_code) = os.waitpid(-1, 0)
+
+                try:
+                    # Get the cild process return code.
+                    (cpid, ret_code) = os.waitpid(-1, 0)
+
+                    # Dont know why, but we receive an 16 Bit long return code,
+                    # but only send an 8 Bit value.
+                    res = ret_code >> 8
+
+                except KeyboardInterrupt as inst:
+                    pass
 
                 # Now kill all remaining children
-                for pid in children:
+                for pid in self.children:
                     try:
-                        os.kill(pid, signal.SIGHUP) 
+                        os.kill(pid, signal.SIGTERM)
                         if self.verbose:
                             print "Killed process %s" % pid
                     except Exception as inst:
                         if self.verbose:
                             print inst
                         pass
-
-                # Dont know why, but we receive an 16 Bit long return code,
-                # but only send an 8 Bit value.
-                res = ret_code >> 8
-            
 
         return res
 
@@ -281,7 +296,7 @@ class Notify(object):
             # Get the command line statement for the process and check if it represents
             #  an X Session.
             cmdline = open(os.path.join('/proc', pid, 'cmdline'), 'rb').read()
-            if prog.match(cmdline) and (user =='*' or 
+            if prog.match(cmdline) and (user == '*' or
                     user == pwd.getpwuid(os.stat(os.path.join('/proc', pid, 'cmdline')).st_uid).pw_name):
 
                 # Extract user name from running DBUS session
@@ -373,7 +388,7 @@ def main():
                 print "The option -b/--broadcast cannot be combined with the option -u/--user"
 
             options.user = "*"
-        
+
         # If verbose output is enabled, then disable quiet mode.
         if options.verbose:
             options.quiet = False
@@ -383,13 +398,13 @@ def main():
             options.timeout = int(options.timeout)
         else:
             options.timeout = pynotify.EXPIRES_DEFAULT
-   
-        # Create notifcation object 
+
+        # Create notifcation object
         n = Notify(options.quiet, options.verbose)
 
         # Call the send method for our notification instance
         sys.exit(n.send_to_user(args[0], args[1], user=options.user, actions=actions, icon=options.icon,
-            urgency=options.urgency, timeout=options.timeout, recurrence=options.recurrence)) 
+            urgency=options.urgency, timeout=options.timeout, recurrence=options.recurrence))
 
 
 if __name__ == '__main__':
