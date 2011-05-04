@@ -81,6 +81,7 @@ class Notify(object):
         urgency=pynotify.URGENCY_NORMAL,
         timeout=pynotify.EXPIRES_DEFAULT,
         recurrence=60,
+        actions=[],
         dbus_sessions=[],
         **kwargs):
         """
@@ -109,11 +110,10 @@ class Notify(object):
 
                 # Set up notification details like actions
                 notify.set_urgency(urgency)
-                if 'actions' in kwargs:
+                if actions:
                     notify.set_timeout(pynotify.EXPIRES_NEVER)
                     self.__recurrenceTime = recurrence
-                    self.__actions = kwargs['actions']
-                    for action in kwargs['actions']:
+                    for action in actions:
                         notify.add_action(action, action, self.__callback)
                 else:
                     notify.set_timeout(timeout)
@@ -279,7 +279,7 @@ if __name__ == '__main__':
     parser.add_option("-i", "--icon", dest="icon",
         help="An icon file to use in the notifcation", metavar="FILE")
     parser.add_option("-t", "--timeout", dest="timeout",
-        help="Milliseconds the notification is displayed")
+        help="Seconds the notification is displayed")
     parser.add_option("-u", "--user", dest="user", help="The target user")
     parser.add_option("-q", "--quiet", action="store_false", dest="verbose",
         default=True, help="don't print status messages to stdout")
@@ -305,7 +305,7 @@ if __name__ == '__main__':
 
         # Ensure that the timeout is valid
         if options.timeout:
-            options.timeout = int(options.timeout)
+            options.timeout = int(options.timeout) * 1000
         else:
             options.timeout = pynotify.EXPIRES_DEFAULT
 
