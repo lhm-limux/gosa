@@ -316,4 +316,5 @@ class ClientService(object):
             del self.__client[client]
 
         if client in self.__proxy:
+            self.__proxy[client].close()
             del self.__proxy[client]
