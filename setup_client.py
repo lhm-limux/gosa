@@ -17,6 +17,7 @@ client_install_requires = [
     'gosa.common',
     'netaddr',
     'netifaces',
+    'python_dateutil',
     ],
 
 if platform.system() == "Windows":

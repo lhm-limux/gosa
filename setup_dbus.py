@@ -50,6 +50,7 @@ setup(
         'NoseXUnit',
         'pylint',
         'babel',
+        'python_dateutil',
         ],
     install_requires = [
         'gosa.common',
