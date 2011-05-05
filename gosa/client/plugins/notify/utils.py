@@ -27,7 +27,7 @@ class Notify(Plugin):
         self.env = env
 
     @Command()
-    def notify(self, title, message, user,
+    def notify(self, user, title, message,
         timeout=0,
         urgency="normal",
         icon="dialog-information",
@@ -42,7 +42,7 @@ class Notify(Plugin):
                                    '/com/gonicus/gosa/notify')
 
         # Send notification and keep return code
-        o = gosa_dbus.notify(title, message, user, timeout, urgency,
+        o = gosa_dbus.notify(user, title, message, timeout, urgency,
             icon, actions, recurrence, dbus_interface="com.gonicus.gosa")
         return(int(o))
 

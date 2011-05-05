@@ -36,7 +36,7 @@ class DBusNotifyHandler(dbus.service.Object, Plugin):
             urgency=urgency, icon=icon, recurrence=recurrence, actions=actions))
 
     @dbus.service.method('com.gonicus.gosa', in_signature='sssisssi', out_signature='i')
-    def notify(self, title, message, user,
+    def notify(self, user, title, message,
         timeout=120,
         urgency="normal",
         icon="dialog-information",
