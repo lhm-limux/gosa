@@ -80,7 +80,6 @@ class SessionKeeper(Plugin):
 
     def event_handler(self, msg_string, dbus_message):
         self.__update_sessions()
-        self.sendSessionNotification():
 
         if self.__callback:
             self.__callback(dbus_message.get_member(), msg_string)
@@ -103,6 +102,7 @@ class SessionKeeper(Plugin):
             }
 
         self.__sessions = sessions
+        self.sendSessionNotification()
 
     def sendSessionNotification(self):
         # Build event
