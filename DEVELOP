@@ -167,7 +167,8 @@ number of required packages drastically. For this reason, just install these
 # apt-get install python2.6-dev python-dumbnet python-avahi python-virtualenv \
     libavahi-compat-libdnssd-dev python-openssl python-dbus libssl-dev python-gtk2 \
     python-lxml python-libxml2 python-dmidecode python-ldap python-cjson \
-    python-nose python-kid python-coverage
+    python-nose python-kid python-coverage python-dateutil python-smbpasswd \
+    python-netifaces
 
 On Windows systems you need the pywin32 package:
 http://sourceforge.net/projects/pywin32/
