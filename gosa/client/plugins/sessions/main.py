@@ -83,19 +83,6 @@ class SessionKeeper(Plugin):
         if self.__callback:
             self.__callback(dbus_message.get_member(), msg_string)
 
-        amqp = PluginRegistry.getInstance("AMQPClientHandler")
-
-        # Build event
-        e = EventMaker()
-        more = set(map(lambda x: x['uid'], self.__sessions.values()))
-        more = map(lambda x: e.Name(x), more)
-        info = e.Event(
-            e.UserSession(
-                e.Id(self.env.uuid),
-		e.User(*more)))
-
-        amqp.sendEvent(info)
-
     def __update_sessions(self):
         obj = self.__bus.get_object("org.freedesktop.ConsoleKit",
             "/org/freedesktop/ConsoleKit/Manager")
@@ -114,3 +101,15 @@ class SessionKeeper(Plugin):
             }
 
         self.__sessions = sessions
+
+        # Build event
+        amqp = PluginRegistry.getInstance("AMQPClientHandler")
+        e = EventMaker()
+        more = set(map(lambda x: x['uid'], self.__sessions.values()))
+        more = map(lambda x: e.Name(x), more)
+        info = e.Event(
+            e.UserSession(
+                e.Id(self.env.uuid),
+		e.User(*more)))
+
+        amqp.sendEvent(info)

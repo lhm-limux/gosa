@@ -47,6 +47,7 @@ class ClientService(object):
     _target_ = 'goto'
     __client = {}
     __proxy = {}
+    __user_session = {}
 
     def __init__(self):
         """
@@ -67,6 +68,7 @@ class ClientService(object):
                 let $e := ./f:Event
                 return $e/f:ClientAnnounce
                     or $e/f:ClientLeave
+                    or $e/f:UserSession
             """,
             callback=self.__eventProcessor)
 
@@ -147,6 +149,17 @@ class ClientService(object):
             return []
 
         return self.__client[client]['caps']
+
+    @Command(__doc__=N_("List user sessions per client"))
+    def getUserSessions(self, client=None):
+        if client:
+           return self.__user_session[client] if client in self.__user_session else []
+
+        return self.__user_session
+
+    @Command(__doc__=N_("List clients a user is logged in"))
+    def getUserClients(self, user):
+        return [client for client, users in self.__user_session.items() if user in users]
 
     @Command(needsUser=True,__doc__=N_("Join a client to the GOsa system."))
     def joinClient(self, user, device_uuid, mac, info=None):
@@ -269,6 +282,11 @@ class ClientService(object):
         func = getattr(self, "_handle" + eventType)
         func(data)
 
+    def _handleUserSession(self, data):
+        data = data.UserSession
+        self.env.log.debug("updating client '%s' user session information" % data.Id)
+        self.__user_session[str(data.Id)] = map(lambda x: str(x), data.User.Name)
+
     def _handleClientAnnounce(self, data):
         data = data.ClientAnnounce
         self.env.log.debug("client '%s' is joining us" % data.Id)
@@ -318,3 +336,6 @@ class ClientService(object):
         if client in self.__proxy:
             self.__proxy[client].close()
             del self.__proxy[client]
+
+        if client in self.__user_session:
+            del self.__user_session[client]
