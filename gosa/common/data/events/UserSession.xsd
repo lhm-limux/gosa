@@ -9,12 +9,10 @@
     	</annotation>
         <all>
 		<element name="Id" type="string"></element>
-    		<element name="User" type="string" maxOccurs="1" minOccurs="1"></element>
-    		<element name="Status" type="string" maxOccurs="1" minOccurs="1"></element>
+    		<element name="User" type="string" minOccurs="0"></element>
     	</all>
     </complexType>
     
     <element name="UserSession" type="gosa:UserSession"></element>
-
 
 </schema>
