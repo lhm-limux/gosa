@@ -67,7 +67,7 @@ setup(
 
     include_package_data = True,
     package_data = {
-        'gosa.common': ['data/stylsheets/*', 'data/events/*'],
+        'gosa.common': ['data/stylesheets/*', 'data/events/*'],
     },
 
     test_suite = "nose.collector",
