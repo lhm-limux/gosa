@@ -193,9 +193,9 @@ class AMQPClientService(object):
 
         amqp.sendEvent(info)
 
-	if not initial:
-            try:
-                sk = PluginRegistry.getInstance('SessionKeeper')
-                sk.sendSessionNotification()
-            except:
-                pass
+        if not initial:
+                try:
+                    sk = PluginRegistry.getInstance('SessionKeeper')
+                    sk.sendSessionNotification()
+                except:
+                    pass
