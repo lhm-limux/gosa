@@ -211,8 +211,8 @@ class ClientService(object):
 
             # While the client is going to be joined, generate a random uuid and
             # an encoded join key
-            cn = str(uuid1())
-            device_key = self.__encrypt_key(device_uuid.replace("-", ""), key)
+            cn = str(uuid4())
+            device_key = self.__encrypt_key(device_uuid.replace("-", ""), cn + key)
 
             # Resolve manger
             res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
@@ -225,8 +225,8 @@ class ClientService(object):
             # Create new machine entry
             record = [
                 ('objectclass', ['device', 'ieee802Device', 'simpleSecurityObject', 'registeredDevice']),
-                ('deviceUUID', [device_uuid.encode('ascii', 'ignore')]),
-                ('deviceKey', [encode(device_key)]),
+                ('deviceUUID', cn),
+                ('deviceKey', [device_key]),
                 ('cn', [cn] ),
                 ('manager', [manager] ),
                 ('macAddress', [mac.encode("ascii", "ignore")] ),
@@ -245,7 +245,7 @@ class ClientService(object):
             conn.add_s(dn, record)
 
         self.env.log.info("UUID '%s' joined as %s" % (device_uuid, dn))
-        return key
+        return [key, cn]
 
     def __encrypt_key(self, key, data):
         """

@@ -36,6 +36,7 @@ _ = t.ugettext
 
 class join_method(object):
     _url = None
+    _need_config_refresh = False
     priority = None
 
     def __init__(self):
@@ -83,7 +84,7 @@ class join_method(object):
 
         # Try to join client
         try:
-            key = proxy.joinClient(u"" + self.uuid, self.mac, data)
+            key, uuid = proxy.joinClient(u"" + self.uuid, self.mac, data)
         except JSONRPCException as e:
             self.show_error(e.error.capitalize())
             self.env.log.error(e.error)
@@ -104,8 +105,7 @@ class join_method(object):
 
             # Set url and key
             parser.set("amqp", "url", self.url)
-            if self.uuid != self.svc_id:
-                parser.set("amqp", "id", self.svc_id)
+            parser.set("core", "id", uuid)
             parser.set("amqp", "key", key)
 
             # Write back to file
@@ -150,7 +150,10 @@ class join_method(object):
             if var == "svc_url":
                 svc_url = data
             if var == "svc_key":
-                svc_key = self.decrypt(self.uuid.replace("-", ""), b64decode(data))
+                tmp = self.decrypt(self.uuid.replace("-", ""), b64decode(data))
+                svc_id = tmp[0:36]
+                svc_key = tmp[36:]
+                self._need_config_refresh = True
 
         # If there's no url, try to find it using zeroconf
         if not svc_url:
@@ -167,9 +170,29 @@ class join_method(object):
             zclient.stop()
             svc_url = self._url
 
-        self.svc_id = self.uuid
+        self.svc_id = svc_id
         self.url = svc_url
         self.key = svc_key
+
+        if self._need_config_refresh:
+            config = self.env.config.getOption("config")
+            parser = ConfigParser.RawConfigParser()
+            parser.read(config)
+
+            # Section present?
+            try:
+                url = parser.get("amqp", "url")
+            except ConfigParser.NoSectionError:
+                parser.add_section("amqp")
+
+            # Set url and key
+            parser.set("amqp", "url", self.url)
+            parser.set("core", "id", self.svc_id)
+            parser.set("amqp", "key", self.key)
+
+            # Write back to file
+            with open(config, "wb") as f:
+                parser.write(f)
 
     def get_mac_address(self):
         for interface in netifaces.interfaces():

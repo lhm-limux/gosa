@@ -82,10 +82,10 @@ class Environment:
 
         # Initialized
         self.domain = self.config.getOption("domain", default="org.gosa")
-        self.uuid = dmi_system("uuid")
+        self.uuid = self.config.getOption("id", default=None)
         if not self.uuid:
-            self.log.warning("system has no hardware uuid - falling back to configured id")
-            self.uuid = self.config.getOption("id", default=None)
+            self.log.warning("system has no id - falling back to configured hardware uuid")
+            self.uuid = dmi_system("uuid")
 
             if not self.uuid:
                 self.log.error("system has no id - please configure one in the core section")

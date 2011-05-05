@@ -88,7 +88,7 @@ attributetype ( 1.3.6.1.4.1.10098.3.2.1.3 NAME 'deviceType'
 #
 attributetype ( 1.3.6.1.4.1.10098.3.2.1.4 NAME 'deviceKey'
     DESC 'Encrypted device key'
-    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.5
     SINGLE-VALUE )
 
 # Object: registeredDevice
