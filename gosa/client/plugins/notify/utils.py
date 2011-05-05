@@ -27,12 +27,12 @@ class Notify(Plugin):
         self.env = env
 
     @Command()
-    def notify(self, title, message, user, 
-        timeout="0",
+    def notify(self, title, message, user,
+        timeout=0,
         urgency="normal",
         icon="dialog-information",
         actions="",
-        recurrence="60"):
+        recurrence=60):
 
         """ Sent a notification to a given user """
 
@@ -42,27 +42,19 @@ class Notify(Plugin):
                                    '/com/gonicus/gosa/notify')
 
         # Send notification and keep return code
-        o = gosa_dbus.notify(title, message, user, timeout, actions, urgency, 
-            icon, recurrence, dbus_interface="com.gonicus.gosa")
-        o = int(o)
-        print "Return code was %s" % o
-        print "Dialog aborted: %s" % ((o & 0b10000000) != 0)
-        print "Dialog timed out: %s" % ((o & 0b1000000) != 0)
-        print "Dialog closed with action: %s" % ((o & 0b100000) != 0)
-        print "Dialog closed: %s" % ((o & 0b10000) != 0)
-        print "Action was: %s" % ((o & 0b1111))
-
-        return(o)
+        o = gosa_dbus.notify(title, message, user, timeout, urgency,
+            icon, actions, recurrence, dbus_interface="com.gonicus.gosa")
+        return(int(o))
 
     @Command()
-    def notify_all(self, title, message, 
-        timeout="0",
+    def notify_all(self, title, message,
+        timeout=0,
         urgency="normal",
         icon="dialog-information",
         actions="",
-        recurrence="60"):
+        recurrence=60):
 
-        """ Sent a notification to a given user """
+        """ Sent a notification to all users on a machine """
 
         # Get BUS connection
         bus = dbus.SystemBus()
@@ -70,14 +62,6 @@ class Notify(Plugin):
                                    '/com/gonicus/gosa/notify')
 
         # Send notification and keep return code
-        o = gosa_dbus.notify_all(title, message, timeout, actions, urgency, 
-            icon, recurrence, dbus_interface="com.gonicus.gosa")
-        o = int(o)
-        print "Return code was %s" % o
-        print "Dialog aborted: %s" % ((o & 0b10000000) != 0)
-        print "Dialog timed out: %s" % ((o & 0b1000000) != 0)
-        print "Dialog closed with action: %s" % ((o & 0b100000) != 0)
-        print "Dialog closed: %s" % ((o & 0b10000) != 0)
-        print "Action was: %s" % ((o & 0b1111))
-
-        return(o)
+        o = gosa_dbus.notify_all(title, message, timeout, urgency,
+            icon, actions, recurrence, dbus_interface="com.gonicus.gosa")
+        return(int(o))
