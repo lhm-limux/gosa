@@ -13,6 +13,7 @@ import sys
 import traceback
 import subprocess
 
+
 class DBusNotifyHandler(dbus.service.Object, Plugin):
     """ Notify handler, sends user notifications """
 
@@ -24,9 +25,9 @@ class DBusNotifyHandler(dbus.service.Object, Plugin):
     @dbus.service.method('com.gonicus.gosa', in_signature='ssisssi', out_signature='i')
     def notify_all(self, title, message,
         timeout=120,
-        actions="",
         urgency="normal",
         icon="dialog-information",
+        actions="",
         recurrence=60):
         """
         Try to send a notification to all users on a machine user using the 'notify-user' script.
@@ -34,13 +35,12 @@ class DBusNotifyHandler(dbus.service.Object, Plugin):
         return(self.call(message=message, title=title, broadcast=True, timeout=timeout,
             urgency=urgency, icon=icon, recurrence=recurrence, actions=actions))
 
-
     @dbus.service.method('com.gonicus.gosa', in_signature='sssisssi', out_signature='i')
-    def notify(self, title, message, user,
+    def notify(self, user, title, message,
         timeout=120,
-        actions="",
         urgency="normal",
         icon="dialog-information",
+        actions="",
         recurrence=60):
         """
         Try to send a notification to a user using the 'notify-user' script.
@@ -48,10 +48,9 @@ class DBusNotifyHandler(dbus.service.Object, Plugin):
         return(self.call(message=message, title=title, user=user, timeout=timeout,
             urgency=urgency, icon=icon, recurrence=recurrence, actions=actions))
 
-
-    def call(self, message, title, 
+    def call(self, message, title,
         user="",
-        broadcast = False,
+        broadcast=False,
         timeout=120,
         actions="",
         urgency="normal",
@@ -60,7 +59,7 @@ class DBusNotifyHandler(dbus.service.Object, Plugin):
 
         try:
 
-            # Build up the subprocess command 
+            # Build up the subprocess command
             # and add parameters on demand.
             cmd = ["notify-user"]
             cmd += [str(title)]
@@ -75,11 +74,11 @@ class DBusNotifyHandler(dbus.service.Object, Plugin):
             if icon:
                 cmd += ["--icon"]
                 cmd += [str(icon)]
-       
-            if actions: 
+
+            if actions:
                 cmd += ["--actions"]
                 cmd += [str(actions)]
-            
+
             if urgency:
                 cmd += ["--urgency"]
                 cmd += [str(urgency)]
@@ -96,4 +95,3 @@ class DBusNotifyHandler(dbus.service.Object, Plugin):
             return int(ret)
         except Exception as inst:
             traceback.print_exc(file=sys.stdout)
-

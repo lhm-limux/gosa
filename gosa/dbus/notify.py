@@ -20,10 +20,7 @@ import signal
 # Define return codes
 RETURN_ABORTED = 0b10000000
 RETURN_TIMEDOUT = 0b1000000
-RETURN_CLOSED_WITH_ACTION = 0b100000
-RETURN_CLOSED = 0b10000
-# 000 to 111 are selected action types.
-
+RETURN_CLOSED = 0b0
 
 class Notify(object):
     """
@@ -47,7 +44,7 @@ class Notify(object):
         """
         # Get the selected action id, the first is 0 so we just add +1 to it,
         # to get a more useable return code.
-        self.__res = (self.__actions.index(action) + 1) | RETURN_CLOSED_WITH_ACTION
+        self.__res = (self.__actions.index(action) + 1) | RETURN_CLOSED
 
         if self.verbose:
             print "%s: Action selected (%s) " % (str(os.getpid()), str(action))
@@ -333,7 +330,8 @@ def checkUrgency(option, opt, value, parser):
     # If a invalid value was specified, then tell the user and default to normal.
     if value not in attrMap:
         value = None
-        raise OptionValueError("Invalid urgency level specified. (critical, normal, low)")
+        print OptionValueError("Invalid urgency level specified. (critical, normal, low)")
+        sys.exit(RETURN_ABORTED)
 
     # Update the cli-option-parser now.
     parser.values.urgency = value
