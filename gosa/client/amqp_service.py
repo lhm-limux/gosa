@@ -192,3 +192,9 @@ class AMQPClientService(object):
                 *more))
 
         amqp.sendEvent(info)
+
+        try:
+            sk = PluginRegistry.getInstance('SessionKeeper')
+            sk.sendSessionNotification()
+        except:
+            pass

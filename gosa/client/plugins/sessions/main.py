@@ -102,6 +102,7 @@ class SessionKeeper(Plugin):
 
         self.__sessions = sessions
 
+    def sendSessionNotification(self):
         # Build event
         amqp = PluginRegistry.getInstance("AMQPClientHandler")
         e = EventMaker()

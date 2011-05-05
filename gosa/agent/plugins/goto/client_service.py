@@ -18,6 +18,7 @@ import hashlib
 import ldap
 import time
 import datetime
+import types
 from threading import Timer
 from zope.interface import implements
 from jsonrpc import loads, dumps
@@ -160,6 +161,31 @@ class ClientService(object):
     @Command(__doc__=N_("List clients a user is logged in"))
     def getUserClients(self, user):
         return [client for client, users in self.__user_session.items() if user in users]
+
+    @Command(__doc__=N_("Send synchronous notification message to user"))
+    def notifyUser(self, users, title, message, timeout=10, level='normal', icon='dialog-information'):
+        if users:
+            # Notify a single / group of users
+            if type(users) != types.ListType:
+                users = [users]
+
+            for user in users:
+                for client in self.getUserClients(user):
+                    try:
+                        self.clientDispatch(client, "notify", user, title, message,
+                                timeout, level, icon)
+                    except:
+                        pass
+
+        else:
+            # Notify all users
+            for client in self.__client.keys():
+                try:
+                    self.clientDispatch(client, "notify_all", title, message,
+                            timeout, level, icon)
+                except:
+                    pass
+
 
     @Command(needsUser=True,__doc__=N_("Join a client to the GOsa system."))
     def joinClient(self, user, device_uuid, mac, info=None):
