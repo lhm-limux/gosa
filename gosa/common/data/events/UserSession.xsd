@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema targetNamespace="http://www.gonicus.de/Events" elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:gosa="http://www.gonicus.de/Events">
 
+    <complexType name="User">
+        <sequence maxOccurs="unbounded" minOccurs="0">
+                <element name="Name" type="string"></element>
+        </sequence>
+    </complexType>
+
     <complexType name="UserSession">
     	<annotation>
     		<documentation>
@@ -9,7 +15,7 @@
     	</annotation>
         <all>
 		<element name="Id" type="string"></element>
-    		<element name="User" type="string" minOccurs="0"></element>
+    		<element name="User" type="gosa:User" minOccurs="0" maxOccurs="1"></element>
     	</all>
     </complexType>
     

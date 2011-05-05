@@ -20,6 +20,7 @@ from gosa.common.components.plugin import Plugin
 from gosa.common.components.command import Command
 from gosa.common.components.registry import PluginRegistry
 from gosa.common.env import Environment
+from gosa.common.event import EventMaker
 from zope.interface import implements
 from gosa.common.handler import IInterfaceHandler
 
@@ -82,17 +83,18 @@ class SessionKeeper(Plugin):
         if self.__callback:
             self.__callback(dbus_message.get_member(), msg_string)
 
-         amqp = PluginRegistry.getInstance("AMQPClientHandler")
+        amqp = PluginRegistry.getInstance("AMQPClientHandler")
 
-         # Build event
-         e = EventMaker()
-         more = map(lambda x: e.User(x['uid']), self.__sessions.values())
-         info = e.Event(
-             e.UserSession(
-                 e.Id(self.env.uuid),
-                 *more)
+        # Build event
+        e = EventMaker()
+        more = set(map(lambda x: x['uid'], self.__sessions.values()))
+        more = map(lambda x: e.Name(x), more)
+        info = e.Event(
+            e.UserSession(
+                e.Id(self.env.uuid),
+		e.User(*more)))
 
-         amqp.sendEvent(info)
+        amqp.sendEvent(info)
 
     def __update_sessions(self):
         obj = self.__bus.get_object("org.freedesktop.ConsoleKit",
