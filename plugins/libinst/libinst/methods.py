@@ -151,11 +151,10 @@ class BaseInstallMethod(object):
 
         lh = LDAPHandler.get_instance()
         with lh.get_handle() as conn:
-            res = conn.search_s(data['installTemplateDN'],
-                    ldap.SCOPE_BASE, "(objectClass=installTemplate)",
-                    ["cn"])
+            lres = conn.search_s(data['installTemplateDN'][0],
+                    ldap.SCOPE_BASE, "(objectClass=installTemplate)", ["cn"])
 
-        res['template'] = res['cn'][0]
+        res['template'] = lres[0][1]['cn'][0]
 
         return res
 
