@@ -21,16 +21,42 @@ class DBusNotifyHandler(dbus.service.Object, Plugin):
         dbus.service.Object.__init__(self, conn, '/com/gonicus/gosa/notify')
         self.env = Environment.getInstance()
 
-    @dbus.service.method('com.gonicus.gosa', in_signature='', out_signature='')
-    def notify(self, message, title, user,
-        timeout="",
+    @dbus.service.method('com.gonicus.gosa', in_signature='ssisssi', out_signature='i')
+    def notify_all(self, title, message,
+        timeout=120,
         actions="",
-        urgency="",
-        icon="",
-        recurrence=""):
+        urgency="normal",
+        icon="dialog-information",
+        recurrence=60):
+        """
+        Try to send a notification to all users on a machine user using the 'notify-user' script.
+        """
+        return(self.call(message=message, title=title, broadcast=True, timeout=timeout,
+            urgency=urgency, icon=icon, recurrence=recurrence, actions=actions))
+
+
+    @dbus.service.method('com.gonicus.gosa', in_signature='sssisssi', out_signature='i')
+    def notify(self, title, message, user,
+        timeout=120,
+        actions="",
+        urgency="normal",
+        icon="dialog-information",
+        recurrence=60):
         """
         Try to send a notification to a user using the 'notify-user' script.
         """
+        return(self.call(message=message, title=title, user=user, timeout=timeout,
+            urgency=urgency, icon=icon, recurrence=recurrence, actions=actions))
+
+
+    def call(self, message, title, 
+        user="",
+        broadcast = False,
+        timeout=120,
+        actions="",
+        urgency="normal",
+        icon="dialog-information",
+        recurrence=60):
 
         try:
 
@@ -39,8 +65,12 @@ class DBusNotifyHandler(dbus.service.Object, Plugin):
             cmd = ["notify-user"]
             cmd += [str(title)]
             cmd += [str(message)]
-            cmd += ["--user"]
-            cmd += [str(user)]
+
+            if broadcast:
+                cmd += ["--broadcast"]
+            else:
+                cmd += ["--user"]
+                cmd += [str(user)]
 
             if icon:
                 cmd += ["--icon"]
@@ -62,7 +92,8 @@ class DBusNotifyHandler(dbus.service.Object, Plugin):
                 cmd += ["--recurrence"]
                 cmd += [str(recurrence)]
 
-            subprocess.call(cmd)
+            ret = subprocess.call(cmd)
+            return int(ret)
         except Exception as inst:
             traceback.print_exc(file=sys.stdout)
 
