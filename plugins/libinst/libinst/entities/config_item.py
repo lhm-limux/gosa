@@ -39,7 +39,8 @@ class ConfigItem(Base, UseInnoDB):
         if self.parent:
             result.append(self.parent.getPath())
 
-        return "/" + os.sep.join(result + [self.name]).strip("/")
+        result = "/" + os.sep.join(result + [self.name]).strip("/")
+        return result
 
     def __repr__(self):
         return "%s -> %s (%s)" % (self.release, self.name, self.item_type)
