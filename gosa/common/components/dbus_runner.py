@@ -1,6 +1,11 @@
 #-*- coding: utf-8
 import sys
-import dbus
+try:
+    import dbus
+except ImportError:
+    print "Please install the python dbus module."
+    sys.exit(1)
+
 import gobject
 from threading import Thread
 from dbus import DBusException

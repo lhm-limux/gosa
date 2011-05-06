@@ -9,8 +9,18 @@
 
  See LICENSE for more information about the licensing.
 """
-import avahi
-import dbus
+import sys
+try:
+    import avahi
+except ImportError:
+    print "Please install the python avahi module."
+    sys.exit(1)
+
+try:
+    import dbus
+except ImportError:
+    print "Please install the python avahi module."
+    sys.exit(1)
 
 
 class ZeroconfService:
