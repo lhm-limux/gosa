@@ -429,6 +429,8 @@ class InstallMethod(object):
             if not children:
                 children = release.config_items
                 first = True
+            else:
+                children = session.merge(children)
 
             items = filter(filter_items, children)
             res = dict((i.getPath(), i.item_type) for i in items)
@@ -509,6 +511,7 @@ class InstallMethod(object):
 
             # Load instance of ConfigItem
             item = self._manager._getConfigItem(name=name, item_type=item_type, release=release, add=True)
+            session.commit() # FIXME: Does not work without this commit??
             item = session.merge(item)
             item.path = path
 
@@ -713,7 +716,7 @@ class InstallMethod(object):
 
             if len(matches):
                 if path == sub_path:
-                    return matches[0]
+                    result = matches[0]
                 else:
                     result = self._get_item(release, path, matches[0].children,
                             path_level=path_level + 1)
@@ -731,8 +734,19 @@ class InstallMethod(object):
         Internal function to get the parent item for the given path.
         """
         result = None
+        session = None
         parent = path.rsplit("/", 1)[0] or "/"
-        result = self._get_item(release, parent)
+        try:
+            session = self._manager.getSession()
+            result = self._get_item(release, parent)
+            if result:
+                result = session.merge(result)
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
         return result
 
 
