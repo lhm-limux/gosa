@@ -18,6 +18,7 @@ import os
 import gettext
 import grp
 import pkg_resources
+from os.path import isdir, exists
 from pkg_resources import resource_filename
 from gosa.common.env import Environment
 from gosa.common.config import ConfigNoFile
@@ -71,6 +72,15 @@ def main():
                 config_file = sys.argv[i+1]
                 break
 
+        # Check if config path exists
+        config_dir = os.path.dirname(config_file)
+        if not exists(config_dir):
+            os.mkdir(config_dir)
+
+        if not isdir(config_dir):
+            print("Error: configuration directory %s is no directory!" % config_dir)
+            exit(1)
+
         # Read default config and write it back to config_file
         config = open(resource_filename("gosa.client", "data/client.conf")).read()
         with open(config_file, "w") as f:
@@ -79,6 +89,7 @@ def main():
         # Nothing important here yet, but lock us down
         os.chmod(config_file, 0600)
         env = Environment.getInstance()
+
 
     # Instanciate joiner and ask for help
     joiner = modules[module]()
@@ -91,7 +102,7 @@ def main():
     try:
         gid = grp.getgrnam(group).gr_gid
     except KeyError as e:
-        print("Error: failed to resolve user/group - " + str(e))
+        print("Error: failed to resolve user/group - %s" % str(e))
         exit(1)
 
     # Fix configuration file permission
@@ -102,4 +113,9 @@ def main():
 
 
 if __name__ == '__main__':
+    # check for root permission
+    if os.geteuid() != 0:
+        print("Error: you need to be root to join to a gosa-ng network!")
+        exit()
+
     main()
