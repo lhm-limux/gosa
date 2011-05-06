@@ -1,0 +1,15 @@
+Source: python-unidecode
+Section: python
+Priority: optional
+Maintainer: Cajus Pollmeier <cajus@debian.org>
+Build-Depends: debhelper (>= 5.0.37.1), cdbs (>= 0.4.41), python-all (>= 2.6), python-support (>= 0.6.4)
+Build-Depends-Indep: python-setuptools (>= 0.6a9)
+Standards-Version: 3.8.3
+Homepage: http://pypi.python.org/pypi/Unidecode
+
+Package: python-unidecode
+Architecture: all
+Depends: ${python:Depends}, ${misc:Depends}, python-pkg-resources
+Description: US-ASCII transliterations of Unicode text
+ This is a Python port of Text::Unidecode Perl module by
+ Sean M. Burke <sburke@cpan.org>.
