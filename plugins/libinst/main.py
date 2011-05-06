@@ -41,15 +41,24 @@ LcWMU6gayNYj7eMgCOFM6ywySRS81FC+PPnr147xbp5FwgmoPRK52MURsHJ+
 
     # Begin: New stuff
     manager = RepositoryManager()
-    #print manager.getSupportedBaseInstallMethods()
-    #print manager.getSupportedInstallMethods()
+    print manager.getSupportedBaseInstallMethods()
+    print manager.getSupportedInstallMethods()
 
     manager.addKeys(keyring)
-    #print "createDistribution:", manager.createDistribution("debian", "deb",
-    #        {"mirror": "http://archive.debian.org/debian"},
-    #        install_method="puppet")
-    #print("getDistributions", manager.getDistributions())
-    #print "createRelease:", manager.createRelease("debian", "test")
+    print "createDistribution:", manager.createDistribution("debian", "deb",
+            {"mirror": "http://archive.debian.org/debian"},
+            install_method="puppet")
+    print "getDistributions", manager.getDistributions()
+    print "createRelease:", manager.createRelease("debian", "test")
+    print "setDistribution:", manager.setDistribution(
+            {
+                'component': [],
+                'distribution': 'debian',
+                'arch': [],
+                'mirror_sources': False
+            }
+    )
+    print "listConfigItems:", manager.listConfigItems('test')
     #print("getDistributions", manager.getDistributions())
     #manager._getRelease("bo").distribution.architectures.append(manager._getArchitecture("i386", add=True))
     #manager.addMirrorProperty(distribution="debian", arch="i386", component="main")
