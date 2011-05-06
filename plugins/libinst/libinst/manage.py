@@ -1525,11 +1525,11 @@ class RepositoryManager(Plugin):
         with lh.get_handle() as conn:
             res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
                 "(&(objectClass=installTemplate)(%s))" % fltr,
-                ["cn", "description"])
+                ["cn", "description", "installMethod"])
 
         for entry in res:
             entry = dict(map(lambda x: (self.template_map[x[0]], x[1][0]), entry[1].items()))
-            result[entry['name']] = entry['description']
+            result[entry['name']] = {'description': entry['description'], 'method': entry['method']}
 
         return result
 
