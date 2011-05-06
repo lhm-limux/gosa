@@ -25,7 +25,7 @@ class ConfigItemReleases(Base, UseInnoDB):
 class ConfigItem(Base, UseInnoDB):
     __tablename__ = 'config_item'
     id = Column(Integer, Sequence('config_item_id_seq'), primary_key=True)
-    name = Column(String(255))
+    name = Column(String(255), nullable=False)
     item_type = Column(String(255))
     path = Column(String(255))
     assignable = Column(Boolean())
