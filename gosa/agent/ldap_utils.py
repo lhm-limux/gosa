@@ -105,6 +105,12 @@ class LDAPHandler(object):
             LDAPHandler.instance = LDAPHandler()
         return LDAPHandler.instance
 
+def map_ldap_value(value):
+    if type(value) == types.BooleanType:
+        return "TRUE" if value else "FALSE"
+    if type(value) == types.UnicodeType:
+        return value.encode('utf-8')
+    return value
 
 def unicode2utf8(data):
-    return map(lambda x: x.encode('utf-8') if type(x) == types.UnicodeType else x, data)
+    return map_ldap_value(data)
