@@ -193,6 +193,7 @@ class RepositoryManager(Plugin):
             session.commit()
         except:
             session.rollback()
+            raise
         finally:
             session.close()
         return result
@@ -223,10 +224,10 @@ class RepositoryManager(Plugin):
             else:
                 result += release.distribution.name + '/'
             result += release.name
-        except ValueError:
-            raise
+            session.commit()
         except:
             session.rollback()
+            raise
         finally:
             session.close()
         return result
@@ -289,10 +290,8 @@ class RepositoryManager(Plugin):
             else:
                 result = session.query(Release).all()
             result = [release.getInfo() for release in result]
-        except ValueError:
-            raise
+            session.commit()
         except:
-            result = None
             session.rollback()
             raise
         finally:
@@ -337,6 +336,7 @@ class RepositoryManager(Plugin):
             else:
                 result = session.query(Architecture).all()
             result = [architecture.getInfo() for architecture in result]
+            session.commit()
         except:
             session.rollback()
             raise
@@ -378,6 +378,7 @@ class RepositoryManager(Plugin):
             else:
                 result = session.query(Section).all()
             result = [release.getInfo() for release in result]
+            session.commit()
         except:
             session.rollback()
             raise
@@ -439,13 +440,12 @@ class RepositoryManager(Plugin):
                         session.add(repository)
                         repository.distributions.append(result)
                         result.repository._initDirs()
-                        session.commit()
                 else:
                     raise ValueError("Name and Type are both needed for creating a distribution!")
+                session.commit()
             except:
                 self.env.log.error("Problem creating distribution %s" % name)
                 session.rollback()
-                result = False
                 raise
             finally:
                 session.close()
@@ -497,8 +497,7 @@ class RepositoryManager(Plugin):
             if result is not None:
                 distribution.repository.distributions.remove(distribution)
                 session.delete(distribution)
-                session.commit()
-                result = True
+            session.commit()
         except:
             session.rollback()
             raise
@@ -541,7 +540,7 @@ class RepositoryManager(Plugin):
                         distribution = instance
                     else:
                         raise ValueError(N_("Distribution {distribution} does not exist!").format(distribution=distribution))
-                session.add(distribution)
+                distribution = session.merge(distribution)
 
                 if '/' in name and not self._getRelease(name.rsplit('/', 1)[0]):
                     raise ValueError(N_("Parent release {release} not found!").format(release=name.rsplit('/', 1)[0]))
@@ -1314,7 +1313,6 @@ class RepositoryManager(Plugin):
                 raise ValueError("Unsupported installation method %s found for release %s " % (release.distribution.installation_method, release.name))
             else:
                 result = self.install_method_reg[release.distribution.installation_method].setItem(release.name, path, item_type, data)
-            print result
             session.commit()
         except:
             raise
@@ -1879,21 +1877,29 @@ class RepositoryManager(Plugin):
         session = None
 
         try:
+            session = self.getSession()
             try:
-                session = self.getSession()
                 result = session.query(ConfigItem)
                 if name:
                     result = result.filter_by(name=name)
                 if item_type:
                     result = result.filter_by(item_type=item_type)
                 if release:
+                    if isinstance(release, Release):
+                        release = session.merge(release)
+                        release = release.name
                     result = result.join(ConfigItemReleases).join(Release).filter_by(name=release)
                 result = result.one()
             except NoResultFound:
                 if add:
                     result = ConfigItem(name=name, item_type=item_type)
+                    if release:
+                        if isinstance(release, StringTypes):
+                            release = self._getRelease(release)
+                        release = session.merge(release)
+                        result.release.append(release)
                     session.add(result)
-                    session.commit()
+            session.commit()
         except:
             session.rollback()
             raise
@@ -2040,6 +2046,7 @@ class RepositoryManager(Plugin):
             else:
                 gpg.import_keys(repository.keyring.data)
             result = work_dir
+            session.commit()
 
         except:
             session.rollback()
