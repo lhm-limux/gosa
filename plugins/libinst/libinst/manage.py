@@ -1594,16 +1594,17 @@ class RepositoryManager(Plugin):
                 if ldap_key in res and not key in data:
                     mods.append((ldap.MOD_DELETE, ldap_key, None))
                 elif ldap_key in res and key in data and res[ldap_key][0] != data[key]:
-                    mods.append((ldap.MOD_REPLACE, ldap_key, [data[key]]))
+                    mods.append((ldap.MOD_REPLACE, ldap_key,
+                        [data[key].encode(utf-8)]))
                 elif key in data and not ldap_key in res:
                     if create_new:
-                        mods.append((ldap_key, [data[key]]))
+                        mods.append((ldap_key, [data[key].encode("utf-8")]))
                     else:
-                        mods.append((ldap.MOD_ADD, ldap_key, [data[key]]))
+                        mods.append((ldap.MOD_ADD, ldap_key,
+                            [data[key].encode("utf-8")]))
 
             # Assemble entry and write it to the directory
             if create_new:
-                print mods
                 conn.add_s(dn, mods)
             else:
                 conn.modify_s(dn, mods)

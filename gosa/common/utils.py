@@ -17,7 +17,6 @@ from token import STRING
 import traceback
 import urllib
 import subprocess
-import os
 from subprocess import Popen, PIPE
 from qpid.messaging.constants import AMQP_PORT, AMQPS_PORT
 from urlparse import urlparse
