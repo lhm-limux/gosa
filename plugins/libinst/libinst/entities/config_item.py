@@ -52,7 +52,7 @@ class ConfigItem(Base, UseInnoDB):
             "release": None if not self.release else self.relase.name,
         }
 
-    def getAssigneableElements(self):
+    def getAssignableElements(self):
         return {}
 
 ConfigItem.parent = relationship(ConfigItem, remote_side=ConfigItem.id, uselist=False, backref=backref('children', uselist=True))

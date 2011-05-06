@@ -513,7 +513,8 @@ class InstallMethod(object):
             if "name" in data and name != data["name"]:
                 item.name = data["name"]
 
-            # Updated marker for assigneable elements
+            # Updated marker for assignable elements
+            print dir(item)
             item.assignable = bool(item.getAssignableElements())
 
             # Add us as child
