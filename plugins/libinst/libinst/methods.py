@@ -480,6 +480,7 @@ class InstallMethod(object):
         @rtype: bool
         @return: True = success
         """
+        session = None
 
         # Check if this item type is supported
         if not item_type in self._supportedItems:
@@ -488,41 +489,46 @@ class InstallMethod(object):
         # Acquire name from path
         name = os.path.basename(path)
 
-        # Load parent object
-        parent = self._get_parent(release, path)
-        if not parent:
-            raise ValueError("cannot find parent object for '%s'" % path)
-
-        # Check if the current path is a container for that kind of
-        # item type
-        if not item_type in self._supportedItems[parent.item_type]['container']:
-            raise ValueError("'%s' is not allowed for container '%s'" %
-                    (item_type, parent.item_type))
-
-        # Load instance of ConfigItem
-        item = self._manager._getConfigItem(name=name, item_type=item_type, add=True)
-        item.path = path
-
-        # Check if item will be renamed
-        if "name" in data and name != data["name"]:
-            item.name = data["name"]
-
-        # Updated marker for assigneable elements
-        item.assignable = bool(item.getAssignableElements())
-
-        # Add us as child
-        release_object = self._manager._getRelease(release)
-        release_object.config_items.append(item)
-        parent.children.append(item)
-
-        # Try to commit the changes
         try:
-            self._manager._session.commit()
+            session = self._manager.getSession()
+
+            # Load parent object
+            parent = self._get_parent(release, path)
+            if not parent:
+                raise ValueError("cannot find parent object for '%s'" % path)
+            parent = session.merge(parent)
+
+            # Check if the current path is a container for that kind of
+            # item type
+            if not item_type in self._supportedItems[parent.item_type]['container']:
+                raise ValueError("'%s' is not allowed for container '%s'" %
+                        (item_type, parent.item_type))
+
+            # Load instance of ConfigItem
+            item = self._manager._getConfigItem(name=name, item_type=item_type, add=True)
+            item = session.merge(item)
+            item.path = path
+
+            # Check if item will be renamed
+            if "name" in data and name != data["name"]:
+                item.name = data["name"]
+
+            # Updated marker for assigneable elements
+            item.assignable = bool(item.getAssignableElements())
+
+            # Add us as child
+            release_object = self._manager._getRelease(release)
+            release_object = session.merge(release_object)
+            release_object.config_items.append(item)
+            parent.children.append(item)
+
+            # Try to commit the changes
+            session.commit()
         except:
-            self._manager._session.rollback()
+            session.rollback()
             raise
         finally:
-            self._manager.session.close()
+            session.close()
 
     def removeItem(self, release, path, children=None):
         """
@@ -538,8 +544,7 @@ class InstallMethod(object):
         @rtype: bool
         @return: True = success
         """
-        if not children:
-            children = self._manager._getRelease(release).config_items
+        session = None
 
         def filter_path(item):
             if item.path:
@@ -547,24 +552,38 @@ class InstallMethod(object):
 
             return False
 
-        # Remove children if exist
-        matches = filter(filter_path, children)
-        if matches:
-            for child in matches:
-                self._manager._session.delete(child)
-
-        # Remove self
-        for me in children:
-            if path == me.path:
-                self._manager._session.delete(me)
-                break
-
-        # Try to commit the changes
         try:
-            self._manager._session.commit()
+            session = self._manager.getSession()
+            if isinstance(release, StringTypes):
+                instance = self._manager._getRelease(release)
+                if instance is None:
+                    raise ValueError("Unknown release %s" % release)
+                else:
+                    release = instance
+            release = session.merge(release)
+
+            if not children:
+                children = release.config_items
+
+            # Remove children if exist
+            matches = filter(filter_path, children)
+            if matches:
+                for child in matches:
+                    session.delete(child)
+
+            # Remove self
+            for me in children:
+                if path == me.path:
+                    session.delete(me)
+                    break
+
+            # Try to commit the changes
+            session.commit()
         except:
-            self._manager._session.rollback()
+            session.rollback()
             raise
+        finally:
+            session.close()
 
     def scan(self, release):
         """
@@ -704,9 +723,19 @@ class InstallMethod(object):
         """
         Internal function to get the parent item for the given path.
         """
-        parent = path.rsplit("/", 1)[0] or "/"
-
-        return self._get_item(release, parent)
+        result = None
+        session = None
+        try:
+            session = self._manager.getSession()
+            parent = path.rsplit("/", 1)[0] or "/"
+            result = self._get_item(release, parent)
+            result = session.merge(result)
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+        return result
 
 
 def load_system(device_uuid, mac=None):
