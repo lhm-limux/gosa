@@ -666,18 +666,28 @@ class InstallMethod(object):
         """
         relative_path = ""
         current_path = ""
+        session = None
 
-        # Add the item prefix for every path element after
-        # checking for the item type
-        for path_element in path.split("/")[1:]:
-            current_path += "/" + path_element
-            item = self._get_item(release, current_path)
+        try:
+            session = self._manager.getSession()
+            # Add the item prefix for every path element after
+            # checking for the item type
+            for path_element in path.split("/")[1:]:
+                current_path += "/" + path_element
+                item = self._get_item(release, current_path)
 
-            if not item:
-                raise ValueError("path '%s' does not exist", path)
+                if not item:
+                    raise ValueError("path '%s' does not exist", path)
 
-            module = self._supportedItems[item.item_type]['module']
-            relative_path += os.path.join(module._prefix, path_element)
+                item = session.merge(item)
+                module = self._supportedItems[item.item_type]['module']
+                relative_path += os.path.join(module._prefix, path_element)
+                session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
 
         return relative_path
 

@@ -328,9 +328,18 @@ class PuppetInstallMethod(InstallMethod):
 
     def __get_target(self, release, path):
         """ Build target path for release """
+        session = None
         path, target_name = path.rsplit("/", 1)
-        path = self._get_relative_path(release, path)
-        release = release.replace("/", "@")
-        target_path = os.path.join(self.__work_path, release, path.strip("/"))
-
-        return target_path, target_name
+        try:
+            session  = self._manager.getSession()
+            path = self._get_relative_path(release, path)
+            release = release.replace("/", "@")
+            target_path = os.path.join(self.__work_path, release, path.strip("/"))
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+        result = target_path, target_name
+        return result
