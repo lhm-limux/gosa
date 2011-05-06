@@ -1256,6 +1256,7 @@ class RepositoryManager(Plugin):
                 raise ValueError("Unsupported installation method %s found for release %s " % (release.distribution.installation_method, release.name))
             else:
                 result = self.install_method_reg[release.distribution.installation_method].listItems(release.name, item_type=item_type, path=path, children=children)
+            session.commit()
         except:
             session.rollback()
             raise
@@ -1286,6 +1287,7 @@ class RepositoryManager(Plugin):
                 raise ValueError("Unsupported installation method %s found for release %s " % (release.distribution.installation_method, release.name))
             else:
                 result = self.install_method_reg[release.distribution.installation_method].listAssignableElements(release.name)
+            session.commit()
         except:
             session.rollback()
             raise
@@ -1312,9 +1314,11 @@ class RepositoryManager(Plugin):
                 raise ValueError("Unsupported installation method %s found for release %s " % (release.distribution.installation_method, release.name))
             else:
                 result = self.install_method_reg[release.distribution.installation_method].setItem(release.name, path, item_type, data)
+            print result
+            session.commit()
         except:
-            session.rollback()
             raise
+            session.rollback()
         finally:
             session.close()
         return result
@@ -1339,6 +1343,7 @@ class RepositoryManager(Plugin):
                             release.name))
             else:
                 result = self.install_method_reg[release.distribution.installation_method].removeItem(release.name, path, children)
+            session.commit()
         except:
             session.rollback()
             raise
@@ -1366,6 +1371,7 @@ class RepositoryManager(Plugin):
                             release.name))
             else:
                 result = self.install_method_reg[release.distribution.installation_method].getItem(release.name, path)
+            session.commit()
         except:
             session.rollback()
             raise
@@ -1402,6 +1408,7 @@ class RepositoryManager(Plugin):
             repo_type = distribution.type.name
             pname = self.type_reg[repo_type].getKernelPackageFilter()
             result = self.getPackages(release=release.name, custom_filter={'name': pname})
+            session.commit()
         except:
             session.rollback()
             raise
@@ -1852,9 +1859,11 @@ class RepositoryManager(Plugin):
             session = self.getSession()
             result = session.query(ConfigItem).filter(assignable=True)
             result = result.join(ConfigItemReleases).join(Release).filter_by(name=release)
+            session.commit()
 
         except:
-            pass
+            session.rollback()
+            raise
 
         finally:
             session.close()
@@ -1877,8 +1886,8 @@ class RepositoryManager(Plugin):
                     result = result.join(ConfigItemReleases).join(Release).filter_by(name=release)
                 result = result.one()
             except NoResultFound:
-                result = ConfigItem(name=name, item_type=item_type)
                 if add:
+                    result = ConfigItem(name=name, item_type=item_type)
                     session.add(result)
                     session.commit()
         except:
