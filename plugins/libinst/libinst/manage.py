@@ -1412,7 +1412,10 @@ class RepositoryManager(Plugin):
             raise
         finally:
             session.close()
-        return result
+        #TODO: fixme
+        #return result
+        return ["linux-image-2.6.38", "linux-image-2.6.38-kvm",
+                "linux-image-2.6.21"]
 
     @Command(__doc__=N_("Completely remove device's installation parameters"))
     def removeBaseInstallParameters(self, device_uuid):
