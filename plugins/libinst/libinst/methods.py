@@ -297,7 +297,7 @@ class InstallMethod(object):
 
             # Add root node
             release = self._manager._getRelease(name)
-            session.add(release)
+            release = session.merge(release)
             # pylint: disable-msg=E1101
             release.config_items.append(ConfigItem(name="/", item_type=self._root))
 
@@ -437,6 +437,8 @@ class InstallMethod(object):
             for item in filter(lambda i: i.children, items):
                 res.update(self.listItems(release, item_type, path, item.children))
 
+            session.commit()
+
         except:
             session.rollback()
             raise
@@ -506,7 +508,7 @@ class InstallMethod(object):
                         (item_type, parent.item_type))
 
             # Load instance of ConfigItem
-            item = self._manager._getConfigItem(name=name, item_type=item_type, add=True)
+            item = self._manager._getConfigItem(name=name, item_type=item_type, release=release, add=True)
             item = session.merge(item)
             item.path = path
 
