@@ -41,7 +41,7 @@ setup(
     download_url = "http://oss.gonicus.de/pub/gosa",
     packages = find_packages(exclude=['examples', 'tests']),
 
-    include_package_data = True,
+    include_package_data = False,
 
     test_suite = "nose.collector",
 
