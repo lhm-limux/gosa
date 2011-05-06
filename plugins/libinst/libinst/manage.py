@@ -1245,11 +1245,11 @@ class RepositoryManager(Plugin):
                     raise ValueError("Unknown release %s" % release)
                 else:
                     release = instance
-            release = session.merge(release)
             elif isinstance(release, DictType):
                 pass
             elif not isinstance(release, Release):
                 raise ValueError(N_("Argument release must either be a String or a Release"))
+            release = session.merge(release)
             if release.distribution.installation_method is None:
                 raise ValueError("Release %s has no installation method!" % release.name)
             elif release.distribution.installation_method not in self.install_method_reg:
