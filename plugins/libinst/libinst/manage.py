@@ -682,7 +682,7 @@ class RepositoryManager(Plugin):
                         raise ValueError(N_("Distribution %s was not found", distribution))
                     else:
                         distribution = instance
-                        distribution = session.merge(distribution)
+                distribution = session.merge(distribution)
 
                 # Handle architectures
                 if not arch:
@@ -701,6 +701,7 @@ class RepositoryManager(Plugin):
                             raise ValueError(N_("Architecture %s was not found", ar))
                         else:
                             ar = instance
+                    ar = session.merge(ar)
                     if ar not in distribution.architectures:
                         distribution.architectures.append(ar)
 
@@ -721,6 +722,7 @@ class RepositoryManager(Plugin):
                             raise ValueError(N_("Component %s was not found", cp))
                         else:
                             cp = instance
+                    cp = session.merge(cp)
                     if cp not in distribution.components:
                         distribution.components.append(cp)
 
