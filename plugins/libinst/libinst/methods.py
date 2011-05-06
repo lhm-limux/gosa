@@ -669,18 +669,35 @@ class InstallMethod(object):
         @rtype: ConfigItem
         @return: The item specified by 'path'
         """
-        if not children:
-            children = self._manager._getRelease(release).config_items
+        session = None
+        try:
+            session = self._manager.getSession()
+            if isinstance(release, StringTypes):
+                instance = self._manager._getRelease(release)
+                if instance is None:
+                    raise ValueError("Unknown release %s" % release)
+                else:
+                    release = instance
+            release = session.merge(release)
 
-        sub_path = '/'.join(path.split("/")[0:path_level]) or "/"
-        matches = filter(lambda p: p.getPath() == sub_path, children)
+            if not children:
+                children = release.config_items
 
-        if len(matches):
-            if path == sub_path:
-                return matches[0]
-            else:
-                return self._get_item(release, path, matches[0].children,
-                        path_level=path_level + 1)
+            sub_path = '/'.join(path.split("/")[0:path_level]) or "/"
+            matches = filter(lambda p: p.getPath() == sub_path, children)
+
+            if len(matches):
+                if path == sub_path:
+                    return matches[0]
+                else:
+                    return self._get_item(release, path, matches[0].children,
+                            path_level=path_level + 1)
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
         return None
 
     def _get_parent(self, release, path):
