@@ -12,6 +12,7 @@
 import re
 import os
 import ldap
+from types import StringTypes, DictType
 from gosa.common.env import Environment
 from gosa.agent.ldap_utils import LDAPHandler, unicode2utf8
 from libinst.entities.config_item import ConfigItem
@@ -402,10 +403,7 @@ class InstallMethod(object):
         """
         res = {}
         first = False
-
-        if not children:
-            children = self._manager._getRelease(release).config_items
-            first = True
+        session = None
 
         def filter_items(item):
             path_match = True
@@ -417,12 +415,32 @@ class InstallMethod(object):
 
             return path_match
 
-        items = filter(filter_items, children)
-        res = dict((i.getPath(), i.item_type) for i in items)
+        try:
+            session = self._manager.getSession()
+            if isinstance(release, StringTypes):
+                instance = self._manager._getRelease(release)
+                if instance is None:
+                    raise ValueError("Unknown release %s" % release)
+                else:
+                    release = instance
+            release = session.merge(release)
 
-        # Iterate for items with children
-        for item in filter(lambda i: i.children, items):
-            res.update(self.listItems(release, item_type, path, item.children))
+            if not children:
+                children = release.config_items
+                first = True
+
+            items = filter(filter_items, children)
+            res = dict((i.getPath(), i.item_type) for i in items)
+
+            # Iterate for items with children
+            for item in filter(lambda i: i.children, items):
+                res.update(self.listItems(release, item_type, path, item.children))
+
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
 
         return res
 
