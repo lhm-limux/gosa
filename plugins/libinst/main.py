@@ -59,6 +59,16 @@ LcWMU6gayNYj7eMgCOFM6ywySRS81FC+PPnr147xbp5FwgmoPRK52MURsHJ+
             }
     )
     print "listConfigItems:", manager.listConfigItems('test')
+    print "setConfigItem:", manager.setConfigItem(
+        'test', 
+        '/module', 
+        'PuppetModule', 
+        {
+            'dependency': [],
+            'version': '23',
+            'name': 'module',
+            'description': ''
+        })
     #print("getDistributions", manager.getDistributions())
     #manager._getRelease("bo").distribution.architectures.append(manager._getArchitecture("i386", add=True))
     #manager.addMirrorProperty(distribution="debian", arch="i386", component="main")
