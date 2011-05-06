@@ -143,7 +143,7 @@ class BaseInstallMethod(object):
     def getBaseInstallParameters(self, device_uuid, data=None):
         res = {}
         if not data:
-            data = load_system(device_uuid)
+            data = load_system(device_uuid, False)
 
         for key, value in self.attributes.items():
             if key in data:
@@ -163,7 +163,7 @@ class BaseInstallMethod(object):
     def setBaseInstallParameters(self, device_uuid, data, current_data=None):
         # Load device
         if not current_data:
-            current_data = load_system(device_uuid)
+            current_data = load_system(device_uuid, False)
 
         is_new = not 'installRecipe' in current_data['objectClass']
         dn = current_data['dn']
@@ -200,18 +200,19 @@ class BaseInstallMethod(object):
         # Do LDAP operations to add the system
         lh = LDAPHandler.get_instance()
         with lh.get_handle() as conn:
-
-            res = conn.search_s(self.env.config.getOption("template-rdn",
-                "libinst", "cn=templates,cn=libinst,cn=config"),
-                ldap.SCOPE_SUB, "(objectClass=installTemplate)(cn=%s)" % data['name'], ["cn"])
+            res = conn.search_s(",".join([self.env.config.getOption("template-rdn",
+                "libinst", "cn=templates,cn=libinst,cn=config"), lh.get_base()]),
+                ldap.SCOPE_SUBTREE, "(&(objectClass=installTemplate)(cn=%s))" % data['template'], ["cn"])
             if len(res) != 1:
-                raise ValueError("template '%s' not found" % data['name'])
+                raise ValueError("template '%s' not found" % data['template'])
 
             template_dn = res[0][0]
             if is_new:
                 mods.append((ldap.MOD_ADD, 'installTemplateDN', [template_dn]))
             else:
                 mods.append((ldap.MOD_REPLACE, 'installTemplateDN', [template_dn]))
+
+            print mods
 
             conn.modify_s(dn, mods)
 
@@ -760,7 +761,7 @@ class InstallMethod(object):
         return result
 
 
-def load_system(device_uuid, mac=None):
+def load_system(device_uuid, mac=None, inherit=True):
     result = {}
 
     # Potentially fix mac
@@ -793,18 +794,21 @@ def load_system(device_uuid, mac=None):
         obj_dn, obj = res[0]
         res_queue.append(obj)
 
-        # Trace recipes of present
-        depth = 3
-        while 'installRecipeDN' in obj:
-            dn = obj['installRecipeDN'][0]
-            res = conn.search_s(dn, ldap.SCOPE_BASE, attrlist=[
-                "installTemplateDN", "installNTPServer", "installRootEnabled",
-                "installRootPasswordHash", "installKeyboardlayout", "installSystemLocale",
-                "installTimezone", "installMirrorDN", "installTimeUTC",
-                "installMirrorPoolDN", "installKernelPackage", "installPartitionTable",
-                "installRecipeDN", "installRelease"])
-            obj = res[0][1]
-            res_queue.append(obj)
+        # Skip if we're not using inheritance
+        if inherit:
+
+            # Trace recipes of present
+            depth = 3
+            while 'installRecipeDN' in obj:
+                dn = obj['installRecipeDN'][0]
+                res = conn.search_s(dn, ldap.SCOPE_BASE, attrlist=[
+                    "installTemplateDN", "installNTPServer", "installRootEnabled",
+                    "installRootPasswordHash", "installKeyboardlayout", "installSystemLocale",
+                    "installTimezone", "installMirrorDN", "installTimeUTC",
+                    "installMirrorPoolDN", "installKernelPackage", "installPartitionTable",
+                    "installRecipeDN", "installRelease"])
+                obj = res[0][1]
+                res_queue.append(obj)
 
         # Reverse merge queue into result
         res_queue.reverse()
@@ -822,5 +826,6 @@ def load_system(device_uuid, mac=None):
 
         # Add DN information
         result['dn'] = obj_dn
+
 
     return result
