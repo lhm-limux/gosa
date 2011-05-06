@@ -79,7 +79,7 @@ class AMQPClientService(object):
 
 
         # Gather interface information
-        self.__announce()
+        self.__announce(True)
 
     def commandReceived(self, ssn, message):
         """ Process incomming commands """
@@ -137,7 +137,7 @@ class AMQPClientService(object):
         self.env.log.debug("received client poll")
         self.__announce()
 
-    def __announce(self):
+    def __announce(self, initial=False):
         amqp = PluginRegistry.getInstance('AMQPClientHandler')
         e = EventMaker()
 
@@ -192,3 +192,10 @@ class AMQPClientService(object):
                 *more))
 
         amqp.sendEvent(info)
+
+        if not initial:
+                try:
+                    sk = PluginRegistry.getInstance('SessionKeeper')
+                    sk.sendSessionNotification()
+                except:
+                    pass

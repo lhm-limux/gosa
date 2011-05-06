@@ -18,6 +18,7 @@ import hashlib
 import ldap
 import time
 import datetime
+import types
 from threading import Timer
 from zope.interface import implements
 from jsonrpc import loads, dumps
@@ -47,6 +48,7 @@ class ClientService(object):
     _target_ = 'goto'
     __client = {}
     __proxy = {}
+    __user_session = {}
 
     def __init__(self):
         """
@@ -67,6 +69,7 @@ class ClientService(object):
                 let $e := ./f:Event
                 return $e/f:ClientAnnounce
                     or $e/f:ClientLeave
+                    or $e/f:UserSession
             """,
             callback=self.__eventProcessor)
 
@@ -148,6 +151,42 @@ class ClientService(object):
 
         return self.__client[client]['caps']
 
+    @Command(__doc__=N_("List user sessions per client"))
+    def getUserSessions(self, client=None):
+        if client:
+           return self.__user_session[client] if client in self.__user_session else []
+
+        return self.__user_session
+
+    @Command(__doc__=N_("List clients a user is logged in"))
+    def getUserClients(self, user):
+        return [client for client, users in self.__user_session.items() if user in users]
+
+    @Command(__doc__=N_("Send synchronous notification message to user"))
+    def notifyUser(self, users, title, message, timeout=10, level='normal', icon='dialog-information'):
+        if users:
+            # Notify a single / group of users
+            if type(users) != types.ListType:
+                users = [users]
+
+            for user in users:
+                for client in self.getUserClients(user):
+                    try:
+                        self.clientDispatch(client, "notify", user, title, message,
+                                timeout, level, icon)
+                    except:
+                        pass
+
+        else:
+            # Notify all users
+            for client in self.__client.keys():
+                try:
+                    self.clientDispatch(client, "notify_all", title, message,
+                            timeout, level, icon)
+                except:
+                    pass
+
+
     @Command(needsUser=True,__doc__=N_("Join a client to the GOsa system."))
     def joinClient(self, user, device_uuid, mac, info=None):
         uuid_check = re.compile(r"^[0-9a-f]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$", re.IGNORECASE)
@@ -211,8 +250,8 @@ class ClientService(object):
 
             # While the client is going to be joined, generate a random uuid and
             # an encoded join key
-            cn = str(uuid1())
-            device_key = self.__encrypt_key(device_uuid.replace("-", ""), key)
+            cn = str(uuid4())
+            device_key = self.__encrypt_key(device_uuid.replace("-", ""), cn + key)
 
             # Resolve manger
             res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
@@ -225,8 +264,8 @@ class ClientService(object):
             # Create new machine entry
             record = [
                 ('objectclass', ['device', 'ieee802Device', 'simpleSecurityObject', 'registeredDevice']),
-                ('deviceUUID', [device_uuid.encode('ascii', 'ignore')]),
-                ('deviceKey', [encode(device_key)]),
+                ('deviceUUID', cn),
+                ('deviceKey', [device_key]),
                 ('cn', [cn] ),
                 ('manager', [manager] ),
                 ('macAddress', [mac.encode("ascii", "ignore")] ),
@@ -245,7 +284,7 @@ class ClientService(object):
             conn.add_s(dn, record)
 
         self.env.log.info("UUID '%s' joined as %s" % (device_uuid, dn))
-        return key
+        return [key, cn]
 
     def __encrypt_key(self, key, data):
         """
@@ -268,6 +307,11 @@ class ClientService(object):
         eventType = stripNs(data.xpath('/g:Event/*', namespaces={'g': "http://www.gonicus.de/Events"})[0].tag)
         func = getattr(self, "_handle" + eventType)
         func(data)
+
+    def _handleUserSession(self, data):
+        data = data.UserSession
+        self.env.log.debug("updating client '%s' user session information" % data.Id)
+        self.__user_session[str(data.Id)] = map(lambda x: str(x), data.User.Name)
 
     def _handleClientAnnounce(self, data):
         data = data.ClientAnnounce
@@ -316,4 +360,8 @@ class ClientService(object):
             del self.__client[client]
 
         if client in self.__proxy:
+            self.__proxy[client].close()
             del self.__proxy[client]
+
+        if client in self.__user_session:
+            del self.__user_session[client]

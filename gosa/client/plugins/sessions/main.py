@@ -1,4 +1,14 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+ This code is part of GOsa (http://www.gosa-project.org)
+ Copyright (C) 2009, 2010 GONICUS GmbH
+
+ ID: $$Id: utils.py 612 2010-08-16 09:21:44Z cajus $$
+
+ This is part of the samba module and provides some utilities.
+
+ See LICENSE for more information about the licensing.
+"""
 import gobject
 import dbus
 import pwd
@@ -6,20 +16,40 @@ import dbus.glib
 import dbus.mainloop.glib
 from threading import Thread
 from dateutil.parser import parse
+from gosa.common.components.plugin import Plugin
+from gosa.common.components.command import Command
+from gosa.common.components.registry import PluginRegistry
+from gosa.common.env import Environment
+from gosa.common.event import EventMaker
+from zope.interface import implements
+from gosa.common.handler import IInterfaceHandler
 
 
-class SeatKeeper(object):
+class SessionKeeper(Plugin):
+    """
+    Utility class that contains methods needed to handle WakeOnLAN
+    functionality.
+    """
+    implements(IInterfaceHandler)
 
+    _target_ = 'session'
     __sessions = {}
+    __callback = None
     active = False
 
-    def __init__(self, callback=None):
-        self.__callback = callback
+    def __init__(self):
+        env = Environment.getInstance()
+        self.env = env
         self.__bus = None
         self.__loop = None
         self.__thread = None
 
-    def start(self):
+    @Command()
+    def getSessions(self):
+        """ Return the list of active sessions """
+        return self.__sessions
+
+    def serve(self):
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
         self.__bus = dbus.SystemBus()
         self.active = True
@@ -50,6 +80,7 @@ class SeatKeeper(object):
 
     def event_handler(self, msg_string, dbus_message):
         self.__update_sessions()
+
         if self.__callback:
             self.__callback(dbus_message.get_member(), msg_string)
 
@@ -71,38 +102,17 @@ class SeatKeeper(object):
             }
 
         self.__sessions = sessions
+        self.sendSessionNotification()
 
-    def get_sessions(self):
-        return self.__sessions
+    def sendSessionNotification(self):
+        # Build event
+        amqp = PluginRegistry.getInstance("AMQPClientHandler")
+        e = EventMaker()
+        more = set(map(lambda x: x['uid'], self.__sessions.values()))
+        more = map(lambda x: e.Name(x), more)
+        info = e.Event(
+            e.UserSession(
+                e.Id(self.env.uuid),
+		e.User(*more)))
 
-
-
-# Some class demo ---
-
-def clbk(session, message):
-    print "%s: %s" % (session, str(message).split("/")[-1])
-
-
-if __name__ == '__main__':
-    import time
-
-    sm = SeatKeeper(callback=clbk)
-    sm.start()
-
-    try:
-        a = None
-
-        while True:
-            time.sleep(1)
-            b = sm.get_sessions()
-            if a != b:
-                a = b
-                print "Session\t\tUID\tActive\tCreation time"
-                print "-" * 80
-                for sess, more in b.iteritems():
-                    print "%s\t%s\t%s\t%s" % \
-                        (sess, more['uid'], more['active'], more['created'])
-                print
-
-    except KeyboardInterrupt:
-        sm.stop()
+        amqp.sendEvent(info)
