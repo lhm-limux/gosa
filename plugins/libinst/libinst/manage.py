@@ -839,20 +839,30 @@ class RepositoryManager(Plugin):
     @NamedArgs("m_hash")
     def updateMirror(self, m_hash=None, distribution=None):
         result = None
-        if distribution:
-            if isinstance(distribution, StringTypes):
-                instance = self._getDistribution(distribution)
-                if not instance:
-                    raise ValueError(N_("Distribution %s was not found", distribution))
+        session = None
+
+        try:
+            session = self.getSession()
+            if distribution:
+                if isinstance(distribution, StringTypes):
+                    instance = self._getDistribution(distribution)
+                    if not instance:
+                        raise ValueError(N_("Distribution %s was not found", distribution))
+                    else:
+                        distribution = instance
+                distribution = session.merge(distribution)
+                if distribution.releases:
+                    distribution._sync()
+                    result = True
                 else:
-                    distribution = instance
-            if distribution.releases:
-                distribution._sync()
-                result = True
+                    raise ValueError(N_("Distribution %s has no releases", distribution.name))
             else:
-                raise ValueError(N_("Distribution %s has no releases", distribution.name))
-        else:
-            raise ValueError(N_("Need a distribution to update"))
+                raise ValueError(N_("Need a distribution to update"))
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
         return result
 
     def createMirror(self, distribution, release):
@@ -1188,6 +1198,7 @@ class RepositoryManager(Plugin):
 
     def removeKey(self, key_id):
         result = None
+        session = None
         work_dir = self._getGPGEnvironment()
         gpg = gnupg.GPG(gnupghome=work_dir)
         fp = None
@@ -1197,10 +1208,19 @@ class RepositoryManager(Plugin):
                 break
         if fp is not None:
             if gpg.delete_keys(fp, secret=True).status == "ok":
-                self._repository.keyring.data = gpg.list_keys(True)
-                if self._repository.keyring.name == fp:
-                    self._repository.keyring.name = None
-                result = True
+                try:
+                    session = self.getSession()
+                    repository = self._getRepository()
+                    repository = session.merge(repository)
+                    repository.keyring.data = gpg.list_keys(True)
+                    if repository.keyring.name == fp:
+                        repository.keyring.name = None
+                    session.commit()
+                    result = True
+                except:
+                    session.rollback()
+                finally:
+                    session.close()
         shutil.rmtree(work_dir)
         return result
 
@@ -1246,75 +1266,111 @@ class RepositoryManager(Plugin):
     @Command(__doc__=N_("Returns a list of all asignable elements for a release"))
     def listAssignableElements(self, release):
         result = None
-        if isinstance(release, StringTypes):
-            instance = self._getRelease(release)
-            if instance is None:
-                raise ValueError("Unknown release %s" % release)
+        session = None
+        try:
+            session = self.getSession()
+            if isinstance(release, StringTypes):
+                instance = self._getRelease(release)
+                if instance is None:
+                    raise ValueError("Unknown release %s" % release)
+                else:
+                    release = instance
+            elif isinstance(release, DictType):
+                pass
+            elif not isinstance(release, Release):
+                raise ValueError(N_("Argument release must either be a String or a Release"))
+            release = session.merge(release)
+            if release.distribution.installation_method is None:
+                raise ValueError("Release %s has no installation method!" % release.name)
+            elif release.distribution.installation_method not in self.install_method_reg:
+                raise ValueError("Unsupported installation method %s found for release %s " % (release.distribution.installation_method, release.name))
             else:
-                release = instance
-        elif isinstance(release, DictType):
-            pass
-        elif not isinstance(release, Release):
-            raise ValueError(N_("Argument release must either be a String or a Release"))
-        if release.distribution.installation_method is None:
-            raise ValueError("Release %s has no installation method!" % release.name)
-        elif release.distribution.installation_method not in self.install_method_reg:
-            raise ValueError("Unsupported installation method %s found for release %s " % (release.distribution.installation_method, release.name))
-        else:
-            result = self.install_method_reg[release.distribution.installation_method].listAssignableElements(release.name)
+                result = self.install_method_reg[release.distribution.installation_method].listAssignableElements(release.name)
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
         return result
 
     @Command(__doc__=N_("Set the data for the specified item"))
     def setConfigItem(self, release, path, item_type, data):
         result = None
-        if isinstance(release, StringTypes):
-            instance = self._getRelease(release)
-            if instance is None:
-                raise ValueError("Unknown release %s" % release)
+        session = None
+        try:
+            session = self.getSession()
+            if isinstance(release, StringTypes):
+                instance = self._getRelease(release)
+                if instance is None:
+                    raise ValueError("Unknown release %s" % release)
+                else:
+                    release = instance
+            release = session.merge(release)
+            if release.distribution.installation_method is None:
+                raise ValueError("Release %s has no installation method!" % release.name)
+            elif release.distribution.installation_method not in self.install_method_reg:
+                raise ValueError("Unsupported installation method %s found for release %s " % (release.distribution.installation_method, release.name))
             else:
-                release = instance
-        if release.distribution.installation_method is None:
-            raise ValueError("Release %s has no installation method!" % release.name)
-        elif release.distribution.installation_method not in self.install_method_reg:
-            raise ValueError("Unsupported installation method %s found for release %s " % (release.distribution.installation_method, release.name))
-        else:
-            result = self.install_method_reg[release.distribution.installation_method].setItem(release.name, path, item_type, data)
+                result = self.install_method_reg[release.distribution.installation_method].setItem(release.name, path, item_type, data)
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
         return result
 
     @Command(__doc__=N_("Remove the specified item and it's children"))
     def removeConfigItem(self, release, path, children=None):
         result = None
-        if isinstance(release, StringTypes):
-            instance = self._getRelease(release)
-            if instance is None:
-                raise ValueError("Unknown release %s" % release)
+        session = None
+        try:
+            session = self.getSession()
+            if isinstance(release, StringTypes):
+                instance = self._getRelease(release)
+                if instance is None:
+                    raise ValueError("Unknown release %s" % release)
+                else:
+                    release = instance
+            release = session.merge(release)
+            if release.distribution.installation_method is None:
+                raise ValueError("Release %s has no installation method!" % release.name)
+            elif release.distribution.installation_method not in self.install_method_reg:
+                raise ValueError("Unsupported installation method %s found for release %s " % (release.distribution.installation_method,
+                            release.name))
             else:
-                release = instance
-        if release.distribution.installation_method is None:
-            raise ValueError("Release %s has no installation method!" % release.name)
-        elif release.distribution.installation_method not in self.install_method_reg:
-            raise ValueError("Unsupported installation method %s found for release %s " % (release.distribution.installation_method,
-                        release.name))
-        else:
-            result = self.install_method_reg[release.distribution.installation_method].removeItem(release.name, path, children)
+                result = self.install_method_reg[release.distribution.installation_method].removeItem(release.name, path, children)
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
         return result
 
     @Command(__doc__=N_("Return the data of specified item"))
     def getConfigItem(self, release, path):
         result = None
-        if isinstance(release, StringTypes):
-            instance = self._getRelease(release)
-            if instance is None:
-                raise ValueError("Unknown release %s" % release)
+        session = None
+        try:
+            session = self.getSession()
+            if isinstance(release, StringTypes):
+                instance = self._getRelease(release)
+                if instance is None:
+                    raise ValueError("Unknown release %s" % release)
+                else:
+                    release = instance
+            release = session.merge(release)
+            if release.distribution.installation_method is None:
+                raise ValueError("Release %s has no installation method!" % release.name)
+            elif release.distribution.installation_method not in self.install_method_reg:
+                raise ValueError("Unsupported installation method %s found for release %s " % (release.distribution.installation_method,
+                            release.name))
             else:
-                release = instance
-        if release.distribution.installation_method is None:
-            raise ValueError("Release %s has no installation method!" % release.name)
-        elif release.distribution.installation_method not in self.install_method_reg:
-            raise ValueError("Unsupported installation method %s found for release %s " % (release.distribution.installation_method,
-                        release.name))
-        else:
-            result = self.install_method_reg[release.distribution.installation_method].getItem(release.name, path)
+                result = self.install_method_reg[release.distribution.installation_method].getItem(release.name, path)
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
         return result
 
     @Command(__doc__=N_("Get supported system locales"))
@@ -1331,15 +1387,27 @@ class RepositoryManager(Plugin):
 
     @Command(__doc__=N_("Get kernel packages for the specified release"))
     def getKernelPackages(self, release):
-        distribution = self._getDistribution(release.split('/')[0])
-        if distribution:
-            release = self._getRelease(release.split('/', 1)[1])
-        else:
-            return []
+        result = None
+        session = None
+        try:
+            session = self.getSession()
+            distribution = self._getDistribution(release.split('/')[0])
+            distribution = session.merge(distribution)
+            if distribution:
+                release = self._getRelease(release.split('/', 1)[1])
+                release = session.merge(release)
+            else:
+                return []
 
-        repo_type = distribution.type.name
-        pname = self.type_reg[repo_type].getKernelPackageFilter()
-        return self.getPackages(release=release.name, custom_filter={'name': pname})
+            repo_type = distribution.type.name
+            pname = self.type_reg[repo_type].getKernelPackageFilter()
+            result = self.getPackages(release=release.name, custom_filter={'name': pname})
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+        return result
 
     @Command(__doc__=N_("Completely remove device's installation parameters"))
     def removeBaseInstallParameters(self, device_uuid):
@@ -1823,32 +1891,37 @@ class RepositoryManager(Plugin):
 
     def _replaceConfigItems(self, release, items):
         result = None
-
-        if isinstance(release, StringTypes):
-            release = self._getRelease(release)
-
-        # Iterate over DB Items, delete orphans
-        for item_name, item_type in self.listItems(release).iteritems():
-            if self._getConfigItem(item_name, item_type, release=release):
-                if item_name not in items:
-                    db_instance = self._getConfigItem(item_name, item_type, release=release)
-                    self._session.merge(db_instance)
-                    release.config_items.remove(db_instance)
-                    self._session.delete(db_instance)
-
-        # Iterate over FS scan, add missing items
-        for item_name, item_type in items.iteritems():
-            if not self._getConfigItem(item_name, item_type, release=release):
-                db_instance = self._getConfigItem(item_name, item_type, release=release, add=True)
-                release.config_items.append(db_instance)
-                self._session.add(db_instance)
+        session = None
 
         try:
-            self._session.commit()
-        except:
-            self._session.rollback()
-            raise
+            session = self.getSession()
 
+            if isinstance(release, StringTypes):
+                release = self._getRelease(release)
+            release = session.merge(release)
+
+            # Iterate over DB Items, delete orphans
+            for item_name, item_type in self.listItems(release).iteritems():
+                if self._getConfigItem(item_name, item_type, release=release):
+                    if item_name not in items:
+                        db_instance = self._getConfigItem(item_name, item_type, release=release)
+                        db_instance = session.merge(db_instance)
+                        release.config_items.remove(db_instance)
+                        session.delete(db_instance)
+
+            # Iterate over FS scan, add missing items
+            for item_name, item_type in items.iteritems():
+                if not self._getConfigItem(item_name, item_type, release=release):
+                    db_instance = self._getConfigItem(item_name, item_type, release=release, add=True)
+                    session.add(db_instance)
+                    release.config_items.append(db_instance)
+
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
         return result
 
     def listItems(self, release, item_type=None, path=None, children=None):
@@ -1870,10 +1943,7 @@ class RepositoryManager(Plugin):
         """
         res = {}
         first = False
-
-        if not children:
-            children = self._getRelease(release).config_items
-            first = True
+        session = None
 
         def filter_items(item):
             path_match = True
@@ -1885,12 +1955,27 @@ class RepositoryManager(Plugin):
 
             return path_match
 
-        items = filter(filter_items, children)
-        res = dict((i.getPath(), i.item_type) for i in items)
+        try:
+            session = self.getSession()
 
-        # Iterate for items with children
-        for item in filter(lambda i: i.children, items):
-            res.update(self.listItems(release, item_type, path, item.children))
+            if not children:
+                children = self._getRelease(release).config_items
+                first = True
+
+            children = session.merge(children)
+            items = filter(filter_items, children)
+            res = dict((i.getPath(), i.item_type) for i in items)
+
+            # Iterate for items with children
+            for item in filter(lambda i: i.children, items):
+                res.update(self.listItems(release, item_type, path, item.children))
+
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
 
         return res
 
