@@ -12,6 +12,7 @@
 import re
 import os
 import ldap
+import sys
 from types import StringTypes, DictType
 from gosa.common.env import Environment
 from gosa.agent.ldap_utils import LDAPHandler, unicode2utf8
@@ -514,7 +515,6 @@ class InstallMethod(object):
                 item.name = data["name"]
 
             # Updated marker for assignable elements
-            print dir(item)
             item.assignable = bool(item.getAssignableElements())
 
             # Add us as child
@@ -526,6 +526,7 @@ class InstallMethod(object):
             # Try to commit the changes
             session.commit()
         except:
+            self.env.log.error("Caught unknown exception %s" % sys.exc_info()[0])
             session.rollback()
             raise
         finally:
@@ -689,7 +690,9 @@ class InstallMethod(object):
         @rtype: ConfigItem
         @return: The item specified by 'path'
         """
+        result = None
         session = None
+
         try:
             session = self._manager.getSession()
             if isinstance(release, StringTypes):
@@ -710,32 +713,24 @@ class InstallMethod(object):
                 if path == sub_path:
                     return matches[0]
                 else:
-                    return self._get_item(release, path, matches[0].children,
+                    result = self._get_item(release, path, matches[0].children,
                             path_level=path_level + 1)
+            session.commit()
         except:
             session.rollback()
             raise
         finally:
             session.close()
 
-        return None
+        return result
 
     def _get_parent(self, release, path):
         """
         Internal function to get the parent item for the given path.
         """
         result = None
-        session = None
-        try:
-            session = self._manager.getSession()
-            parent = path.rsplit("/", 1)[0] or "/"
-            result = self._get_item(release, parent)
-            result = session.merge(result)
-        except:
-            session.rollback()
-            raise
-        finally:
-            session.close()
+        parent = path.rsplit("/", 1)[0] or "/"
+        result = self._get_item(release, parent)
         return result
 
 
