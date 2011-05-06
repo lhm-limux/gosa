@@ -273,8 +273,8 @@ objectclass ( 1.3.6.1.4.1.10098.3.2.1.1.12 NAME 'installRecipe'
 objectclass ( 1.3.6.1.4.1.10098.3.2.1.1.13 NAME 'installTemplate'
     SUP top AUXILIARY
     DESC 'Kickstart template definition'
-    MAY ( description $ installMethod $ templateData )
-    MUST ( cn ) )
+    MAY ( description $ templateData )
+    MUST ( cn $ installMethod ) )
 
 # Object: installMirrorPool
 #
