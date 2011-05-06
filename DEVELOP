@@ -5,11 +5,82 @@ This document contains information on "how to get started" with
 the current gosa-ng snapshot. It does not care about SSL or other
 security related issues around qpid.
 
-It works starting with squeeze. Lenny does not work, so
+It works starting with squeeze or later. Lenny does not work, so
 you just don't have to try...
 
+Depending on which parts of gosa-ng you want to deploy, there are
+different prequisites to fulfill. Please read the relevant sections.
 
-1) Add qpid repository
+
+0 Common stuff
+
+0.1 System prequisites
+
+To run the services in the designed way later on, you need a special user
+and a couple of directories.
+
+$ sudo adduser --system --group gosa --home=/var/lib/gosa
+
+If you're going to run the service in daemon mode, please take care that
+there's a /var/run/gosa for placing the PID files.
+
+
+0.2 Python prequisites
+
+While we try to keep everything inside a virtual python environment for
+development, some of the python modules need compilation - which rises the
+number of required packages drastically. For the time beeing, please install
+the following packages in your system:
+
+$ sudo apt-get install python2.6-dev python-dumbnet python-avahi python-virtualenv \
+    libavahi-compat-libdnssd-dev python-openssl python-dbus libssl-dev python-gtk2 \
+    python-lxml python-libxml2 python-dmidecode python-ldap python-nose \
+    python-kid python-coverage python-dateutil python-smbpasswd python-netifaces
+
+On MS Windows systems, only the client is supposed to work. Please install the
+ywin32 package: http://sourceforge.net/projects/pywin32/
+
+
+0.3 Setup a virtual environment for playing with gosa-ng
+
+As a non-root user, initialize the virtual environment:
+
+$ virtualenv --setuptools --python=python2.6  gosa-ng
+$ cd gosa-ng
+$ source bin/activate
+
+(!) The "source bin/activate" has to be done every time you work in or with the
+    virtual environment. Stuff will fail if you don't do this. If you're asked for
+    sudo/root, you're doing something wrong.
+
+
+0.4 Obtaining the source
+
+For now, please use the tar or git:
+
+$ cd 'the place where you created the gosa-ng virtualenv'
+$ git clone git://labs.intranet.gonicus.de/gosa-ng/gosa-ng.git src
+
+This will place all relevant files inside the 'src' directory.
+
+
+1 The gosa-ng agent
+
+To run the agent, you most likely need a working AMQP broker and
+a working LDAP setup.
+
+
+1.1 Prequisites
+
+We use qpidc as the AMQP broker. Other implementations like rabbitmq,
+etc. are not supported. They lack some functionality we're making use
+of.
+
+
+1.2 Adding the AMQP repository
+
+In Debian, the simpliest way to get qpid running would be the use
+of an existing repository. Include it in your configuration like this:
 
 # wget -O - http://apt.naasa.net/archive.key | apt-key add -
 # [ -d /etc/apt/sources.d ] || mkdir /etc/apt/sources.d
@@ -17,7 +88,7 @@ you just don't have to try...
 # apt-get update
 
 
-2) Install qpid broker and clients
+1.3 Install qpid broker and clients
 
 # apt-get install qpid-broker qpid-client qpid-utils qpid-specs
 
@@ -49,7 +120,12 @@ the certificates is shown here:
 http://rajith.2rlabs.com/2010/03/01/apache-qpid-securing-connections-with-ssl/
 
 
-2.1) Broker LDAP-Authentication
+1.4 Install LDAP service
+
+#TODO
+
+
+1.5 AMQP LDAP-Authentication
 
 /etc/default/saslauthd --------------------------------------------------------
 #
@@ -135,7 +211,7 @@ mech_list: PLAIN LOGIN
 # /etc/init.d/qpid-broker restart
 
 
-2.2) Prepare DNS-Zone for zeroconf
+1.6 Prepare DNS-Zone for zeroconf
 
 8<-----------------------------------------------------------------------------
 ; Zeroconf base setup
@@ -157,67 +233,140 @@ You can test your setup with:
 -> this should list your services
 
 
-3) Install Python prequisites
+1.7 Deploy a development agent
 
-While we try to keep everything inside a virtual python environment for
-development, some of the python modules need compilation - which rises the
-number of required packages drastically. For this reason, just install these
-(namely dumbnet, avahi, gtk2, dbus and openssl) packages in your system:
+To deploy the agent, please run these commands inside the activated
+virtual environment:
 
-# apt-get install python2.6-dev python-dumbnet python-avahi python-virtualenv \
-    libavahi-compat-libdnssd-dev python-openssl python-dbus libssl-dev python-gtk2 \
-    python-lxml python-libxml2 python-dmidecode python-ldap python-cjson \
-    python-nose python-kid python-coverage python-dateutil python-smbpasswd \
-    python-netifaces
+$ ./setup_common.py develop
+$ ./setup_agent.py develop
 
-On Windows systems you need the pywin32 package:
-http://sourceforge.net/projects/pywin32/
+Alternatively you can build the complete package using:
+
+$ ./setup.py develop
 
 
-4) Setup a virtual environment for playing with gosa-ng
-
-As a non-root user, initialize the virtual environment:
-
-# virtualenv --setuptools --python=python2.6  gosa-ng
-# cd gosa-ng
-# source bin/activate
-
-(!) The "source bin/activate" has to be done every time you work in or with the
-    virtual environment. Stuff will fail if you don't do this. If you're asked for
-    sudo/root, you're doing something wrong.
-
-To install the current archive:
-
-# easy_install -f http://oss.gonicus.de/pub/gosa/eggs gosa.client
-
-To install from SVN:
-
-# git clone git@labs.intranet.gonicus.de:gosa-ng/gosa-ng.git src
-# cd src
-# python setup.py install
-
-
-5) Starting the service
+1.8 Starting the service
 
 (!) Make sure, you've entered the virtual environment using "source bin/activate"
     from inside the gosa-ng directory.
 
-Take a look at the agent.conf present in the src/gosa/agent directory and adapt it
+Take a look at the agent.conf present in the src/gosa/agent/data directory and adapt it
 to your needs. Fire up the daemon in foreground mode:
 
-# gosa-agent -f --config=gosa/agent/data/agent.conf
+$ gosa-agent -f --config=src/gosa/agent/data/agent.conf
+
+If you want to run the agent in a more productive manner, you can use the
+daemon mode and start it as root. It will then fork to the configured user
+and run as a daemon.
 
 
-6) Using the gosa-shell
+2 The gosa-ng shell
+
+2.1 Installing
+
+To deploy the shell, use:
+
+$ ./setup_common.py develop
+$ ./setup_shell.py develop
+
+inside your activated virtual env. You can skip this if you ran ./setup.py for
+a complete deployment.
+
+
+2.2 First contact
+
+The gosa-shell will use zeroconf/DNS to find relevant connection methods. Alternatively
+you can specify the connection URL to skip zeroconf/DNS.
 
 Start the shell and send a command:
 
-# gosa-shell
+$ gosa-shell
 (authenticate as the admin user you've created in qpid's SASL DB)
 >>> gosa.help()
 >>> gosa.mksmbhash("secret")
 >>> <Strg+D>
 
-
 The shell did not get priorized work in the moment, so the gosa.help() output is
 neither sorted, nor grouped by plugins. Much space for improvements.
+
+If you tend to use a connection URL directly, use
+
+$ gosa-shell http[s]://amqp.example.com:8080/rpc
+
+for HTTP based sessions or
+
+$ gosa-shell amqp[s]://amqp.example.com/org.gosa
+
+for AMQP based sessions.
+
+
+3 The gosa-ng client
+
+A gosa-ng client is a device instance that has been joined into the gosa network.
+Every client can incorporate functionality into the network - or can just be
+a managed client.
+
+
+3.1 Installing
+
+To deploy the client components, use:
+
+$ ./setup_common.py develop
+$ ./setup_client.py develop
+$ ./setup_dbus.py develop
+
+inside your activated virtual env. You can skip this if you ran ./setup.py for
+a complete deployment.
+
+
+3.2 Joining the party
+
+A client needs to authenticate to the gosa-ng bus. In order to create the required
+credentials for that, you've to "announce" or "join" the client to the system.
+
+To do that, run 
+
+$ sudo -s
+# cd 'wherever your gosa-ng virtual environment is'
+# source/bin activate
+# gosa-join
+
+on the client you're going to join. In the development case, this may be the
+same machine which runs the agent.
+
+
+3.3 Running the root component
+
+Some functionality may need root permission, while we don't want to run the complete
+client as root. The gosa-dbus component is used to run dedicated tasks as root. It
+can be extended by simple plugins and registers the resulting methods in the dbus
+interface.
+
+To use the dbus-component, you've to allow the gosa system user (or whatever user
+the gosa-client is running later on) to use certain dbus services. Copy and eventually
+adapt the file src/contrib/dbus/com.gonicus.gosa.conf to /etc/dbus/service.d and
+reload your dbus service.
+
+$ sudo service dbus reload
+
+To start the dbus component, activate the python virtual environment as root and run
+the gosa-dbus component in daemon or foreground mode:
+
+$ sudo -s
+# cd 'wherever your gosa-ng virtual environment is'
+# source/bin activate
+# gosa-dbus -f
+
+
+3.4 Running the client
+
+To run the client, you should put your development user into the gosa group - to
+be able to use the dbus features:
+
+$ sudo adduser $USER gosa
+
+You might need to re-login to make the changes happen. After that, start the gosa-ng
+client inside the activated virtual environment:
+
+$ gosa-client -f
