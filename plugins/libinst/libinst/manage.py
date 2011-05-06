@@ -778,10 +778,10 @@ class RepositoryManager(Plugin):
                     distribution.mirror_sources = mirror_sources
             else:
                 raise ValueError(N_("Need a distribution to add properties"))
-            self._session.commit()
+            session.commit()
             result = True
         except:
-            self._session.rollback()
+            session.rollback()
             raise
         finally:
             session.close()
@@ -826,10 +826,10 @@ class RepositoryManager(Plugin):
                     raise ValueError(N_("Distribution %s has no releases", distribution.name))
             else:
                 raise ValueError(N_("Need a distribution to remove properties"))
-            self._session.commit()
+            session.commit()
             result = True
         except:
-            self._session.rollback()
+            session.rollback()
             raise
         finally:
             session.close()
@@ -1216,22 +1216,31 @@ class RepositoryManager(Plugin):
     @NamedArgs("m_hash")
     def listConfigItems(self, release, m_hash=None, item_type=None, path=None, children=None):
         result = None
-        if isinstance(release, StringTypes):
-            instance = self._getRelease(release)
-            if instance is None:
-                raise ValueError("Unknown release %s" % release)
+        session = None
+        try:
+            session = self.getSession()
+            if isinstance(release, StringTypes):
+                instance = self._getRelease(release)
+                if instance is None:
+                    raise ValueError("Unknown release %s" % release)
+                else:
+                    release = instance
+            release = session.merge(release)
+            elif isinstance(release, DictType):
+                pass
+            elif not isinstance(release, Release):
+                raise ValueError(N_("Argument release must either be a String or a Release"))
+            if release.distribution.installation_method is None:
+                raise ValueError("Release %s has no installation method!" % release.name)
+            elif release.distribution.installation_method not in self.install_method_reg:
+                raise ValueError("Unsupported installation method %s found for release %s " % (release.distribution.installation_method, release.name))
             else:
-                release = instance
-        elif isinstance(release, DictType):
-            pass
-        elif not isinstance(release, Release):
-            raise ValueError(N_("Argument release must either be a String or a Release"))
-        if release.distribution.installation_method is None:
-            raise ValueError("Release %s has no installation method!" % release.name)
-        elif release.distribution.installation_method not in self.install_method_reg:
-            raise ValueError("Unsupported installation method %s found for release %s " % (release.distribution.installation_method, release.name))
-        else:
-            result = self.install_method_reg[release.distribution.installation_method].listItems(release.name, item_type=item_type, path=path, children=children)
+                result = self.install_method_reg[release.distribution.installation_method].listItems(release.name, item_type=item_type, path=path, children=children)
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
         return result
 
     @Command(__doc__=N_("Returns a list of all asignable elements for a release"))
