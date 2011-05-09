@@ -236,12 +236,24 @@ class PuppetInstallMethod(InstallMethod):
     def getItem(self, release, path):
         super(PuppetInstallMethod, self).getItem(release, path)
 
+        session = None
+
         item = self._get_item(release, path)
         if not item:
             return None
 
-        target_path, target_name = self.__get_target(release, path)
-        module = self._supportedItems[item.item_type]['module'](target_path, target_name)
+        try:
+            session = self._manager.getSession()
+            item = session.merge(item)
+
+            target_path, target_name = self.__get_target(release, path)
+            module = self._supportedItems[item.item_type]['module'](target_path, target_name)
+
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close
 
         return module.get_options()
 

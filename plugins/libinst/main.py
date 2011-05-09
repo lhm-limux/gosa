@@ -67,7 +67,7 @@ LcWMU6gayNYj7eMgCOFM6ywySRS81FC+PPnr147xbp5FwgmoPRK52MURsHJ+
         {
             'dependency': [],
             'version': '23',
-            'description': ''
+            'description': '',
         })
     print "setConfigItem:", manager.setConfigItem(
         'lenny',
@@ -78,6 +78,7 @@ LcWMU6gayNYj7eMgCOFM6ywySRS81FC+PPnr147xbp5FwgmoPRK52MURsHJ+
             'name': 'manifest',
         })
     print "listConfigItems:", manager.listConfigItems('lenny')
+    print "getConfigItem:", manager.getConfigItem('lenny', '/module')
     #print "setConfigItem:", manager.setConfigItem(
     #    'lenny/1.0',
     #    '/module/manifest',
