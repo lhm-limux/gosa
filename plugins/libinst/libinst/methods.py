@@ -143,13 +143,11 @@ class BaseInstallMethod(object):
     def getBaseInstallParameters(self, device_uuid, data=None):
         res = {}
         if not data:
-            data = load_system(device_uuid, False)
+            data = load_system(device_uuid, None, False)
 
         for key, value in self.attributes.items():
             if key in data:
                 res[value] = data[key]
-            else:
-                res[value] = None
 
         lh = LDAPHandler.get_instance()
         with lh.get_handle() as conn:
@@ -163,7 +161,7 @@ class BaseInstallMethod(object):
     def setBaseInstallParameters(self, device_uuid, data, current_data=None):
         # Load device
         if not current_data:
-            current_data = load_system(device_uuid, False)
+            current_data = load_system(device_uuid, None, False)
 
         is_new = not 'installRecipe' in current_data['objectClass']
         dn = current_data['dn']
@@ -181,7 +179,7 @@ class BaseInstallMethod(object):
             # New value?
             if key in data and not key in current_data:
                 mods.append((ldap.MOD_ADD, ldap_key,
-                    unicode2utf8(data[key])))
+                    [unicode2utf8(data[key])]))
                 continue
 
             # Changed value?
@@ -189,7 +187,7 @@ class BaseInstallMethod(object):
                     and data[key] != current_data[key]:
 
                 mods.append((ldap.MOD_REPLACE, ldap_key,
-                    unicode2utf8(data[key])))
+                    [unicode2utf8(data[key])]))
                 continue
 
         # Removed values
@@ -211,8 +209,6 @@ class BaseInstallMethod(object):
                 mods.append((ldap.MOD_ADD, 'installTemplateDN', [template_dn]))
             else:
                 mods.append((ldap.MOD_REPLACE, 'installTemplateDN', [template_dn]))
-
-            print mods
 
             conn.modify_s(dn, mods)
 
@@ -605,11 +601,8 @@ class InstallMethod(object):
         # pylint: disable-msg=E1101
         containers = self._supportedItems[self._root]['container']
 
-        print "-"*80
         # pylint: disable-msg=E1121
         result = self._scan(path, self.getBaseDir(release), containers)
-        print result
-        print "-"*80
 
         # Update DB from Scan
         self._manager._replaceConfigItems(release, result)
@@ -796,7 +789,6 @@ def load_system(device_uuid, mac=None, inherit=True):
 
         # Skip if we're not using inheritance
         if inherit:
-
             # Trace recipes of present
             depth = 3
             while 'installRecipeDN' in obj:
@@ -826,6 +818,5 @@ def load_system(device_uuid, mac=None, inherit=True):
 
         # Add DN information
         result['dn'] = obj_dn
-
 
     return result
