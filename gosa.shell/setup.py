@@ -13,32 +13,8 @@ README = open(os.path.join(here, 'README')).read()
 CHANGES = open(os.path.join(here, 'CHANGES')).read()
 
 
-common_install_requires = [
-    'zope.interface>=3.5',
-    'sqlalchemy',
-    'babel',
-    'pyOpenSSL',
-    'lxml',
-    'jsonrpc',
-    'qpid-python',
-    ],
-
-if platform.system() == "Windows":
-    common_install_requires[0].append([
-        'pybonjour',
-    ])
-else:
-    # Not installable this way:
-    # avahi, pygtk (gobject), dbus
-    #install_requires[0].append([
-    #    'dbus',
-    #    'avahi',
-    #    'PyGTK',
-    #])
-    pass
-
 setup(
-    name = "gosa.common",
+    name = "gosa.shell",
     version = "0.1",
     author = "Cajus Pollmeier",
     author_email = "pollmeier@gonicus.de",
@@ -60,32 +36,21 @@ setup(
         'Topic :: System :: Monitoring',
     ],
 
+    download_url = "http://oss.gonicus.de/pub/gosa",
+    packages = find_packages('src', exclude=['examples', 'tests']),
+    package_dir = {'': 'src'},
     namespace_packages = ['gosa'],
 
-    download_url = "http://oss.gonicus.de/pub/gosa",
-    packages = find_packages(exclude=['examples', 'tests']),
-
-    include_package_data = True,
-    package_data = {
-        'gosa.common': ['data/stylesheets/*', 'data/events/*'],
-    },
+    include_package_data = False,
 
     test_suite = "nose.collector",
     zip_safe = False,
 
-    setup_requires = [
-        'nose',
-        'NoseXUnit',
-        'pylint',
-        'babel',
-        ],
-    install_requires = common_install_requires,
-    dependency_links = [
-        'http://oss.gonicus.de/pub/gosa/eggs',
-        ],
+    setup_requires = ['nose', 'NoseXUnit', 'pylint', 'babel' ],
+    install_requires = ['gosa.common'],
 
     entry_points = """
-        [gosa.modules]
-        gosa-agent.amqp = gosa.common.components.amqp:AMQPHandler
+        [console_scripts]
+        gosa-shell = gosa.shell.main:main
     """,
 )

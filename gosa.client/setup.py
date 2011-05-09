@@ -71,10 +71,10 @@ setup(
         'Topic :: System :: Monitoring',
     ],
 
-    namespace_packages = ['gosa'],
-
     download_url = "http://oss.gonicus.de/pub/gosa",
-    packages = find_packages(exclude=['examples', 'tests']),
+    packages = find_packages('src', exclude=['examples', 'tests']),
+    package_dir={'': 'src'},
+    namespace_packages = ['gosa'],
 
     include_package_data = True,
     package_data = {
