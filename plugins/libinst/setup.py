@@ -26,7 +26,8 @@ for various systems in your setup.
     ],
 
     download_url = "http://oss.gonicus.de/pub/gosa",
-    packages = find_packages('.', exclude=['examples', 'tests']),
+    packages = find_packages('src', exclude=['examples', 'tests']),
+    package_dir={'': 'src'},
 
     include_package_data = True,
     package_data = {
