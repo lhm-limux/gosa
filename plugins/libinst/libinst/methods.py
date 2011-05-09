@@ -99,7 +99,7 @@ class BaseInstallMethod(object):
             'installNTPServer': 'ntp-servers',
             'installRootEnabled': 'root-user',
             'installRootPasswordHash': 'root-hash',
-            'installKeyboardlayout': 'keyboard-layout',
+            'installKeyboardLayout': 'keyboard-layout',
             'installSystemLocale': 'system-locale',
             'installTimezone': 'timezone',
             'installTimeUTC': 'utc',
@@ -210,6 +210,7 @@ class BaseInstallMethod(object):
             else:
                 mods.append((ldap.MOD_REPLACE, 'installTemplateDN', [template_dn]))
 
+            print mods
             conn.modify_s(dn, mods)
 
     def removeBaseInstallParameters(self, device_uuid, data=None):
