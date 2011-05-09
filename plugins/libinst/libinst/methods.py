@@ -427,8 +427,6 @@ class InstallMethod(object):
             if not children:
                 children = release.config_items
                 first = True
-            else:
-                children = session.merge(children)
 
             items = filter(filter_items, children)
             res = dict((i.getPath(), i.item_type) for i in items)

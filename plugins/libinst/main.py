@@ -49,7 +49,8 @@ LcWMU6gayNYj7eMgCOFM6ywySRS81FC+PPnr147xbp5FwgmoPRK52MURsHJ+
             {"mirror": "http://archive.debian.org/debian"},
             install_method="puppet")
     print "getDistributions", manager.getDistributions()
-    print "createRelease:", manager.createRelease("debian", "test")
+    print "createRelease:", manager.createRelease("debian", "lenny")
+    print "createRelease:", manager.createRelease("debian", "lenny/1.0")
     print "setDistribution:", manager.setDistribution(
             {
                 'component': [],
@@ -58,17 +59,33 @@ LcWMU6gayNYj7eMgCOFM6ywySRS81FC+PPnr147xbp5FwgmoPRK52MURsHJ+
                 'mirror_sources': False
             }
     )
-    print "listConfigItems:", manager.listConfigItems('test')
+    #print "listConfigItems:", manager.listConfigItems('lenny')
     print "setConfigItem:", manager.setConfigItem(
-        'test', 
-        '/module', 
-        'PuppetModule', 
+        'lenny',
+        '/module',
+        'PuppetModule',
         {
             'dependency': [],
             'version': '23',
-            'name': 'module',
             'description': ''
         })
+    print "setConfigItem:", manager.setConfigItem(
+        'lenny',
+        '/module/manifest',
+        'PuppetManifest',
+        {
+            'data': '1',
+            'name': 'manifest',
+        })
+    print "listConfigItems:", manager.listConfigItems('lenny')
+    #print "setConfigItem:", manager.setConfigItem(
+    #    'lenny/1.0',
+    #    '/module/manifest',
+    #    'PuppetManifest',
+    #    {
+    #        'data': '2',
+    #        'name': 'manifest',
+    #    })
     #print("getDistributions", manager.getDistributions())
     #manager._getRelease("bo").distribution.architectures.append(manager._getArchitecture("i386", add=True))
     #manager.addMirrorProperty(distribution="debian", arch="i386", component="main")
@@ -78,7 +95,6 @@ LcWMU6gayNYj7eMgCOFM6ywySRS81FC+PPnr147xbp5FwgmoPRK52MURsHJ+
     ##print("getDistributions", manager.getDistributions())
     #print(manager.getReleases({"distribution": "debian"}))
     ##manager._getRelease("bo").distribution._sync()
-    ##print "createRelease:", manager.createRelease("debian", "lenny/1.0")
     #print "createRelease:", manager.createRelease("debian", "squeeze")
     #print("getReleases: distribution=debian", manager.getReleases(distribution="debian"))
     #print("addPackage: jaaa_0.4.2-1.dsc", manager.addPackage("http://ftp.de.debian.org/debian/pool/main/j/jaaa/jaaa_0.4.2-1.dsc", {"release": "lenny"}))
