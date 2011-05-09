@@ -264,10 +264,10 @@ class PuppetInstallMethod(InstallMethod):
         for line in cmd.status("--porcelain").splitlines():
             changed = True
             line = line.lstrip()
-            self.env.log.info("staging changes for module %s" % line)
+            self.env.log.info("staging changes for module %s" % line.split(" ", 1)[1:])
 
             mode, file_path = line.split(" ", 1)
-            file_path = os.path.join(*file_path.split("/")[1:])
+            file_path = os.path.join(*file_path.split("/")[0:])
 
             # Remove data?
             if mode == "D":
@@ -285,7 +285,7 @@ class PuppetInstallMethod(InstallMethod):
         if not comment:
             comment = "Change made with no comment"
 
-        self.env.log.info("staging changes for module %s" % target_name)
+        self.env.log.info("committing changes for module %s" % target_name)
         cmd.commit("-m", comment)
 
     def removeItem(self, release, path, comment=None):
