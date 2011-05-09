@@ -301,22 +301,30 @@ class PuppetInstallMethod(InstallMethod):
         cmd.commit("-m", comment)
 
     def removeItem(self, release, path, comment=None):
-        item_type = self._get_item(release, path).item_type
-        target_path, target_name = self.__get_target(release, path)
-        module = self._supportedItems[item_type]['module'](target_path, target_name)
-        module.delete()
-
-        # Commit changes
-        if not comment:
-            comment = "Change made with no comment"
-
-        self.env.log.info("commiting changes for module %s" % target_name)
-        cmd = Git(target_path)
+        session = None
         try:
-            cmd.commit("-a", "-m", comment)
-        except GitCommandError as e:
-            self.env.log.debug("no commit for %s: %s" % (target_name, str(e)))
+            session = self._manager.getSession()
+            item = self._get_item(release, path)
+            item = session.merge(item)
+            target_path, target_name = self.__get_target(release, path)
+            module = self._supportedItems[item.item_type]['module'](target_path, target_name)
+            module.delete()
 
+            # Commit changes
+            if not comment:
+                comment = "Change made with no comment"
+
+            self.env.log.info("commiting changes for module %s" % target_name)
+            cmd = Git(target_path)
+            try:
+                cmd.commit("-a", "-m", comment)
+            except GitCommandError as e:
+                self.env.log.debug("no commit for %s: %s" % (target_name, str(e)))
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
         super(PuppetInstallMethod, self).removeItem(release, path)
 
     def gen_ssh_key(self, path, comment):
