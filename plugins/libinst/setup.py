@@ -65,9 +65,6 @@ for various systems in your setup.
         [gosa.modules]
         gosa-agent.libinst = libinst.manage:RepositoryManager
 
-        [gosa_client.modules]
-        gosa-client.puppet = puppet.client:PuppetClient
-
         [puppet.items]
         item.root = puppet.items:PuppetRoot
         item.module = puppet.items:PuppetModule
