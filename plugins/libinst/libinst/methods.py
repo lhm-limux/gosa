@@ -15,7 +15,7 @@ import ldap
 import sys
 from types import StringTypes, DictType
 from gosa.common.env import Environment
-from gosa.agent.ldap_utils import LDAPHandler, unicode2utf8
+from gosa.agent.ldap_utils import LDAPHandler, unicode2utf8, normalize_ldap
 from libinst.entities.config_item import ConfigItem
 
 
@@ -179,7 +179,7 @@ class BaseInstallMethod(object):
             # New value?
             if key in data and not key in current_data:
                 mods.append((ldap.MOD_ADD, ldap_key,
-                    [unicode2utf8(data[key])]))
+                    normalize_ldap(unicode2utf8(data[key]))))
                 continue
 
             # Changed value?
@@ -187,7 +187,7 @@ class BaseInstallMethod(object):
                     and data[key] != current_data[key]:
 
                 mods.append((ldap.MOD_REPLACE, ldap_key,
-                    [unicode2utf8(data[key])]))
+                    normalize_ldap(unicode2utf8(data[key]))))
                 continue
 
         # Removed values
@@ -210,7 +210,6 @@ class BaseInstallMethod(object):
             else:
                 mods.append((ldap.MOD_REPLACE, 'installTemplateDN', [template_dn]))
 
-            print mods
             conn.modify_s(dn, mods)
 
     def removeBaseInstallParameters(self, device_uuid, data=None):

@@ -110,7 +110,15 @@ def map_ldap_value(value):
         return "TRUE" if value else "FALSE"
     if type(value) == types.UnicodeType:
         return value.encode('utf-8')
+    if type(value) == types.ListType:
+        return map(lambda x: map_ldap_value(x), value)
     return value
 
 def unicode2utf8(data):
     return map_ldap_value(data)
+
+def normalize_ldap(data):
+    if type(data) != types.ListType:
+        return [data]
+
+    return data
