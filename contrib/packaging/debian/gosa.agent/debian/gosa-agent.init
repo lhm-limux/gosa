@@ -1,0 +1,61 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          gosa-agent
+# Required-Start:    qpid-broker
+# Should-Start:	     $syslog
+# Should-Stop:       $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: gosa-agent service
+# Description:       TODO
+### END INIT INFO
+
+set -e
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+DESC="AMQP agent"
+NAME="gosa-agent"
+DAEMON="/usr/sbin/$NAME"
+SCRIPTNAME=/etc/init.d/$NAME
+
+# Gracefully exit if the package has been removed.
+test -x $DAEMON || exit 0
+
+. /lib/lsb/init-functions
+
+# Include gosa-agent defaults if available.
+test -f /etc/default/gosa-agent && . /etc/default/gosa-agent
+if [ ! -d /var/run/$NAME ]; then
+    mkdir -p /var/run/$NAME
+    chown root.gosa-agent /var/run/$NAME
+    chmod 770 /var/run/$NAME
+fi
+
+case "$1" in
+    start)
+        log_daemon_msg "Starting $DESC" "$NAME"
+        start-stop-daemon --start --quiet --pidfile /var/run/$NAME/daemon.pid \
+            --exec $DAEMON -- $DAEMON_OPTS
+        log_end_msg $?
+        ;;
+    stop)
+        log_daemon_msg "Stopping $DESC" "$NAME"
+        start-stop-daemon --stop --oknodo --quiet --pidfile /var/run/$NAME/daemon.pid \
+            --exec $DAEMON
+        log_end_msg $?
+        ;;
+    restart|force-reload)
+        log_daemon_msg "Restarting $DESC" "$NAME"
+	start-stop-daemon --stop --oknodo --quiet --pidfile /var/run/$NAME/daemon.pid \
+            --exec $DAEMON
+	start-stop-daemon --start --quiet --pidfile /var/run/$NAME/daemon.pid \
+            --exec $DAEMON -- $DAEMON_OPTS
+        log_end_msg $?
+        ;;
+    *)
+        echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2
+        exit 1
+        ;;
+esac
+
+exit 0
