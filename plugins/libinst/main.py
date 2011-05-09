@@ -80,6 +80,7 @@ LcWMU6gayNYj7eMgCOFM6ywySRS81FC+PPnr147xbp5FwgmoPRK52MURsHJ+
     print "listConfigItems:", manager.listConfigItems('lenny')
     print "getConfigItem:", manager.getConfigItem('lenny', '/module')
     print "removeConfigItem:", manager.removeConfigItem('lenny', '/module/manifest')
+    print "listConfigItems:", manager.listConfigItems('lenny')
     #print "setConfigItem:", manager.setConfigItem(
     #    'lenny/1.0',
     #    '/module/manifest',

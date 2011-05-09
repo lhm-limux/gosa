@@ -258,7 +258,7 @@ class PuppetInstallMethod(InstallMethod):
         return module.get_options()
 
     def setItem(self, release, path, item_type, data, comment=None):
-        super(PuppetInstallMethod, self).setItem(release, path, item_type, data)
+        result = super(PuppetInstallMethod, self).setItem(release, path, item_type, data)
 
         target_path, target_name = self.__get_target(release, path)
         module = self._supportedItems[item_type]['module'](target_path, target_name)
@@ -299,8 +299,10 @@ class PuppetInstallMethod(InstallMethod):
 
         self.env.log.info("committing changes for module %s" % target_name)
         cmd.commit("-m", comment)
+        return result
 
     def removeItem(self, release, path, comment=None):
+        result = None
         session = None
         try:
             session = self._manager.getSession()
@@ -320,12 +322,15 @@ class PuppetInstallMethod(InstallMethod):
                 cmd.commit("-a", "-m", comment)
             except GitCommandError as e:
                 self.env.log.debug("no commit for %s: %s" % (target_name, str(e)))
+            session.commit()
+            result = True
         except:
             session.rollback()
             raise
         finally:
             session.close()
-        super(PuppetInstallMethod, self).removeItem(release, path)
+        result &= super(PuppetInstallMethod, self).removeItem(release, path)
+        return result
 
     def gen_ssh_key(self, path, comment):
         for f in [path, path + ".pub"]:

@@ -480,6 +480,7 @@ class InstallMethod(object):
         @rtype: bool
         @return: True = success
         """
+        result = None
         session = None
 
         # Check if this item type is supported
@@ -525,12 +526,14 @@ class InstallMethod(object):
 
             # Try to commit the changes
             session.commit()
+            result = True
         except:
             self.env.log.error("Caught unknown exception %s" % sys.exc_info()[0])
             session.rollback()
             raise
         finally:
             session.close()
+        return result
 
     def removeItem(self, release, path, children=None):
         """
@@ -547,6 +550,7 @@ class InstallMethod(object):
         @return: True = success
         """
         session = None
+        result = None
 
         def filter_path(item):
             if item.path:
@@ -581,11 +585,13 @@ class InstallMethod(object):
 
             # Try to commit the changes
             session.commit()
+            result = True
         except:
             session.rollback()
             raise
         finally:
             session.close()
+        return result
 
     def scan(self, release):
         """

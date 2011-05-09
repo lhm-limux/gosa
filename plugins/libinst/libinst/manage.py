@@ -1319,7 +1319,7 @@ class RepositoryManager(Plugin):
             session.rollback()
         finally:
             session.close()
-        return result
+        return result != None
 
     @Command(__doc__=N_("Remove the specified item and it's children"))
     def removeConfigItem(self, release, path, children=None):
@@ -1347,7 +1347,7 @@ class RepositoryManager(Plugin):
             raise
         finally:
             session.close()
-        return result
+        return result != None
 
     @Command(__doc__=N_("Return the data of specified item"))
     def getConfigItem(self, release, path):
