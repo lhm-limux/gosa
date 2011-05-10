@@ -1,0 +1,16 @@
+Source: python-gnupg
+Section: python
+Priority: optional
+Maintainer: Cajus Pollmeier <cajus@debian.org>
+Build-Depends: debhelper (>= 5.0.37.1), cdbs (>= 0.4.41), python-all (>= 2.6), python-support (>= 0.6.4)
+Build-Depends-Indep: python-setuptools (>= 0.6a9)
+Standards-Version: 3.8.3
+Homepage: http://code.google.com/p/python-gnupg
+
+Package: python-gnupg
+Architecture: all
+Depends: ${python:Depends}, ${misc:Depends}, python-pkg-resources
+Description: Python gnupg wrapper
+ This project implements a Python library which takes care of the internal
+ details and allows its users to generate and manage keys, encrypt and
+ decrypt data, and sign and verify messages.
