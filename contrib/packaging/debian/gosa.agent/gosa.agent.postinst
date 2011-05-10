@@ -4,10 +4,10 @@ set -e
 
 case "$1" in
   configure)
-    if ! getent passwd gosa-agent >/dev/null; then
+    if ! getent passwd gosa >/dev/null; then
       adduser --disabled-password  --quiet --system \
-        --home /var/lib/gosa-agent \
-        --gecos "gosa-agent daemon account" --group gosa-agent
+        --home /var/lib/gosa \
+        --gecos "gosa-agent daemon account" --group gosa
     fi
   ;;
   abort-upgrade|abort-remove|abort-deconfigure)

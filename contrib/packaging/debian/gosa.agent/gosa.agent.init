@@ -28,7 +28,7 @@ DAEMON_OPTS="--pid-file=/var/run/$NAME/daemon.pid"
 test -f /etc/default/gosa-agent && . /etc/default/gosa-agent
 if [ ! -d /var/run/$NAME ]; then
     mkdir -p /var/run/$NAME
-    chown root.gosa-agent /var/run/$NAME
+    chown root.gosa /var/run/$NAME
     chmod 770 /var/run/$NAME
 fi
 
