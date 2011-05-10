@@ -20,3 +20,11 @@ esac
 
 #DEBHELPER#
 
+if [ -x "/etc/init.d/gosa.agent" ]; then
+        update-rc.d gosa.agent defaults >/dev/null
+        if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+                invoke-rc.d gosa.agent start || exit $?
+        else
+                /etc/init.d/gosa.agent start || exit $?
+        fi
+fi

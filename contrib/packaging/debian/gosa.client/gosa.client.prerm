@@ -13,8 +13,8 @@ fi
 #DEBHELPER#
 
 if [ "$1" = "purge" ] ; then
-    deluser --quiet --system gosa-client > /dev/null || true
-    delgroup --quiet --system gosa-client > /dev/null || true
+    deluser --quiet --system gosa > /dev/null || true
+    delgroup --quiet --system gosa > /dev/null || true
 
     f=/var/run/gosa-client
     if [ -d "$f" ]; then

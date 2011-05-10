@@ -2,11 +2,19 @@
 
 set -e
 
+if [ -x "/etc/init.d/gosa.agent" ]; then
+        if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+                invoke-rc.d gosa.agent stop || exit $?
+        else
+                /etc/init.d/gosa.agent stop || exit $?
+        fi
+fi
+
 #DEBHELPER#
 
 if [ "$1" = "purge" ] ; then
-    deluser --quiet --system gosa-agent > /dev/null || true
-    delgroup --quiet --system gosa-agent > /dev/null || true
+    deluser --quiet --system gosa > /dev/null || true
+    delgroup --quiet --system gosa > /dev/null || true
 
     f=/var/run/gosa-agent
     if [ -d "$f" ]; then
