@@ -311,7 +311,10 @@ class ClientService(object):
     def _handleUserSession(self, data):
         data = data.UserSession
         self.env.log.debug("updating client '%s' user session information" % data.Id)
-        self.__user_session[str(data.Id)] = map(lambda x: str(x), data.User.Name)
+        if hasattr(data.User, 'Name'):
+            self.__user_session[str(data.Id)] = map(lambda x: str(x), data.User.Name)
+        else:
+            self.__user_session[str(data.Id)] = []
 
     def _handleClientAnnounce(self, data):
         data = data.ClientAnnounce
