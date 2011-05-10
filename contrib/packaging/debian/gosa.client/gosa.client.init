@@ -14,10 +14,10 @@
 set -e
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
-DESC="AMQP client"
+DESC="GOsa infrastructure client"
 NAME="gosa-client"
 DAEMON="/usr/sbin/$NAME"
-SCRIPTNAME=/etc/init.d/$NAME
+SCRIPTNAME=/etc/init.d/gosa.client
 
 # Gracefully exit if the package has been removed.
 test -x $DAEMON || exit 0
@@ -33,13 +33,15 @@ if [ ! -d /var/run/gosa ]; then
     chmod 770 /var/run/gosa
 fi
 
-# Check if we need to join
-if [ -e /etc/gosa/config ]; then
-    gosa-join || exit 1
-fi
-
 case "$1" in
     start)
+	# Check if we need to join
+	if [ ! -e /etc/gosa/config ]; then
+            log_daemon_msg "Trying to join the GOsa infrastructure"
+	    gosa-join
+            log_end_msg $?
+	fi
+
         log_daemon_msg "Starting $DESC" "$NAME"
         start-stop-daemon --start --quiet --pidfile /var/run/gosa/$NAME.pid \
             --exec $DAEMON -- $DAEMON_OPTS
