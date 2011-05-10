@@ -7,5 +7,5 @@
 
  See LICENSE for more information about the licensing.
 """
-__version__ = __import__('pkg_resources').get_distribution('gosa.client').version
+__version__ = __import__('pkg_resources').get_distribution('gosa.dbus').version
 __import__('pkg_resources').declare_namespace(__name__)
