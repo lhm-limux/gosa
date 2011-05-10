@@ -1,6 +1,8 @@
 #!/bin/sh
 ### BEGIN INIT INFO
 # Provides:          gosa-dbus
+#Required-Start:
+#Required-Stop:
 # Should-Start:	     $syslog
 # Should-Stop:       $syslog
 # Default-Start:     2 3 4 5
@@ -27,8 +29,6 @@ DAEMON_OPTS="--pid-file=/var/run/$NAME/daemon.pid"
 test -f /etc/default/gosa-dbus && . /etc/default/gosa-dbus
 if [ ! -d /var/run/$NAME ]; then
     mkdir -p /var/run/$NAME
-    chown root.gosa-dbus /var/run/$NAME
-    chmod 770 /var/run/$NAME
 fi
 
 case "$1" in
