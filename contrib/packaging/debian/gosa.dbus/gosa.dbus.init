@@ -1,8 +1,8 @@
 #!/bin/sh
 ### BEGIN INIT INFO
 # Provides:          gosa-dbus
-#Required-Start:
-#Required-Stop:
+# Required-Start:
+# Required-Stop:
 # Should-Start:	     $syslog
 # Should-Stop:       $syslog
 # Default-Start:     2 3 4 5
@@ -25,30 +25,30 @@ test -x $DAEMON || exit 0
 . /lib/lsb/init-functions
 
 # Include gosa-dbus defaults if available.
-DAEMON_OPTS="--pid-file=/var/run/$NAME/daemon.pid"
+DAEMON_OPTS="--pid-file=/var/run/gosa/$NAME.pid"
 test -f /etc/default/gosa-dbus && . /etc/default/gosa-dbus
-if [ ! -d /var/run/$NAME ]; then
-    mkdir -p /var/run/$NAME
+if [ ! -d /var/run/gosa ]; then
+    mkdir -p /var/run/gosa
 fi
 
 case "$1" in
     start)
         log_daemon_msg "Starting $DESC" "$NAME"
-        start-stop-daemon --start --quiet --pidfile /var/run/$NAME/daemon.pid \
+        start-stop-daemon --start --quiet --pidfile /var/run/gosa/$NAME.pid \
             --exec $DAEMON -- $DAEMON_OPTS
         log_end_msg $?
         ;;
     stop)
         log_daemon_msg "Stopping $DESC" "$NAME"
-        start-stop-daemon --stop --oknodo --quiet --pidfile /var/run/$NAME/daemon.pid \
+        start-stop-daemon --stop --oknodo --quiet --pidfile /var/run/gosa/$NAME.pid \
             --exec $DAEMON
         log_end_msg $?
         ;;
     restart|force-reload)
         log_daemon_msg "Restarting $DESC" "$NAME"
-	start-stop-daemon --stop --oknodo --quiet --pidfile /var/run/$NAME/daemon.pid \
+	start-stop-daemon --stop --oknodo --quiet --pidfile /var/run/gosa/$NAME.pid \
             --exec $DAEMON
-	start-stop-daemon --start --quiet --pidfile /var/run/$NAME/daemon.pid \
+	start-stop-daemon --start --quiet --pidfile /var/run/gosa/$NAME.pid \
             --exec $DAEMON -- $DAEMON_OPTS
         log_end_msg $?
         ;;
