@@ -65,6 +65,7 @@ setup(
         'dumbnet',
         'pycrypto',
         'unidecode',
+        'sqlalchemy',
         ],
     dependency_links = [
         'http://oss.gonicus.de/pub/gosa/eggs',

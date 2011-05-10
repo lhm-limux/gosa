@@ -15,13 +15,14 @@ CHANGES = open(os.path.join(here, 'CHANGES')).read()
 
 common_install_requires = [
     'zope.interface>=3.5',
-    'sqlalchemy',
     'babel',
     'pyOpenSSL',
     'lxml',
     'jsonrpc',
     'qpid-python',
     ],
+# SQLAlchemy may be optional, because dbus/clients/shell do not use that
+#'sqlalchemy',
 
 if platform.system() == "Windows":
     common_install_requires[0].append([
