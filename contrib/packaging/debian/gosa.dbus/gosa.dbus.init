@@ -1,8 +1,8 @@
 #!/bin/sh
 ### BEGIN INIT INFO
 # Provides:          gosa-dbus
-# Required-Start:
-# Required-Stop:
+# Required-Start:    gosa.client
+# Required-Stop:     gosa.client
 # Should-Start:	     $syslog
 # Should-Stop:       $syslog
 # Default-Start:     2 3 4 5
