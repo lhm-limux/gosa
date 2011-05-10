@@ -8,9 +8,9 @@ Build-Depends-Indep: python-setuptools (>= 0.6a9)
 Standards-Version: 3.8.3
 Homepage: http://svn.json-rpc.org/trunk/python-jsonrpc
 
-Package: gosa-client
+Package: gosa.client
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, python-pkg-resources, gosa-dbus,
+Depends: ${python:Depends}, ${misc:Depends}, python-pkg-resources, gosa.dbus,
  python-dateutil, python-netifaces
 Description: Next generation GOsa service
  This is the client package.

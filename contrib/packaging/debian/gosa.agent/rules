@@ -5,7 +5,7 @@ DEB_PYTHON_SYSTEM=pysupport
 include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/python-distutils.mk
 
-binary-post-install/gosa-agent::
+binary-post-install/gosa.agent::
 	mkdir -p debian/gosa-agent/etc/gosa
 	install --mode=600 debian/gosa-agent/usr/share/pyshared/gosa/agent/data/agent.conf debian/gosa-agent/etc/gosa
 

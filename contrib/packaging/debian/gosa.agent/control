@@ -8,9 +8,9 @@ Build-Depends-Indep: python-setuptools (>= 0.6a9)
 Standards-Version: 3.8.3
 Homepage: http://svn.json-rpc.org/trunk/python-jsonrpc
 
-Package: gosa-agent
+Package: gosa.agent
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, python-pkg-resources, gosa-common,
+Depends: ${python:Depends}, ${misc:Depends}, python-pkg-resources, gosa.common,
  python-dumbnet, python-ldap, python-smbpasswd
 Suggests: qpid-broker
 Description: Next generation GOsa service
