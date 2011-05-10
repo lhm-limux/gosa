@@ -10,7 +10,8 @@ Homepage: http://svn.json-rpc.org/trunk/python-jsonrpc
 
 Package: gosa.client
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, python-pkg-resources, gosa.dbus,
+Depends: ${python:Depends}, ${misc:Depends}, python-pkg-resources, gosa.common,
  python-dateutil, python-netifaces
+Suggests: gosa.dbus
 Description: Next generation GOsa service
  This is the client package.
