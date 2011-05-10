@@ -49,14 +49,12 @@ case "$1" in
         ;;
     stop)
         log_daemon_msg "Stopping $DESC" "$NAME"
-        start-stop-daemon --stop --oknodo --quiet --pidfile /var/run/gosa/$NAME.pid \
-            --exec $DAEMON
+        start-stop-daemon --stop --oknodo --quiet --pidfile /var/run/gosa/$NAME.pid
         log_end_msg $?
         ;;
     restart|force-reload)
         log_daemon_msg "Restarting $DESC" "$NAME"
-	start-stop-daemon --stop --oknodo --quiet --pidfile /var/run/gosa/$NAME.pid \
-            --exec $DAEMON
+	start-stop-daemon --stop --oknodo --quiet --pidfile /var/run/gosa/$NAME.pid
 	start-stop-daemon --start --quiet --pidfile /var/run/gosa/$NAME.pid \
             --exec $DAEMON -- $DAEMON_OPTS
         log_end_msg $?
