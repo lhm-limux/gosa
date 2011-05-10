@@ -42,16 +42,16 @@ from libinst.entities.repository import Repository, RepositoryKeyring
 from libinst.entities.section import Section
 from libinst.entities.type import Type
 
-from debian_repository.entities.package import DebianPackage
-from debian_repository.entities.priority import DebianPriority
-from debian_repository.entities.distribution import DebianDistribution
-from debian_repository.entities.release import DebianRelease
+from libinst.repo.deb.entities.package import DebianPackage
+from libinst.repo.deb.entities.priority import DebianPriority
+from libinst.repo.deb.entities.distribution import DebianDistribution
+from libinst.repo.deb.entities.release import DebianRelease
 
 # pylint: disable-msg=E0611
 from pkg_resources import resource_filename
 
 # Include locales
-t = gettext.translation('messages', resource_filename("debian_repository", "locale"), fallback=True)
+t = gettext.translation('messages', resource_filename("libinst.repo.deb", "locale"), fallback=True)
 _ = t.ugettext
 
 class DebianHandler(DistributionHandler):
