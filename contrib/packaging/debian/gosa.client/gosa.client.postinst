@@ -20,3 +20,11 @@ esac
 
 #DEBHELPER#
 
+if [ -x "/etc/init.d/gosa.client" ]; then
+        update-rc.d gosa.client defaults >/dev/null
+        if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+                invoke-rc.d gosa.client start || exit $?
+        else
+                /etc/init.d/gosa.client start || exit $?
+        fi
+fi

@@ -2,6 +2,14 @@
 
 set -e
 
+if [ -x "/etc/init.d/gosa.client" ]; then
+        if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+                invoke-rc.d gosa.client stop || exit $?
+        else
+                /etc/init.d/gosa.client stop || exit $?
+        fi
+fi
+
 #DEBHELPER#
 
 if [ "$1" = "purge" ] ; then
