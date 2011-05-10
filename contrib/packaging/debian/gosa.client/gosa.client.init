@@ -29,8 +29,8 @@ DAEMON_OPTS="--pid-file=/var/run/gosa/$NAME.pid"
 test -f /etc/default/gosa-client && . /etc/default/gosa-client
 if [ ! -d /var/run/gosa ]; then
     mkdir -p /var/run/gosa
-    chown root.gosa /var/run/$NAME
-    chmod 770 /var/run/$NAME
+    chown root.gosa /var/run/gosa
+    chmod 770 /var/run/gosa
 fi
 
 case "$1" in
