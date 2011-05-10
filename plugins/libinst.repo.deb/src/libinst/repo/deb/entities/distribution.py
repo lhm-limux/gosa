@@ -26,7 +26,7 @@ from gosa.common.utils import N_, locate
 from pkg_resources import resource_filename
 
 # Include locales
-t = gettext.translation('messages', resource_filename("debian_repository", "locale"), fallback=True)
+t = gettext.translation('messages', resource_filename("libinst.repo.deb", "locale"), fallback=True)
 _ = t.ugettext
 
 class DebianDistribution(Distribution, UseInnoDB):
