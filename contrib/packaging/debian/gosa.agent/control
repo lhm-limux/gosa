@@ -12,8 +12,9 @@ Homepage: http://svn.json-rpc.org/trunk/python-jsonrpc
 Package: gosa.agent
 Architecture: all
 Depends: ${python:Depends}, ${misc:Depends}, python-pkg-resources, gosa.common,
- python-dumbnet, python-ldap, python-smbpasswd, python-unidecode
-Conflicts: gosa.agent
+ python-dumbnet, python-ldap, python-smbpasswd, python-unidecode, 
+ python-sqlalchemy, python-mysqldb, python-sqlalchemy-ext
+Conflicts: gosa.client
 Suggests: qpid-broker
 Description: Next generation GOsa service
  This is the agent package.

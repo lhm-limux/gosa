@@ -11,6 +11,7 @@ Homepage: http://svn.json-rpc.org/trunk/python-jsonrpc
 
 Package: gosa.client
 Architecture: all
+Conflicts: gosa.agent
 Depends: ${python:Depends}, ${misc:Depends}, python-pkg-resources, gosa.common,
  python-dateutil, python-netifaces
 Suggests: gosa.dbus
