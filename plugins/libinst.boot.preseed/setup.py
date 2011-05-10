@@ -26,7 +26,7 @@ for various systems in your setup.
     ],
 
     download_url = "http://oss.gonicus.de/pub/gosa",
-    namespace_package = "libinst",
+    namespace_packages = ['libinst'],
     packages = find_packages('src', exclude=['examples', 'tests']),
     package_dir={'': 'src'},
 
