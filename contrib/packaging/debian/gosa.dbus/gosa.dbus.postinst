@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -e
+
+#DEBHELPER#
+
+if [ -x "/etc/init.d/gosa.dbus" ]; then
+        update-rc.d gosa.dbus defaults >/dev/null
+        if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+                invoke-rc.d gosa.dbus start || exit $?
+        else
+                /etc/init.d/gosa.dbus start || exit $?
+        fi
+fi
