@@ -43,9 +43,6 @@ for various systems in your setup.
         'gosa.agent',
         'python-gnupg',
         'python-debian',
-        'pyinotify',
-        'GitPython',
-        'PyYAML',
     ],
     extra_requires = [
         'python-mysqldb',
@@ -56,20 +53,10 @@ for various systems in your setup.
         [libinst.repository]
         libinst.debian_handler = debian_repository.main:DebianHandler
 
-        [libinst.methods]
-        libinst.puppet = puppet.methods:PuppetInstallMethod
-
         [libinst.base_methods]
         libinst.preseed = preseed.methods:DebianPreseed
 
         [gosa.modules]
         gosa-agent.libinst = libinst.manage:RepositoryManager
-
-        [puppet.items]
-        item.root = puppet.items:PuppetRoot
-        item.module = puppet.items:PuppetModule
-        item.manifest = puppet.items:PuppetManifest
-        item.file = puppet.items:PuppetFile
-        item.template = puppet.items:PuppetTemplate
     """
 )

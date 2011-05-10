@@ -188,7 +188,7 @@ def repr2json(string):
     g = generate_tokens(StringIO.StringIO(string).readline)
 
     result = ""
-    for toknum, tokval, _, _, _  in g:
+    for toknum, tokval, _, _, _ in g:
         if toknum == STRING:
             tokval = '"' + tokval[1:-1].replace('"', r'\"') + '"'
 

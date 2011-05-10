@@ -45,13 +45,13 @@ for various systems in your setup.
 
     entry_points = """
         [libinst.methods]
-        libinst.puppet = puppet.methods:PuppetInstallMethod
+        libinst.puppet = libinst.puppet.methods:PuppetInstallMethod
 
         [puppet.items]
-        item.root = puppet.items:PuppetRoot
-        item.module = puppet.items:PuppetModule
-        item.manifest = puppet.items:PuppetManifest
-        item.file = puppet.items:PuppetFile
-        item.template = puppet.items:PuppetTemplate
+        item.root = libinst.puppet.items:PuppetRoot
+        item.module = libinst.puppet.items:PuppetModule
+        item.manifest = libinst.puppet.items:PuppetManifest
+        item.file = libinst.puppet.items:PuppetFile
+        item.template = libinst.puppet.items:PuppetTemplate
     """
 )
