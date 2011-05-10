@@ -8,7 +8,7 @@ include /usr/share/cdbs/1/class/python-distutils.mk
 binary-post-install/gosa.client::
 	mv debian/gosa.client/usr/bin/gosa-client debian/gosa.client/usr/sbin/gosa-client
 	mkdir -p debian/gosa.client/etc/gosa
-	install --mode=600 debian/gosa-client/usr/share/pyshared/gosa/client/data/client.conf debian/gosa-client/etc/gosa
+	install --mode=600 debian/gosa.client/usr/share/pyshared/gosa/client/data/client.conf debian/gosa.client/etc/gosa
 
 	
 clean::
