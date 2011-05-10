@@ -2,7 +2,7 @@ Source: gosa.dbus
 Section: misc
 Priority: optional
 Maintainer: Cajus Pollmeier <cajus@debian.org>
-Build-Depends: debhelper (>= 5.0.37.1), cdbs (>= 0.4.41), python-all (>= 2.6),
+Build-Depends: debhelper (>= 5.0.44), cdbs (>= 0.4.41), python-all (>= 2.6),
  python-support (>= 0.6.4), python-nose, python-kid, python-coverage,
  python-daemon
 Build-Depends-Indep: python-setuptools (>= 0.6a9)
