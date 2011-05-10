@@ -39,12 +39,9 @@ for various systems in your setup.
 
     setup_requires = ['nose', 'NoseXUnit', 'pylint'],
     install_requires = [
-        'zope.interface>=3.5',
-        'sqlalchemy',
-        'gosa.agent',
+        'libinst',
         'python-gnupg',
         'python-debian',
-        'pytz',
     ],
 
 

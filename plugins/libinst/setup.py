@@ -27,6 +27,7 @@ for various systems in your setup.
 
     download_url = "http://oss.gonicus.de/pub/gosa",
     packages = find_packages('src', exclude=['examples', 'tests']),
+    namespace_package = 'libinst',
     package_dir={'': 'src'},
 
     include_package_data = True,
@@ -42,7 +43,6 @@ for various systems in your setup.
         'sqlalchemy',
         'gosa.agent',
         'python-gnupg',
-        'python-debian',
         'pytz',
     ],
 
