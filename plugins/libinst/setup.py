@@ -43,9 +43,7 @@ for various systems in your setup.
         'gosa.agent',
         'python-gnupg',
         'python-debian',
-    ],
-    extra_requires = [
-        'python-mysqldb',
+        'pytz',
     ],
 
 
