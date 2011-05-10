@@ -33,6 +33,11 @@ if [ ! -d /var/run/gosa ]; then
     chmod 770 /var/run/gosa
 fi
 
+# Check if we need to join
+if [ -e /etc/gosa/config ]; then
+    gosa-join || exit 1
+fi
+
 case "$1" in
     start)
         log_daemon_msg "Starting $DESC" "$NAME"
