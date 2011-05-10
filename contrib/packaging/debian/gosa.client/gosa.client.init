@@ -23,6 +23,7 @@ test -x $DAEMON || exit 0
 . /lib/lsb/init-functions
 
 # Include gosa-client defaults if available.
+DAEMON_OPTS="--pid-file=/var/run/$NAME/daemon.pid"
 test -f /etc/default/gosa-client && . /etc/default/gosa-client
 if [ ! -d /var/run/$NAME ]; then
     mkdir -p /var/run/$NAME

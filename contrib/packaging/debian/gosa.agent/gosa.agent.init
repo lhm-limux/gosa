@@ -24,6 +24,7 @@ test -x $DAEMON || exit 0
 . /lib/lsb/init-functions
 
 # Include gosa-agent defaults if available.
+DAEMON_OPTS="--pid-file=/var/run/$NAME/daemon.pid"
 test -f /etc/default/gosa-agent && . /etc/default/gosa-agent
 if [ ! -d /var/run/$NAME ]; then
     mkdir -p /var/run/$NAME
