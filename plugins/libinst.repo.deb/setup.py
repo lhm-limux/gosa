@@ -50,12 +50,6 @@ for various systems in your setup.
 
     entry_points = """
         [libinst.repository]
-        libinst.debian_handler = debian_repository.main:DebianHandler
-
-        [libinst.base_methods]
-        libinst.preseed = preseed.methods:DebianPreseed
-
-        [gosa.modules]
-        gosa-agent.libinst = libinst.manage:RepositoryManager
+        libinst.debian_handler = libinst.repo.deb.main:DebianHandler
     """
 )
