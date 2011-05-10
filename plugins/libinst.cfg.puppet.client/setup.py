@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name = "libinst.puppet",
+    name = "libinst.cfg.puppet.client",
     version = "1.0",
     author = "Cajus Pollmeier",
     author_email = "pollmeier@gonicus.de",
@@ -39,19 +39,15 @@ for various systems in your setup.
 
     setup_requires = ['nose', 'NoseXUnit', 'pylint'],
     install_requires = [
-        'libinst',
+        'gosa.client',
+        'pyinotify',
         'GitPython',
+        'PyYAML',
     ],
 
-    entry_points = """
-        [libinst.methods]
-        libinst.puppet = libinst.puppet.methods:PuppetInstallMethod
 
-        [puppet.items]
-        item.root = libinst.puppet.items:PuppetRoot
-        item.module = libinst.puppet.items:PuppetModule
-        item.manifest = libinst.puppet.items:PuppetManifest
-        item.file = libinst.puppet.items:PuppetFile
-        item.template = libinst.puppet.items:PuppetTemplate
+    entry_points = """
+        [gosa_client.modules]
+        gosa-client.puppet = libinst.cfg.puppet.client.main:PuppetClient
     """
 )

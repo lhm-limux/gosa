@@ -2,10 +2,10 @@
 from setuptools import setup, find_packages
 
 setup(
-    name = "libinst.puppet.client",
+    name = "libinst.boot.preseed",
     version = "1.0",
-    author = "Cajus Pollmeier",
-    author_email = "pollmeier@gonicus.de",
+    author = "Jan Wenzel",
+    author_email = "wenzel@gonicus.de",
     description = "Repository and installation abstraction library",
     long_description = """
 This library handles the installation, configuration and repositories
@@ -26,28 +26,23 @@ for various systems in your setup.
     ],
 
     download_url = "http://oss.gonicus.de/pub/gosa",
+    namespace_package = "libinst",
     packages = find_packages('src', exclude=['examples', 'tests']),
-    namespace_packages = ['libinst'],
     package_dir={'': 'src'},
 
-    include_package_data = True,
-    package_data = {
-    },
+    include_package_data = False,
 
     test_suite = "nose.collector",
     zip_safe = False,
 
     setup_requires = ['nose', 'NoseXUnit', 'pylint'],
     install_requires = [
-        'gosa.client',
-        'pyinotify',
-        'GitPython',
-        'PyYAML',
+        'libinst',
     ],
 
 
     entry_points = """
-        [gosa_client.modules]
-        gosa-client.puppet = libinst.puppet.client.main:PuppetClient
+        [libinst.base_methods]
+        libinst.preseed = libinst.boot.preseed.methods:DebianPreseed
     """
 )

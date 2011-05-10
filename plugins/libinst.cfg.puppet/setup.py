@@ -2,10 +2,10 @@
 from setuptools import setup, find_packages
 
 setup(
-    name = "libinst.preseed",
+    name = "libinst.cfg.puppet",
     version = "1.0",
-    author = "Jan Wenzel",
-    author_email = "wenzel@gonicus.de",
+    author = "Cajus Pollmeier",
+    author_email = "pollmeier@gonicus.de",
     description = "Repository and installation abstraction library",
     long_description = """
 This library handles the installation, configuration and repositories
@@ -26,11 +26,13 @@ for various systems in your setup.
     ],
 
     download_url = "http://oss.gonicus.de/pub/gosa",
-    namespace_package = "libinst",
     packages = find_packages('src', exclude=['examples', 'tests']),
+    namespace_packages = ['libinst'],
     package_dir={'': 'src'},
 
-    include_package_data = False,
+    include_package_data = True,
+    package_data = {
+    },
 
     test_suite = "nose.collector",
     zip_safe = False,
@@ -38,11 +40,18 @@ for various systems in your setup.
     setup_requires = ['nose', 'NoseXUnit', 'pylint'],
     install_requires = [
         'libinst',
+        'GitPython',
     ],
 
-
     entry_points = """
-        [libinst.base_methods]
-        libinst.preseed = libinst.preseed.methods:DebianPreseed
+        [libinst.methods]
+        libinst.puppet = libinst.cfg.puppet.methods:PuppetInstallMethod
+
+        [puppet.items]
+        item.root = libinst.cfg.puppet.items:PuppetRoot
+        item.module = libinst.cfg.puppet.items:PuppetModule
+        item.manifest = libinst.cfg.puppet.items:PuppetManifest
+        item.file = libinst.cfg.puppet.items:PuppetFile
+        item.template = libinst.cfg.puppet.items:PuppetTemplate
     """
 )
