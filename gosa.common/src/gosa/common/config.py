@@ -13,6 +13,7 @@
 """
 import ConfigParser
 import os
+import re
 import sys
 import platform
 from optparse import OptionParser, OptionGroup, OptionValueError
@@ -198,9 +199,10 @@ class Config(object):
         # Is there a configuration available?
         configFile = self.getOption('config')
         configFiles = self.__getCfgFiles(configFile + ".d")
+        configFiles.insert(0, configFile)
 
         config = ConfigParser.ConfigParser()
-        filesRead = config.read(configFile, *configFiles)
+        filesRead = config.read(configFiles)
 
         # Bail out if there's no configuration file
         if not filesRead:
