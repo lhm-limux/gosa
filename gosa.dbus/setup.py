@@ -68,7 +68,6 @@ setup(
         [gosa_dbus.modules]
         gosa-dbus.shell = gosa.dbus.plugins.shell.main:DBusShellHandler
         gosa-dbus.notify = gosa.dbus.plugins.notify.main:DBusNotifyHandler
-        gosa-dbus.puppet = gosa.dbus.plugins.puppet.main:PuppetDBusHandler
         gosa-dbus.wol = gosa.dbus.plugins.wakeonlan.main:DBusWakeOnLanHandler
     """,
 )

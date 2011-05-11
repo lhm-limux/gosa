@@ -40,6 +40,7 @@ for various systems in your setup.
     setup_requires = ['nose', 'NoseXUnit', 'pylint'],
     install_requires = [
         'gosa.client',
+        'gosa.dbus',
         'pyinotify',
         'GitPython',
         'PyYAML',
@@ -49,5 +50,8 @@ for various systems in your setup.
     entry_points = """
         [gosa_client.modules]
         gosa-client.puppet = libinst.cfg.puppet.client.main:PuppetClient
+
+        [gosa_dbus.modules]
+        gosa-dbus.puppet = libinst.cfg.puppet.client.dbus:PuppetDBusHandler
     """
 )
