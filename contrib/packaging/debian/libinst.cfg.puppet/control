@@ -1,4 +1,4 @@
-Source: gosa.libinst.cfg.puppet
+Source: libinst.cfg.puppet
 Section: misc
 Priority: optional
 Maintainer: Cajus Pollmeier <cajus@debian.org>
@@ -8,9 +8,9 @@ Build-Depends-Indep: python-setuptools (>= 0.6a9)
 Standards-Version: 3.8.3
 Homepage: http://oss.gonicus.de
 
-Package:gosa.libinst.cfg.puppet
+Package:libinst.cfg.puppet
 Architecture: all
 Depends: ${python:Depends}, ${misc:Depends}, python-pkg-resources,
- gosa.libinst, python-git
+ libinst, python-git
 Description: Puppet server module for libinst
  TODO

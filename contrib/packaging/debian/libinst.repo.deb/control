@@ -1,4 +1,4 @@
-Source: gosa.libinst.repo.deb
+Source: libinst.repo.deb
 Section: misc
 Priority: optional
 Maintainer: Cajus Pollmeier <cajus@debian.org>
@@ -8,9 +8,9 @@ Build-Depends-Indep: python-setuptools (>= 0.6a9)
 Standards-Version: 3.8.3
 Homepage: http://oss.gonicus.de
 
-Package:gosa.libinst.repo.deb
+Package:libinst.repo.deb
 Architecture: all
 Depends: ${python:Depends}, ${misc:Depends}, python-pkg-resources,
- gosa.libinst, python-gnupg, python-debian
+ libinst, python-gnupg, python-debian
 Description: Debian repository support for libinst
  TODO

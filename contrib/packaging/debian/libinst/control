@@ -1,4 +1,4 @@
-Source: gosa.libinst
+Source: libinst
 Section: misc
 Priority: optional
 Maintainer: Cajus Pollmeier <cajus@debian.org>
@@ -8,7 +8,7 @@ Build-Depends-Indep: python-setuptools (>= 0.6a9)
 Standards-Version: 3.8.3
 Homepage: http://oss.gonicus.de
 
-Package:gosa.libinst
+Package:libinst
 Architecture: all
 Depends: ${python:Depends}, ${misc:Depends}, python-pkg-resources, gosa.agent,
  python-gnupg, python-pytz
