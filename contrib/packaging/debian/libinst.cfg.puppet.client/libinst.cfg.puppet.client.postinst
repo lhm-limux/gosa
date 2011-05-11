@@ -7,6 +7,14 @@ case "$1" in
     if ! id gosa | grep -q '(puppet)'; then
       adduser --quiet gosa puppet
     fi
+
+    if ! dpkg-statoverride --list /var/log/puppet > /dev/null; then
+      dpkg-statoverride --update --add root puppet 02750 /var/log/puppet
+    fi
+
+    if ! dpkg-statoverride --list /etc/puppet/puppet.conf > /dev/null; then
+      dpkg-statoverride --update --add root puppet 0640 /etc/puppet/puppet.conf
+    fi
   ;;
   abort-upgrade|abort-remove|abort-deconfigure)
   ;;

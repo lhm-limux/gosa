@@ -2,6 +2,7 @@ import os
 import gobject
 import dbus.service
 import subprocess
+import ConfigParser
 from datetime import datetime
 from subprocess import Popen, PIPE
 from gosa.common.env import Environment
@@ -11,6 +12,10 @@ from gosa.common.components.command import Command
 from gosa.dbus.utils import get_system_bus
 
 
+class OptionMissing(Exception):
+    pass
+
+
 class PuppetDBusHandler(dbus.service.Object, Plugin):
     """ Puppet handler containing methods to be exported to DBUS """
 
@@ -18,6 +23,40 @@ class PuppetDBusHandler(dbus.service.Object, Plugin):
         conn = get_system_bus()
         dbus.service.Object.__init__(self, conn, '/com/gonicus/gosa/puppet')
         self.env = Environment.getInstance()
+        self.logdir = self.env.config.getOption("report-dir", "puppet",
+                "/var/log/puppet")
+
+        # Check puppet configuration
+        config = ConfigParser.ConfigParser()
+        config.read('/etc/puppet/puppet.conf')
+
+        try:
+            if config.get("main", "report", "false") != "true":
+                raise OptionMissing("puppet has no reporting enabled")
+
+            if config.get("main", "reportdir", "") != self.logdir:
+                raise OptionMissing("reportdir configured in /etc/puppet/puppet.conf and %s do not match" % self.env.config.getOption('config'))
+
+            if config.get("main", "reports", "") != "store_gosa":
+                raise OptionMissing("storage module probably not compatible")
+
+        except OptionMissing:
+            self.hint("configuration section for puppet is incomplete")
+
+        except ConfigParser.NoOptionError:
+            self.hint("configuration section for puppet is incomplete")
+
+    def hint(self, msg=""):
+        msg += """
+
+Make sure that the main section in /etc/puppet/puppet.conf contains
+something like this:
+
+report=true
+reportdir=%s
+reports=store_gosa
+""" % self.logdir
+        self.env.log.warning(msg)
 
     @dbus.service.method('com.gonicus.gosa', in_signature='', out_signature='i')
     def run_puppet(self):
@@ -32,7 +71,6 @@ class PuppetDBusHandler(dbus.service.Object, Plugin):
 
         msg = Popen(command, stdout=PIPE, stderr=PIPE, shell=True).stderr.read()
         hostname = self.env.id
-        logdir = self.env.config.getOption("report-dir", "puppet", "/var/log/puppet")
 
         # Create yaml report in case of critical errors
         if msg != "":
@@ -41,7 +79,7 @@ class PuppetDBusHandler(dbus.service.Object, Plugin):
                 get_timezone_delta()
 
             # Create structure if missing
-            output_dir = logdir + "/" + hostname
+            output_dir = self.logdir + "/" + hostname
             if not os.path.exists(output_dir):
                 os.makedirs(output_dir)
 
