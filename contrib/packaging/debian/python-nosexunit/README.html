@@ -1,0 +1,550 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>NoseXUnit: JUnit like XML reporting for PyUnit</title>
+    <style>
+      body {
+        margin: 0px;
+        padding: 10px 40px;
+        font: x-small Georgia,Serif;
+        font-size/* */:/**/small;
+        font-size: /**/small;
+      }
+      a:link {
+        color:#58a;
+        text-decoration:none;
+      }
+      a:visited {
+        color:#969;
+        text-decoration:none;
+      }
+      a:hover {
+        color:#c60;
+        text-decoration:underline;
+      }
+      #menu {
+        padding-left: 1em;
+        padding-right: 1em;
+        padding-bottom: 10px;
+        width: 20%;
+        border-left: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
+        background-color: #fff;
+        float: right;
+      }
+      #main {
+        margin: 0px;
+        padding: 0px;
+        width: 70%;
+        float: left;
+      }
+      h1 {
+        font-size: 140%;
+        margin-top: 0;
+      }
+      .section h1 {
+        font-size: 120%;
+      }
+      .section h2 {
+        font-size: 105%;
+      }
+      pre.literal-block, pre.doctest-block {
+        font-size: small;
+        background: #f4fff4;
+      }
+      #menu ul {
+        margin: 0 1em .25em;
+        padding: 0;
+        list-style:none;
+      }
+      #menu h2 {
+        font-size: 100%;
+        color: #999;
+        margin: 0 .5em;
+        padding: 0;
+      }
+      #menu ul li {
+        margin: 0px;
+        padding: 0px 0px 0px 15px;
+        text-indent:-15px;
+        /* line-height:1.5em; */
+      }
+      #menu p, #menu ol li {
+        font-size: 90%;
+        color:#666;
+        /* line-height:1.5em; */
+        margin: 0 1em .5em;
+      }
+      #menu ul li {
+        font-size: 90%;
+        color:#666;
+      }
+      #menu dd {
+        margin: 0;
+        padding:0 0 .25em 15px;
+      }
+      #news {
+        border: 1px solid #999;
+        background-color: #eef;
+        padding: 4px;
+        padding-right: 8px;
+      }
+      #news h2 {
+        margin-top: 0px;
+        font-size: 105%;
+      }
+      #news li p {
+        margin-left: 1.5em;
+      }
+      #news li p.first {
+        margin-left: 0;
+        font-weight: bold;
+      }
+      #news p {
+        margin-bottom: 0px;
+      }
+      .note {
+        background: #fed;
+        border: 1px solid black;
+        padding: 6px;
+      }
+      .note p {
+        margin-top: 0;
+      }
+      #news .note {
+        margin-top: 1.2ex;
+      }
+      .new {
+        background-color: #ffe;
+        color: #f00;
+        font-weight: bold;
+      }
+      .admonition-title {
+        display: none;
+        padding: 0;
+        margin: 0;
+      }
+      .method, .attr, .func {
+        padding-top: 2px;
+        padding-left: 1.5em;
+        padding-right: 1em;
+        margin-bottom: 2ex;
+      }
+      .method.new {
+        background-color: #ffe;
+        color: #000;
+        font-weight: normal;
+      }
+      .method .doc {
+        margin-left: 2em;
+        margin-top: 0px;
+        padding-bottom: 1px;
+      }
+      .method .name {
+        font-weight: bold;
+      }
+      .method.generative {
+        background: url(gen.png) no-repeat;
+        background-position: 0 0;
+      }
+      .method.chainable {
+        background: url(chain.png) no-repeat;
+        background-position: 0 0;
+      }
+      .method.deprecated .name {
+        text-decoration: line-through;
+      }
+      .method .field-list, .attr {
+        font-size/* */:/**/small;
+        font-size: /**/small;
+      }
+      .field-list dd, .field-list dd p {
+        padding: 0 0 0 0;
+        margin: 0 0 0 0;
+        margin-left: 1em;
+      }
+      .field-list td {
+        padding-left: 20px;
+      }
+      .field-list dt {
+        font-weight: bold;
+      }
+      .field-list dt .classifier-delimier {
+        font-weight: normal;
+        font-size: 80%;
+      }
+      .field-list dt .classifier {
+        font-weight: normal;
+        color: #666;
+      }
+      .doc .note p {
+        margin: 0px;
+      }
+      .cls.section, .func.section {
+        margin-bottom: 2ex;
+      }
+      .cls.name, .func.name, .attr.name {
+        font-size: 105%;
+        font-weight: bold;
+      }
+      .cls.section .attr.name {
+        font-size: small;
+      }
+      .cls.doc, .func.doc, .attr.doc {
+        padding-left: 2em;
+        padding-right: 2em;
+      }
+      .attr.doc, .attr.doc p {
+        padding-top: 0px;
+        margin-top: 0px;
+      }
+      .args {
+        font-weight: normal;
+      }
+      .method.section, .attr.section {
+        background: #ffe
+      }
+      .method.section.inherited, .attr.section {
+        background: none;
+      }
+      .attr.value {
+        display: block;
+        color: #666;
+        margin-bottom: 0px;
+      }
+      .highlight  { background: #f4fff4; }
+      .highlight .c { color: #999988; font-style: italic } /* Comment */
+      .highlight .err { color: #a61717; background-color: #e3d2d2 } /* Error */
+      .highlight .k { font-weight: bold } /* Keyword */
+      .highlight .o { font-weight: bold } /* Operator */
+      .highlight .cm { color: #999988; font-style: italic } /* Comment.Multiline */
+      .highlight .cp { color: #999999; font-weight: bold } /* Comment.Preproc */
+      .highlight .c1 { color: #999988; font-style: italic } /* Comment.Single */
+      .highlight .cs { color: #999999; font-weight: bold; font-style: italic } /* Comment.Special */
+      .highlight .gd { color: #000000; background-color: #ffdddd } /* Generic.Deleted */
+      .highlight .ge { font-style: italic } /* Generic.Emph */
+      .highlight .gr { color: #aa0000 } /* Generic.Error */
+      .highlight .gh { color: #999999 } /* Generic.Heading */
+      .highlight .gi { color: #000000; background-color: #ddffdd } /* Generic.Inserted */
+      .highlight .go { color: #888888 } /* Generic.Output */
+      .highlight .gp { color: #555555 } /* Generic.Prompt */
+      .highlight .gs { font-weight: bold } /* Generic.Strong */
+      .highlight .gu { color: #aaaaaa } /* Generic.Subheading */
+      .highlight .gt { color: #aa0000 } /* Generic.Traceback */
+      .highlight .kc { font-weight: bold } /* Keyword.Constant */
+      .highlight .kd { font-weight: bold } /* Keyword.Declaration */
+      .highlight .kp { font-weight: bold } /* Keyword.Pseudo */
+      .highlight .kr { font-weight: bold } /* Keyword.Reserved */
+      .highlight .kt { color: #445588; font-weight: bold } /* Keyword.Type */
+      .highlight .m { color: #009999 } /* Literal.Number */
+      .highlight .s { color: #bb8844 } /* Literal.String */
+      .highlight .na { color: #008080 } /* Name.Attribute */
+      .highlight .nb { color: #999999 } /* Name.Builtin */
+      .highlight .nc { color: #445588; font-weight: bold } /* Name.Class */
+      .highlight .no { color: #008080 } /* Name.Constant */
+      .highlight .ni { color: #800080 } /* Name.Entity */
+      .highlight .ne { color: #990000; font-weight: bold } /* Name.Exception */
+      .highlight .nf { color: #990000; font-weight: bold } /* Name.Function */
+      .highlight .nn { color: #555555 } /* Name.Namespace */
+      .highlight .nt { color: #000080 } /* Name.Tag */
+      .highlight .nv { color: #008080 } /* Name.Variable */
+      .highlight .ow { font-weight: bold } /* Operator.Word */
+      .highlight .w { color: #bbbbbb } /* Text.Whitespace */
+      .highlight .mf { color: #009999 } /* Literal.Number.Float */
+      .highlight .mh { color: #009999 } /* Literal.Number.Hex */
+      .highlight .mi { color: #009999 } /* Literal.Number.Integer */
+      .highlight .mo { color: #009999 } /* Literal.Number.Oct */
+      .highlight .sb { color: #bb8844 } /* Literal.String.Backtick */
+      .highlight .sc { color: #bb8844 } /* Literal.String.Char */
+      .highlight .sd { color: #bb8844 } /* Literal.String.Doc */
+      .highlight .s2 { color: #bb8844 } /* Literal.String.Double */
+      .highlight .se { color: #bb8844 } /* Literal.String.Escape */
+      .highlight .sh { color: #bb8844 } /* Literal.String.Heredoc */
+      .highlight .si { color: #bb8844 } /* Literal.String.Interpol */
+      .highlight .sx { color: #bb8844 } /* Literal.String.Other */
+      .highlight .sr { color: #808000 } /* Literal.String.Regex */
+      .highlight .s1 { color: #bb8844 } /* Literal.String.Single */
+      .highlight .ss { color: #bb8844 } /* Literal.String.Symbol */
+      .highlight .bp { color: #999999 } /* Name.Builtin.Pseudo */
+      .highlight .vc { color: #008080 } /* Name.Variable.Class */
+      .highlight .vg { color: #008080 } /* Name.Variable.Global */
+      .highlight .vi { color: #008080 } /* Name.Variable.Instance */
+      .highlight .il { color: #009999 } /* Literal.Number.Integer.Long */
+    </style>
+  </head>
+  <body>
+    <div id="menu">
+      <h2><a href="https://sourceforge.net/project/showfiles.php?group_id=192367">Download</a></h2>
+      <p>Current version: 0.3.4</p>
+   
+      <h2><a href="https://sourceforge.net/projects/nosexunit/">NoseXUnit on Sourceforge</a></h2>
+      <p>Report bugs, request features, browse source...</p>
+      
+      <h2>See</h2>
+      
+      <ul>
+        <li><a href="http://somethingaboutorange.com/mrl/projects/nose/">python-nose</a>
+          <br />The nose project.
+        </li>
+        <li><a href="http://nedbatchelder.com/code/modules/coverage.html">coverage</a>
+          <br />Code coverage.
+        </li>
+        <li><a href="http://www.logilab.org/project/pylint">PyLint</a>
+          <br />Code checker.
+        </li>
+        <li>
+          <a href="http://jra1mw.cvs.cern.ch:8180/cgi-bin/jra1mw.cgi/org.glite.testing.unit/config/JUnitXSchema.xsd?rev=HEAD&content-type=text/vnd.viewcvs-markup">
+            JUnit XML Schema
+          </a>
+          <br />Schema of the JUnit standard output.
+        </li>
+        <li><a href="https://hudson.dev.java.net/">Hudson</a>, <a href="http://www.atlassian.com/software/bamboo/">Bamboo</a>
+          <br />Interesting test reports.
+        </li>
+      </ul>
+      
+    </div>
+    <div id="main">
+
+      <h1>NoseXUnit: JUnit like XML reporting for PyUnit</h1>
+
+      <p>NoseXUnit provide a convenient way to produce JUnit like XML reports with PyUnit. It also provides code coverage and audit features with beautiful reports generation.</p>
+      
+      <div id="news">
+        <h2>News</h2>
+        <p>This version 0.3.4 is mainly an encoding bug fix version.</p>
+      </div>
+
+      <h2>Backgroud</h2>
+
+      <p>On the one hand, most of complex applications mix different languages and frameworks.
+      On the other hand, test frameworks don't provide standard outputs.
+      This makes difficult to generate an overall report of the tests for your aplication.
+      However, some Java tests frameworks like JUnit with <a href="http://maven.apache.org/surefire/">Surefire</a>
+      outputs convenient test report in a simple XML format.
+      This makes further processing simple and convenient for softwares.
+      For example, <a href="https://hudson.dev.java.net/">Hudson</a> and <a href="http://www.atlassian.com/software/bamboo/">Bamboo</a> creates
+      interesting reports thanks these XML reports.</p>
+      
+      <p class="note">Our goal is to provide a way to produce test reports in this simple XML format with PyUnit.</p>
+
+      <h2>Install</h2>
+
+      <p>NoseXUnit is a plugin for <a href="http://somethingaboutorange.com/mrl/projects/nose/">python-nose</a>.
+      Nose is a convenient way to play your PyUnit test.</p>
+
+      <p>Install NoseXUnit using setuptools:
+        <pre>easy_install NoseXUnit</pre>
+      </p>
+
+      <p>NoseXUnit depends on:
+      <ul class="simple">
+        <li><a href="http://somethingaboutorange.com/mrl/projects/nose/">nose</a>,</li>
+        <li><a href="http://www.logilab.org/project/pylint">pylint</a>, <a href="http://www.logilab.org/project/logilab-common">logilab-common</a> and <a href="http://www.logilab.org/project/logilab-astng">logilab-astng</a> to check the code,</li>
+        <li><a href="http://nedbatchelder.com/code/modules/coverage.html">coverage</a> for code coverage,</li>
+        <li><a href="http://kid-templating.org/index.html">kid</a> and <a href="http://pygments.org/">pygments</a> for reports generations.</li>
+      </ul>
+      </p>
+
+      <p class="note">Install of <a href="http://www.logilab.org/project/logilab-common">logilab-common</a>,
+      <a href="http://www.logilab.org/project/logilab-astng">logilab-astng</a> and <a href="http://www.logilab.org/project/pylint">pylint</a>
+      doesn't seem to work properly with setuptools.
+      You may have to download them separately and install them with the old fashioned way before installing NoseXUnit.</p>
+
+      <div class="section">
+        <h1>Basic usage</h1>
+		<p>Use the nosetests script with <i>--with-nosexunit</i> option:</p>
+<pre class="literal-block">
+nosetests --with-nosexunit [options] [(optional) test files or directories]
+</pre>
+		<p>You can specify (all optionals):
+		<ul class="simple">
+		  <li>The XML output folder with <i>--core-target=PATH</i>,
+		  <li>The folder containing the Python sources with <i>--source-folder=PATH</i>,
+		  <li>If you want to recursively search source files in source folder to add them in the path with <i>--search-source</i>,
+		  <li>If you want to recursively search tests that are located outside a package with <i>--search-test</i>,  
+		</ul>
+	  </div>
+
+      <div class="section">
+        <h1>PyLint usage</h1>
+		<p>PyLint audit is enabled with <i>--enable-audit</i> option:</p>
+<pre class="literal-block">
+nosetests --with-nosexunit --source-folder=PATH --enable-audit [options] [(optional) test files or directories]
+</pre>
+        <p class="note">Source folder specification is required. All packages located in this source folder are analyzed. PyLint can't be used with code coverage.</p>
+		<p>You can specify (all optionals):
+		<ul class="simple">
+		  <li>The output folder for report with <i>--audit-target=PATH</i>,
+		  <li>The type of output with <i>--audit-output=TYPE</i>: <i>nosexunit</i>, <i>html</i>, ... ,
+		  <li>A PyLint configuration file with <i>--audit-config=PATH</i>.
+		</ul>
+		<p>In source code, you can explicitely ignore an error uncovered by PyLint by using the following tag:</p>
+<pre class="literal-block">
+def foo():
+    exec('a=1')
+    print a      <i># pylint: disable-msg=E0602</i>
+</pre>
+	  </div>
+
+      <div class="section">
+        <h1>Coverage usage</h1>
+		<p>Code coverage is enabled with <i>--enable-cover</i> option:</p>
+<pre class="literal-block">
+nosetests --with-nosexunit --source-folder=PATH --enable-cover [options] [(optional) test files or directories]
+</pre>
+        <p class="note">Source folder specification is required. All packages located in this source folder are analyzed. Code coverage can't be used with PyLint.</p>
+		<p>You can specify (all optionals):
+		<ul class="simple">
+		  <li>The output folder for report with <i>--cover-target=PATH</i>,
+		  <li>If you want to ignore previous executions for coverage with <i>--cover-clean</i>,
+		  <li>If you want to collect extra coverage files with <i>--cover-collect</i>. These extra coverage files should be generated in the coverage target folder and have the follwing pattern: <i>.coverage.*</i>.
+		</ul>
+		</p>
+		<p>We also generate two extra reports in coverage target folder:
+		<ul class="simple">
+          <li>A Clover style XML report: <i>clover.xml</i>,</li>
+          <li>A Cobertura style XML report: <i>cobertura.xml</i>.</li>
+		</ul>
+		</p>
+		<p>In source code, you can explicitely refuse code coverage with:</p>
+<pre class="literal-block">
+def foo():
+    print "hello"      <i># pragma: no cover</i>
+</pre>
+	  </div>
+
+      <div class="section">
+        <h1>Specify packages processed by Audit or Coverage</h1>
+		<p>To explicitely specify packages processed by Audit or Coverage, you can use following options (all optionals):
+		<ul class="simple">
+		  <li><i>--extra-include=PACKAGE</i> to process the specified package (<i>PACKAGE</i> is a regex),
+		  <li><i>--extra-exclude=PACKAGE</i> to do not process the specified package (<i>PACKAGE</i> is a regex, set to <i>^ez_setup$</i> and <i>^setup$</i> by default, useless if <i>--extra-include</i> specified),
+		  <li><i>--extra-test-process</i> to process packages matching the test pattern.
+		</ul>
+		<p>Options <i>--extra-include</i> and <i>--extra-exclude</i> can be specified many times. For example to include packages <i>foo</i>, <i>foo2</i> and all their subpackages or modules:</p>
+<pre class="literal-block">
+nosetests [options] --extra-include=^foo1.*$ --extra-include=^foo2.*$
+</pre>
+		</p>
+	  </div>
+
+      <h2>NoseXUnit Usage</h2>
+
+      <p>NoseXUnit launch options can be display by running:
+      <pre>nosetests --help</pre>
+      Four options are available:
+<pre>
+  --with-nosexunit      Enable plugin NoseXUnit: Output XML report of test
+                        status [NOSE_WITH_NOSEXUNIT]
+  --core-target=CORE_TARGET
+                        Output folder for test reports (default is
+                        target/NoseXUnit/core).
+  --source-folder=SOURCE
+                        Set source folder (optional for core functionality,
+                        required for audit and coverage). Add folder in
+                        sys.path.
+  --search-source       Walk in the source folder to add deeper folders in
+                        sys.path if they don't contain __init__.py file. Works
+                        only if --source-folder is defined.
+  --search-test         Search tests in folders with no __init__.py file
+                        (default: do nothing).
+  --extra-include=EXTRA_INCLUDES
+                        Include packages for audit or coverage processing
+                        (default: take all packages in --source-folder, except
+                        those defined in --extra-exclude). Package name
+                        specified with regex.
+  --extra-exclude=EXTRA_EXCLUDES
+                        Exclude packages for audit or coverage processing
+                        (default: ^ez_setup$, ^setup$). Useless if --extra-
+                        include defined. Package name specified with regex.
+  --extra-test-process  Include packages matching the test pattern in audit or
+                        coverage processing (default: no).
+  --enable-audit        Use PyLint to audit source code (default: no)
+  --audit-target=AUDIT_TARGET
+                        Output folder for PyLint reports (default is
+                        target/NoseXUnit/audit).
+  --audit-output=AUDIT_OUTPUT
+                        Output for audit reports: nosexunit, parseable, text,
+                        colorized, html, msvs (default: nosexunit).
+  --audit-config=AUDIT_CONFIG
+                        Configuration file for PyLint (optional).
+  --enable-cover        Use coverage to audit source code (default: no)
+  --cover-target=COVER_TARGET
+                        Output folder for coverage reports (default is
+                        target/NoseXUnit/cover).
+  --cover-clean         Clean previous coverage results (default: no).
+  --cover-collect       Collect other coverage files potentially generated in
+                        cover target folder. These extra files should have the
+                        following pattern: .coverage.* (default: no).
+</pre>
+      
+      <h2>Bug reports</h2>
+
+      <p>Please report bugs and make feature
+      requests <a href="http://sourceforge.net/tracker2/?group_id=192367">here</a>.</p>
+      
+      <h2><a name="changelog"></a>Changelog</h2>
+
+      <p>0.3.4</p>
+      <ul class="simple">
+        <li>Options <i>--extra-include</i> and <i>--extra-exclude</i> are now regex,
+        <li>ID 2904155: Encoding issue in JUnit like reports.</li>
+      </ul>
+
+      <p>0.3.3</p>
+      <ul class="simple">
+        <li>Degraded mode for multiprocess test runner (--processes option in nose),</li>
+        <li>ID 2738914: Catch all sys.exit of PyLint,</li>
+        <li>ID 2784278: Allow unicode strings in standard and error outputs,</li>
+        <li>ID 2681443: Allow sources to be read only.</li>
+      </ul>
+
+      <p>0.3.2</p>
+      <ul class="simple">
+        <li>ID 2184206: Include or exclude packages for audit or coverage (options <i>--extra-include</i> and <i>--extra-exclude</i>),</li>
+        <li>Consider or not packages matching the test pattern (option <i>--extra-test-process</i>),</li>
+        <li>Audit and coverage can be played together (<i>PyLint</i> started in another process).</li>
+      </ul>
+
+      <p>0.3.1</p>
+      <ul class="simple">
+        <li>Generate a Clover style XML report,</li>
+        <li>Generate a Cobertura style XML report,</li>
+        <li>Add <i>--cover-collect</i> to collect extra coverage file.</li>
+      </ul>
+
+      <p>0.3.0c1</p>
+      <ul class="simple">
+        <li>Compatibility with nose 0.10.4,</li>
+        <li>PyLint reporting,</li>
+        <li>Coverage reporting,</li>
+        <li>ID 2078051: Support <i>ContextSuite</i> object with no <i>id</i> attribute in <i>Plugin.startTest</i>,</li>
+        <li>Option <i>--xml-report-folder</i> replaced by <i>--core-target</i>,</li>
+        <li>Option <i>--recursive</i> replaced by <i>--search-source</i>.</li>  
+      </ul>
+
+      <p>0.2.0c1</p>
+      <ul class="simple">
+        <li>Compatibility with nose 0.10.0a2,</li>
+        <li>tb_info and capt removed from XTest (no more available with nose),</li>
+        <li>Signature of addSuccess, addFailure and addError modified,</li>
+        <li>Entry point modification.</li>
+      </ul>
+     
+      <p>0.2.0a1</p>
+      <ul class="simple">
+        <li>Compatibility with nose 0.10.0a1,</li>
+        <li>Create an XML output for each test module.</li>
+      </ul>
+       
+      <p>0.1.0</p>
+      <ul class="simple">
+        <li>First version.</li>
+      </ul>
+    
+    </div>
+    
+  </body>
+</html>

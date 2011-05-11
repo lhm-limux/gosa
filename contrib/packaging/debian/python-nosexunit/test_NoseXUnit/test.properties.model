@@ -1,0 +1,9 @@
+#-*- coding: utf-8 -*-
+[test]
+# Target folder for tests
+work = /tmp/NoseXUnit
+# Enable debug mode
+debug = 1
+
+
+
