@@ -15,7 +15,7 @@ set -e
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DESC="AMQP agent"
-NAME="gosa-agent"
+NAME="gosa.agent"
 DAEMON="/usr/sbin/$NAME"
 SCRIPTNAME=/etc/init.d/$NAME
 
@@ -26,7 +26,13 @@ test -x $DAEMON || exit 0
 
 # Include gosa-agent defaults if available.
 DAEMON_OPTS="--pid-file=/var/run/gosa/$NAME.pid"
-test -f /etc/default/gosa-agent && . /etc/default/gosa-agent
+test -f /etc/default/gosa.agent && . /etc/default/gosa.agent
+
+if [ "$START" != "true" ]; then
+    echo "Please edit /etc/default/gosa.agent to enable this service."
+    exit 1
+fi
+
 if [ ! -d /var/run/gosa ]; then
     mkdir -p /var/run/gosa
     chown root.gosa /var/run/gosa

@@ -11,6 +11,7 @@ binary-post-install/gosa.agent::
 	rm -rf debian/gosa.agent/usr/bin
 	mkdir -p debian/gosa.agent/etc/gosa
 	install --mode=600 debian/gosa.agent/usr/share/pyshared/gosa/agent/data/agent.conf debian/gosa.agent/etc/gosa/config
+	install --mode=600 debian/default debian/gosa.agent/etc/default/gosa.agent
 
 	
 clean::
