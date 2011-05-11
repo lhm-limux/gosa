@@ -513,4 +513,7 @@ class DiskDefinition(object):
         if not pt.match(fsOptions):
             raise ValueError("fsOptions %s are not valid" % fsOptions)
 
+    def getFsTypes(self):
+        return self.supportedFsTypes
+
 PluginRegistry.registerObject("libinst.diskdefinition", DiskDefinition)

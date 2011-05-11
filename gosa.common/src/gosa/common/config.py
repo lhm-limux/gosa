@@ -185,12 +185,22 @@ class Config(object):
 
         return self.__registry[section.lower()][name.lower()]
 
+    def __getCfgFiles(self, dir):
+        conf = re.compile(r"^[a-z0-9_.-]+\.conf$", re.IGNORECASE)
+        try:
+            return [os.path.join(dir,file)
+                for file in os.listdir(dir)
+                if os.path.isfile(os.path.join(dir, file)) and conf.match(file)]
+        except:
+            return []
+
     def __parseCfgOptions(self):
         # Is there a configuration available?
         configFile = self.getOption('config')
+        configFiles = self.__getCfgFiles(configFile + ".d")
 
         config = ConfigParser.ConfigParser()
-        filesRead = config.read(configFile)
+        filesRead = config.read(configFile, *configFiles)
 
         # Bail out if there's no configuration file
         if not filesRead:

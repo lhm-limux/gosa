@@ -5,6 +5,9 @@ DEB_PYTHON_SYSTEM := pysupport
 include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/python-distutils.mk
 
+binary-post-install/libinst::
+	install --mode=600 src/libinst.conf debian/gosa.agent/etc/gosa/config.d/libinst.conf
+
 clean::
 # Hack to work around "setup.py clean" creating pyc files
 	find . -name \*.pyc -print0 | xargs -r0 rm

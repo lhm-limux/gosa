@@ -11,7 +11,7 @@ from libinst.disk import DiskDefinition, LINUX, ALL
 
 class DebianDiskDefinition(DiskDefinition):
     # Debian capabilities
-    supportedFsTypes = ["reiserfs", "ext3", "ext2", "swap", "vfat"]
+    supportedFsTypes = ["reiserfs", "ext4", "ext3", "ext2", "swap", "vfat"]
     supportedDeviceTypes = ["hd[a-z]", "sd[a-z]", "cciss/c[0-9]d[0-9]"]
     supportEncryption = False
 
