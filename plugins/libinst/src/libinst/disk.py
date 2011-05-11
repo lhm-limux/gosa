@@ -211,7 +211,7 @@ class DiskDefinition(object):
 
         # Check if disk exists
         if onDisk and not onDisk in [disk['device'] \
-            for disk in self._disks + self._raids + self._vols]:
+            for disk in self._disks + self._raids + self._volgroups]:
             raise ValueError("selected disk %s does not exist" % onDisk)
 
         # Size check
@@ -334,6 +334,7 @@ class DiskDefinition(object):
         self._raids.append({
             "target": target,
             "name": name,
+            "device": name,
             "level": level,
             "spares": None if not spares else spares,
             "useExisting": bool(useExisting),
@@ -392,6 +393,7 @@ class DiskDefinition(object):
         # Assign values
         self._volgroups.append({
             "name": name,
+            "device": name,
             "partitions": partitions,
             "format": bool(formatGroup),
             "useExisting": bool(useExisting),
