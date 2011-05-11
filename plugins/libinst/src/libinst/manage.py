@@ -138,17 +138,13 @@ class RepositoryManager(Plugin):
         # pylint: disable=E1101
         a.metadata.create_all(engine)
 
-    #TODO: This is a dummy function
     @Command(__doc__=N_("List the available base install methods"))
     def getSupportedBaseInstallMethods(self):
-        for m in self.base_install_method_reg:
-            print "---->", m
-        return {"preseed": {
-            "name": "Debian preseed",
-            "description": "Base installation using the debian installer",
-            "repositories": ["deb"],
-            "methods": ["puppet"]},
-            }
+        res = {}
+        for name, method in self.base_install_method_reg.items():
+            res[name] = method.getInfo()
+
+        return res
 
     @Command(__doc__=N_("List the available installation methods"))
     def getSupportedInstallMethods(self):

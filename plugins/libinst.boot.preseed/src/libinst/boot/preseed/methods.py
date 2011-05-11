@@ -25,8 +25,9 @@ class DebianPreseed(BaseInstallMethod):
         return {
             "name": "Preseed",
             "title": "Debian preseed installation method",
-            "description": "Description",
-            }
+            "description": "Base installation using the debian installer",
+            "repositories": ["deb"],
+            "methods": ["puppet"]}
 
     def __init__(self):
         super(DebianPreseed, self).__init__()
