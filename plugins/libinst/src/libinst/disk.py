@@ -222,6 +222,11 @@ class DiskDefinition(object):
         if maxSize and maxSize < size:
             raise ValueError("maxSize must be greater than size")
 
+        # Check for space
+        info = self.getDeviceUsage()
+        if info['disk'][onDisk]['size'] - info['disk'][onDisk]['usage'] < size:
+            raise ValueError("not enough remaining space available")
+
         # Check fs options
         if fsType:
             self.checkFsType(fsType)
@@ -460,6 +465,11 @@ class DiskDefinition(object):
         if name in [vol['name'] for vol in self._vols]:
             raise ValueError("name already in use")
 
+        # Check for space
+        info = self.getDeviceUsage()
+        if info['vg'][volGroup]['size'] - info['vg'][volGroup]['usage'] < size:
+            raise ValueError("not enough remaining space available")
+
         # Check fs options
         if fsType:
             self.checkFsType(fsType)
@@ -601,7 +611,9 @@ class DiskDefinition(object):
                 else:
                     size += info['part'][part]['size']
 
-            usage = 0
+            usage = sum([vol['size'] for vol in self._vols if vol['volGroup'] ==
+                vg['name']])
+
             info['vg'][vg['name']] = {"size": size, "usage": usage}
 
         return info
