@@ -6,6 +6,7 @@
  See LICENSE for more information about the licensing.
 """
 import re
+import itertools
 from gosa.common.components.registry import PluginRegistry
 
 LINUX = 2 ** 0
@@ -14,6 +15,7 @@ ALL = 2 ** 1
 
 class DiskDefinition(object):
     supportedFsTypes = []
+    supportedRaidLevels = [0, 1, 5]
     supportedDeviceTypes = []
     supportEncryption = False
 
@@ -107,6 +109,7 @@ class DiskDefinition(object):
 
                 raid['target'] = entry[1]
                 raid['devices'] = entry[2:]
+                raid['device'] = raid['name']
                 self._raids.append(raid)
                 continue
 
@@ -119,6 +122,7 @@ class DiskDefinition(object):
                 self._parseOption(entry, volgroup, 'useexisting', 'useExisting', True)
 
                 volgroup['name'] = entry[1]
+                volgroup['device'] = volgroup['name']
                 volgroup['partitions'] = entry[2:]
 
                 self._volgroups.append(volgroup)
@@ -244,10 +248,10 @@ class DiskDefinition(object):
             "onDisk": onDisk})
 
     def delPartition(self, partitionId):
-        if self._parts[partitionId] in [dev for dev in [r['devices'] \
-            for r in self._raids]][0] or \
-            self._parts[partitionId] in [part for part in [v['partitions'] \
-            for v in self._volgroups]][0]:
+        if (len(self._raids) and self._parts[partitionId]['target'] in [dev for dev in [r['devices'] \
+            for r in self._raids]][0]) or (len(self._volgroups) and \
+            self._parts[partitionId]['target'] in [part for part in [v['partitions'] \
+            for v in self._volgroups]][0]):
             raise ValueError("disk still in use")
 
         del self._parts[partitionId]
@@ -515,5 +519,60 @@ class DiskDefinition(object):
 
     def getFsTypes(self):
         return self.supportedFsTypes
+
+    def getRaidLevels(self):
+        return self.supportedRaidLevels
+
+    def getUnassignedRaidPartitions(self):
+        available = [part['target'] for part in self._parts if part['target'].startswith("raid.")]
+        used = filter(lambda x: x.startswith('raid.'),
+                list(itertools.chain(*[vg['partitions'] for vg in
+                    self._volgroups] + [r['devices'] for r in self._raids])))
+        return list(set(available) - set(used))
+
+    def getUnassignedPhysicalVolumes(self):
+        used = filter(lambda x: x.startswith('pv.'),
+            list(itertools.chain(*[vg['partitions'] for vg in self._volgroups])))
+        onpart = [part['target'] for part in self._parts if part['target'].startswith("pv.")]
+        onraid = [part['target'] for part in self._raids if part['target'].startswith("pv.")]
+        return list(set(onpart + onraid) - set(used))
+
+    def getNextRaidName(self):
+        current = [part['target'] for part in self._parts if part['target'].startswith("raid.")]
+        return self.__next_value("raid.", current, fmt="%s%02d")
+
+    def getNextRaidDevice(self):
+        current = [raid['device'] for raid in self._raids if raid['device'].startswith("md")]
+        return self.__next_value("md", current)
+
+    def getNextPhysicalVolumeName(self):
+        current = [raid['target'] for raid in self._raids if raid['target'].startswith("pv.")]
+        current += [part['target'] for part in self._parts if part['target'].startswith("pv.")]
+        return self.__next_value("pv.", current, fmt="%s%02d")
+
+    def __next_value(self, prefix, current, start=0, limit=99, fmt="%s%d"):
+        offset = len(prefix)
+        current = map(lambda x: int(x[offset:]), current)
+        current = filter(lambda x: x >= start and x <= limit, current)
+        return fmt % (prefix,
+            list(set(range(start, limit)) - set(current))[0])
+
+    def getDeviceUsage(self):
+        #TODO: take from inventory instead of hard coded values
+        available_disks = {"sda": 20000, "sdb": 100000}
+
+        info = {}
+        for disk, size in available_disks.items():
+            # used = summe aller partition sizes mit disk
+            info[disk] = {"size": size}
+
+        # Für raid
+        # available = summer aller devs mit berücksichtigung von raid level / disks
+        # usage = summe aller partition sizes mit raid.x
+
+        # für volgroups
+
+        return info
+
 
 PluginRegistry.registerObject("libinst.diskdefinition", DiskDefinition)
