@@ -34,11 +34,15 @@ class DebianPreseed(BaseInstallMethod):
         self.env = Environment.getInstance()
         self.path = self.env.config.getOption('path', 'libinst', default="/preseed")
 
-        # Get http service instance
-        self.__http = PluginRegistry.getInstance('HTTPService')
+        try:
+            # Get http service instance
+            self.__http = PluginRegistry.getInstance('HTTPService')
 
-        # Register ourselves
-        self.__http.register(self.path, self)
+            # Register ourselves
+            self.__http.register(self.path, self)
+
+        except:
+            pass
 
     def __call__(self, environ, start_response):
         req = Request(environ)
