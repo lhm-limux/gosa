@@ -321,6 +321,14 @@ class DiskDefinition(object):
                 [q['devices'] for q in self._raids]][0]:
                 raise ValueError("selected device %s is already in use" % device)
 
+        # Check level and device count
+        if level == "0" and len(devices) < 1:
+            raise ValueError("RAID 0 needs at least one device")
+        if level == "1" and len(devices) < 2:
+            raise ValueError("RAID 1 needs at least two devices")
+        if level == "5" and len(devices) < 3:
+            raise ValueError("RAID 5 needs at least three devices")
+
         # Check name
         pt = re.compile(r"^md[0-9]+$")
         if not pt.match(name):
@@ -406,8 +414,9 @@ class DiskDefinition(object):
     def delVolumeGroup(self, groupId):
         # Check for usage
         if self._volgroups[groupId]['name'] in [v['volGroup'] \
-            for v in self._volgroups]:
+            for v in self._vols]:
             raise ValueError("volumegroup still in use")
+
         del self._volgroups[groupId]
 
     def _dumpVolumeGroup(self):
@@ -561,16 +570,39 @@ class DiskDefinition(object):
         #TODO: take from inventory instead of hard coded values
         available_disks = {"sda": 20000, "sdb": 100000}
 
-        info = {}
+        # Calculate disks
+        info = {'disk': {}, 'raid': {}, 'vg': {}, 'part': {}}
         for disk, size in available_disks.items():
-            # used = summe aller partition sizes mit disk
-            info[disk] = {"size": size}
+            usage = sum([part['size'] for part in self._parts if part['onDisk'] == disk])
+            info['disk'][disk] = {"size": size, "usage": usage}
 
-        # Für raid
-        # available = summer aller devs mit berücksichtigung von raid level / disks
-        # usage = summe aller partition sizes mit raid.x
+        # Set up partitions for reference
+        for part in self._parts:
+            info['part'][part['target']] = {'size': part['size']}
 
-        # für volgroups
+        # Calculate RAIDs
+        for raid in self._raids:
+            if raid['level'] == '0':
+                size = sum([info['part'][device]['size'] for device in raid['devices']])
+            if raid['level'] == '1':
+                size = min([info['part'][device]['size'] for device in raid['devices']])
+            if raid['level'] == '5':
+                size = min([nfo['part'][device]['size'] for device in raid['devices']])
+                size = len(raid['devices'] -1) * size
+
+            info['raid'][raid['target']] = {"size": size}
+
+        # Calculate volume groups
+        for vg in self._volgroups:
+            size = 0
+            for part in vg['partitions']:
+                if part in info['raid']:
+                    size += info['raid'][part]['size']
+                else:
+                    size += info['part'][part]['size']
+
+            usage = 0
+            info['vg'][vg['name']] = {"size": size, "usage": usage}
 
         return info
 
