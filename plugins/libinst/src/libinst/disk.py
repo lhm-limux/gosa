@@ -593,6 +593,7 @@ class DiskDefinition(object):
 
         # Calculate RAIDs
         for raid in self._raids:
+            size = 0
             if raid['level'] == '0':
                 size = sum([info['part'][device]['size'] for device in raid['devices']])
             if raid['level'] == '1':
