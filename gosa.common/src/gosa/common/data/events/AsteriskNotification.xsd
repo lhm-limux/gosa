@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://www.gonicus.de/Events"
+	elementFormDefault="qualified"
+	xmlns:gosa="http://www.gonicus.de/Events"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<xs:simpleType name="Time">
+		<xs:restriction base="xs:decimal">
+			<xs:minInclusive value="0.0" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="NotificationType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="CallMissed" />
+			<xs:enumeration value="IncomingCall" />
+			<xs:enumeration value="CallEnded" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="PhoneNumber">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="\+[0-9]{3,}" />
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="PhoneNumberList">
+		<xs:list itemType="gosa:PhoneNumber"/>
+	</xs:simpleType>
+	
+	<xs:complexType name="AsteriskNotification" mixed="true">
+		<xs:sequence>
+			<xs:element name="From" type="gosa:PhoneNumberList" minOccurs="1" maxOccurs="1" />
+			<xs:element name="To" type="gosa:PhoneNumberList" minOccurs="1" maxOccurs="1" />
+			<xs:element name="Timestamp" type="gosa:Time" minOccurs="1" maxOccurs="1" />
+			<xs:element name="Duration" type="gosa:Time" minOccurs="0" maxOccurs="1" />
+			<xs:element name="Cause" type="xs:string" minOccurs="0" maxOccurs="1" />
+		</xs:sequence>
+		<xs:attribute name="Type" type="gosa:NotificationType" use="required"/>
+		<xs:attribute name="Identity" type="xs:string" />
+	</xs:complexType>
+
+	<xs:element name="AsteriskNotification" type="gosa:AsteriskNotification" />
+</xs:schema>
+
