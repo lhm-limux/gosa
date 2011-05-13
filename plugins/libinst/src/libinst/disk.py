@@ -435,7 +435,7 @@ class DiskDefinition(object):
             if volume['useExisting']:
                 options.append("--useexisting")
             res += "volgroup %s %s %s;" % (volume['name'], \
-                " ".join(options), "".join(volume['partitions']))
+                " ".join(options), " ".join(volume['partitions']))
         return res
 
     def getVolumes(self):
