@@ -71,26 +71,30 @@ def parseURL(url):
         'transport':ssl,
         'url':url}
 
-def buildXMLSchema(resource, prefix, stylesheet):
+def buildXMLSchema(resources, prefix, s_resource, stylesheet):
     """ Assembles single schema files to a final schema using the stylesheet """
     res = ''
 
     try:
-        # Initialize prefix and get filenames
-        real_prefix = resource_filename(resource, prefix) + os.sep
-        if os.sep == "\\":
-            real_prefix = "file:///" + "/".join(real_prefix.split("\\"))
+        stylesheet = resource_filename(s_resource, stylesheet)
+        eventsxml = ""
 
-        files = [ev for ev in resource_listdir(resource, prefix)
-            if ev[-4:] == '.xsd']
-        stylesheet = resource_filename(resource, stylesheet)
+        for resource in resources:
 
-        # Build a tree of all event paths
-        eventsxml = '<events prefix="' + urllib.quote(real_prefix) + '">'
-        for file in files:
-            eventsxml += '<path>' + file + '</path>'
-        eventsxml += '</events>'
-        eventsxml = StringIO.StringIO(eventsxml)
+            # Initialize prefix and get filenames
+            real_prefix = resource_filename(resource, prefix) + os.sep
+            if os.sep == "\\":
+                real_prefix = "file:///" + "/".join(real_prefix.split("\\"))
+
+            files = [ev for ev in resource_listdir(resource, prefix)
+                if ev[-4:] == '.xsd']
+
+            # Build a tree of all event paths
+            eventsxml += '<events prefix="' + urllib.quote(real_prefix) + '">'
+            for file in files:
+                eventsxml += '<path>' + file + '</path>'
+            eventsxml += '</events>'
+            eventsxml = StringIO.StringIO(eventsxml)
 
         # Parse the string with all event paths
         xml_doc = etree.parse(eventsxml)
@@ -101,6 +105,7 @@ def buildXMLSchema(resource, prefix, stylesheet):
 
         # Transform the tree of all event paths into the final XSD
         res = transform(xml_doc)
+
     except (IOError), e:
         traceback.print_exc()
 

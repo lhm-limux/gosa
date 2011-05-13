@@ -86,7 +86,8 @@ class AMQPClientHandler(AMQPHandler):
             raise Exception("no key supplied - please join the client")
 
         # Load defined event schema files
-        schema_doc = buildXMLSchema('gosa.common', 'data/events', 'data/stylesheets/events.xsl')
+        schema_doc = buildXMLSchema(['gosa.common'], 'data/events',
+                'gosa.common', 'data/stylesheets/events.xsl')
 
         # Initialize parser
         schema_root = etree.XML(schema_doc)
