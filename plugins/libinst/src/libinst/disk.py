@@ -254,10 +254,18 @@ class DiskDefinition(object):
             "onDisk": onDisk})
 
     def delPartition(self, partitionId):
-        if (len(self._raids) and self._parts[partitionId]['target'] in [dev for dev in [r['devices'] \
-            for r in self._raids]][0]) or (len(self._volgroups) and \
-            self._parts[partitionId]['target'] in [part for part in [v['partitions'] \
-            for v in self._volgroups]][0]):
+        devs = []
+        vgs = []
+        if len(self._raids):
+            for raid in self._raids:
+                for dev in raid['devices']:
+                    devs.append(dev)
+        if len(self._volgroups):
+            for vg in self._volgroups:
+                for dev in vg['partitions']:
+                    vgs.append(dev)
+
+        if self._parts[partitionId]['target'] in vgs or self._parts[partitionId]['target'] in devs:
             raise ValueError("disk still in use")
 
         del self._parts[partitionId]
