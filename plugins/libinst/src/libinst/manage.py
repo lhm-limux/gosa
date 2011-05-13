@@ -1522,17 +1522,25 @@ class RepositoryManager(Plugin):
 
     @Command(__doc__=N_("Get device's config parameters"))
     def systemGetConfigParameters(self, device_uuid):
-        #TODO
-        #objectclass (1.3.6.1.4.1.10098.3.2.1.1.50 NAME 'configRecipe' SUP top AUXILIARY
-        #        DESC 'Puppet Client objectclass'
-        #        MUST configMethod
-        #        MAY (configItem $ configVariable ))
-        pass
+        sys_data = load_system(device_uuid, None, False)
+        method = self.systemGetConfigMethod(device_uuid, sys_data)
+
+        if method in self.install_method_reg:
+            return None
+
+        config_m = self.install_method_reg[method]
+        return config_m.getConfigParameters(device_uuid, sys_data)
 
     @Command(__doc__=N_("Set device's config parameters"))
     def systemSetConfigParameters(self, device_uuid, data):
-        #TODO
-        pass
+        sys_data = load_system(device_uuid, None, False)
+        method = self.systemGetConfigMethod(device_uuid, sys_data)
+
+        if method in self.install_method_reg:
+            return None
+
+        config_m = self.install_method_reg[method]
+        return config_m.setConfigParameters(device_uuid, data, sys_data)
 
     @Command(__doc__=N_("Get list of templates, filter by method"))
     def installListTemplates(self, method=None):
