@@ -762,15 +762,19 @@ class InstallMethod(object):
         if not data:
             data = load_system(device_uuid, None, False)
 
-        print "="*80
-        print data
-        print "-"*80
+        if 'configMethod' in data:
+            res['method'] = data['configMethod'][0]
+
+            if 'configItem' in data:
+                res['item'] = data['configItem']
+
+            if 'configVariable' in data:
+                res['param'] = {}
+                for var in data['configVariable']:
+                    (name, value) = var.split("=", 1)
+                    res['param'][name] = value
 
         return res
-        #objectclass (1.3.6.1.4.1.10098.3.2.1.1.50 NAME 'configRecipe' SUP top AUXILIARY
-        #        DESC 'Puppet Client objectclass'
-        #        MUST configMethod
-        #        MAY (configItem $ configVariable ))
 
     def setConfigParameters(self, data, sys_data=None):
         #TODO

@@ -1456,7 +1456,7 @@ class RepositoryManager(Plugin):
         if not "configMethod" in data:
             return None
 
-        return data["configMethod"].lower()
+        return data["configMethod"][0].lower()
 
     @Command(__doc__=N_("Get device's boot string"))
     def systemGetBootParams(self, device_uuid, mac=None):
@@ -1525,7 +1525,7 @@ class RepositoryManager(Plugin):
         sys_data = load_system(device_uuid, None, False)
         method = self.systemGetConfigMethod(device_uuid, sys_data)
 
-        if method in self.install_method_reg:
+        if not method in self.install_method_reg:
             return None
 
         config_m = self.install_method_reg[method]
