@@ -594,11 +594,11 @@ class DiskDefinition(object):
         # Calculate RAIDs
         for raid in self._raids:
             size = 0
-            if raid['level'] == '0':
+            if int(raid['level']) == 0:
                 size = sum([info['part'][device]['size'] for device in raid['devices']])
-            if raid['level'] == '1':
+            if int(raid['level']) == 1:
                 size = min([info['part'][device]['size'] for device in raid['devices']])
-            if raid['level'] == '5':
+            if int(raid['level']) == 5:
                 size = min([nfo['part'][device]['size'] for device in raid['devices']])
                 size = len(raid['devices'] -1) * size
 
