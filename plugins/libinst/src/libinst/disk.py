@@ -89,7 +89,7 @@ class DiskDefinition(object):
                 self._parseOption(entry, part, 'encrypted', 'encrypted', True)
                 self._parseOption(entry, part, 'passphrase')
                 self._parseOption(entry, part, 'format', 'format', True)
-                self._parseOption(entry, part, 'bootable', 'bootable', False)
+                self._parseOption(entry, part, 'bootable', 'bootable', True)
                 self._parseOption(entry, part, 'asprimary', 'primary', True)
                 self._parseOption(entry, part, 'fstype', 'fsType')
                 self._parseOption(entry, part, 'fsoptions', 'fsOptions')
@@ -106,6 +106,7 @@ class DiskDefinition(object):
                 self._parseOption(entry, raid, 'spares', numeric=True)
                 self._parseOption(entry, raid, 'format', 'format', True)
                 self._parseOption(entry, raid, 'useexisting', 'useExisting', True)
+                self._parseOption(entry, raid, 'ondisk', 'onDisk')
 
                 raid['target'] = entry[1]
                 raid['devices'] = entry[2:]
