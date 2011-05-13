@@ -363,7 +363,7 @@ class DiskDefinition(object):
 
     def delRaidDevice(self, raidId):
         # Check for usage
-        if self._raids[raidId]['target'] in [part for part in [v['partitions'] \
+        if self._volgroups and self._raids[raidId]['target'] in [part for part in [v['partitions'] \
             for v in self._volgroups]][0]:
             raise ValueError("raid device still in use")
         del self._raids[raidId]
