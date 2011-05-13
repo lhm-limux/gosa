@@ -307,13 +307,13 @@ class DiskDefinition(object):
         # Check target
         pt = re.compile(r"^(swap|/[^/].*[^/]|pv.[0-9][0-9])$")
         if not pt.match(target):
-            raise ValueError("target is invalild")
+            raise ValueError("target is invalid")
         if target in [part['target'] \
             for part in self._parts + self._raids + self._vols]:
             raise ValueError("target already in use")
 
         # Check level
-        if not level in ["0", "1", "5"]:
+        if not int(level) in [0, 1, 5]:
             raise ValueError("raid level unsupported")
 
         # Check raid devices
@@ -346,7 +346,7 @@ class DiskDefinition(object):
         # Check name
         pt = re.compile(r"^md[0-9]+$")
         if not pt.match(name):
-            raise ValueError("name is invalild")
+            raise ValueError("name is invalid")
         if name in [raid['name'] for raid in self._raids]:
             raise ValueError("name already in use")
 
@@ -457,7 +457,7 @@ class DiskDefinition(object):
         # Check target
         pt = re.compile(r"^(swap|/.*)$")
         if not pt.match(target):
-            raise ValueError("target %s is invalild" % target)
+            raise ValueError("target %s is invalid" % target)
         if target in [part['target'] for part in self._parts + self._raids + self._vols]:
             raise ValueError("target already in use")
 
@@ -470,7 +470,7 @@ class DiskDefinition(object):
         # Check name
         pt = re.compile(r"^[a-zA-Z0-9_+-]+$")
         if not pt.match(name):
-            raise ValueError("name is invalild")
+            raise ValueError("name is invalid")
         if name in [vol['name'] for vol in self._vols]:
             raise ValueError("name already in use")
 
@@ -607,8 +607,8 @@ class DiskDefinition(object):
             if int(raid['level']) == 1:
                 size = min([info['part'][device]['size'] for device in raid['devices']])
             if int(raid['level']) == 5:
-                size = min([nfo['part'][device]['size'] for device in raid['devices']])
-                size = len(raid['devices'] -1) * size
+                size = min([info['part'][device]['size'] for device in raid['devices']])
+                size = (len(raid['devices']) -1) * size
 
             info['raid'][raid['target']] = {"size": size}
 
