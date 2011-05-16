@@ -1542,6 +1542,18 @@ class RepositoryManager(Plugin):
         config_m = self.install_method_reg[method]
         return config_m.setConfigParameters(device_uuid, data, sys_data)
 
+    @Command(__doc__=N_("Completely remove device's config parameters"))
+    def removeConfigParameters(self, device_uuid):
+        sys_data = load_system(device_uuid, None, False)
+        method = self.systemGetConfigMethod(device_uuid, sys_data)
+
+        if not method in self.install_method_reg:
+            return None
+
+        config_m = self.install_method_reg[method]
+        return config_m.removeConfigParameters(device_uuid, sys_data)
+
+
     @Command(__doc__=N_("Get list of templates, filter by method"))
     def installListTemplates(self, method=None):
         result = {}
