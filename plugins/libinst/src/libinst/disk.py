@@ -89,7 +89,7 @@ class DiskDefinition(object):
                 self._parseOption(entry, part, 'encrypted', 'encrypted', True)
                 self._parseOption(entry, part, 'passphrase')
                 self._parseOption(entry, part, 'format', 'format', True)
-                self._parseOption(entry, part, 'bootable', 'bootable', False)
+                self._parseOption(entry, part, 'bootable', 'bootable', True)
                 self._parseOption(entry, part, 'asprimary', 'primary', True)
                 self._parseOption(entry, part, 'fstype', 'fsType')
                 self._parseOption(entry, part, 'fsoptions', 'fsOptions')
@@ -106,6 +106,7 @@ class DiskDefinition(object):
                 self._parseOption(entry, raid, 'spares', numeric=True)
                 self._parseOption(entry, raid, 'format', 'format', True)
                 self._parseOption(entry, raid, 'useexisting', 'useExisting', True)
+                self._parseOption(entry, raid, 'ondisk', 'onDisk')
 
                 raid['target'] = entry[1]
                 raid['devices'] = entry[2:]
@@ -253,10 +254,18 @@ class DiskDefinition(object):
             "onDisk": onDisk})
 
     def delPartition(self, partitionId):
-        if (len(self._raids) and self._parts[partitionId]['target'] in [dev for dev in [r['devices'] \
-            for r in self._raids]][0]) or (len(self._volgroups) and \
-            self._parts[partitionId]['target'] in [part for part in [v['partitions'] \
-            for v in self._volgroups]][0]):
+        devs = []
+        vgs = []
+        if len(self._raids):
+            for raid in self._raids:
+                for dev in raid['devices']:
+                    devs.append(dev)
+        if len(self._volgroups):
+            for vg in self._volgroups:
+                for dev in vg['partitions']:
+                    vgs.append(dev)
+
+        if self._parts[partitionId]['target'] in vgs or self._parts[partitionId]['target'] in devs:
             raise ValueError("disk still in use")
 
         del self._parts[partitionId]
@@ -267,7 +276,7 @@ class DiskDefinition(object):
             options = []
             options.append("--size %s" % part['size'])
             if part['maxSize']:
-                options.append("--maxsize %s" % part['maxsize'])
+                options.append("--maxsize %s" % part['maxSize'])
             if part['grow']:
                 options.append("--grow")
             if part['format']:
@@ -298,13 +307,13 @@ class DiskDefinition(object):
         # Check target
         pt = re.compile(r"^(swap|/[^/].*[^/]|pv.[0-9][0-9])$")
         if not pt.match(target):
-            raise ValueError("target is invalild")
+            raise ValueError("target is invalid")
         if target in [part['target'] \
             for part in self._parts + self._raids + self._vols]:
             raise ValueError("target already in use")
 
         # Check level
-        if not level in ["0", "1", "5"]:
+        if not int(level) in [0, 1, 5]:
             raise ValueError("raid level unsupported")
 
         # Check raid devices
@@ -337,7 +346,7 @@ class DiskDefinition(object):
         # Check name
         pt = re.compile(r"^md[0-9]+$")
         if not pt.match(name):
-            raise ValueError("name is invalild")
+            raise ValueError("name is invalid")
         if name in [raid['name'] for raid in self._raids]:
             raise ValueError("name already in use")
 
@@ -362,7 +371,7 @@ class DiskDefinition(object):
 
     def delRaidDevice(self, raidId):
         # Check for usage
-        if self._raids[raidId]['target'] in [part for part in [v['partitions'] \
+        if self._volgroups and self._raids[raidId]['target'] in [part for part in [v['partitions'] \
             for v in self._volgroups]][0]:
             raise ValueError("raid device still in use")
         del self._raids[raidId]
@@ -448,7 +457,7 @@ class DiskDefinition(object):
         # Check target
         pt = re.compile(r"^(swap|/.*)$")
         if not pt.match(target):
-            raise ValueError("target %s is invalild" % target)
+            raise ValueError("target %s is invalid" % target)
         if target in [part['target'] for part in self._parts + self._raids + self._vols]:
             raise ValueError("target already in use")
 
@@ -461,7 +470,7 @@ class DiskDefinition(object):
         # Check name
         pt = re.compile(r"^[a-zA-Z0-9_+-]+$")
         if not pt.match(name):
-            raise ValueError("name is invalild")
+            raise ValueError("name is invalid")
         if name in [vol['name'] for vol in self._vols]:
             raise ValueError("name already in use")
 
@@ -592,13 +601,14 @@ class DiskDefinition(object):
 
         # Calculate RAIDs
         for raid in self._raids:
-            if raid['level'] == '0':
+            size = 0
+            if int(raid['level']) == 0:
                 size = sum([info['part'][device]['size'] for device in raid['devices']])
-            if raid['level'] == '1':
+            if int(raid['level']) == 1:
                 size = min([info['part'][device]['size'] for device in raid['devices']])
-            if raid['level'] == '5':
-                size = min([nfo['part'][device]['size'] for device in raid['devices']])
-                size = len(raid['devices'] -1) * size
+            if int(raid['level']) == 5:
+                size = min([info['part'][device]['size'] for device in raid['devices']])
+                size = (len(raid['devices']) -1) * size
 
             info['raid'][raid['target']] = {"size": size}
 

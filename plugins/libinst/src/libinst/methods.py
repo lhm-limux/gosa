@@ -757,6 +757,33 @@ class InstallMethod(object):
             session.close()
         return result
 
+    def getConfigParameters(self, device_uuid, data=None):
+        res = {}
+        if not data:
+            data = load_system(device_uuid, None, False)
+
+        if 'configMethod' in data:
+            res['method'] = data['configMethod'][0]
+
+            if 'configItem' in data:
+                res['item'] = data['configItem']
+
+            if 'configVariable' in data:
+                res['param'] = {}
+                for var in data['configVariable']:
+                    (name, value) = var.split("=", 1)
+                    res['param'][name] = value
+
+        return res
+
+    def setConfigParameters(self, data, sys_data=None):
+        #TODO
+        #objectclass (1.3.6.1.4.1.10098.3.2.1.1.50 NAME 'configRecipe' SUP top AUXILIARY
+        #        DESC 'Puppet Client objectclass'
+        #        MUST configMethod
+        #        MAY (configItem $ configVariable ))
+        return {}
+
 
 def load_system(device_uuid, mac=None, inherit=True):
     result = {}
@@ -777,7 +804,8 @@ def load_system(device_uuid, mac=None, inherit=True):
              "installTimezone", "installMirrorDN", "installTimeUTC", "installArchitecture",
              "installMirrorPoolDN", "installKernelPackage", "installPartitionTable",
              "installRecipeDN", "installRelease", "deviceStatus", "deviceKey",
-             "cn", "deviceUUID", "objectClass"])
+             "configMethod", "configItem", "configVariable", "cn", "deviceUUID",
+             "objectClass"])
 
         # Nothing here...
         if not res:

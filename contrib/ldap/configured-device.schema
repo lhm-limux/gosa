@@ -26,7 +26,7 @@ attributetype (1.3.6.1.4.1.10098.3.2.1.51 NAME 'configItem'
 #
 # Store the desired configuration method for the client.
 #
-attributetype (1.3.6.1.4.1.10098.3.2.1.52 NAME 'configItem'
+attributetype (1.3.6.1.4.1.10098.3.2.1.52 NAME 'configMethod'
 	DESC 'Stores the desired configuration method'
 	EQUALITY caseIgnoreIA5Match
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.26)

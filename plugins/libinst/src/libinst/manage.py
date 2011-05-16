@@ -1456,7 +1456,7 @@ class RepositoryManager(Plugin):
         if not "configMethod" in data:
             return None
 
-        return data["configMethod"].lower()
+        return data["configMethod"][0].lower()
 
     @Command(__doc__=N_("Get device's boot string"))
     def systemGetBootParams(self, device_uuid, mac=None):
@@ -1519,6 +1519,28 @@ class RepositoryManager(Plugin):
         method = self.systemGetBaseInstallMethod(device_uuid, sys_data)
         inst_m = self.base_install_method_reg[method]
         return inst_m.setBaseInstallParameters(device_uuid, data, sys_data)
+
+    @Command(__doc__=N_("Get device's config parameters"))
+    def systemGetConfigParameters(self, device_uuid):
+        sys_data = load_system(device_uuid, None, False)
+        method = self.systemGetConfigMethod(device_uuid, sys_data)
+
+        if not method in self.install_method_reg:
+            return None
+
+        config_m = self.install_method_reg[method]
+        return config_m.getConfigParameters(device_uuid, sys_data)
+
+    @Command(__doc__=N_("Set device's config parameters"))
+    def systemSetConfigParameters(self, device_uuid, data):
+        sys_data = load_system(device_uuid, None, False)
+        method = self.systemGetConfigMethod(device_uuid, sys_data)
+
+        if method in self.install_method_reg:
+            return None
+
+        config_m = self.install_method_reg[method]
+        return config_m.setConfigParameters(device_uuid, data, sys_data)
 
     @Command(__doc__=N_("Get list of templates, filter by method"))
     def installListTemplates(self, method=None):
