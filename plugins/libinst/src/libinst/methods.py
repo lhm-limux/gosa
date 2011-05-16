@@ -384,7 +384,7 @@ class InstallMethod(object):
     def listAssignableElements(self, release):
         res = {}
         for item in self._manager._getAssignableElements(release):
-            res.append(item.getAssignableElements())
+            res = dict(res.items() + self.getItemsAssignableElements(release, item).items())
         return res
 
     def listItems(self, release, item_type=None, path=None, children=None):
@@ -521,7 +521,7 @@ class InstallMethod(object):
                 item.name = data["name"]
 
             # Updated marker for assignable elements
-            item.assignable = bool(item.getAssignableElements())
+            item.assignable = bool(self.getItemsAssignableElements(release, item))
 
             # Add us as child
             release_object = self._manager._getRelease(release)
@@ -539,6 +539,9 @@ class InstallMethod(object):
         finally:
             session.close()
         return result
+
+    def getItemsAssignableElements(self, release, item):
+        return {}
 
     def removeItem(self, release, path, children=None):
         """

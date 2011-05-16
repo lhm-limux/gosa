@@ -54,6 +54,7 @@ attributetype ( 1.3.6.1.4.1.10098.3.2.1.1 NAME 'deviceUUID'
 #   B: System has active user sessions
 #   A: System activated
 #   a: System locked
+#   b: System booting
 #
 attributetype ( 1.3.6.1.4.1.10098.3.2.1.2 NAME 'deviceStatus'
     DESC 'Device status descriptor'
