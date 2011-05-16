@@ -100,7 +100,7 @@ class RepositoryManager(Plugin):
             module = entry.load()
             self.env.log.info("repository handler %s included" % module.__name__)
             for module_type in module.getRepositoryTypes():
-                self.type_reg[module_type] = module()
+                self.type_reg[module_type] = module(self)
 
         # Load all installation methods
         self.install_method_reg = {}
@@ -756,7 +756,9 @@ class RepositoryManager(Plugin):
                             raise ValueError(N_("Architecture %s was not found", arch))
                         else:
                             arch = instance
+                    session.commit()
                     arch = session.merge(arch)
+                    print arch
                     if arch not in distribution.architectures:
                         distribution.architectures.append(arch)
                 if component:
@@ -766,6 +768,7 @@ class RepositoryManager(Plugin):
                             raise ValueError(N_("Component %s was not found", component))
                         else:
                             component = instance
+                    session.commit()
                     component = session.merge(component)
                     if component not in distribution.components:
                         distribution.components.append(component)
@@ -832,7 +835,7 @@ class RepositoryManager(Plugin):
 
     @Command(__doc__=N_("Update a local mirror"))
     @NamedArgs("m_hash")
-    def updateMirror(self, m_hash=None, distribution=None):
+    def updateMirror(self, m_hash=None, distribution=None, releases=None, components=None, architectures=None, sections=None):
         result = None
         session = None
 
@@ -847,7 +850,13 @@ class RepositoryManager(Plugin):
                         distribution = instance
                 distribution = session.merge(distribution)
                 if distribution.releases:
-                    result = self.type_reg[distribution.type.name].updateMirror(session, distribution=distribution)
+                    result = self.type_reg[distribution.type.name].updateMirror(
+                        session, 
+                        distribution=distribution, 
+                        releases=releases, 
+                        components=components, 
+                        architectures=architectures, 
+                        sections=sections)
                 else:
                     raise ValueError(N_("Distribution %s has no releases", distribution.name))
             else:
@@ -880,7 +889,7 @@ class RepositoryManager(Plugin):
 
     @Command(__doc__=N_("List packages by various criteria"))
     @NamedArgs("m_hash")
-    def getPackages(self, m_hash=None, release=None, arch=None, section=None, custom_filter=None,
+    def getPackages(self, m_hash=None, release=None, arch=None, component=None, section=None, custom_filter=None,
         offset=None, limit=None):
         """
         getPackages lists available packages using the specified
@@ -892,8 +901,11 @@ class RepositoryManager(Plugin):
         @type arch: string/Architecture
         @param arch: Optional name or instance of architecture (i.e. 'i386', 'amd64')
 
+        @type component: string/Component
+        @param component: Optional name or instance of component (i.e. 'main', 'contrib')
+
         @type section: string/Section
-        @param section: Optional name or instance of section (i.e. 'main', 'contrib')
+        @param section: Optional name or instance of section (i.e. 'text', 'utils')
 
         @type custom_filter: string
         @param filter: #TODO: really a string? if not, is it serializable?
@@ -935,10 +947,12 @@ class RepositoryManager(Plugin):
             else:
                 if custom_filter:
                     result = session.query(Package.name.like(custom_filter))
-                elif arch or section:
+                elif arch or component or section:
                     result = session.query(Package)
                     if arch:
                         result = result.join(Architecture).filter_by(name=arch)
+                    if component:
+                        result = result.join(Component).filter_by(name=component)
                     if section:
                         result = result.join(Section).filter_by(name=section)
                 else:
