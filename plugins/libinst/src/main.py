@@ -48,9 +48,10 @@ LcWMU6gayNYj7eMgCOFM6ywySRS81FC+PPnr147xbp5FwgmoPRK52MURsHJ+
     print "createDistribution:", manager.createDistribution("debian", "deb",
             {"mirror": "http://archive.debian.org/debian"},
             install_method="puppet")
-    print "createRelease:", manager.createRelease("debian", "bo")
+    print "createRelease:", manager.createRelease("debian", "etch")
+    print "addMirrorProperty:", manager.addMirrorProperty(distribution="debian", arch="i386", component="main")
     print "getDistributions:", manager.getDistributions()
-    print "updateMirror:", manager.updateMirror(distribution="debian")
+    print "updateMirror:", manager.updateMirror(distribution="debian", components=["main"], sections=["shells"])
     #print "createRelease:", manager.createRelease("debian", "lenny")
     #print "createRelease:", manager.createRelease("debian", "lenny/1.0")
     #print "setDistribution:", manager.setDistribution(
