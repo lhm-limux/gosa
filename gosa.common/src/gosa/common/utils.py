@@ -16,6 +16,8 @@ from tokenize import generate_tokens
 from token import STRING
 import traceback
 import urllib
+import urllib2
+import tempfile
 import subprocess
 from subprocess import Popen, PIPE
 from qpid.messaging.constants import AMQP_PORT, AMQPS_PORT
@@ -199,4 +201,47 @@ def repr2json(string):
 
         result += tokval
 
+    return result
+
+def downloadFile(url, download_dir=None, use_filename=False):
+    result = None
+    o = None
+
+    if not url:
+        raise ValueError(N_("URL is mandatory!"))
+        return result
+
+    try:
+        o = urlparse(url)
+    except:
+        raise ValueError(N_("Invalid url specified: %s"), url)
+        return result
+
+    if o.scheme in ('http', 'https', 'ftp'):
+        try:
+            if use_filename:
+                if download_dir is None:
+                    download_dir = tempfile.mkdtemp()
+                f = os.sep.join((download_dir, os.path.basename(o.path)))
+            else:
+                if download_dir is None:
+                    f = tempfile.NamedTemporaryFile(delete=False, dir=download_dir).name
+                else:
+                    f = tempfile.NamedTemporaryFile(delete=False).name
+            request = urllib2.Request(url)
+            file = urllib2.urlopen(request)
+            local_file = open(f, "w")
+            local_file.write(file.read())
+            local_file.close()
+            result = f
+        except urllib2.HTTPError, e:
+            result = None
+            raise e
+        except urllib2.URLError, e:
+            result = None
+            raise e
+        except:
+            raise
+    else:
+        raise ValueError(N_("Unsupported URL scheme %s!"), o.scheme)
     return result
