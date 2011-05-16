@@ -776,13 +776,84 @@ class InstallMethod(object):
 
         return res
 
-    def setConfigParameters(self, data, sys_data=None):
+    def setConfigParameters(self, device_uuid, data, current_data=None):
+        res = {}
+        if not current_data:
+            current_data = load_system(device_uuid, None, False)
+
+        is_new = not 'configMethod' in current_data['objectClass']
+        dn = current_data['dn']
+        current_data = self.getConfigParameters(device_uuid, current_data)
+
+        mods = []
+
         #TODO
         #objectclass (1.3.6.1.4.1.10098.3.2.1.1.50 NAME 'configRecipe' SUP top AUXILIARY
         #        DESC 'Puppet Client objectclass'
         #        MUST configMethod
         #        MAY (configItem $ configVariable ))
+
+        # Add eventually missing objectclass
+        if is_new:
+            mods.append((ldap.MOD_ADD, 'objectClass', 'configRecipe'))
+
+method
+item[]
+param[name] / value
+----
+
+        # Transfer changed parameters
+        for ldap_key, key in self._attributes.items():
+
+            # New value?
+            if key in data and not key in current_data:
+                mods.append((ldap.MOD_ADD, ldap_key,
+                    normalize_ldap(unicode2utf8(data[key]))))
+                continue
+
+            # Changed value?
+            if key in data and key in current_data \
+                    and data[key] != current_data[key]:
+
+                mods.append((ldap.MOD_REPLACE, ldap_key,
+                    normalize_ldap(unicode2utf8(data[key]))))
+                continue
+
+        # Removed values
+        for key in current_data.keys():
+            if key in self.rev_attributes and not key in data:
+                mods.append((ldap.MOD_DELETE, self.rev_attributes[key], None))
+
+        # Do LDAP operations to add the system
+        lh = LDAPHandler.get_instance()
+        with lh.get_handle() as conn:
+            res = conn.search_s(",".join([self.env.config.getOption("template-rdn",
+                "libinst", "cn=templates,cn=libinst,cn=config"), lh.get_base()]),
+                ldap.SCOPE_SUBTREE, "(&(objectClass=installTemplate)(cn=%s))" % data['template'], ["cn"])
+            if len(res) != 1:
+                raise ValueError("template '%s' not found" % data['template'])
+
+            template_dn = res[0][0]
+            if is_new:
+                mods.append((ldap.MOD_ADD, 'installTemplateDN', [template_dn]))
+            else:
+                mods.append((ldap.MOD_REPLACE, 'installTemplateDN', [template_dn]))
+
+            conn.modify_s(dn, mods)
         return {}
+
+    def removeConfigParameters(self, device_uuid, data=None):
+        if not data:
+            data = load_system(device_uuid)
+
+        mods = [(ldap.MOD_DELETE, 'objectClass', 'configRecipe')]
+        for attr in ["configMethod", "configItem", "configVariable"]:
+            mods.append((ldap.MOD_DELETE, attr, None))
+
+        # Do LDAP operations to remove the device
+        lh = LDAPHandler.get_instance()
+        with lh.get_handle() as conn:
+            conn.modify_s(dn, mods)
 
 
 def load_system(device_uuid, mac=None, inherit=True):
