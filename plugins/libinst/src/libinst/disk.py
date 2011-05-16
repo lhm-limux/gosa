@@ -276,7 +276,7 @@ class DiskDefinition(object):
             options = []
             options.append("--size %s" % part['size'])
             if part['maxSize']:
-                options.append("--maxsize %s" % part['maxsize'])
+                options.append("--maxsize %s" % part['maxSize'])
             if part['grow']:
                 options.append("--grow")
             if part['format']:
