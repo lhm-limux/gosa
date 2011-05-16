@@ -239,6 +239,11 @@ class InstallMethod(object):
     needed to interact with any install method. Implementations of this interface
     must implement all methods.
     """
+    attributes = {
+            'configVariable': 'var',
+            'configMethod': 'method',
+            'configItem': 'item',
+        }
 
     _supportedTypes = []
     _supportedItems = {}
@@ -787,20 +792,18 @@ class InstallMethod(object):
 
         mods = []
 
-        #TODO
-        #objectclass (1.3.6.1.4.1.10098.3.2.1.1.50 NAME 'configRecipe' SUP top AUXILIARY
-        #        DESC 'Puppet Client objectclass'
-        #        MUST configMethod
-        #        MAY (configItem $ configVariable ))
-
         # Add eventually missing objectclass
         if is_new:
             mods.append((ldap.MOD_ADD, 'objectClass', 'configRecipe'))
 
-method
-item[]
-param[name] / value
-----
+        # Map variables
+        data['var'] = []
+        if 'param' in data:
+            for key, value in data['param'].items():
+                if "=" in key:
+                    raise ValueError("variable key doesn't allow equal signs")
+                data['var'].append("%s=%s" % (key, value))
+            del data['param']
 
         # Transfer changed parameters
         for ldap_key, key in self._attributes.items():
@@ -827,18 +830,6 @@ param[name] / value
         # Do LDAP operations to add the system
         lh = LDAPHandler.get_instance()
         with lh.get_handle() as conn:
-            res = conn.search_s(",".join([self.env.config.getOption("template-rdn",
-                "libinst", "cn=templates,cn=libinst,cn=config"), lh.get_base()]),
-                ldap.SCOPE_SUBTREE, "(&(objectClass=installTemplate)(cn=%s))" % data['template'], ["cn"])
-            if len(res) != 1:
-                raise ValueError("template '%s' not found" % data['template'])
-
-            template_dn = res[0][0]
-            if is_new:
-                mods.append((ldap.MOD_ADD, 'installTemplateDN', [template_dn]))
-            else:
-                mods.append((ldap.MOD_REPLACE, 'installTemplateDN', [template_dn]))
-
             conn.modify_s(dn, mods)
         return {}
 
