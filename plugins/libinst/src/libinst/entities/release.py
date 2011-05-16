@@ -24,7 +24,7 @@ class ReleasePackages(Base, UseInnoDB):
 class Release(Base, UseInnoDB):
     __tablename__ = 'release'
     id = Column(Integer, Sequence('release_id_seq'), primary_key=True)
-    name = Column(String(255), unique=True)
+    name = Column(String(255), nullable=False, unique=True)
     parent_id = Column(Integer, ForeignKey('release.id'))
     # pylint: disable-msg=E1101
     packages = relationship(Package, secondary=ReleasePackages.__table__, backref=backref('releases', uselist=True))

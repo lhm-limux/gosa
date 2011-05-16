@@ -18,8 +18,15 @@ import tempfile
 import urllib2
 import re
 import gettext
+import gzip
+import bz2
+
+from urlparse import urlparse
+from types import StringTypes
 
 from sqlalchemy.orm.exc import NoResultFound
+
+from gosa.common.utils import downloadFile
 
 try:
     # pylint: disable-msg=F0401
@@ -56,8 +63,9 @@ _ = t.ugettext
 
 class DebianHandler(DistributionHandler):
 
-    def __init__(self):
+    def __init__(self, RepositoryManager):
         self.env = Environment.getInstance()
+        self.manager = RepositoryManager
 
     @staticmethod
     def getRepositoryTypes():
@@ -107,10 +115,53 @@ class DebianHandler(DistributionHandler):
             raise
         return result
 
+    def updateMirror(self, session, distribution=None, releases=None, components=None, architectures=None, sections=None):
+        result = None
+
+        if not (distribution or releases):
+            raise ValueError(N_("Need either a distribution or a list of releases"))
+
+        if distribution is not None and distribution.releases is None:
+            raise ValueError(N_("Given distribution %s contains no Releases"), distribution.name)
+
+        for release in releases if releases is not None else distribution.releases:
+            if isinstance(release, StringTypes):
+                release = self._getRelease(session, release)
+            for component in components if components is not None else distribution.components:
+                if isinstance(component, StringTypes):
+                    component = self._getComponent(session, component)
+                for architecture in architectures if architectures is not None else distribution.architectures:
+                    if isinstance(architecture, StringTypes):
+                        architecture = self._getArchitecture(architecture)
+                    packagelist = self.getMirrorPackageList(session, release, component, architecture)
+                    for package in deb822.Packages.iter_paragraphs(file(packagelist)):
+                        if package.has_key('Package'):
+                            if not package['Package'] in [p['name'] for p in self.manager.getPackages(release=release, arch=architecture, component=component)]:
+                                if sections and package['Section'] not in sections:
+                                    next
+                                else:
+                                    print("Adding package '%s' from URL '%s'" % (package['Package'], distribution.origin + "/" + package['Filename']))
+                                    self.addPackage(session, distribution.origin + "/" + package['Filename'], release=release.name, component=component.name, section=package['Section'])
+                                    try:
+                                        session.commit()
+                                    except:
+                                        session.rollback()
+                                        raise
+                            else:
+                                print "Doing upgrade if differs"
+                    result = True
+
+        try:
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        return result
+
     def getKernelPackageFilter(self):
         return "linux-image%"
 
-    def addPackage(self, session, url, distribution=None, release=None, origin=None, component=None):
+    def addPackage(self, session, url, distribution=None, release=None, origin=None, component=None, section=None, updateInventory=True):
         if distribution:
             if isinstance(distribution, (str, unicode)):
                 distribution = self._getDistribution(session, distribution)
@@ -120,7 +171,7 @@ class DebianHandler(DistributionHandler):
                 release = self._getRelease(session, release)
                 release = session.merge(release)
 
-        result = self._getPackageFromUrl(session, url, origin=origin, component=component)
+        result, url = self._getPackageFromUrl(session, url, origin=origin, component=component, section=section)
         session.add(result)
 
         if release:
@@ -158,7 +209,7 @@ class DebianHandler(DistributionHandler):
                         if not os.path.exists(pool_path + os.sep + file.name):
                             shutil.copy2(url, pool_path + os.sep + file.name)
 
-                    ## Manage DB content, update associative properties
+                    # Manage DB content, update associative properties
                     release.packages.append(result)
                     if not result.arch in release.distribution.architectures:
                         release.distribution.architectures.append(result.arch)
@@ -182,7 +233,9 @@ class DebianHandler(DistributionHandler):
                             os.unlink(file.name)
                         os.symlink(os.path.relpath(pool_path + os.sep + file.name), file.name)
                     os.chdir(current_dir)
-                    self._updateInventory(session, release=release, distribution=distribution)
+
+                    if updateInventory:
+                        self._updateInventory(session, release=release, distribution=distribution)
         return result
 
     def removePackage(self, session, package, arch=None, release=None, distribution=None):
@@ -312,34 +365,95 @@ class DebianHandler(DistributionHandler):
             result = None
         return result
 
-    def _getPackageFromUrl(self, session, url, origin=None, component=None):
+    def getMirrorPackageList(self, session, release, component, architecture):
         result = None
+        local_file = None
+
+        if architecture.name=="all":
+            raise ValueError(_N("Refusing to download Packages for architecture {architecture}").format(architecture=architecture.name))
+            return result
+
+        for extension in (".bz2", ".gz", ""):
+            try:
+                packages_file = "/".join((release.distribution.origin, "dists", release.name, component.name, "binary-" + architecture.name, "Packages" + extension))
+                local_file = downloadFile(packages_file)
+                if extension is ".bz2":
+                    compressed_file = bz2.BZ2File(local_file, 'rb')
+                    file_content = compressed_file.readlines();
+                    compressed_file.close()
+
+                    uncompressed_file = file(local_file, 'wb')
+                    uncompressed_file.writelines(file_content)
+                    uncompressed_file.close()
+                elif extension is ".gz":
+                    compressed_file = gzip.GzipFile(local_file, 'rb')
+                    file_content = compressed_file.readlines();
+                    compressed_file.close()
+
+                    uncompressed_file = file(local_file, 'wb')
+                    uncompressed_file.writelines(file_content)
+                    uncompressed_file.close()
+                break
+            except urllib2.HTTPError:
+                pass
+            except:
+                raise
+
+        if not local_file:
+            raise ValueError(N_("Could not download a Packages file for {release}/{component}/{architecture}").format(release=release.name, component=component.name, architecture=architecture.name))
+            return result
+
+        result = local_file
+
+        return result
+
+    def _getPackageFromUrl(self, session, url, origin=None, component=None, section=None):
+        result = None
+
+        o = urlparse(url)
+        if o.scheme in ("http", "https", "ftp"):
+            # Need to download file first
+            url = downloadFile(o.geturl(), use_filename=True)
+        elif o.scheme is None:
+            # Local file
+            pass
+        else:
+            raise ValueError(N_("Unknown URL '%s'!"), url)
+
         if url.endswith('.deb'):
             deb = debfile.DebFile(url)
-            if 'Package' in deb.debcontrol():
-                result = DebianPackage(deb.debcontrol().get("Package"))
-                description = deb.debcontrol().get("Description").split('\n')
+            control = deb.debcontrol()
+            if 'Package' in control:
+                result = DebianPackage(control.get("Package"))
+                description = control.get("Description").split('\n')
                 result.description = description[0]
                 result.long_description = string.join(map(lambda l: ' ' + l, description[1:]), '\n')
-                result.version = deb.debcontrol().get("Version")
-                result.maintainer = deb.debcontrol().get("Maintainer")
-                result.section = self._getSection(session, deb.debcontrol().get("Section"), add=True)
+                result.version = control.get("Version")
+                result.maintainer = control.get("Maintainer")
+                if section:
+                    result.section = self._getSection(session, section, add=True)
+                elif control.has_key('section'):
+                    result.section = self._getSection(session, control.get("Section"), add=True)
+                else:
+                    raise ValueError(N_("Package %s has no section!"), control.get("Package"))
                 if component:
                     result.component = self._getComponent(session, component, add=True)
                 else:
-                    if "/" in deb.debcontrol().get("Section"):
-                        result.component = self._getComponent(session, deb.debcontrol().get("Section").split("/")[0], add=True)
+                    if "/" in result.section.name:
+                        result.component = self._getComponent(session, result.section.name.split("/")[0], add=True)
                     else:
                         result.component = self._getComponent(session, "main", add=True)
-                result.arch = self._getArchitecture(session, deb.debcontrol().get("Architecture"), add=True)
-                result.priority = self._getPriority(session, deb.debcontrol().get("Priority"), add=True)
-                result.depends = deb.debcontrol().get("Depends")
-                result.installed_size = deb.debcontrol().get("Installed-Size")
-                result.recommends = deb.debcontrol().get("Recommends")
-                result.suggests = deb.debcontrol().get("Suggests")
-                result.provides = deb.debcontrol().get("Provides")
+                result.arch = self._getArchitecture(session, control.get("Architecture"), add=True)
+                result.priority = self._getPriority(session, control.get("Priority"), add=True)
+                result.depends = control.get("Depends")
+                result.installed_size = control.get("Installed-Size")
+                result.recommends = control.get("Recommends")
+                result.suggests = control.get("Suggests")
+                result.provides = control.get("Provides")
                 result.files.append(self._getFile(session, url, add=True))
                 result.type = self._getType(session, str(result.files[0].name).split('.')[-1], add=True)
+                result.standards_version = deb.version
+                result.source = control.get("Source")
             existing = self._getPackage(session, result.name, arch=result.arch, version=result.version)
             if existing is not None:
                 result = existing
@@ -424,7 +538,7 @@ class DebianHandler(DistributionHandler):
                                 f.close()
                             except:
                                 raise
-        return result
+        return result, url
 
     def _get_md5_for_file(self, filename, block_size=2**20):
         md5 = hashlib.md5()
