@@ -55,21 +55,6 @@ _ = t.ugettext
 ALLOWED_CHARS_RELEASE = "^[A-Za-z0-9\-_\.\/]+$"
 ALLOWED_CHARS_DISTRIBUTION = "^[A-Za-z0-9\-_\.]+$"
 
-STATUS_SYSTEM_ON = "O"
-STATUS_SYSTEM_OFF ="o"
-STATUS_UPDATABLE = "u"
-STATUS_UPDATING = "U"
-STATUS_INVENTORY = "i"
-STATUS_CONFIGURING = "C"
-STATUS_INSTALLING = "I"
-STATUS_VM_INITIALIZING = "V"
-STATUS_WARNING = "W"
-STATUS_ERROR = "E"
-STATUS_OCCUPIED = "B"
-STATUS_ACTIVE = "A"
-STATUS_LOCKED = "a"
-STATUS_BOOTING = "b"
-
 #TODO: @Command decorators need to be configured for making
 #      it multi-server aware. But this feature has to be tested
 #      completely.
@@ -1684,47 +1669,6 @@ class RepositoryManager(Plugin):
 
             conn.delete(res[0][0])
 
-
-    @Command(__doc__=N_("Set system status"))
-    def systemSetStatus(self, device_uuid, status):
-        # Check params
-        valid = [STATUS_SYSTEM_ON, STATUS_SYSTEM_OFF, STATUS_UPDATABLE,
-            STATUS_UPDATING, STATUS_INVENTORY, STATUS_CONFIGURING,
-            STATUS_INSTALLING, STATUS_VM_INITIALIZING, STATUS_WARNING,
-            STATUS_ERROR, STATUS_OCCUPIED, STATUS_ACTIVE, STATUS_LOCKED,
-            STATUS_BOOTING]
-
-        # Write to LDAP
-        lh = LDAPHandler.get_instance()
-        fltr = "deviceUUID=%s" % device_uuid
-
-        with lh.get_handle() as conn:
-            res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
-                "(&(objectClass=device)(%s))" % fltr, ['deviceStatus'])
-
-            if len(res) != 1:
-                raise ValueError("no device '%s' available" % device_uuid)
-
-            devstat = res[0][1]['deviceStatus'][0] if 'deviceStatus' in res[0][1] else ""
-            is_new = not bool(devstat)
-            devstat = list(devstat.strip("[]"))
-
-            r = re.compile(r"([+-].)")
-            for stat in r.findall(status):
-                if not stat[1] in valid:
-                    raise ValueError("invalid status %s" % stat[1])
-                if stat.startswith("+"):
-                    if not stat[1] in devstat:
-                        devstat.append(stat[1])
-                else:
-                    if stat[1] in devstat:
-                        devstat.remove(stat[1])
-
-            devstat = "[" + "".join(devstat).encode('utf8') + "]"
-            if is_new:
-                conn.modify(res[0][0], [(ldap.MOD_ADD, "deviceStatus", [devstat])])
-            else:
-                conn.modify(res[0][0], [(ldap.MOD_REPLACE, "deviceStatus", [devstat])])
 
 #---------------------------------------------------------------------------------------------#
 

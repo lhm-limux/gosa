@@ -38,6 +38,21 @@ from uuid import uuid1
 from base64 import encodestring as encode
 from Crypto.Cipher import AES
 
+STATUS_SYSTEM_ON = "O"
+STATUS_SYSTEM_OFF ="o"
+STATUS_UPDATABLE = "u"
+STATUS_UPDATING = "U"
+STATUS_INVENTORY = "i"
+STATUS_CONFIGURING = "C"
+STATUS_INSTALLING = "I"
+STATUS_VM_INITIALIZING = "V"
+STATUS_WARNING = "W"
+STATUS_ERROR = "E"
+STATUS_OCCUPIED = "B"
+STATUS_ACTIVE = "A"
+STATUS_LOCKED = "a"
+STATUS_BOOTING = "b"
+
 class ClientService(object):
     """
     Plugin to register clients and expose their functionality
@@ -49,6 +64,7 @@ class ClientService(object):
     __client = {}
     __proxy = {}
     __user_session = {}
+
 
     def __init__(self):
         """
@@ -187,6 +203,47 @@ class ClientService(object):
                     pass
 
 
+    @Command(__doc__=N_("Set system status"))
+    def systemSetStatus(self, device_uuid, status):
+        # Check params
+        valid = [STATUS_SYSTEM_ON, STATUS_SYSTEM_OFF, STATUS_UPDATABLE,
+            STATUS_UPDATING, STATUS_INVENTORY, STATUS_CONFIGURING,
+            STATUS_INSTALLING, STATUS_VM_INITIALIZING, STATUS_WARNING,
+            STATUS_ERROR, STATUS_OCCUPIED, STATUS_ACTIVE, STATUS_LOCKED,
+            STATUS_BOOTING]
+
+        # Write to LDAP
+        lh = LDAPHandler.get_instance()
+        fltr = "deviceUUID=%s" % device_uuid
+
+        with lh.get_handle() as conn:
+            res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
+                "(&(objectClass=device)(%s))" % fltr, ['deviceStatus'])
+
+            if len(res) != 1:
+                raise ValueError("no device '%s' available" % device_uuid)
+
+            devstat = res[0][1]['deviceStatus'][0] if 'deviceStatus' in res[0][1] else ""
+            is_new = not bool(devstat)
+            devstat = list(devstat.strip("[]"))
+
+            r = re.compile(r"([+-].)")
+            for stat in r.findall(status):
+                if not stat[1] in valid:
+                    raise ValueError("invalid status %s" % stat[1])
+                if stat.startswith("+"):
+                    if not stat[1] in devstat:
+                        devstat.append(stat[1])
+                else:
+                    if stat[1] in devstat:
+                        devstat.remove(stat[1])
+
+            devstat = "[" + "".join(devstat).encode('utf8') + "]"
+            if is_new:
+                conn.modify(res[0][0], [(ldap.MOD_ADD, "deviceStatus", [devstat])])
+            else:
+                conn.modify(res[0][0], [(ldap.MOD_REPLACE, "deviceStatus", [devstat])])
+
     @Command(needsUser=True,__doc__=N_("Join a client to the GOsa system."))
     def joinClient(self, user, device_uuid, mac, info=None):
         uuid_check = re.compile(r"^[0-9a-f]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$", re.IGNORECASE)
@@ -313,15 +370,19 @@ class ClientService(object):
         self.env.log.debug("updating client '%s' user session information" % data.Id)
         if hasattr(data.User, 'Name'):
             self.__user_session[str(data.Id)] = map(lambda x: str(x), data.User.Name)
+            self.systemSetStatus(str(data.Id), "+B")
         else:
             self.__user_session[str(data.Id)] = []
+            self.systemSetStatus(str(data.Id), "-B")
 
     def _handleClientAnnounce(self, data):
         data = data.ClientAnnounce
-        self.env.log.debug("client '%s' is joining us" % data.Id)
+        client = data.Id.text
+        self.env.log.debug("client '%s' is joining us" % client)
+        self.systemSetStatus(client, "+O-o")
 
         # Remove remaining proxy values for this client
-        if "client" in self.__proxy:
+        if client in self.__proxy:
             self.__proxy[client].close()
             del self.__proxy[client]
 
@@ -358,6 +419,7 @@ class ClientService(object):
         data = data.ClientLeave
         client = data.Id.text
         self.env.log.debug("client '%s' is leaving" % client)
+        self.systemSetStatus(client, "-O+o")
 
         if client in self.__client:
             del self.__client[client]
