@@ -17,7 +17,7 @@ from libinst.entities import Base, UseInnoDB
 class Component(Base, UseInnoDB):
     __tablename__ = 'component'
     id = Column(Integer, Sequence('component_id_seq'), primary_key=True)
-    name = Column(String(255), unique=True)
+    name = Column(String(255), nullable=False, unique=True)
     description = Column(String(255))
     discriminator = Column(Integer(50))
     __mapper_args__ = {'polymorphic_on': discriminator}

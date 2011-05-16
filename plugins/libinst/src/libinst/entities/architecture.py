@@ -17,7 +17,7 @@ from libinst.entities import Base, UseInnoDB
 class Architecture(Base, UseInnoDB):
     __tablename__ = 'arch'
     id = Column(Integer, Sequence('arch_id_seq'), primary_key=True)
-    name = Column(String(255), unique=True)
+    name = Column(String(255), nullable=False, unique=True)
     description = Column(String(255))
 
     def __init__(self, name, **kwargs):
