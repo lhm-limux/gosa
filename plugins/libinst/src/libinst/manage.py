@@ -847,12 +847,12 @@ class RepositoryManager(Plugin):
                         distribution = instance
                 distribution = session.merge(distribution)
                 if distribution.releases:
-                    distribution._sync()
-                    result = True
+                    result = self.type_reg[distribution.type.name].updateMirror(session, distribution=distribution)
                 else:
                     raise ValueError(N_("Distribution %s has no releases", distribution.name))
             else:
                 raise ValueError(N_("Need a distribution to update"))
+            session.commit()
         except:
             session.rollback()
             raise

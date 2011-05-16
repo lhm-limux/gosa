@@ -41,46 +41,48 @@ LcWMU6gayNYj7eMgCOFM6ywySRS81FC+PPnr147xbp5FwgmoPRK52MURsHJ+
 
     # Begin: New stuff
     manager = RepositoryManager()
-    print manager.getSupportedBaseInstallMethods()
-    print manager.getSupportedInstallMethods()
+    #print manager.getSupportedBaseInstallMethods()
+    #print manager.getSupportedInstallMethods()
 
     manager.addKeys(keyring)
     print "createDistribution:", manager.createDistribution("debian", "deb",
             {"mirror": "http://archive.debian.org/debian"},
             install_method="puppet")
-    print "getDistributions", manager.getDistributions()
-    print "createRelease:", manager.createRelease("debian", "lenny")
-    print "createRelease:", manager.createRelease("debian", "lenny/1.0")
-    print "setDistribution:", manager.setDistribution(
-            {
-                'component': [],
-                'distribution': 'debian',
-                'arch': [],
-                'mirror_sources': False
-            }
-    )
-    print "listConfigItems:", manager.listConfigItems('lenny')
-    print "setConfigItem:", manager.setConfigItem(
-        'lenny',
-        '/module',
-        'PuppetModule',
-        {
-            'dependency': [],
-            'version': '23',
-            'description': '',
-        })
-    print "setConfigItem:", manager.setConfigItem(
-        'lenny',
-        '/module/manifest',
-        'PuppetManifest',
-        {
-            'data': '1',
-            'name': 'manifest',
-        })
-    print "listConfigItems:", manager.listConfigItems('lenny')
-    print "getConfigItem:", manager.getConfigItem('lenny', '/module')
-    print "removeConfigItem:", manager.removeConfigItem('lenny', '/module/manifest')
-    print "listConfigItems:", manager.listConfigItems('lenny')
+    print "createRelease:", manager.createRelease("debian", "bo")
+    print "getDistributions:", manager.getDistributions()
+    print "updateMirror:", manager.updateMirror(distribution="debian")
+    #print "createRelease:", manager.createRelease("debian", "lenny")
+    #print "createRelease:", manager.createRelease("debian", "lenny/1.0")
+    #print "setDistribution:", manager.setDistribution(
+    #        {
+    #            'component': [],
+    #            'distribution': 'debian',
+    #            'arch': [],
+    #            'mirror_sources': False
+    #        }
+    #)
+    #print "listConfigItems:", manager.listConfigItems('lenny')
+    #print "setConfigItem:", manager.setConfigItem(
+    #    'lenny',
+    #    '/module',
+    #    'PuppetModule',
+    #    {
+    #        'dependency': [],
+    #        'version': '23',
+    #        'description': '',
+    #    })
+    #print "setConfigItem:", manager.setConfigItem(
+    #    'lenny',
+    #    '/module/manifest',
+    #    'PuppetManifest',
+    #    {
+    #        'data': '1',
+    #        'name': 'manifest',
+    #    })
+    #print "listConfigItems:", manager.listConfigItems('lenny')
+    #print "getConfigItem:", manager.getConfigItem('lenny', '/module')
+    #print "removeConfigItem:", manager.removeConfigItem('lenny', '/module/manifest')
+    #print "listConfigItems:", manager.listConfigItems('lenny')
     #print "setConfigItem:", manager.setConfigItem(
     #    'lenny/1.0',
     #    '/module/manifest',

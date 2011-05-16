@@ -107,6 +107,16 @@ class DebianHandler(DistributionHandler):
             raise
         return result
 
+    def updateMirror(self, session, distribution=None):
+        result = None
+        if distribution is None:
+            raise ValueError(N_("Distribution parameter is mandatory"))
+        elif distribution.releases is None:
+            raise ValueError(N_("Need at least one release to update mirror"))
+        for release in distribution.releases:
+            print distribution.origin
+        return result
+
     def getKernelPackageFilter(self):
         return "linux-image%"
 
@@ -310,6 +320,10 @@ class DebianHandler(DistributionHandler):
             result = session.query(DebianPackage).filter_by(name=name).all()
         except:
             result = None
+        return result
+
+    def getPackageList(self, session, release=None):
+        result = None
         return result
 
     def _getPackageFromUrl(self, session, url, origin=None, component=None):
