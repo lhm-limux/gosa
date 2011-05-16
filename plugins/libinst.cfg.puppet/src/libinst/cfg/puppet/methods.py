@@ -233,6 +233,12 @@ class PuppetInstallMethod(InstallMethod):
 
         return True
 
+    def getItemsAssignableElements(self, release, item):
+        target_path, target_name = self.__get_target(release, item.path)
+        module = self._supportedItems[item.item_type]['module'](target_path,
+                target_name)
+        return module.getAssignableElements()
+
     def getItem(self, release, path):
         super(PuppetInstallMethod, self).getItem(release, path)
 

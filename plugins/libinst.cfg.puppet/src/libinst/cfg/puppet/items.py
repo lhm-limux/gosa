@@ -203,7 +203,7 @@ class PuppetManifest(InstallItem):
             "data": {
                 "display": "Manifest",
                 "description": "Puppet manifest data",
-                "type": "string",
+                "type": "text",
                 "required": True,
                 "value": None,
                 "default": None,

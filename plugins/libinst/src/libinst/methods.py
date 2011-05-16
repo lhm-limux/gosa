@@ -239,6 +239,11 @@ class InstallMethod(object):
     needed to interact with any install method. Implementations of this interface
     must implement all methods.
     """
+    attributes = {
+            'configVariable': 'var',
+            'configMethod': 'method',
+            'configItem': 'item',
+        }
 
     _supportedTypes = []
     _supportedItems = {}
@@ -379,7 +384,7 @@ class InstallMethod(object):
     def listAssignableElements(self, release):
         res = {}
         for item in self._manager._getAssignableElements(release):
-            res.append(item.getAssignableElements())
+            res = dict(res.items() + self.getItemsAssignableElements(release, item).items())
         return res
 
     def listItems(self, release, item_type=None, path=None, children=None):
@@ -516,7 +521,7 @@ class InstallMethod(object):
                 item.name = data["name"]
 
             # Updated marker for assignable elements
-            item.assignable = bool(item.getAssignableElements())
+            item.assignable = bool(self.getItemsAssignableElements(release, item))
 
             # Add us as child
             release_object = self._manager._getRelease(release)
@@ -534,6 +539,9 @@ class InstallMethod(object):
         finally:
             session.close()
         return result
+
+    def getItemsAssignableElements(self, release, item):
+        return {}
 
     def removeItem(self, release, path, children=None):
         """
@@ -776,13 +784,70 @@ class InstallMethod(object):
 
         return res
 
-    def setConfigParameters(self, data, sys_data=None):
-        #TODO
-        #objectclass (1.3.6.1.4.1.10098.3.2.1.1.50 NAME 'configRecipe' SUP top AUXILIARY
-        #        DESC 'Puppet Client objectclass'
-        #        MUST configMethod
-        #        MAY (configItem $ configVariable ))
+    def setConfigParameters(self, device_uuid, data, current_data=None):
+        res = {}
+        if not current_data:
+            current_data = load_system(device_uuid, None, False)
+
+        is_new = not 'configMethod' in current_data['objectClass']
+        dn = current_data['dn']
+        current_data = self.getConfigParameters(device_uuid, current_data)
+
+        mods = []
+
+        # Add eventually missing objectclass
+        if is_new:
+            mods.append((ldap.MOD_ADD, 'objectClass', 'configRecipe'))
+
+        # Map variables
+        data['var'] = []
+        if 'param' in data:
+            for key, value in data['param'].items():
+                if "=" in key:
+                    raise ValueError("variable key doesn't allow equal signs")
+                data['var'].append("%s=%s" % (key, value))
+            del data['param']
+
+        # Transfer changed parameters
+        for ldap_key, key in self._attributes.items():
+
+            # New value?
+            if key in data and not key in current_data:
+                mods.append((ldap.MOD_ADD, ldap_key,
+                    normalize_ldap(unicode2utf8(data[key]))))
+                continue
+
+            # Changed value?
+            if key in data and key in current_data \
+                    and data[key] != current_data[key]:
+
+                mods.append((ldap.MOD_REPLACE, ldap_key,
+                    normalize_ldap(unicode2utf8(data[key]))))
+                continue
+
+        # Removed values
+        for key in current_data.keys():
+            if key in self.rev_attributes and not key in data:
+                mods.append((ldap.MOD_DELETE, self.rev_attributes[key], None))
+
+        # Do LDAP operations to add the system
+        lh = LDAPHandler.get_instance()
+        with lh.get_handle() as conn:
+            conn.modify_s(dn, mods)
         return {}
+
+    def removeConfigParameters(self, device_uuid, data=None):
+        if not data:
+            data = load_system(device_uuid)
+
+        mods = [(ldap.MOD_DELETE, 'objectClass', 'configRecipe')]
+        for attr in ["configMethod", "configItem", "configVariable"]:
+            mods.append((ldap.MOD_DELETE, attr, None))
+
+        # Do LDAP operations to remove the device
+        lh = LDAPHandler.get_instance()
+        with lh.get_handle() as conn:
+            conn.modify_s(dn, mods)
 
 
 def load_system(device_uuid, mac=None, inherit=True):

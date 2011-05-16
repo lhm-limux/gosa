@@ -55,6 +55,35 @@ _ = t.ugettext
 ALLOWED_CHARS_RELEASE = "^[A-Za-z0-9\-_\.\/]+$"
 ALLOWED_CHARS_DISTRIBUTION = "^[A-Za-z0-9\-_\.]+$"
 
+#   O: System is switched on
+STATUS_SYSTEM_ON = "O"
+#   o: System is switched off
+STATUS_SYSTEM_OFF ="o"
+#   u: Update available
+STATUS_UPDATABLE = "u"
+#   U: Update in progress
+STATUS_UPDATING = "U"
+#   i: Inventory in progress
+STATUS_INVENTORY = "i"
+#   C: Configuration in progress
+STATUS_CONFIGURING = "C"
+#   I: Installation in progress
+STATUS_INSTALLING = "I"
+#   V: Virtual machine creation in progress
+STATUS_VM_INITIALIZING = "V"
+#   W: Warning
+STATUS_WARNING = "W"
+#   E: Error
+STATUS_ERROR = "E"
+#   B: System has active user sessions
+STATUS_OCCUPIED = "B"
+#   A: System activated
+STATUS_ACTIVE = "A"
+#   a: System locked
+STATUS_LOCKED = "a"
+#   b: System booting
+STATUS_BOOTING = "b"
+
 #TODO: @Command decorators need to be configured for making
 #      it multi-server aware. But this feature has to be tested
 #      completely.
@@ -1556,6 +1585,18 @@ class RepositoryManager(Plugin):
         config_m = self.install_method_reg[method]
         return config_m.setConfigParameters(device_uuid, data, sys_data)
 
+    @Command(__doc__=N_("Completely remove device's config parameters"))
+    def removeConfigParameters(self, device_uuid):
+        sys_data = load_system(device_uuid, None, False)
+        method = self.systemGetConfigMethod(device_uuid, sys_data)
+
+        if not method in self.install_method_reg:
+            return None
+
+        config_m = self.install_method_reg[method]
+        return config_m.removeConfigParameters(device_uuid, sys_data)
+
+
     @Command(__doc__=N_("Get list of templates, filter by method"))
     def installListTemplates(self, method=None):
         result = {}
@@ -1614,7 +1655,7 @@ class RepositoryManager(Plugin):
             mods = []
             if create_new:
                 #TODO: unique check
-                mods.append(('objectClass', ['gosaConfigItem', 'installTemplate']))
+                mods.append((ldap.MOD_ADD, 'objectClass', ['gosaConfigItem', 'installTemplate']))
                 dn = ",".join(["cn=" + name,
                     self.env.config.getOption("template-rdn", "libinst", "cn=templates,cn=libinst,cn=config"),
                     lh.get_base()])
@@ -1657,7 +1698,25 @@ class RepositoryManager(Plugin):
 
             conn.delete(res[0][0])
 
+
+    @Command(__doc__=N_("Set system status"))
+    def systemSetStatus(self, device_uuid, status, mac=None):
+        HIER
+        lh = LDAPHandler.get_instance()
+        fltr = "cn=%s" % name
+
+        with lh.get_handle() as conn:
+            res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
+                "(&(objectClass=installTemplate)(%s))" % fltr,
+                self.template_map.keys())
+
+            if len(res) != 1:
+                raise ValueError("no template named '%s' available" % name)
+
+            #conn.delete(res[0][0])
+
 #---------------------------------------------------------------------------------------------#
+
 
     def _getArchitecture(self, name, add=False):
         result = None
@@ -1891,7 +1950,7 @@ class RepositoryManager(Plugin):
 
         try:
             session = self.getSession()
-            result = session.query(ConfigItem).filter(assignable=True)
+            result = session.query(ConfigItem).filter_by(assignable=True)
             result = result.join(ConfigItemReleases).join(Release).filter_by(name=release)
             session.commit()
 
