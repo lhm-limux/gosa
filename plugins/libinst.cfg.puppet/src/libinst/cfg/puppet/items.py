@@ -296,6 +296,9 @@ class PuppetManifest(InstallItem):
 
         manifest_file = os.path.join(self.__path, self.__name + ".pp")
 
+        if not os.path.exists(manifest_file):
+            return {}
+
         with open(manifest_file, "r") as f:
 
             search_description = False

@@ -204,11 +204,10 @@ class ClientService(object):
     @Command(__doc__=N_("Set system status"))
     def systemSetStatus(self, device_uuid, status):
         # Check params
-        valid = [STATUS_SYSTEM_ON, STATUS_SYSTEM_OFF, STATUS_UPDATABLE,
+        valid = [STATUS_SYSTEM_ON, STATUS_LOCKED, STATUS_UPDATABLE,
             STATUS_UPDATING, STATUS_INVENTORY, STATUS_CONFIGURING,
             STATUS_INSTALLING, STATUS_VM_INITIALIZING, STATUS_WARNING,
-            STATUS_ERROR, STATUS_OCCUPIED, STATUS_ACTIVE, STATUS_LOCKED,
-            STATUS_BOOTING]
+            STATUS_ERROR, STATUS_OCCUPIED, STATUS_BOOTING]
 
         # Write to LDAP
         lh = LDAPHandler.get_instance()

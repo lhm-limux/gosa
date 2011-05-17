@@ -13,6 +13,7 @@ import re
 import os
 import ldap
 import sys
+from copy import copy
 from types import StringTypes, DictType
 from gosa.common.env import Environment
 from gosa.agent.ldap_utils import LDAPHandler, unicode2utf8, normalize_ldap
@@ -778,10 +779,10 @@ class InstallMethod(object):
                 res['item'] = data['configItem']
 
             if 'configVariable' in data:
-                res['param'] = {}
+                res['var'] = {}
                 for var in data['configVariable']:
                     (name, value) = var.split("=", 1)
-                    res['param'][name] = value
+                    res['var'][name] = value
 
         return res
 
@@ -801,13 +802,13 @@ class InstallMethod(object):
             mods.append((ldap.MOD_ADD, 'objectClass', 'configRecipe'))
 
         # Map variables
-        data['var'] = []
-        if 'param' in data:
-            for key, value in data['param'].items():
+        if 'var' in data:
+            tmp = copy(data['var'])
+            data['var'] = []
+            for key, value in tmp.items():
                 if "=" in key:
                     raise ValueError("variable key doesn't allow equal signs")
                 data['var'].append("%s=%s" % (key, value))
-            del data['param']
 
         # Transfer changed parameters
         for ldap_key, key in self.attributes.items():
@@ -848,7 +849,7 @@ class InstallMethod(object):
         # Do LDAP operations to remove the device
         lh = LDAPHandler.get_instance()
         with lh.get_handle() as conn:
-            conn.modify_s(dn, mods)
+            conn.modify_s(data['dn'], mods)
 
 
 def load_system(device_uuid, mac=None, inherit=True):

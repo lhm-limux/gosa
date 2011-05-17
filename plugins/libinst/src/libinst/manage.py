@@ -1325,8 +1325,8 @@ class RepositoryManager(Plugin):
                 result = self.install_method_reg[release.distribution.installation_method].setItem(release.name, path, item_type, data)
             session.commit()
         except:
-            raise
             session.rollback()
+            raise
         finally:
             session.close()
         return result != None
@@ -1548,13 +1548,13 @@ class RepositoryManager(Plugin):
     @Command(__doc__=N_("Set device's config parameters"))
     def systemSetConfigParameters(self, device_uuid, data):
         sys_data = load_system(device_uuid, None, False)
-        method = self.systemGetConfigMethod(device_uuid, sys_data)
+        method = data['method']
 
         if not method in self.install_method_reg:
             return None
 
         config_m = self.install_method_reg[method]
-        return config_m.setConfigParameters(device_uuid, data, sys_data)
+        config_m.setConfigParameters(device_uuid, data, sys_data)
 
     @Command(__doc__=N_("Completely remove device's config parameters"))
     def removeConfigParameters(self, device_uuid):
