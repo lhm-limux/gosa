@@ -9,12 +9,9 @@
 
  See LICENSE for more information about the licensing.
 """
-import os
 import os.path
-import re
 import pwd
 import shutil
-import string
 import pkg_resources
 from datetime import datetime
 from libinst.methods import InstallMethod
@@ -22,8 +19,6 @@ from git import Repo
 from git.cmd import Git, GitCommandError
 from subprocess import Popen, PIPE
 from threading import RLock
-from libinst.manage import RepositoryManager
-from gosa.common.env import Environment
 from types import StringTypes
 
 # Global puppet lock
@@ -345,7 +340,7 @@ class PuppetInstallMethod(InstallMethod):
 
         args = ['ssh-keygen', '-t', 'dsa', '-N', '', '-C', comment, '-f', path]
         p = Popen(args, stdout=PIPE)
-        stdout = p.communicate()[0]
+        p.communicate()[0]
         if p.returncode != 0:
             raise Exception("SSH key generation failed")
 

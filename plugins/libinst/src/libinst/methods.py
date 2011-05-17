@@ -14,7 +14,7 @@ import os
 import ldap
 import sys
 from copy import copy
-from types import StringTypes, DictType
+from types import StringTypes
 from gosa.common.env import Environment
 from gosa.agent.ldap_utils import LDAPHandler, unicode2utf8, normalize_ldap
 from libinst.entities.config_item import ConfigItem
@@ -407,7 +407,6 @@ class InstallMethod(object):
         @return: dictionary of name/item_type pairs
         """
         res = {}
-        first = False
         session = None
 
         def filter_items(item):
@@ -432,7 +431,6 @@ class InstallMethod(object):
 
             if not children:
                 children = release.config_items
-                first = True
 
             items = filter(filter_items, children)
             res = dict((i.getPath(), i.item_type) for i in items)
@@ -787,7 +785,6 @@ class InstallMethod(object):
         return res
 
     def setConfigParameters(self, device_uuid, data, current_data=None):
-        res = {}
         if not current_data:
             current_data = load_system(device_uuid, None, False)
 
@@ -836,7 +833,6 @@ class InstallMethod(object):
         lh = LDAPHandler.get_instance()
         with lh.get_handle() as conn:
             conn.modify_s(dn, mods)
-        return {}
 
     def removeConfigParameters(self, device_uuid, data=None):
         if not data:
@@ -890,7 +886,7 @@ def load_system(device_uuid, mac=None, inherit=True):
         if inherit:
             # Trace recipes of present
             depth = 3
-            while 'installRecipeDN' in obj:
+            while 'installRecipeDN' in obj and depth > 0:
                 dn = obj['installRecipeDN'][0]
                 res = conn.search_s(dn, ldap.SCOPE_BASE, attrlist=[
                     "installTemplateDN", "installNTPServer", "installRootEnabled",
@@ -900,6 +896,7 @@ def load_system(device_uuid, mac=None, inherit=True):
                     "installRecipeDN", "installRelease"])
                 obj = res[0][1]
                 res_queue.append(obj)
+                depth += 1
 
         # Reverse merge queue into result
         res_queue.reverse()

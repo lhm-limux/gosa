@@ -9,13 +9,11 @@ This is the zeroconf provider module.
 See LICENSE for more information about the licensing.
 """
 import string
-import sys
 import time
 import datetime
 import re
 from inspect import getargspec, getmembers, ismethod
 from zope.interface import implements
-from lxml import objectify
 
 from gosa.common.components.registry import PluginRegistry
 from gosa.common.components.command import Command
@@ -253,7 +251,7 @@ class CommandRegistry(object):
         elif methodType == FIRSTRESULT or methodType == CUMULATIVE:
             # Walk thru nodes
             result = None
-            for node, props in self.nodes.iteritems():
+            for node in self.nodes.keys():
 
                 # Don't bother with non provider nodes, just skip them
                 if not node in self.capabilities[func]['provider']:
@@ -497,7 +495,7 @@ class CommandRegistry(object):
         """
         amqp = PluginRegistry.getInstance("AMQPHandler")
 
-        for name, clazz in PluginRegistry.modules.iteritems():
+        for clazz in PluginRegistry.modules.values():
             for mname, method in getmembers(clazz):
                 if ismethod(method) and hasattr(method, "isCommand"):
 
