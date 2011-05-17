@@ -25,6 +25,7 @@ from types import StringTypes, DictType
 from base64 import encodestring
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.ext.declarative import declarative_base
 
 from libinst.entities import Base
 from libinst.entities.architecture import Architecture
@@ -147,6 +148,7 @@ class RepositoryManager(Plugin):
 
     @Command(__doc__=N_("List the available installation methods"))
     def getSupportedInstallMethods(self):
+        import copy
         methods = {}
         for method, obj in self.install_method_reg.iteritems():
             methods[method] = obj.getInfo()
@@ -1232,6 +1234,7 @@ class RepositoryManager(Plugin):
         return result
 
     def listKeys(self):
+        result = None
         work_dir = self._getGPGEnvironment()
         gpg = gnupg.GPG(gnupghome=work_dir)
         result = gpg.list_keys(True)
@@ -2004,6 +2007,7 @@ class RepositoryManager(Plugin):
         @return: dictionary of name/item_type pairs
         """
         res = {}
+        first = False
         session = None
 
         def filter_items(item):
@@ -2021,6 +2025,7 @@ class RepositoryManager(Plugin):
 
             if not children:
                 children = self._getRelease(release).config_items
+                first = True
 
             children = session.merge(children)
             items = filter(filter_items, children)

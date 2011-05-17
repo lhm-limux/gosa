@@ -13,7 +13,7 @@ import sys
 import re
 import traceback
 from zope.interface import implements
-from jsonrpc import loads, dumps
+from jsonrpc import loads, dumps, JSONEncodeException
 from jsonrpc.serviceHandler import ServiceRequestNotTranslatable, BadServiceRequest
 from qpid.messaging import *
 from qpid.util import URL
@@ -53,7 +53,7 @@ class AMQPService(object):
 
         # Create a list of queues we need here
         queues = {}
-        for dsc in self.__cr.commands.values():
+        for command, dsc in self.__cr.commands.iteritems():
             queues[dsc['target']] = True
 
         # Finally create the queues
