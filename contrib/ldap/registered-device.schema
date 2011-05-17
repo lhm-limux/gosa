@@ -42,7 +42,6 @@ attributetype ( 1.3.6.1.4.1.10098.3.2.1.1 NAME 'deviceUUID'
 #
 # <option> is a single character describing the state:
 #   O: System is switched on
-#   o: System is switched off
 #   u: Update available
 #   U: Update in progress
 #   i: Inventory in progress
@@ -52,8 +51,7 @@ attributetype ( 1.3.6.1.4.1.10098.3.2.1.1 NAME 'deviceUUID'
 #   W: Warning
 #   E: Error
 #   B: System has active user sessions
-#   A: System activated
-#   a: System locked
+#   L: System locked
 #   b: System booting
 #
 attributetype ( 1.3.6.1.4.1.10098.3.2.1.2 NAME 'deviceStatus'

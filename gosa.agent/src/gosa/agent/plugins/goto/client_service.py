@@ -39,7 +39,6 @@ from base64 import encodestring as encode
 from Crypto.Cipher import AES
 
 STATUS_SYSTEM_ON = "O"
-STATUS_SYSTEM_OFF ="o"
 STATUS_UPDATABLE = "u"
 STATUS_UPDATING = "U"
 STATUS_INVENTORY = "i"
@@ -49,8 +48,7 @@ STATUS_VM_INITIALIZING = "V"
 STATUS_WARNING = "W"
 STATUS_ERROR = "E"
 STATUS_OCCUPIED = "B"
-STATUS_ACTIVE = "A"
-STATUS_LOCKED = "a"
+STATUS_LOCKED = "L"
 STATUS_BOOTING = "b"
 
 class ClientService(object):
@@ -379,7 +377,7 @@ class ClientService(object):
         data = data.ClientAnnounce
         client = data.Id.text
         self.env.log.debug("client '%s' is joining us" % client)
-        self.systemSetStatus(client, "+O-o")
+        self.systemSetStatus(client, "+O")
 
         # Remove remaining proxy values for this client
         if client in self.__proxy:
@@ -419,7 +417,7 @@ class ClientService(object):
         data = data.ClientLeave
         client = data.Id.text
         self.env.log.debug("client '%s' is leaving" % client)
-        self.systemSetStatus(client, "-O+o")
+        self.systemSetStatus(client, "-O")
 
         if client in self.__client:
             del self.__client[client]
