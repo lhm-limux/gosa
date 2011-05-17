@@ -32,9 +32,9 @@ class PowerManagement(Plugin):
         bus = dbus.SystemBus()
         hal_dbus = bus.get_object('org.freedesktop.Hal',
                                    '/org/freedesktop/Hal/devices/computer')
-        ret = hal_dbus.Shutdown(dbus_interface="org.freedesktop.Hal.Device.SystemPowerManagement")
+        hal_dbus.Shutdown(dbus_interface="org.freedesktop.Hal.Device.SystemPowerManagement")
 
-        return "Shutdown executed."
+        return True
 
     @Command()
     def reboot(self):
@@ -42,9 +42,9 @@ class PowerManagement(Plugin):
         bus = dbus.SystemBus()
         hal_dbus = bus.get_object('org.freedesktop.Hal',
                                    '/org/freedesktop/Hal/devices/computer')
-        ret = hal_dbus.Reboot(dbus_interface="org.freedesktop.Hal.Device.SystemPowerManagement")
+        hal_dbus.Reboot(dbus_interface="org.freedesktop.Hal.Device.SystemPowerManagement")
 
-        return "Reboot executed."
+        return True
 
     @Command()
     def suspend(self):
@@ -52,9 +52,9 @@ class PowerManagement(Plugin):
         bus = dbus.SystemBus()
         hal_dbus = bus.get_object('org.freedesktop.Hal',
                                    '/org/freedesktop/Hal/devices/computer')
-        ret = hal_dbus.Suspend(dbus_interface="org.freedesktop.Hal.Device.SystemPowerManagement")
+        hal_dbus.Suspend(dbus_interface="org.freedesktop.Hal.Device.SystemPowerManagement")
 
-        return "Suspend executed."
+        return True
 
     @Command()
     def hibernate(self):
@@ -62,9 +62,9 @@ class PowerManagement(Plugin):
         bus = dbus.SystemBus()
         hal_dbus = bus.get_object('org.freedesktop.Hal',
                                    '/org/freedesktop/Hal/devices/computer')
-        ret = hal_dbus.Hibernate(dbus_interface="org.freedesktop.Hal.Device.SystemPowerManagement")
+        hal_dbus.Hibernate(dbus_interface="org.freedesktop.Hal.Device.SystemPowerManagement")
 
-        return "Hibernation executed."
+        return True
 
     @Command()
     def setpowersave(self, enable):
@@ -72,7 +72,7 @@ class PowerManagement(Plugin):
         bus = dbus.SystemBus()
         hal_dbus = bus.get_object('org.freedesktop.Hal',
                                    '/org/freedesktop/Hal/devices/computer')
-        ret = hal_dbus.SetPowerSave(enable, dbus_interface="org.freedesktop.Hal.Device.SystemPowerManagement")
+        hal_dbus.SetPowerSave(enable, dbus_interface="org.freedesktop.Hal.Device.SystemPowerManagement")
 
-        return "Powersave bool set."
+        return True
 

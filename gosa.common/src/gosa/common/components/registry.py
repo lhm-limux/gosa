@@ -11,7 +11,7 @@
 """
 import pkg_resources
 
-from gosa.common.handler import IInterfaceHandler, IPluginHandler
+from gosa.common.handler import IInterfaceHandler
 from gosa.common.env import Environment
 
 
@@ -78,7 +78,7 @@ class PluginRegistry(object):
         """
         Call handlers stop() methods in order to grant a clean shutdown.
         """
-        for handler, clazz  in PluginRegistry.handlers.iteritems():
+        for clazz  in PluginRegistry.handlers.values():
             if hasattr(clazz, 'stop'):
                 clazz.stop()
 

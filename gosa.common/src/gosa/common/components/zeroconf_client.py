@@ -1,5 +1,10 @@
+"""
+ This code is part of GOsa (http://www.gosa-project.org)
+ Copyright (C) 2009, 2010 GONICUS GmbH
+
+  See LICENSE for more information about the licensing.
+"""
 import select
-import sys
 import platform
 
 if platform.system() != "Windows":

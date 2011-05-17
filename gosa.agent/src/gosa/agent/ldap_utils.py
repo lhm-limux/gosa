@@ -8,7 +8,6 @@ ID: $$Id: ldap_utils.py 997 2010-09-28 15:09:46Z cajus $$
 
 See LICENSE for more information about the licensing.
 """
-import ldap
 import ldapurl
 import ldap.sasl
 import types

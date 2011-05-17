@@ -8,7 +8,6 @@ except ImportError:
 
 import gobject
 from threading import Thread
-from dbus import DBusException
 from dbus.mainloop.glib import DBusGMainLoop
 from dbus import glib
 

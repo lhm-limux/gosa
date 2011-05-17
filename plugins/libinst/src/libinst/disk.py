@@ -535,11 +535,6 @@ class DiskDefinition(object):
         if not pt.match(fsType):
             raise ValueError("fsType %s is not supported" % fsType)
 
-    def checkFsType(self, fsType):
-        pt = re.compile(r"^(%s)$" % "|".join(self.supportedFsTypes))
-        if not pt.match(fsType):
-            raise ValueError("fsType %s is not supported" % fsType)
-
     def checkFsOptions(self, fsOptions):
         pt = re.compile(r"[a-zA-Z0-9=,.+_-]+")
         if not pt.match(fsOptions):

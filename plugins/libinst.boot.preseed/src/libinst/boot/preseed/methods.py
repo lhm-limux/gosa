@@ -5,13 +5,11 @@
 
  See LICENSE for more information about the licensing.
 """
-import re
 from urlparse import urlparse
 from gosa.common.env import Environment
 from gosa.common.components.registry import PluginRegistry
 from libinst.methods import load_system
 from libinst.methods import BaseInstallMethod
-from libinst.disk import DiskDefinition, LINUX, ALL
 from webob import exc, Request, Response
 from libinst.boot.preseed.disk import DebianDiskDefinition
 

@@ -10,16 +10,13 @@
  See LICENSE for more information about the licensing.
 """
 import sys
-import re
 import netifaces
 import traceback
 from netaddr import IPNetwork
 from zope.interface import implements
-from jsonrpc import loads, dumps, JSONEncodeException
+from jsonrpc import loads, dumps
 from jsonrpc.serviceHandler import ServiceRequestNotTranslatable, BadServiceRequest
 from qpid.messaging import *
-from qpid.util import URL
-
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.components.registry import PluginRegistry
 from gosa.common.components.amqp import AMQPWorker, EventConsumer

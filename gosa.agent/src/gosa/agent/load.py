@@ -7,7 +7,6 @@
 
  See LICENSE for more information about the licensing.
 """
-import time
 
 
 class SystemLoad:

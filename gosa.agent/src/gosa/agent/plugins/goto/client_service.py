@@ -9,7 +9,6 @@
 
  See LICENSE for more information about the licensing.
 """
-import sys
 import re
 import os
 import string
@@ -21,7 +20,6 @@ import datetime
 import types
 from threading import Timer
 from zope.interface import implements
-from jsonrpc import loads, dumps
 from gosa.common.components.jsonrpc_proxy import JSONRPCException
 from qpid.messaging import *
 
@@ -34,7 +32,6 @@ from gosa.common.components.amqp import EventConsumer
 from gosa.common.components.amqp_proxy import AMQPServiceProxy
 from gosa.common.components.command import CUMULATIVE, FIRSTRESULT, Command
 from gosa.agent.ldap_utils import LDAPHandler
-from uuid import uuid1
 from base64 import encodestring as encode
 from Crypto.Cipher import AES
 
@@ -129,7 +126,6 @@ class ClientService(object):
 
     @Command(__doc__=N_("Call method exposed by client."))
     def clientDispatch(self, client, method, *arg, **larg):
-        result = None
 
         # Bail out if the client is not available
         if not client in self.__client:
@@ -168,7 +164,7 @@ class ClientService(object):
     @Command(__doc__=N_("List user sessions per client"))
     def getUserSessions(self, client=None):
         if client:
-           return self.__user_session[client] if client in self.__user_session else []
+            return self.__user_session[client] if client in self.__user_session else []
 
         return self.__user_session
 

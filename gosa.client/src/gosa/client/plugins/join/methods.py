@@ -13,7 +13,6 @@
 import sys
 import time
 import re
-import os
 import gettext
 import netifaces
 import ConfigParser
@@ -181,7 +180,7 @@ class join_method(object):
 
             # Section present?
             try:
-                url = parser.get("amqp", "url")
+                parser.get("amqp", "url")
             except ConfigParser.NoSectionError:
                 parser.add_section("amqp")
 

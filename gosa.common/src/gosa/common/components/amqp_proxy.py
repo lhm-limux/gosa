@@ -9,10 +9,7 @@
 
  See LICENSE for more information about the licensing.
 """
-from threading import Thread
-from lxml import objectify
 from qpid.messaging import *
-from qpid.util import URL
 from types import DictType
 from gosa.common.components.jsonrpc_proxy import JSONRPCException
 from jsonrpc.json import dumps, loads
@@ -118,8 +115,8 @@ class AMQPServiceProxy(object):
         """ Close the AMQP connection """
 
         # Close all senders/receivers
-        for key, value in AMQPServiceProxy.worker.items():
-            for vkey, vvalue in value.items():
+        for value in AMQPServiceProxy.worker.values():
+            for vvalue in value.values():
                 vvalue['sender'].close()
                 vvalue['receiver'].close()
 

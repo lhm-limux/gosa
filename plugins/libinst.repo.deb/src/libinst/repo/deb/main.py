@@ -16,7 +16,6 @@ import subprocess
 import gnupg
 import tempfile
 import urllib2
-import re
 import gettext
 import gzip
 import bz2
@@ -370,8 +369,7 @@ class DebianHandler(DistributionHandler):
         local_file = None
 
         if architecture.name=="all":
-            raise ValueError(_N("Refusing to download Packages for architecture {architecture}").format(architecture=architecture.name))
-            return result
+            raise ValueError("Refusing to download Packages for architecture {architecture}").format(architecture=architecture.name)
 
         for extension in (".bz2", ".gz", ""):
             try:

@@ -1,10 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-#import warnings
-#warnings.filterwarnings("ignore")
-
-import os
 import dbus.service
 from gosa.common.env import Environment
 from gosa.common.components.plugin import Plugin
@@ -93,5 +88,5 @@ class DBusNotifyHandler(dbus.service.Object, Plugin):
 
             ret = subprocess.call(cmd)
             return int(ret)
-        except Exception as inst:
+        except Exception as e:
             traceback.print_exc(file=sys.stdout)

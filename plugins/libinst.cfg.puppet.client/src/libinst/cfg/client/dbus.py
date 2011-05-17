@@ -1,14 +1,12 @@
 import os
 import gobject
 import dbus.service
-import subprocess
 import ConfigParser
 from datetime import datetime
 from subprocess import Popen, PIPE
 from gosa.common.env import Environment
 from gosa.common.utils import get_timezone_delta
 from gosa.common.components.plugin import Plugin
-from gosa.common.components.command import Command
 from gosa.dbus.utils import get_system_bus
 
 

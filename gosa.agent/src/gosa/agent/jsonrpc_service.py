@@ -11,7 +11,6 @@
 """
 import sys
 import traceback
-import thread
 import uuid
 from types import MethodType
 from zope.interface import implements
@@ -300,7 +299,7 @@ class JSONRPCObjectMapper(object):
         if not ref in JSONRPCObjectMapper.__store:
             raise ValueError("reference %s not found" % ref)
         if not method in JSONRPCObjectMapper.__store[ref]['methods']:
-            raise ValueError("method %s not found" % name)
+            raise ValueError("method %s not found" % method)
 
         if not self.__can_be_handled_locally(ref):
             proxy = self.__get_proxy(ref)
@@ -384,7 +383,7 @@ class JSONRPCObjectMapper(object):
         nodes = cr.get_load_sorted_nodes()
 
         # Get first match that is a provider for this object
-        for provider, node in nodes:
+        for provider in nodes.keys():
             if provider in cr.objects[oid]:
                 break
 

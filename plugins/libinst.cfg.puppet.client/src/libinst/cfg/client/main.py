@@ -12,6 +12,7 @@
 """
 import re
 import os
+import dbus
 import pyinotify
 import ConfigParser
 import yaml
@@ -149,11 +150,11 @@ class PuppetClient(Plugin):
 
             # Clean __target_dir without removing it
             if os.path.exists(self.__target_dir):
-               for root, dirs, files in os.walk(self.__target_dir):
-                   for f in files:
-                       os.unlink(os.path.join(root, f))
-                   for d in dirs:
-                       rmtree(os.path.join(root, d))
+                for root, dirs, files in os.walk(self.__target_dir):
+                    for f in files:
+                        os.unlink(os.path.join(root, f))
+                    for d in dirs:
+                        rmtree(os.path.join(root, d))
 
         self.env.log.info("initializing git and ssh infrastructure")
 

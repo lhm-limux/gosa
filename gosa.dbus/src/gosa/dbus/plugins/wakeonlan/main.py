@@ -1,4 +1,3 @@
-import os
 import dbus.service
 import subprocess
 from gosa.common.env import Environment

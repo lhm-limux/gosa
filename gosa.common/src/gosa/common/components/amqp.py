@@ -9,18 +9,12 @@
 
  See LICENSE for more information about the licensing.
 """
-import sys
-import os
-import traceback
 import platform
 from threading import Thread
 from qpid.messaging import *
 from qpid.messaging.util import auto_fetch_reconnect_urls
-from qpid.log import enable, DEBUG, WARN
-from qpid.util import URL, connect, ssl
-from qpid.concurrency import synchronized
+from qpid.util import connect, ssl
 from qpid.connection import Connection as DirectConnection
-from jsonrpc import loads, dumps, JSONEncodeException
 from lxml import etree, objectify
 
 from gosa.common.utils import parseURL, makeAuthURL, buildXMLSchema
@@ -176,8 +170,8 @@ class AMQPHandler(object):
                 event += data
             else:
                 event += etree.tostring(data, pretty_print=True)
-            xml = objectify.fromstring(event, self._parser)
             return self._eventProvider.send(event)
+        
         except etree.XMLSyntaxError as e:
             if not isinstance(data, basestring):
                 data = data.content

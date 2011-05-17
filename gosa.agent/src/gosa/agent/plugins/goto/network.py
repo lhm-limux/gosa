@@ -12,13 +12,11 @@
 """
 import socket
 import dumbnet
-import re
 from telnetlib import Telnet
 from netaddr import *
 
 from gosa.common.components.plugin import Plugin
 from gosa.common.utils import N_
-from gosa.common.env import Environment
 from gosa.common.components.command import Command, FIRSTRESULT
 
 
@@ -29,9 +27,6 @@ class NetworkUtils(Plugin):
     """
     _target_ = 'goto'
     oui = None
-
-    def __init__(self):
-        env = Environment.getInstance()
 
     @Command(type=FIRSTRESULT, __doc__=N_("Resolve network address to a mac / dns name tupel."))
     def networkCompletion(self, name):

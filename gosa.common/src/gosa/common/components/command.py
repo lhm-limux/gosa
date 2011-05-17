@@ -57,7 +57,6 @@ def Command(**d_kwargs):
 
 def NamedArgs(d_collector=None, **d_kwargs):
     def decorate(f):
-        d_kwds = {}
         d_args = getargspec(f).args
         d_index = d_args.index(d_collector)
 

@@ -9,22 +9,14 @@
 
  See LICENSE for more information about the licensing.
 """
-import sys
-import os
 import re
 import time
-import traceback
 from urlparse import urlparse
 from qpid.messaging import *
 from qpid.messaging.util import auto_fetch_reconnect_urls
-from qpid.log import enable, DEBUG, WARN
-from qpid.util import URL, connect
-from qpid.concurrency import synchronized
-from jsonrpc import loads, dumps, JSONEncodeException
 from lxml import etree, objectify
 
-from gosa.common.components.amqp import AMQPHandler, AMQPWorker, EventProvider
-from gosa.common.components.command import Command
+from gosa.common.components.amqp import AMQPHandler, EventProvider
 from gosa.common.components.zeroconf_client import ZeroconfClient
 from gosa.common.utils import parseURL, buildXMLSchema
 from gosa.common.env import Environment

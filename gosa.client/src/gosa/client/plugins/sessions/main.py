@@ -10,7 +10,6 @@
  See LICENSE for more information about the licensing.
 """
 import gobject
-import dbus
 import pwd
 import dbus.glib
 import dbus.mainloop.glib

@@ -11,10 +11,8 @@
 
  See LICENSE for more information about the licensing.
 """
-import log
 import config
 import platform
-from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy import *
 from gosa.common.utils import dmi_system

@@ -4,8 +4,6 @@
  This code is part of GOsa (http://www.gosa-project.org)
  Copyright (C) 2009, 2010 GONICUS GmbH
 
- ID: $$Id: main.py 866 2010-09-07 06:31:35Z cajus $$
-
  This is the main file of the GOsa AMQP agent. This agent (aka node)
  presents one instance inside of the GOsa networking bus. It provides
  these features:
@@ -19,7 +17,6 @@
  See LICENSE for more information about the licensing.
 """
 import os
-import time
 import sys
 import logging
 import pkg_resources
@@ -28,7 +25,6 @@ import codecs
 from gosa.common.env import Environment
 from gosa.common.components.registry import PluginRegistry
 from gosa.common.event import EventMaker
-from gosa.common.components.plugin import Plugin
 from gosa.agent import __version__ as VERSION
 from gosa.agent.load import SystemLoad
 
@@ -52,7 +48,7 @@ def shutdown(a=None, b=None):
 def handleSignal():
     """ Signal handler which will shut down the whole machinery """
     #TODO: Fine grained handling of signals
-    env = Environment.getInstance().active = False
+    Environment.getInstance().active = False
 
 
 def mainLoop(env):
@@ -165,8 +161,8 @@ def main():
             if not bool(((s[stat.ST_UID] == pwe.pw_uid) and (mode & stat.S_IWUSR)) or \
                    ((s[stat.ST_GID] == gre.gr_gid) and (mode & stat.S_IWGRP)) or \
                    (mode & stat.S_IWOTH)):
-                   env.log.critical("cannot aquire lock '%s' - no write permission for group '%s'" % (piddir, group))
-                   exit(1)
+                env.log.critical("cannot aquire lock '%s' - no write permission for group '%s'" % (piddir, group))
+                exit(1)
 
             # Has to run as root?
             if pwe.pw_uid == 0:
@@ -230,7 +226,7 @@ def main():
             import gosa.common.lsprofcalltree
             p = cProfile.Profile()
             p.runctx('mainLoop(env)', globals(), {'env': env})
-            k = gosa.lsprofcalltree.KCacheGrind(p)
+            k = gosa.common.lsprofcalltree.KCacheGrind(p)
             data = open('prof.kgrind', 'w+')
             k.output(data)
             data.close()

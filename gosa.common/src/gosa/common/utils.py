@@ -18,7 +18,6 @@ import traceback
 import urllib
 import urllib2
 import tempfile
-import subprocess
 from subprocess import Popen, PIPE
 from qpid.messaging.constants import AMQP_PORT, AMQPS_PORT
 from urlparse import urlparse
@@ -108,7 +107,7 @@ def buildXMLSchema(resources, prefix, s_resource, stylesheet):
         # Transform the tree of all event paths into the final XSD
         res = transform(xml_doc)
 
-    except (IOError), e:
+    except IOError:
         traceback.print_exc()
 
     return str(res)

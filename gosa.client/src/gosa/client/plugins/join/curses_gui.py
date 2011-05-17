@@ -10,7 +10,6 @@
  See LICENSE for more information about the licensing.
 """
 import curses
-import sys
 import time
 import gettext
 from gosa.client.plugins.join.methods import join_method
@@ -29,7 +28,7 @@ class CursesGUI(join_method):
 
     def start_gui(self):
         self.screen = curses.initscr()
-	self.height, self.width = self.screen.getmaxyx()
+        self.height, self.width = self.screen.getmaxyx()
 
         curses.start_color()
 
@@ -72,9 +71,9 @@ class CursesGUI(join_method):
     def join_dialog(self):
         key = None
         self.start_gui()
-	headline = _("Please enter the credentials of an administrative user to join this client.")
-	self.start_x = (self.width - len(headline)) / 2 - 1
-	self.start_y = self.height / 2 - 5
+        headline = _("Please enter the credentials of an administrative user to join this client.")
+        self.start_x = (self.width - len(headline)) / 2 - 1
+        self.start_y = self.height / 2 - 5
 
         while not key:
             self.screen.border(0)
@@ -87,7 +86,7 @@ class CursesGUI(join_method):
             username = self.screen.getstr(self.start_y + 3, self.start_x + 11, 16)
             password = self.get_pw()
             if not username or not password:
-		self.show_error("Please enter a user name and a password!")
+                self.show_error("Please enter a user name and a password!")
                 continue
             key = self.join(username, password)
 

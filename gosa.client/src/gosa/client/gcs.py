@@ -4,19 +4,9 @@ import win32event
 import win32api
 import servicemanager
 import pythoncom
-
-import os
-import time
-import sys
-import logging
-import logging.config
-import pkg_resources
-import zope.interface
-import codecs
 import traceback
 
 from gosa.common.env import Environment
-from gosa.client import __version__ as VERSION
 from gosa.common.components.registry import PluginRegistry
 from gosa.common.event import EventMaker
 
@@ -105,7 +95,6 @@ class GOsaClientService(win32serviceutil.ServiceFramework):
     
         # Shutdown plugins
         PluginRegistry.shutdown()
-        logging.shutdown()
 
         # Write another event log record.
         servicemanager.LogMsg(

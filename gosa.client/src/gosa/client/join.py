@@ -12,7 +12,6 @@
 """
 import signal
 import sys
-import time
 import re
 import os
 import gettext

@@ -9,7 +9,6 @@
 
  See LICENSE for more information about the licensing.
 """
-import sys
 import time
 import gettext
 import getpass

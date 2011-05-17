@@ -6,7 +6,7 @@
  See LICENSE for more information about the licensing.
 """
 from gosa.common.components.registry import PluginRegistry
-from libinst.disk import DiskDefinition, LINUX, ALL
+from libinst.disk import DiskDefinition
 
 
 class DebianDiskDefinition(DiskDefinition):
@@ -58,7 +58,6 @@ d-i partman/confirm boolean true
             raid_map = {}
             raid_def = ""
             for raid in self._raids:
-                member_devices = []
                 raid_map[raid['name']] = [dev for dev in self._parts if dev['target'] in raid['devices']]
 
                 raid_def += "%s %s %s %s %s . " % (

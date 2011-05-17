@@ -1,4 +1,3 @@
-import os
 import dbus.service
 from gosa.common.env import Environment
 from gosa.common.components.plugin import Plugin

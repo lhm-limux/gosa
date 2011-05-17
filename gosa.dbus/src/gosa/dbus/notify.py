@@ -9,7 +9,6 @@ import sys
 import grp
 import pynotify
 import gobject
-import dbus
 import dbus.mainloop.glib
 import time
 from optparse import OptionParser, OptionValueError
@@ -259,7 +258,7 @@ class Notify(object):
                     # but only send an 8 Bit value.
                     res = ret_code >> 8
 
-                except KeyboardInterrupt as inst:
+                except KeyboardInterrupt:
                     res = RETURN_ABORTED
                     pass
 
@@ -269,7 +268,7 @@ class Notify(object):
                         os.kill(pid, signal.SIGTERM)
                         if self.verbose:
                             print "Killed process %s" % pid
-                    except Exception as inst:
+                    except Exception:
                         pass
 
         return res

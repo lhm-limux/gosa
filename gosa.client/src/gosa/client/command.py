@@ -38,8 +38,8 @@ class ClientCommandRegistry(object):
         env.log.debug("initializing command registry")
         self.env = env
 
-        for name, clazz in PluginRegistry.modules.iteritems():
-            for name, method in clazz.__dict__.iteritems():
+        for clazz in PluginRegistry.modules.values():
+            for method in clazz.__dict__.values():
                 if hasattr(method, "isCommand"):
 
                     func = method.__name__

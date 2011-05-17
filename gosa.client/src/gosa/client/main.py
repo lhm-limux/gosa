@@ -9,7 +9,6 @@
  See LICENSE for more information about the licensing.
 """
 import os
-import time
 import sys
 import logging
 import pkg_resources
@@ -27,7 +26,6 @@ def shutdown(a=None, b=None):
 
     """ Function to shut down the client. Do some clean up and close sockets."""
     amqp = PluginRegistry.getInstance("AMQPClientHandler")
-    amqp_service = PluginRegistry.getInstance("AMQPClientService")
 
     # Tell others that we're away now
     e = EventMaker()
@@ -137,8 +135,8 @@ def main():
             if not bool(((s[stat.ST_UID] == pwe.pw_uid) and (mode & stat.S_IWUSR)) or \
                    ((s[stat.ST_GID] == gre.gr_gid) and (mode & stat.S_IWGRP)) or \
                    (mode & stat.S_IWOTH)):
-                   env.log.critical("cannot aquire lock '%s' - no write permission for group '%s'" % (piddir, group))
-                   exit(1)
+                env.log.critical("cannot aquire lock '%s' - no write permission for group '%s'" % (piddir, group))
+                exit(1)
 
             # Has to run as root?
             if pwe.pw_uid == 0:

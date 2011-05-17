@@ -10,11 +10,10 @@
  See LICENSE for more information about the licensing.
 """
 from unidecode import unidecode
-
 from gosa.common.components.command import Command
 from gosa.common.components.plugin import Plugin
 from gosa.common.utils import N_
-from gosa.common.env import Environment
+
 
 class MiscUtils(Plugin):
     _target_ = 'misc'

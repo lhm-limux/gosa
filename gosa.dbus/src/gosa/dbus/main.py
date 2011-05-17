@@ -10,7 +10,6 @@
 """
 
 import os
-import time
 import sys
 import logging
 import pkg_resources
@@ -87,8 +86,6 @@ def main():
 
     # Configured in daemon mode?
     if not env.config.getOption('foreground', section="dbus", default=env.config.getOption('foreground')):
-        import grp
-        import pwd
         import signal
         import daemon
         import lockfile

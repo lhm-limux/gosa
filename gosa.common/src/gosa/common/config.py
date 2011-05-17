@@ -14,7 +14,6 @@
 import ConfigParser
 import os
 import re
-import sys
 import platform
 from optparse import OptionParser, OptionGroup, OptionValueError
 from gosa.common import __version__ as VERSION

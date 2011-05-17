@@ -7,7 +7,6 @@
 
  See LICENSE for more information about the licensing.
 """
-import dbus
 import dbus.service
 import dbus.mainloop.glib
 
