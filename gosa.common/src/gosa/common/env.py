@@ -16,7 +16,7 @@ import platform
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy import *
 from gosa.common.utils import dmi_system
-
+import gosa.common.log
 
 class Environment:
     """
@@ -57,7 +57,7 @@ class Environment:
 
         # Load configuration
         self.config = config.Config(config=Environment.config,  noargs=Environment.noargs)
-        self.log = log.getLogger(
+        self.log = gosa.common.log.getLogger(
                 logtype=self.config.getOption("log"),
                 logfile=self.config.getOption("logfile"),
                 loglevel=self.config.getOption("loglevel"))
