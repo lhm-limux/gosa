@@ -251,6 +251,7 @@ class InstallMethod(object):
     def __init__(self, manager):
         self.env = Environment.getInstance()
         self._manager = manager
+        self.rev_attributes = dict((v,k) for k, v in self.attributes.iteritems())
 
     @staticmethod
     def getInfo():
@@ -789,7 +790,7 @@ class InstallMethod(object):
         if not current_data:
             current_data = load_system(device_uuid, None, False)
 
-        is_new = not 'configMethod' in current_data['objectClass']
+        is_new = not 'configRecipe' in current_data['objectClass']
         dn = current_data['dn']
         current_data = self.getConfigParameters(device_uuid, current_data)
 
@@ -809,7 +810,7 @@ class InstallMethod(object):
             del data['param']
 
         # Transfer changed parameters
-        for ldap_key, key in self._attributes.items():
+        for ldap_key, key in self.attributes.items():
 
             # New value?
             if key in data and not key in current_data:

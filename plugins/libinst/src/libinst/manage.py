@@ -1550,7 +1550,7 @@ class RepositoryManager(Plugin):
         sys_data = load_system(device_uuid, None, False)
         method = self.systemGetConfigMethod(device_uuid, sys_data)
 
-        if method in self.install_method_reg:
+        if not method in self.install_method_reg:
             return None
 
         config_m = self.install_method_reg[method]
