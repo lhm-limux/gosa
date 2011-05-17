@@ -13,6 +13,8 @@ import os.path
 import pwd
 import shutil
 import pkg_resources
+import StringIO
+import ConfigParser
 from datetime import datetime
 from libinst.methods import InstallMethod
 from git import Repo
@@ -346,11 +348,57 @@ class PuppetInstallMethod(InstallMethod):
 
         return True
 
+    def setConfigParameters(self, device_uuid, data, current_data=None):
+        super(PuppetInstallMethod, self).setConfigParameters(device_uuid, data, current_data)
+        self._git_add_client(device_uuid)
+
+    def removeConfigParameters(self, device_uuid, current_data=None):
+        super(PuppetInstallMethod, self).removeConfigParameters(device_uuid, current_data)
+        self._git_remove_client(device_uuid)
+
     def get_ssh_pub_key(self, path):
         with open(path + ".pub") as f:
             content = f.readlines()
 
         return content[0].strip()
+
+    def _git_get_client_config(self, cfg_file):
+        data = ""
+
+        for line in open(cfg_file, "r"):
+            data += (line.lstrip())
+
+            config = ConfigParser.ConfigParser()
+            config.readfp(StringIO.StringIO(data))
+
+            return config
+
+    def _git_add_client(self, device_uuid):
+        cfg_file = os.path.join(self.__repo_path, "config")
+        config = self._git_get_client_config(cfg_file)
+
+        section = 'remote "%s"' % device_uuid
+        if not config.has_section(section):
+            config.add_section(section)
+
+            #TODO: load the push URL
+            url = "ssh://the@push/url"
+            config.set(section, "url", url)
+
+        with open(cfg_file, "w") as f:
+            config.write(f)
+
+    def _git_remove_client(self, device_uuid):
+        cfg_file = os.path.join(self.__repo_path, "config")
+        config = self._git_get_client_config(cfg_file)
+
+        section = 'remote "%s"' % device_uuid
+        if config.has_section(section):
+            config.remove_section(section)
+
+            # Update value
+            with open(cfg_file, "w") as f:
+                config.write(f)
 
     def __get_target(self, release, path):
         """ Build target path for release """
