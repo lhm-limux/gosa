@@ -14,7 +14,6 @@ import datetime
 import re
 from inspect import getargspec, getmembers, ismethod
 from zope.interface import implements
-
 from gosa.common.components.registry import PluginRegistry
 from gosa.common.components.command import Command
 from gosa.common.handler import IInterfaceHandler
