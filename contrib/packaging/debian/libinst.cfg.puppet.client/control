@@ -11,6 +11,6 @@ Homepage: http://oss.gonicus.de
 Package:libinst.cfg.puppet.client
 Architecture: all
 Depends: ${python:Depends}, ${misc:Depends}, python-pkg-resources,
- gosa.client, gosa.dbus, python-git, python-notify, python-yaml, puppet
+ gosa.client, gosa.dbus, python-git, python-pyinotify, python-yaml, puppet, python-notify
 Description: Puppet client module for libinst
  TODO
