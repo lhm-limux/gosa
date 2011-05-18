@@ -16,7 +16,6 @@ import dbus
 import pyinotify
 import ConfigParser
 import yaml
-import dbus
 from shutil import rmtree
 from fcntl import lockf, LOCK_UN, LOCK_EX
 from git import Repo
