@@ -177,11 +177,7 @@ class PuppetClient(Plugin):
             # Create post-update hook
             self.env.log.debug("installing post-update hook")
             with open(git_path + "/hooks/post-update", "w") as f:
-                f.write("#!/bin/sh\ngit archive --format=tar HEAD | " +
-                    "(cd %s && tar xf -)\n" +
-                    "dbus-send --system --type=method_call " +
-                    "--dest=com.gonicus.gosa /com/gonicus/gosa/puppet " +
-                    "com.gonicus.gosa.run_puppet" % self.__target_dir)
+                f.write("#!/bin/sh\ngit archive --format=tar HEAD | (cd %s && tar xf -)\ndbus-send --system --type=method_call --dest=com.gonicus.gosa /com/gonicus/gosa/puppet com.gonicus.gosa.run_puppet" % self.__target_dir)
 
             os.chmod(git_path + "/hooks/post-update", 0755)
 
