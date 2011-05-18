@@ -51,6 +51,7 @@ STATUS_NEEDS_INITIAL_CONFIG = "P"
 STATUS_NEEDS_CONFIG = "c"
 STATUS_NEEDS_INSTALL = "N"
 
+
 class ClientService(object):
     """
     Plugin to register clients and expose their functionality
@@ -412,6 +413,14 @@ class ClientService(object):
         }
 
         self.__client[data.Id.text] = info
+        
+        # Handle pending "P"repare actions for that client
+        if "P" in self.systemGetStatus(client):
+            try:
+                rm = PluginRegistry.getInstance("RepositoryManager")
+                rm.prepareClient(client)
+            except ValueError:
+                pass     
 
     def _handleClientLeave(self, data):
         data = data.ClientLeave

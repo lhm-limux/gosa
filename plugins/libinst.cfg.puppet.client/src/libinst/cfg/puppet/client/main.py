@@ -221,7 +221,7 @@ class PuppetClient(Plugin):
         """ Get path where the configuration has to be pushed to """
         user = self.env.config.getOption('user', 'client', default="gosa")
         fqdn = socket.gethostbyaddr(self.env.id)[0]
-        return "ssh://%s@%s%s" % (user, fqdn, self.__base_dir + "/data.git")
+        return "%s@%s:%s" % (user, fqdn, self.__base_dir + "/data.git")
 
     def __write_keys(self, keys):
         self.env.log.debug("writing authorized_keys")

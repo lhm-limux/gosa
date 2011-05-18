@@ -22,17 +22,14 @@ from git.cmd import Git, GitCommandError
 from subprocess import Popen, PIPE
 from threading import RLock
 from types import StringTypes
+from gosa.common.components.registry import PluginRegistry
 
 # Global puppet lock
 puppet_lock = RLock()
 
 #TODO: Mirror handling and client handling -----------------------------------
-#  -> config
-# [remote "ws-muc-1"]
-#         url = ssh://cajus@ws-muc-1/home/cajus/tmp/puppet
-#
 #  -> hooks/post-commit
-# git push ws-muc-1 master
+# git push device_uuid release:master
 #-----------------------------------------------------------------------------
 
 
@@ -94,6 +91,21 @@ class PuppetInstallMethod(InstallMethod):
 
             with open(os.path.join(tmp_path, "README"), "w") as f:
                 f.write("This is an automatically managed GOsa puppet repository. Please do not modify.")
+
+            logdir = self.env.config.getOption("report-dir", "puppet",
+                "/var/log/puppet")
+            with open(os.path.join(tmp_path, "puppet.conf"), "w") as f:
+                f.write("""[main]
+logdir=%s
+vardir=/var/lib/puppet
+ssldir=/var/lib/puppet/ssl
+rundir=/var/run/puppet
+factpath=$vardir/lib/facter
+templatedir=$confdir/templates
+report=true
+reports=store_gosa
+reportdir=$logdir
+""" % logdir)
 
             cmd = Git(tmp_path)
             cmd.add("README")
@@ -302,6 +314,7 @@ class PuppetInstallMethod(InstallMethod):
 
         self.env.log.info("committing changes for module %s" % target_name)
         cmd.commit("-m", comment)
+        cmd.push("origin")
         return result
 
     def removeItem(self, release, path, comment=None):
@@ -323,6 +336,7 @@ class PuppetInstallMethod(InstallMethod):
             cmd = Git(target_path)
             try:
                 cmd.commit("-a", "-m", comment)
+                cmd.push("origin")
             except GitCommandError as e:
                 self.env.log.debug("no commit for %s: %s" % (target_name, str(e)))
             session.commit()
@@ -350,11 +364,13 @@ class PuppetInstallMethod(InstallMethod):
 
     def setConfigParameters(self, device_uuid, data, current_data=None):
         super(PuppetInstallMethod, self).setConfigParameters(device_uuid, data, current_data)
-        self._git_add_client(device_uuid)
+        if not self.addClient(device_uuid):
+            cs = PluginRegistry.getInstance("ClientService")
+            cs.systemSetStatus(device_uuid, "+P")
 
     def removeConfigParameters(self, device_uuid, current_data=None):
         super(PuppetInstallMethod, self).removeConfigParameters(device_uuid, current_data)
-        self._git_remove_client(device_uuid)
+        self.removeClient(device_uuid)
 
     def get_ssh_pub_key(self, path):
         with open(path + ".pub") as f:
@@ -373,27 +389,50 @@ class PuppetInstallMethod(InstallMethod):
 
             return config
 
-    def _git_add_client(self, device_uuid):
+    def addClient(self, device_uuid):
         cfg_file = os.path.join(self.__repo_path, "config")
         config = self._git_get_client_config(cfg_file)
 
         section = 'remote "%s"' % device_uuid
         if not config.has_section(section):
+            cs = PluginRegistry.getInstance("ClientService")
+            
+            # Add ssh key
+            #TODO: ...
+            #puppetListKeys
+            #puppetAddKey
+            
+            # Handle site.pp (!)
+            
+            # Add git configuration 
             config.add_section(section)
 
-            #TODO: load the push URL
-            url = "ssh://the@push/url"
-            config.set(section, "url", url)
+            # Build push URL for client, it needs to be online
+            try:
+                url = cs.clientDispatch(device_uuid, "puppetGetPushPath")
+                config.set(section, "url", url)
+                with open(cfg_file, "w") as f:
+                    config.write(f)
+            except:
+                return False
+            
+            # Reset "P" flag for client
+            cs = PluginRegistry.getInstance("ClientService")
+            cs.systemSetStatus(device_uuid, "-P")
+            return True
 
-        with open(cfg_file, "w") as f:
-            config.write(f)
-
-    def _git_remove_client(self, device_uuid):
+    def removeClient(self, device_uuid):
         cfg_file = os.path.join(self.__repo_path, "config")
         config = self._git_get_client_config(cfg_file)
 
         section = 'remote "%s"' % device_uuid
         if config.has_section(section):
+            # Remove ssh key
+            #TODO: ...
+            #puppetListKeys
+            #puppetDelKey
+
+            # Remove config sections            
             config.remove_section(section)
 
             # Update value

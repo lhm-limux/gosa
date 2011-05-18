@@ -22,7 +22,6 @@ import pytz
 import gettext
 import ldap
 from types import StringTypes, DictType
-from base64 import encodestring
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import sessionmaker, scoped_session
 
@@ -1419,10 +1418,8 @@ class RepositoryManager(Plugin):
             raise
         finally:
             session.close()
-        #TODO: fixme
-        #return result
-        return ["linux-image-2.6.38", "linux-image-2.6.38-kvm",
-                "linux-image-2.6.21"]
+            
+        return result
 
     @Command(__doc__=N_("Completely remove device's installation parameters"))
     def removeBaseInstallParameters(self, device_uuid):
@@ -1475,7 +1472,7 @@ class RepositoryManager(Plugin):
         data = load_system(device_uuid, mac)
         device_uuid = data['deviceUUID'][0]
         method = self.systemGetBaseInstallMethod(device_uuid, data)
-        c_method = self.systemGetConfigMethod(device_uuid, data)
+        c_method = self.systemGetConfigMethod(device_uuid)
 
         # Use the method described by "method" and pass evaluated data
         if not method in self.base_install_method_reg:
@@ -1534,7 +1531,7 @@ class RepositoryManager(Plugin):
     @Command(__doc__=N_("Get device's config parameters"))
     def systemGetConfigParameters(self, device_uuid):
         sys_data = load_system(device_uuid, None, False)
-        method = self.systemGetConfigMethod(device_uuid, sys_data)
+        method = self.systemGetConfigMethod(device_uuid)
 
         if not method in self.install_method_reg:
             return None
@@ -1556,7 +1553,7 @@ class RepositoryManager(Plugin):
     @Command(__doc__=N_("Completely remove device's config parameters"))
     def removeConfigParameters(self, device_uuid):
         sys_data = load_system(device_uuid, None, False)
-        method = self.systemGetConfigMethod(device_uuid, sys_data)
+        method = self.systemGetConfigMethod(device_uuid)
 
         if not method in self.install_method_reg:
             return None
@@ -1665,9 +1662,18 @@ class RepositoryManager(Plugin):
 
             conn.delete(res[0][0])
 
-
-#---------------------------------------------------------------------------------------------#
-
+    @Command(__doc__=N_("Perpare system for config methods"))
+    def prepareSystem(self, device_uuid):
+        #TODO: look for install recipe tasks 
+        
+        # Check for config recipe tasks
+        method = self.systemGetConfigMethod(device_uuid)
+        if method in self.install_method_reg:
+            config_m = self.install_method_reg[method]
+            try:
+                config_m.addClient(device_uuid)
+            except:
+                pass
 
     def _getArchitecture(self, name, add=False):
         result = None

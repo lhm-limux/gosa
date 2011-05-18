@@ -100,6 +100,6 @@ class PluginRegistry(object):
         @param name: name of the class to get instance of
         """
         if not name in PluginRegistry.modules:
-            raise Exception("no module '%s' available" % name)
+            raise ValueError("no module '%s' available" % name)
 
         return PluginRegistry.modules[name]

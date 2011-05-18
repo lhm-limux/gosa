@@ -122,6 +122,12 @@ class BaseInstallMethod(object):
         """
         return None
 
+    def addClient(self, device_uuid):
+        pass
+
+    def removeClient(self, device_uuid):
+        pass
+
     def getBootParams(self, device_uuid, mac=None):
         """
         Return boot parameters needed for that install method.
@@ -224,7 +230,7 @@ class BaseInstallMethod(object):
         # Do LDAP operations to remove the device
         lh = LDAPHandler.get_instance()
         with lh.get_handle() as conn:
-            conn.modify_s(dn, mods)
+            conn.modify_s(data['dn'], mods)
 
     #TODO: getter and setter for that...
     #  installMirrorDN        -> DN des Mirror Systems
@@ -542,6 +548,12 @@ class InstallMethod(object):
 
     def getItemsAssignableElements(self, release, item):
         return {}
+    
+    def addClient(self, device_uuid):
+        pass
+
+    def removeClient(self, device_uuid):
+        pass
 
     def removeItem(self, release, path, children=None):
         """
