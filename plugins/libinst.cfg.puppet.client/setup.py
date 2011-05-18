@@ -52,6 +52,6 @@ for various systems in your setup.
         gosa-client.puppet = libinst.cfg.puppet.client.main:PuppetClient
 
         [gosa_dbus.modules]
-        gosa-dbus.puppet = libinst.cfg.puppet.client.dbus:PuppetDBusHandler
+        gosa-dbus.puppet = libinst.cfg.puppet.client.dbus_main:PuppetDBusHandler
     """
 )
