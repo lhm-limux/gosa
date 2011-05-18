@@ -200,6 +200,21 @@ class ClientService(object):
                 except:
                     pass
 
+    @Command(__doc__=N_("Set system status"))
+    def systemGetStatus(self, device_uuid):
+        lh = LDAPHandler.get_instance()
+        fltr = "deviceUUID=%s" % device_uuid
+
+        with lh.get_handle() as conn:
+            res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
+                "(&(objectClass=device)(%s))" % fltr, ['deviceStatus'])
+
+            if len(res) != 1:
+                raise ValueError("no device '%s' available" % device_uuid)
+
+            return res[0][1]["deviceStatus"][0]
+        
+        return ""
 
     @Command(__doc__=N_("Set system status"))
     def systemSetStatus(self, device_uuid, status):
