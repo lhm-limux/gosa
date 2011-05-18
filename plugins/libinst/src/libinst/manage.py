@@ -1596,7 +1596,8 @@ class RepositoryManager(Plugin):
             raise ValueError("no template named '%s' available" % name)
 
         entry = dict(map(lambda x: (self.template_map[x[0]], x[1][0]), res[0][1].items()))
-        entry['data'] = unicode(entry['data'], "utf-8")
+        if 'data' in entry:
+            entry['data'] = unicode(entry['data'], "utf-8")
         return entry
 
     @Command(__doc__=N_("Set template by name"))
