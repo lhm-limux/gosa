@@ -16,6 +16,7 @@ import dbus
 import pyinotify
 import ConfigParser
 import yaml
+import socket
 from shutil import rmtree
 from fcntl import lockf, LOCK_UN, LOCK_EX
 from git import Repo
@@ -218,7 +219,9 @@ class PuppetClient(Plugin):
     @Command()
     def puppetGetPushPath(self):
         """ Get path where the configuration has to be pushed to """
-        return self.__base_dir + "/data.git"
+        user = self.env.config.getOption('user', 'client', default="gosa")
+        fqdn = socket.gethostbyaddr(self.env.id)[0]
+        return "ssh://%s@%s%s" % (user, fqdn, self.__base_dir + "/data.git")
 
     def __write_keys(self, keys):
         self.env.log.debug("writing authorized_keys")
