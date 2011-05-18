@@ -53,6 +53,10 @@ attributetype ( 1.3.6.1.4.1.10098.3.2.1.1 NAME 'deviceUUID'
 #   B: System has active user sessions
 #   L: System locked
 #   b: System booting
+#   P: System needs initial config
+#   c: System needs config
+#   N: System needs install
+STATUS_NEEDS_INSTALL, STATUS_NEEDS_CONFIG, STATUS_NEEDS_INITIAL_CONFIG
 #
 attributetype ( 1.3.6.1.4.1.10098.3.2.1.2 NAME 'deviceStatus'
     DESC 'Device status descriptor'

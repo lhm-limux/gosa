@@ -1596,8 +1596,7 @@ class RepositoryManager(Plugin):
             raise ValueError("no template named '%s' available" % name)
 
         entry = dict(map(lambda x: (self.template_map[x[0]], x[1][0]), res[0][1].items()))
-        entry['data'] = encodestring(entry['data'])
-
+        entry['data'] = unicode(entry['data'], "utf-8")
         return entry
 
     @Command(__doc__=N_("Set template by name"))
@@ -1637,7 +1636,7 @@ class RepositoryManager(Plugin):
                     mods.append((ldap.MOD_DELETE, ldap_key, None))
                 elif ldap_key in res and key in data and res[ldap_key][0] != data[key]:
                     mods.append((ldap.MOD_REPLACE, ldap_key,
-                        [data[key].encode(utf-8)]))
+                        [data[key].encode("utf-8")]))
                 elif key in data and not ldap_key in res:
                     if create_new:
                         mods.append((ldap_key, [data[key].encode("utf-8")]))
