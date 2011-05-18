@@ -5,6 +5,18 @@
 <pydev_property name="org.python.pydev.PYTHON_PROJECT_INTERPRETER">2.6</pydev_property>
 <pydev_property name="org.python.pydev.PYTHON_PROJECT_VERSION">python 2.6</pydev_property>
 <pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
-<path>/gosa-ng/src</path>
+<path>/gosa-ng/gosa.common/src</path>
+<path>/gosa-ng/gosa.agent/src</path>
+<path>/gosa-ng/gosa.client/src</path>
+<path>/gosa-ng/gosa.dbus/src</path>
+<path>/gosa-ng/gosa.shell/src</path>
+<path>/gosa-ng/plugins/libinst/src</path>
+<path>/gosa-ng/plugins/libinst.boot.preseed</path>
+<path>/gosa-ng/plugins/libinst.cfg.puppet.client</path>
+<path>/gosa-ng/plugins/libinst.repo.deb</path>
+<path>/gosa-ng/plugins/libinst.cfg.puppet</path>
+</pydev_pathproperty>
+<pydev_pathproperty name="org.python.pydev.PROJECT_EXTERNAL_SOURCE_PATH">
+<path>/usr/lib/python2.6/dist-packages</path>
 </pydev_pathproperty>
 </pydev_project>

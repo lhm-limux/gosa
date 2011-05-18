@@ -16,7 +16,6 @@ from zope.interface import implements
 from jsonrpc import loads, dumps
 from jsonrpc.serviceHandler import ServiceRequestNotTranslatable, BadServiceRequest
 from qpid.messaging import *
-from qpid.util import URL
 
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.components.registry import PluginRegistry
