@@ -1569,7 +1569,7 @@ class RepositoryManager(Plugin):
     def installListTemplates(self, method=None):
         result = {}
         lh = LDAPHandler.get_instance()
-        fltr = "method=%s" % method if method else "cn=*"
+        fltr = "installMethod=%s" % method if method else "cn=*"
 
         with lh.get_handle() as conn:
             res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
