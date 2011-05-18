@@ -95,7 +95,7 @@ class PuppetClient(Plugin):
 
         # Clean lines and extract info
         for line in [re.sub(r"\s{2,}", " ", c.strip()) for c in content]:
-            (key_type, key_data, key_id) = line.split(" ")[0:3]
+            (key_type, key_data, key_id) = line.split(" ")[3:6]
             result[key_id] = {'type': key_type, 'data': key_data}
 
         return result

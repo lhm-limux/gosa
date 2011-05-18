@@ -107,20 +107,26 @@ reports=store_gosa
 reportdir=$logdir
 """ % logdir)
 
+            #TODO: ...
+            # Handle site.pp
+            #import "manifests/nodes.pp"
+            # create: manifests/nodes.pp
+
             cmd = Git(tmp_path)
             cmd.add("README")
+            cmd.add("puppet.conf")
             cmd.commit(m="Initially created master branch")
             cmd.push("origin", "master")
             shutil.rmtree(tmp_path)
 
         # Create SSH directory?
-        ssh_path = os.path.join(self.__path, '.ssh')
-        if not os.path.exists(ssh_path):
-            os.makedirs(ssh_path)
+        self.ssh_path = os.path.join(self.__path, '.ssh')
+        if not os.path.exists(self.ssh_path):
+            os.makedirs(self.ssh_path)
             host = self.env.id
             user = pwd.getpwuid(os.getuid()).pw_name
 
-            self.gen_ssh_key(os.path.join(ssh_path, 'id_dsa'),
+            self.gen_ssh_key(os.path.join(self.ssh_path, 'id_dsa'),
                 "%s@%s" % (user, host))
 
     @staticmethod
@@ -397,12 +403,22 @@ reportdir=$logdir
         if not config.has_section(section):
             cs = PluginRegistry.getInstance("ClientService")
             
-            # Add ssh key
-            #TODO: ...
-            #puppetListKeys
-            #puppetAddKey
+            # Check ssh key
+            key = self._get_public_key()
+            if not key[1] in [p["data"] for p in cs.clientDispatch(device_uuid, "puppetListKeys")]:
+                cs.clientDispatch(device_uuid, "puppetAddKey", key)
             
-            # Handle site.pp (!)
+            #TODO: Manage nodes.pp (!)
+            #node ldap-server {
+            #  import "dns"
+            #  include sudo
+            #  include openldap
+            #  include resolv
+            #}
+            #node 'dyn-10.muc.intranet.gonicus.de' inherits ldap-server {
+            #  $test = "hallo"
+            #}
+
             
             # Add git configuration 
             config.add_section(section)
@@ -456,3 +472,15 @@ reportdir=$logdir
             session.close()
         result = target_path, target_name
         return result
+
+    def _get_public_key(self):
+        default = os.path.join(os.path.expanduser('~'), ".ssh", "id_dsa.pub")
+        
+        # Read dsa key
+        try:
+            with open(self.env.config.getOption("public_key", "puppet", default)) as f:
+                content = f.read()
+        except IOError:
+                return ""
+
+        return content.strip()
