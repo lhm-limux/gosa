@@ -54,6 +54,7 @@ attributetype ( 1.3.6.1.4.1.10098.3.2.1.1 NAME 'deviceUUID'
 #   L: System locked
 #   b: System booting
 #   P: System needs initial config
+#   R: System needs config removal
 #   c: System needs config
 #   N: System needs install
 STATUS_NEEDS_INSTALL, STATUS_NEEDS_CONFIG, STATUS_NEEDS_INITIAL_CONFIG
