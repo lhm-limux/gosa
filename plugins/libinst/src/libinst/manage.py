@@ -1620,7 +1620,7 @@ class RepositoryManager(Plugin):
             mods = []
             if create_new:
                 #TODO: unique check
-                mods.append((ldap.MOD_ADD, 'objectClass', ['gosaConfigItem', 'installTemplate']))
+                mods.append(('objectClass', ['gosaConfigItem', 'installTemplate']))
                 dn = ",".join(["cn=" + name,
                     self.env.config.getOption("template-rdn", "libinst", "cn=templates,cn=libinst,cn=config"),
                     lh.get_base()])
@@ -1631,15 +1631,16 @@ class RepositoryManager(Plugin):
 
             for ldap_key, key in self.template_map.items():
                 if ldap_key in res and not key in data:
-                    mods.append((ldap.MOD_DELETE, ldap_key, None))
+                    mods.append((ldap.MOD_DELETE, ldap_key))
                 elif ldap_key in res and key in data and res[ldap_key][0] != data[key]:
                     mods.append((ldap.MOD_REPLACE, ldap_key,
                         [data[key].encode("utf-8")]))
                 elif key in data and not ldap_key in res:
                     if create_new:
-                        mods.append((ldap_key, [data[key].encode("utf-8")]))
+                        mods.append((ldap_key,
+                            [data[key].encode("utf-8")]))
                     else:
-                        mods.append((ldap.MOD_ADD, ldap_key,
+                        mods.append((ldap.MOD_REPLACE, ldap_key,
                             [data[key].encode("utf-8")]))
 
             # Assemble entry and write it to the directory
