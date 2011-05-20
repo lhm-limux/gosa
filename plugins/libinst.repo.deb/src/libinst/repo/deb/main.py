@@ -412,7 +412,7 @@ class DebianHandler(DistributionHandler):
         if o.scheme in ("http", "https", "ftp"):
             # Need to download file first
             url = downloadFile(o.geturl(), use_filename=True)
-        elif o.scheme is None:
+        elif o.scheme.startswith('/'):
             # Local file
             pass
         else:
