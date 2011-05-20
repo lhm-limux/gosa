@@ -370,3 +370,4 @@ You might need to re-login to make the changes happen. After that, start the gos
 client inside the activated virtual environment:
 
 $ gosa-client -f
+
