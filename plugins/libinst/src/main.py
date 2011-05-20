@@ -63,7 +63,7 @@ LcWMU6gayNYj7eMgCOFM6ywySRS81FC+PPnr147xbp5FwgmoPRK52MURsHJ+
     #            'mirror_sources': False
     #        }
     #)
-    #print "listConfigItems:", manager.listConfigItems('lenny')
+    print "listConfigItems:", manager.listConfigItems('lenny')
     #print "setConfigItem:", manager.setConfigItem(
     #    'lenny',
     #    '/module',
