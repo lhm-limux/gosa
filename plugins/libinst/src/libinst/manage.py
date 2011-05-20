@@ -1041,6 +1041,7 @@ class RepositoryManager(Plugin):
         download_dir = None
         local_url = None
         session = None
+        type_name = None
 
         try:
             session = self.getSession()
@@ -1082,7 +1083,6 @@ class RepositoryManager(Plugin):
             if os.path.exists(local_url):
                 # get file extension
                 file_ext = local_url.split('.')[-1]
-                type_name = None
                 if release:
                     type_name = release.distribution.type.name
                 elif distribution:
