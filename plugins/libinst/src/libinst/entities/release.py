@@ -35,6 +35,7 @@ class Release(Base, UseInnoDB):
         return {
             "name": self.name,
             "parent": None if not self.parent else self.parent.getInfo(),
+            "origin": None if not self.distribution.origin else self.distribution.origin,
         }
 
     def _initDirs(self):

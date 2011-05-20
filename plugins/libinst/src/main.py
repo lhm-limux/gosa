@@ -45,14 +45,15 @@ LcWMU6gayNYj7eMgCOFM6ywySRS81FC+PPnr147xbp5FwgmoPRK52MURsHJ+
     #print manager.getSupportedInstallMethods()
 
     manager.addKeys(keyring)
-    print "createDistribution:", manager.createDistribution("debian", "deb",
+    print "createDistribution:", manager.createDistribution("debian_mirror", "deb",
             {"mirror": "http://archive.debian.org/debian"},
             install_method="puppet")
-    print "createRelease:", manager.createRelease("debian", "etch")
+    print "createDistribution:", manager.createDistribution("debian", "deb", install_method="puppet")
+    print "createRelease:", manager.createRelease("debian_mirror", "etch")
     print "addMirrorProperty:", manager.addMirrorProperty(distribution="debian", arch="i386", component="main")
-    print "getDistributions:", manager.getDistributions()
-    print "updateMirror:", manager.updateMirror(distribution="debian", components=["main"], sections=["shells"])
-    #print "createRelease:", manager.createRelease("debian", "lenny")
+    #print "getDistributions:", manager.getDistributions()
+    #print "updateMirror:", manager.updateMirror(distribution="debian", components=["main"], sections=["shells"])
+    print "createRelease:", manager.createRelease("debian", "lenny")
     #print "createRelease:", manager.createRelease("debian", "lenny/1.0")
     #print "setDistribution:", manager.setDistribution(
     #        {
@@ -107,7 +108,7 @@ LcWMU6gayNYj7eMgCOFM6ywySRS81FC+PPnr147xbp5FwgmoPRK52MURsHJ+
     #print("addPackage: kalign_2.03-2_i386.deb", manager.addPackage("http://ftp2.de.debian.org/debian/pool/main/k/kalign/kalign_2.03-2_i386.deb", release = "lenny"))
     #print("addPackage: kalign_2.03-2_i386.deb", manager.addPackage("http://ftp2.de.debian.org/debian/pool/main/k/kalign/kalign_2.03-2_i386.deb", release = "squeeze"))
     #print("addPackage: a2ps_4.14-1.1_i386.deb", manager.addPackage("http://ftp2.de.debian.org/debian/pool/main/a/a2ps/a2ps_4.14-1.1_i386.deb", release = "lenny"))
-    #print("addPackage: jaaa_0.4.2-1_amd64.deb", manager.addPackage("http://ftp2.de.debian.org/debian/pool/main/j/jaaa/jaaa_0.4.2-1_amd64.deb", {"release": "test"}))
+    print("addPackage: jaaa_0.4.2-1_amd64.deb", manager.addPackage("http://ftp2.de.debian.org/debian/pool/main/j/jaaa/jaaa_0.4.2-1_amd64.deb", {"release": "lenny"}))
     #print("addPackage: jaaa_0.4.2-1_amd64.deb", manager.addPackage("http://ftp2.de.debian.org/debian/pool/main/j/jaaa/jaaa_0.4.2-1_amd64.deb", release = "squeeze"))
     #print("getPackages: ", manager.getPackages(release="lenny", arch="i386", section="text"))
     #print("removePackage: jaaa", manager.removePackage("jaaa", release="lenny", arch="source"))
@@ -133,7 +134,8 @@ LcWMU6gayNYj7eMgCOFM6ywySRS81FC+PPnr147xbp5FwgmoPRK52MURsHJ+
     #print(manager.getSections(distribution = "debian"))
     #print(manager.getSections())
     #print(manager.getReleases(distribution = "debian"))
-    #print(manager.getReleases())
+    print "manager.getDistribution(distribution='debian_mirror'):", manager.getDistribution(distribution='debian_mirror')
+    print "manager.getRelease(release='etch'):", manager.getRelease(release="etch")
     #print("removeRelease: ", manager.removeRelease(release = "bo"))
     #print("removeRelease: ", manager.removeRelease(release = "squeeze"))
     #print(manager.getReleases())
