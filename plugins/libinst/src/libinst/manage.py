@@ -999,6 +999,13 @@ class RepositoryManager(Plugin):
                 return False
             if section and not package.section.name == section:
                 return False
+            if custom_filter:
+                if custom_filter.has_key('name'):
+                    print 'name:', custom_filter['name']
+                    if package.name.startswith(custom_filter['name']):
+                        return True
+                    else:
+                        return False
             return True
 
         result = None
@@ -1479,14 +1486,14 @@ class RepositoryManager(Plugin):
         session = None
         try:
             session = self.getSession()
-            distribution = self._getDistribution(release.split('/')[0])
-            distribution = session.merge(distribution)
-            if distribution:
-                release = self._getRelease(release.split('/', 1)[1])
-                release = session.merge(release)
-            else:
-                return []
-
+            if isinstance(release, StringTypes):
+                instance = self._getRelease(release)
+                if instance is None:
+                    raise ValueError("Unknown release %s" % release)
+                else:
+                    release = instance
+            release = session.merge(release)
+            distribution = release.distribution
             repo_type = distribution.type.name
             pname = self.type_reg[repo_type].getKernelPackageFilter()
             result = self.getPackages(release=release.name, custom_filter={'name': pname})
