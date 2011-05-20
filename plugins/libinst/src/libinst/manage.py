@@ -1632,7 +1632,7 @@ class RepositoryManager(Plugin):
             for ldap_key, key in self.template_map.items():
                 if ldap_key in res and not key in data:
                     mods.append((ldap.MOD_DELETE, ldap_key))
-                elif ldap_key in res and key in data and res[ldap_key][0] != data[key]:
+                elif ldap_key in res and key in data and unicode(res[ldap_key][0], "utf-8") != data[key]:
                     mods.append((ldap.MOD_REPLACE, ldap_key,
                         [data[key].encode("utf-8")]))
                 elif key in data and not ldap_key in res:
