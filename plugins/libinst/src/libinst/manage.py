@@ -291,6 +291,46 @@ class RepositoryManager(Plugin):
             session.close()
 
         return result
+    
+    @Command(__doc__=N_("Return available information for the given release"))
+    @NamedArgs("m_hash")
+    def getRelease(self, m_hash=None, release=None):
+        """
+        getRelease returns available information for the given release.
+
+        @type release: string
+        @param release: release name
+
+        @rtype: dict
+        @return: dictionary containing a list of release parameter / value pairs.
+        """
+        result = None
+        session = None
+
+        if not release:
+            raise ValueError(N_("Release parameter is mandatory"))
+        
+        try:
+            session = self.getSession()
+        
+            if isinstance(release, StringTypes):
+                instance = self._getRelease(release)
+                if not instance:
+                    raise ValueError(N_("Release %s not found" % release))
+                else:
+                    release = instance
+                release = session.merge(release)
+            result = release
+    
+            result = release.getInfo()
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+        return result
 
     @Command(__doc__=N_("List available architectures for the given distribution"))
     @NamedArgs("m_hash")
