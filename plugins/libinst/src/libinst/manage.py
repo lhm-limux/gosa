@@ -235,8 +235,8 @@ class RepositoryManager(Plugin):
                  discription pairs.
         """
         result = None
-        session = None
         repository = None
+        session = None
 
         try:
             session = self.getSession()
@@ -244,6 +244,44 @@ class RepositoryManager(Plugin):
             session.add(repository)
             if repository.distributions:
                 result = [distribution.getInfo() for distribution in repository.distributions]
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+        return result
+    
+    @Command(__doc__=N_("Return available information for the given distribution"))
+    @NamedArgs("m_hash")
+    def getDistribution(self, m_hash=None, distribution=None):
+        """
+        getDistributions returns available information for the given distribution.
+
+        @rtype: dict
+        @return: dictionary containing a list of distribution name /
+                 discription pairs.
+        """
+        result = None
+        session = None
+        
+        if not distribution:
+            raise ValueError(N_("Distribution parameter is mandatory"))
+        
+        try:
+            session = self.getSession()
+        
+            if isinstance(distribution, StringTypes):
+                instance = self._getDistribution(distribution)
+                if not instance:
+                    raise ValueError(N_("Distribution %s not found" % distribution))
+                else:
+                    distribution = instance
+                distribution = session.merge(distribution)
+            result = distribution
+    
+            result = distribution.getInfo()
             session.commit()
         except:
             session.rollback()
