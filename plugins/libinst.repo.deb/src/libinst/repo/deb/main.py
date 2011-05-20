@@ -409,10 +409,11 @@ class DebianHandler(DistributionHandler):
         result = None
 
         o = urlparse(url)
+        print "o.scheme:", o.scheme
         if o.scheme in ("http", "https", "ftp"):
             # Need to download file first
             url = downloadFile(o.geturl(), use_filename=True)
-        elif o.scheme.startswith('/'):
+        elif o.scheme=="":
             # Local file
             pass
         else:
