@@ -1496,7 +1496,7 @@ class RepositoryManager(Plugin):
             raise
         finally:
             session.close()
-            
+
         return result
 
     @Command(__doc__=N_("Completely remove device's installation parameters"))
