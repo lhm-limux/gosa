@@ -158,7 +158,7 @@ class DebianHandler(DistributionHandler):
         return result
 
     def getKernelPackageFilter(self):
-        return "linux-image%"
+        return "linux-image"
 
     def addPackage(self, session, url, distribution=None, release=None, origin=None, component=None, section=None, updateInventory=True):
         if distribution:
@@ -409,7 +409,6 @@ class DebianHandler(DistributionHandler):
         result = None
 
         o = urlparse(url)
-        print "o.scheme:", o.scheme
         if o.scheme in ("http", "https", "ftp"):
             # Need to download file first
             url = downloadFile(o.geturl(), use_filename=True)
