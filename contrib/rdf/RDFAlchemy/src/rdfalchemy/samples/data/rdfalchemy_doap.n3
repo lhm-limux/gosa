@@ -1,0 +1,20 @@
+@prefix : <http://usefulinc.com/ns/doap#>.
+@prefix foaf: <http://xmlns.com/foaf/0.1/>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+
+[ a :Project;
+         :name "RDFAlchemy";
+         :programming-language "Python";
+         :homepage <http://www.openvest.com/trac/wiki/RDFAlchemy>;
+         :license <http://usefulinc.com/doap/licenses/bsd>;
+         :maintainer [ a foaf:Person;
+                 foaf:name "Philip Cooper";
+                 foaf:homepage <http://www.openvest.com/ContactUs>;
+                 foaf:mbox_sha1sum "cc886cc71aeae9895a9e1e1e2a99a143a01d2d13"];
+         :repository [ a :SVNRepository;
+                 :browse <http://www.openvest.com/trac/browser/rdfalchemy/trunk>;
+                 :location <http://www.openvest.com/svn/public/rdfalchemy/trunk>];
+		 :shortdesc "A python orm for rdf datastores";
+		 :description """RDFAlchemy is to RDF as SQLAlchemy is to SQL.
+It is an ORM that allows access to rdflib or sesame RDF datastores""";
+].				 
