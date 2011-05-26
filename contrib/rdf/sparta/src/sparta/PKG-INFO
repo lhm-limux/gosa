@@ -1,0 +1,18 @@
+Metadata-Version: 1.0
+Name: sparta
+Version: 0.82
+Summary: Simple API for RDF
+Home-page: http://www.mnot.net/sw/sparta/
+Author: Mark Nottingham
+Author-email: mnot@pobox.com
+License: MIT
+Description: Sparta is an Python API for RDF that is designed
+        to help easily learn and navigate the Semantic Web programmatically.
+        Unlike other RDF interfaces, which are generally triple-based, Sparta
+        binds RDF nodes to Python objects and RDF arcs to attributes of those
+        Python objects.
+Platform: UNKNOWN
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
