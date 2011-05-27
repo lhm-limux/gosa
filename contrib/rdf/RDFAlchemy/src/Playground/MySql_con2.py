@@ -28,6 +28,7 @@ class Company(rdfSubject):
     address = rdfSingle(VCARD.adr)
 
 #ibm = Company(symbol='IBM')
+#ibm.db.commit()
 
 
 c = Company.get_by(symbol='IBM')
