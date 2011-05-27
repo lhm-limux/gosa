@@ -105,6 +105,8 @@ class DebianHandler(DistributionHandler):
 
     def removeRelease(self, session, release, recursive=False):
         result = None
+        if isinstance(release, StringTypes):
+            release = self._getRelease(session, release)
         dists_path = os.sep.join((release.distribution.repository.path, release.distribution.name, "dists",  release.name.replace('/', os.sep)))
         try:
             if os.path.exists(dists_path):
