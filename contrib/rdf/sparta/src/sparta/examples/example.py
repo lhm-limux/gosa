@@ -3,15 +3,23 @@
 from sparta import ThingFactory
 from rdflib.Graph import Graph
 
+# Create the graph
 store = Graph()
-store.bind("contact", "http://www.example.com/contact#")
-store.bind("person", "http://www.example.com/person#")
+
+# Bind schema definition using abbreviations.
 store.bind("xs", "http://www.w3.org/2001/XMLSchema#")
 store.bind("rdfs", "http://www.w3.org/2000/01/rdf-schema#")
 store.bind("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
 store.bind("owl", "http://www.w3.org/2002/07/owl#")
 
+# Create the classes 
+store.bind("contact", "http://www.example.com/contact#")
+store.bind("person", "http://www.example.com/person#")
+
+# Create the thing default class
 Thing = ThingFactory(store)
+
+# - Don't know what this is used for.
 Thing.addAlias("special", "http://www.example.com/my-unmappable-stuff#special-thing")
 
 ### these should be loaded externally...
@@ -19,25 +27,32 @@ Thing("person_employment_history",
       rdfs_range=[Thing("rdf_List")],
       rdf_type=[Thing("owl_FunctionalProperty")]
 )
-Thing("person_age", rdfs_range=[Thing("xs_int")])
+
 Thing("person_picture", rdfs_range=[Thing("xs_base64Binary")])
-Thing("contact_phone", rdf_type=[Thing("owl_FunctionalProperty")])
 Thing("person_wife", rdf_type=[Thing("owl_FunctionalProperty")])
 Thing("person_name", rdf_type=[Thing("owl_FunctionalProperty")])
 Thing("contact_www", rdf_type=[Thing("owl_FunctionalProperty")])
+Thing("contact_phone", rdf_type=[Thing("owl_FunctionalProperty")])
+
+# Defining an integer value
 Thing("person_age", rdf_type=[Thing("owl_FunctionalProperty")])
+Thing("person_age", rdfs_range=[Thing("xs_short")])
 
 bob = Thing("person_bob")
+
 Person = Thing("person_Person")
 bob.rdf_type.add(Person)
 bob.contact_phone = "555-1212"
 bob.person_name = "Bob"
+bob.person_age = 24
+
 bob.contact_address.add(Thing(None, 
                             contact_street = ["314159 There Street"],
                             contact_city = ["EveryVille"],
                             contact_state = ["NA"],
                             contact_zip = ["12345"],
                        ))
+
 
 bob.person_childname.add("joe")
 bob.person_childname.add("jim")
@@ -92,5 +107,4 @@ print "Bob's properties:", ", ".join(map(str, bob.properties()))
 print "Bob has a wife?", hasattr(bob, "person_wife")
 print "Her name?", getattr(bob, "person_wife").person_name
 
-print
 print store.serialize(format="xml")
