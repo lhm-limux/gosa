@@ -4,7 +4,9 @@ from rdflib import Namespace, ConjunctiveGraph
 from rdflib import plugin
 from rdflib.store import Store
 
-NS = Namespace('http://gosa-playground#')
+# Create a GOsa namespace, normally URIs are used here, but
+# we do not represent Web-Site data here.
+NS = Namespace('GOsa-Device#')
     
 # Open database connection 
 openstr= 'db=test,host=gosa-playground,user=admin'
