@@ -690,6 +690,7 @@ class RepositoryManager(Plugin):
                 release.distribution.releases.remove(release)
                 session.delete(release)
                 session.commit()
+                self.env.log.debug("Removed release %s" % release.name)
         except:
             session.rollback()
             raise
@@ -833,7 +834,6 @@ class RepositoryManager(Plugin):
                             arch = instance
                     session.commit()
                     arch = session.merge(arch)
-                    print arch
                     if arch not in distribution.architectures:
                         distribution.architectures.append(arch)
                 if component:
@@ -1001,7 +1001,6 @@ class RepositoryManager(Plugin):
                 return False
             if custom_filter:
                 if custom_filter.has_key('name'):
-                    print 'name:', custom_filter['name']
                     if package.name.startswith(custom_filter['name']):
                         return True
                     else:
