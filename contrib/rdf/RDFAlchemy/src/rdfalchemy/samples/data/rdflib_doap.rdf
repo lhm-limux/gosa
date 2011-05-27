@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rdf:RDF xmlns="http://usefulinc.com/ns/doap#" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><Project><name>rdflib</name>
+<shortdesc>RDF library containing an RDF triple store and RDF/XML parser/serializer</shortdesc>
+<description>RDF library containing an RDF triple store and RDF/XML parser/serializer
+    
+    If you have recently reported a bug marked as fixed, or have a craving for
+    the very latest, you may want the development version instead:
+    http://svn.rdflib.net/trunk#egg=rdflib-dev</description>
+<download-page>http://rdflib.net/rdflib-2.4.0.tar.gz</download-page>
+<homepage rdf:resource="http://rdflib.net/" />
+<maintainer><foaf:Person><foaf:name>Daniel 'eikeon' Krech</foaf:name>
+<foaf:mbox_sha1sum>8b39951d02f09185a13793244c61f8e3dbea61d0</foaf:mbox_sha1sum></foaf:Person></maintainer>
+<release><Version><revision>2.4.0</revision></Version></release>
+</Project></rdf:RDF>
