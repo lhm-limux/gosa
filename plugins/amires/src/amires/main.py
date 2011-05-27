@@ -27,8 +27,11 @@ class AsteriskNotificationReceiver:
             user = env.uuid
         password = env.config.getOption("key", "amqp")
         url = parseURL(makeAuthURL(env.config.getOption('url', 'amqp'), user, password))
-        domain = self.env.config.getOption('domain', 'amqp', default="org.gosa")
-        self.url = "/".join([url['source'], domain])
+        if url['path']:
+            self.url = url['source']
+        else:
+            domain = self.env.config.getOption('domain', 'amqp', default="org.gosa")
+            self.url = "/".join([url['source'], domain])
 
         # Load resolver
         for entry in pkg_resources.iter_entry_points("phone.resolver"):
