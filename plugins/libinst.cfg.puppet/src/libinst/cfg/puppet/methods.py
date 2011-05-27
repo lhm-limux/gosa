@@ -402,12 +402,12 @@ reportdir=$logdir
         section = 'remote "%s"' % device_uuid
         if not config.has_section(section):
             cs = PluginRegistry.getInstance("ClientService")
-            
+
             # Check ssh key
             key = self._get_public_key()
             if not key[1] in [p["data"] for p in cs.clientDispatch(device_uuid, "puppetListKeys")]:
                 cs.clientDispatch(device_uuid, "puppetAddKey", key)
-            
+
             #TODO: Manage nodes.pp (!)
             #node ldap-server {
             #  import "dns"
@@ -419,7 +419,7 @@ reportdir=$logdir
             #  $test = "hallo"
             #}
 
-            
+
             # Add git configuration 
             config.add_section(section)
 
@@ -431,7 +431,7 @@ reportdir=$logdir
                     config.write(f)
             except:
                 return False
-            
+
             # Reset "P" flag for client
             cs = PluginRegistry.getInstance("ClientService")
             cs.systemSetStatus(device_uuid, "-P")
@@ -475,7 +475,7 @@ reportdir=$logdir
 
     def _get_public_key(self):
         default = os.path.join(os.path.expanduser('~'), ".ssh", "id_dsa.pub")
-        
+
         # Read dsa key
         try:
             with open(self.env.config.getOption("public_key", "puppet", default)) as f:
