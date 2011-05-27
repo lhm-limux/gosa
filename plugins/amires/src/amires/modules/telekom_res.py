@@ -16,7 +16,7 @@ class TelekomNumberResolver(PhoneNumberResolver):
         #TODO: internal
         self.internal = 3
 
-    def build_string(src, *keys):
+    def build_string(self, src, *keys):
         """
         Assemble a string from a dict using optional keys.
         """
@@ -25,7 +25,7 @@ class TelekomNumberResolver(PhoneNumberResolver):
                 filter(lambda k: k in src, keys))),
             'latin1').encode('utf-8')
 
-    def resolve(number):
+    def resolve(self, number):
         """
         Probe a couple of numbers in order to find one which is
         available in the official phone book. Number needs to be
@@ -52,7 +52,7 @@ class TelekomNumberResolver(PhoneNumberResolver):
         # Nothing found
         return None
 
-    def _resolve_telekom(number):
+    def _resolve_telekom(self, number):
         """
         This is a hack to resolve a number via "www.dastelefonbuch.de" powered
         by the Deutsche Telekom. It will break if they change some links inside
@@ -84,9 +84,9 @@ class TelekomNumberResolver(PhoneNumberResolver):
             out = parse_qs(urlparse(urllib.unquote(url_g.groups()[0])).query)
 
             return {
-                'name': build_string(out, 'vorname', 'nachname'),
-                'street': build_string(out, 'strasse', 'hausnummer'),
-                'location': build_string(out, 'plz', 'ort'),
+                'name': self.build_string(out, 'vorname', 'nachname'),
+                'street': self.build_string(out, 'strasse', 'hausnummer'),
+                'location': self.build_string(out, 'plz', 'ort'),
                 'number': number
             }
 
