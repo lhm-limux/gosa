@@ -5,6 +5,9 @@ from lxml import etree
 from amires.resolver import PhoneNumberResolver
 
 class XMLNumberResolver (PhoneNumberResolver):
+
+    priority = 2
+
     def __init__(self):
         super(XMLNumberResolver, self).__init__()
 
@@ -32,7 +35,7 @@ class XMLNumberResolver (PhoneNumberResolver):
 
     def resolve(self, number):
         if number in self.numbers:
-            return None
+            self.numbers[number]['resource'] = "xml"
             return self.numbers[number]
         else:
             return None

@@ -6,6 +6,8 @@ from amires.resolver import PhoneNumberResolver
 
 class SugarNumberResolver(PhoneNumberResolver):
 
+    priority = 5
+
     def __init__(self):
         super(SugarNumberResolver, self).__init__()
 
