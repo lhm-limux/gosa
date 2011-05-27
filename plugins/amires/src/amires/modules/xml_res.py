@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 from lxml import etree
 
-from PhoneNumberResolver import PhoneNumberResolver
+from amires.resolver import PhoneNumberResolver
 
 class XMLNumberResolver (PhoneNumberResolver):
-    def __init__(self, filename, replace):
+    def __init__(self):
         super(XMLNumberResolver, self).__init__()
 
         filename = self.env.config.getOption("filename", "resolver-xml",
@@ -32,6 +32,7 @@ class XMLNumberResolver (PhoneNumberResolver):
 
     def resolve(self, number):
         if number in self.numbers:
+            return None
             return self.numbers[number]
         else:
             return None
