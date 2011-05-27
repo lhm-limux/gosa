@@ -54,6 +54,7 @@ setup(
         res.ldap = amires.modules.ldap_res:LDAPNumberResolver
         res.sugar = amires.modules.sugar_res:SugarNumberResolver
         res.telekom = amires.modules.telekom_res:TelekomNumberResolver
+        res.xml = amires.modules.xml_res:XMLNumberResolver
         #res.static = amires.modules.static_res:StaticResolver
 
         [notification.fetcher]
