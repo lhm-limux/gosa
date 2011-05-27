@@ -1,26 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import pkg_resources
+from lxml import etree
+from gosa.common.env import Environment
+from gosa.common.utils import parseURL, makeAuthURL
 from gosa.common.components.amqp_proxy import AMQPEventConsumer, \
     AMQPServiceProxy
-from qpid.util import URL
-from lxml import etree
-import sys
-import re
-import ConfigParser
-import MySQLdb
 
-from GOforgeFetcher import GOforgeFetcher
-from PhoneNumberResolver import PhoneNumberResolver
-
-
-""" Not needed atm. Might be relevant for wrapping the database.
-class ConnectionError(Exception):
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        return repr(self.value)
-"""
+#TODO: modularize later on, maybe two fetcher: sugar/goforge
+from amires.modules.goforge_fetch import GOforgeFetcher
 
 
 class AsteriskNotificationReceiver:
@@ -28,28 +16,50 @@ class AsteriskNotificationReceiver:
                 'CallEnded': "Call ended",
                 'IncomingCall': "Incoming call"}
 
-    def __init__(self, config, resolver, goforge):
+    resolver = {}
+
+    def __init__(self):
+        self.env = env = Environment.getInstance()
+
+        # Evaluate AMQP URL
+        user = env.config.getOption("id", "amqp", default=None)
+        if not user:
+            user = env.uuid
+        password = env.config.getOption("key", "amqp")
+        url = parseURL(makeAuthURL(env.config.getOption('url', 'amqp'), user, password))
+        domain = self.env.config.getOption('domain', 'amqp', default="org.gosa")
+        self.url = "/".join([url['source'], domain])
+
+        # Load resolver
+        for entry in pkg_resources.iter_entry_points("phone.resolver"):
+            module = entry.load()
+            self.resolver[module.__name__] = {
+                    'object': module(),
+                    'priority': module.priority,
+            }
+
+        #TODO: make this a dynamically loaded fetcher module
+        self.goforge = GOforgeFetcher()
+
         # Create event consumer
-        self.consumer = AMQPEventConsumer(config['url'],
+        self.consumer = AMQPEventConsumer(self.url,
             xquery = """
                 declare namespace f='http://www.gonicus.de/Events';
                 let $e := ./f:Event
                 return $e/f:AsteriskNotification
             """,
             callback = self.process)
-        self.resolver = resolver
-        self.goforge = goforge
 
-        self.proxy = AMQPServiceProxy(config['url'])
+        self.proxy = AMQPServiceProxy(self.url)
 
     def __del__(self):
         if hasattr(self, 'consumer') and self.consumer is not None:
             del self.consumer
 
-    def serve_forever(self):
-        print "Running ..."
+    def serve(self):
+        self.env.log.info("Service running...")
         while True:
-            res = self.consumer.join()
+            self.consumer.join()
 
     # Event callback
     def process(self, data):
@@ -65,15 +75,24 @@ class AsteriskNotificationReceiver:
         numbers = numbers.split(" ")
         n_to = numbers[0]
 
-        type = dat[0][0].text
+        etype = dat[0][0].text
 
-        # resolve numbers
-        i_from = self.resolver.resolve(n_from)
-        i_to = self.resolver.resolve(n_to)
+        # Resolve numbers with all resolvers, sorted by priority
+        i_from = None
+        i_to = None
+
+        for mod, info in sorted(self.resolver.iteritems(),
+                key=lambda k: k[1]['priority']):
+            if not i_from:
+                i_from = info['object'].resolve(n_from)
+            if not i_to:
+                i_to = info['object'].resolve(n_to)
+            if i_from and i_to:
+                break
 
         # give some output to the console
-        if type in self.TYPE_MAP:
-            print self.TYPE_MAP[type]
+        if etype in self.TYPE_MAP:
+            print self.TYPE_MAP[etype]
         print "-----------"
         print "From:"
         print i_from
@@ -110,86 +129,23 @@ class AsteriskNotificationReceiver:
             msg = ""
             msg += c_from
 
-            self.proxy.notifyUser(i_to['contact_id'], self.TYPE_MAP[type], msg)
+            self.proxy.notifyUser(i_to['contact_id'], self.TYPE_MAP[etype], msg)
 
+def main():
+    # For usage inside of __main__ we need a dummy initialization
+    # to load the environment, because there's no one who's doing
+    # it for us...
+    Environment.config = "/etc/gosa/config"
+    Environment.noargs = True
+    env = Environment.getInstance()
 
-class AMQPReceive:
-    def __init__(self):
-                # read configuration file
-        conf = ConfigParser.RawConfigParser()
-        conf.read("amqp_receive.cfg")
-
-        # read replacement configuration
-        replace = []
-        items = conf.items("replace")
-        for itm in items:
-            res = re.search("^\"(.*)\",\"(.*)\"$", itm[1])
-            res = re.search("^\"(.*)\"[\s]*,[\s]*\"(.*)\"$", itm[1])
-            if not res == None:
-                replace.append([res.group(1), res.group(2)])
-
-        # set defaults for amqp config
-        conf_amqp = {
-            'url': 'amqps://localhost/org.gosa'}
-
-        # set defaults for ldap config
-        conf_ldap = {
-            'host': 'localhost',
-            'use_tls': '0'}
-
-        # set defaults for sugar config
-        conf_sugar = {
-            'host': 'localhost',
-            'user': 'root',
-            'pass': '',
-            'base': 'sugarcrm',
-            'site_url': 'http://localhost/sugarcrm'}
-
-        # set defaults for sugar config
-        conf_goforge = {
-            'host': 'localhost',
-            'user': 'root',
-            'pass': '',
-            'base': 'sugarcrm'}
-
-        # replace config from file
-        if "sugar" in conf.sections():
-            for key, val in conf.items("sugar"):
-                conf_sugar[key] = val
-        if "goforge" in conf.sections():
-            for key, val in conf.items("goforge"):
-                conf_goforge[key] = val
-        if "amqp" in conf.sections():
-            for key, val in conf.items("amqp"):
-                conf_amqp[key] = val
-        if "ldap" in conf.sections():
-            for key, val in conf.items("ldap"):
-                conf_ldap[key] = val
-
-        # create phone number resolver
-        resolver = PhoneNumberResolver(conf_sugar, conf_ldap,
-                                       conf_goforge, replace)
-
-        # create GOforge fetcher
-        goforge = GOforgeFetcher(conf_goforge)
-
-        # create amqp event receiver
-        self.receiver = AsteriskNotificationReceiver(conf_amqp,
-            resolver, goforge)
-
-    def __del__(self):
-        if hasattr(self, 'receiver') and self.receiver is not None:
-            del self.receiver
-
-    def serve_forever(self):
-        try:
-            self.receiver.serve_forever()
-        except KeyboardInterrupt:
-            print "Bye."
+    # Load receiver and serve forever
+    handler = AsteriskNotificationReceiver()
+    try:
+        handler.serve()
+    except KeyboardInterrupt:
+        pass
 
 
 if __name__ == "__main__":
-    print "AMQP Asterisk Event Receiver."
-
-    plugin = AMQPReceive()
-    plugin.serve_forever()
+    main()
