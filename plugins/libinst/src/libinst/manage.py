@@ -562,10 +562,11 @@ class RepositoryManager(Plugin):
                     if not '/' in release.name:
                         self.env.log.debug("Removing release %s/%s" % (distribution.name,  release.name))
                         self.removeRelease(release, recursive=recursive)
-                session.refresh(distribution)
+                session.expire(distribution)
 
             result = self.type_reg[distribution.type.name].removeDistribution(session, distribution, recursive=recursive)
             if result is not None:
+                session.commit()
                 distribution.repository.distributions.remove(distribution)
                 session.delete(distribution)
             session.commit()
@@ -670,7 +671,7 @@ class RepositoryManager(Plugin):
                 for child_release in release.children[:]:
                     self.env.log.debug("Removing child release %s" % child_release)
                     self.removeRelease(child_release, recursive=True)
-                session.refresh(release)
+                session.expire(release)
             else:
                 # pylint: disable-msg=E1101
                 for package in release.packages[:]:
@@ -679,18 +680,21 @@ class RepositoryManager(Plugin):
                         self.env.log.error("Could not remove package %s from release %s" % (package.name, release.name))
                     else:
                         self.env.log.debug("Package %s/%s/%s was removed from release %s" % (package.name, package.version, package.arch.name, release.name))
-                session.refresh(release)
+                session.expire(release)
 
             if release.distribution.installation_method is not None:
                 self.install_method_reg[release.distribution.installation_method].removeRelease(release.name, recursive=recursive)
-                session.refresh(release)
+                session.expire(release)
 
-            result = self.type_reg[release.distribution.type.name].removeRelease(session, release, recursive=recursive)
+            self.env.log.debug("\033[01;31mRemoving release %s\033[00m" % release.name)
+            result = self.type_reg[release.distribution.type.name].removeRelease(session, release.name, recursive=recursive)
             if result is not None:
+                session.commit()
+                print release.distribution.releases
                 release.distribution.releases.remove(release)
                 session.delete(release)
                 session.commit()
-                self.env.log.debug("Removed release %s" % release.name)
+                self.env.log.debug("\033[01;32mRemoved release %s\033[00m" % release.name)
         except:
             session.rollback()
             raise
@@ -1897,11 +1901,11 @@ class RepositoryManager(Plugin):
         try:
             session = self.getSession()
             result = session.query(Release).filter_by(name=name).one()
+            session.commit()
         except NoResultFound:
             pass
         finally:
             session.close()
-
         return result
 
     def _getRepository(self, name=None, path=None, add=False):
