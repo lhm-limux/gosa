@@ -217,7 +217,7 @@ class Thing:
         """ 
         obj_types = self._getObjectTypes(pred, obj)
         if isinstance(obj, Literal):  # typed literals
-            return self._literalToPython(obj, obj_types)
+            return self._literalToPython(obj, obj_types, pred)
         elif LIST in obj_types:
             return self._listToPython(obj)
         elif SEQ in obj_types:
@@ -264,7 +264,7 @@ class Thing:
         else:
             return self._pythonToLiteral(obj, obj_types)
 
-    def _literalToPython(self, obj, obj_types):
+    def _literalToPython(self, obj, obj_types, pred):
         """
         obj - rdflib.Literal.Literal instance
         obj_types - iterator yielding rdflib.URIRef.URIRef instances
@@ -272,10 +272,15 @@ class Thing:
         returns a python literal datatype
         """
         for obj_type in obj_types:
+            obj_type = str(obj_type)
             try:
                 return SchemaToPython[obj_type][0](obj)
             except KeyError:
                 pass
+        
+        if len(obj_types):
+            raise Exception('Invalid literal definition for %s' % pred)    
+        
         return SchemaToPythonDefault[0](obj)
     
     def _pythonToLiteral(self, obj, obj_types):
@@ -286,6 +291,7 @@ class Thing:
         returns rdflib.Literal.Literal instance
         """
         for obj_type in obj_types:
+            obj_type = str(obj_type)
             try:
                 return Literal(SchemaToPython[obj_type][1](obj))
             except KeyError:
