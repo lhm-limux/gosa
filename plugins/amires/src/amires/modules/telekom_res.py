@@ -87,7 +87,8 @@ class TelekomNumberResolver(PhoneNumberResolver):
                 'name': self.build_string(out, 'vorname', 'nachname'),
                 'street': self.build_string(out, 'strasse', 'hausnummer'),
                 'location': self.build_string(out, 'plz', 'ort'),
-                'number': number
+                'number': number,
+                'resource': 'telekom'
             }
 
         # Nothing found
