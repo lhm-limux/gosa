@@ -131,17 +131,21 @@ class DebianHandler(DistributionHandler):
             for component in components if components is not None else distribution.components:
                 if isinstance(component, StringTypes):
                     component = self._getComponent(session, component)
+                packages = self.manager.getPackages(release=release, component=component)
                 for architecture in architectures if architectures is not None else distribution.architectures:
                     if isinstance(architecture, StringTypes):
                         architecture = self._getArchitecture(architecture)
+                    if architecture.name == 'all':
+                        continue
+
                     packagelist = self.getMirrorPackageList(session, release, component, architecture)
                     for package in deb822.Packages.iter_paragraphs(file(packagelist)):
                         if package.has_key('Package'):
-                            if not package['Package'] in [p['name'] for p in self.manager.getPackages(release=release, arch=architecture, component=component)]:
+                            if not package['Package'] in [p['name'] for p in packages]:
                                 if sections and package['Section'] not in sections:
                                     next
                                 else:
-                                    print("Adding package '%s' from URL '%s'" % (package['Package'], distribution.origin + "/" + package['Filename']))
+                                    self.env.log.debug("Adding package '%s' from URL '%s'" % (package['Package'], distribution.origin + "/" + package['Filename']))
                                     self.addPackage(session, distribution.origin + "/" + package['Filename'], release=release.name, component=component.name, section=package['Section'])
                                     try:
                                         session.commit()
@@ -149,7 +153,26 @@ class DebianHandler(DistributionHandler):
                                         session.rollback()
                                         raise
                             else:
-                                print "Doing upgrade if differs"
+                                existing_packages = [p for p in packages if p['name']==package['Package']]
+                                if package['Architecture'] not in [p['arch'] for p in existing_packages]:
+                                    self.env.log.debug("Adding package '%s' from URL '%s'" % (package['Package'], distribution.origin + "/" + package['Filename']))
+                                    self.addPackage(session, distribution.origin + "/" + package['Filename'], release=release.name, component=component.name, section=package['Section'])
+                                    try:
+                                        session.commit()
+                                    except:
+                                        session.rollback()
+                                        raise
+                                elif package['Version'] not in [p['version'] for p in existing_packages]:
+                                    self.env.log.debug("Upgrading package '%s' from URL '%s'" % (package['Package'], distribution.origin + "/" + package['Filename']))
+                                    self.addPackage(session, distribution.origin + "/" + package['Filename'], release=release.name, component=component.name, section=package['Section'])
+                                    try:
+                                        session.commit()
+                                    except:
+                                        session.rollback()
+                                        raise
+                                else:
+                                    # package already present in archive
+                                    pass
                     result = True
 
         try:
@@ -371,7 +394,7 @@ class DebianHandler(DistributionHandler):
         local_file = None
 
         if architecture.name=="all":
-            raise ValueError("Refusing to download Packages for architecture {architecture}").format(architecture=architecture.name)
+            raise ValueError(N_("Refusing to download Packages for architecture {architecture}").format(architecture=architecture.name))
 
         for extension in (".bz2", ".gz", ""):
             try:
