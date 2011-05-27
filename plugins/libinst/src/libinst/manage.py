@@ -597,25 +597,25 @@ class RepositoryManager(Plugin):
         result = None
         session = None
 
-        if not self._getRelease(name):
-            p = re.compile(ALLOWED_CHARS_RELEASE)
-            if not p.match(name):
-                raise ValueError(N_("Release name {release} contains invalid characters!").format(release=name))
-            if name == "master":
-                raise ValueError(N_("master is a reserved keyword!"))
+        try:
+            session = self.getSession()
+            if isinstance(distribution, StringTypes):
+                instance = self._getDistribution(distribution)
+                if instance:
+                    distribution = instance
+                else:
+                    raise ValueError(N_("Distribution {distribution} does not exist!").format(distribution=distribution))
+            distribution = session.merge(distribution)
 
-            try:
-                session = self.getSession()
-                if isinstance(distribution, StringTypes):
-                    instance = self._getDistribution(distribution)
-                    if instance:
-                        distribution = instance
-                    else:
-                        raise ValueError(N_("Distribution {distribution} does not exist!").format(distribution=distribution))
-                distribution = session.merge(distribution)
+            if '/' in name and not self._getRelease(name.rsplit('/', 1)[0]):
+                raise ValueError(N_("Parent release {release} not found!").format(release=name.rsplit('/', 1)[0]))
 
-                if '/' in name and not self._getRelease(name.rsplit('/', 1)[0]):
-                    raise ValueError(N_("Parent release {release} not found!").format(release=name.rsplit('/', 1)[0]))
+            if not self._getRelease(name):
+                p = re.compile(ALLOWED_CHARS_RELEASE)
+                if not p.match(name):
+                    raise ValueError(N_("Release name {release} contains invalid characters!").format(release=name))
+                if name == "master":
+                    raise ValueError(N_("master is a reserved keyword!"))
 
                 result = self.type_reg[distribution.type.name].createRelease(session, distribution, name)
                 if result is not None:
@@ -628,13 +628,13 @@ class RepositoryManager(Plugin):
                     distribution.repository._initDirs()
                     if result.distribution.installation_method is not None:
                         self.install_method_reg[result.distribution.installation_method].createRelease(result.name, result.parent)
-            except:
-                session.rollback()
-                raise
-            finally:
-                session.close()
-        else:
-            raise ValueError(N_("Release {release} already exists!").format(release=name))
+            else:
+                raise ValueError(N_("Release {release} already exists!").format(release=name))
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
         return result != None
 
     @Command(__doc__=N_("Remove a release"))
@@ -690,7 +690,6 @@ class RepositoryManager(Plugin):
             result = self.type_reg[release.distribution.type.name].removeRelease(session, release.name, recursive=recursive)
             if result is not None:
                 session.commit()
-                print release.distribution.releases
                 release.distribution.releases.remove(release)
                 session.delete(release)
                 session.commit()
@@ -816,7 +815,7 @@ class RepositoryManager(Plugin):
 
     @Command(__doc__=N_("Add new properties to a mirrored distribution"))
     @NamedArgs("m_hash")
-    def addMirrorProperty(self, m_hash=None, distribution=None, arch=None, component=None, mirror_sources=None):
+    def addMirrorProperty(self, m_hash=None, distribution=None, arch=None, component=None, mirror_sources=None, origin=None):
         result = None
         session = None
         try:
@@ -853,6 +852,8 @@ class RepositoryManager(Plugin):
                         distribution.components.append(component)
                 if mirror_sources:
                     distribution.mirror_sources = mirror_sources
+                if origin:
+                    distribution.origin = origin
             else:
                 raise ValueError(N_("Need a distribution to add properties"))
             session.commit()
