@@ -22,8 +22,7 @@ store = plugin.get('MySQL', Store)('test')
 store.open(openstr,create=False)
 rdfSubject.db = ConjunctiveGraph(store)
 
-
-# 
+# Store namespace prefix in database. 
 rdfSubject.db.bind("RDF", "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
 rdfSubject.db.bind("XS", "http://www.w3.org/2001/XMLSchema#")
 
