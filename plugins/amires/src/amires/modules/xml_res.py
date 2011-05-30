@@ -5,6 +5,9 @@ from lxml import etree
 from amires.resolver import PhoneNumberResolver
 
 class XMLNumberResolver (PhoneNumberResolver):
+
+    priority = 2
+
     def __init__(self):
         super(XMLNumberResolver, self).__init__()
 
@@ -23,8 +26,7 @@ class XMLNumberResolver (PhoneNumberResolver):
                 'contact_id': '',
                 'contact_name': '',
                 'contact_phone': number,
-                'contact_detail_url': '',
-                'resource': 'xml'}
+                'contact_detail_url': ''}
             for e in entry:
                 if e.tag not in self.numbers[number]:
                     raise RuntimeError("Invalid XML element while parsing.")
@@ -33,6 +35,7 @@ class XMLNumberResolver (PhoneNumberResolver):
 
     def resolve(self, number):
         if number in self.numbers:
+            self.numbers[number]['resource'] = "xml"
             return self.numbers[number]
         else:
             return None

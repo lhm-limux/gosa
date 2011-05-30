@@ -84,10 +84,8 @@ class TelekomNumberResolver(PhoneNumberResolver):
             out = parse_qs(urlparse(urllib.unquote(url_g.groups()[0])).query)
 
             return {
-                'name': self.build_string(out, 'vorname', 'nachname'),
-                'street': self.build_string(out, 'strasse', 'hausnummer'),
-                'location': self.build_string(out, 'plz', 'ort'),
-                'number': number,
+                'contact_name': self.build_string(out, 'vorname', 'nachname'),
+                'contact_phone': number,
                 'resource': 'telekom'
             }
 

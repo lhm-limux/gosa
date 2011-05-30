@@ -93,6 +93,12 @@ class AsteriskNotificationReceiver:
             if i_from and i_to:
                 break
 
+        # Back to original numbers
+        if not i_from:
+            i_from = {'contact_phone': n_from, 'contact_name': "Unknown"}
+        if not i_to:
+            i_to = {'contact_phone': n_to, 'contact_name': "Unknown"}
+
         # give some output to the console
         if etype in self.TYPE_MAP:
             print self.TYPE_MAP[etype]
@@ -105,7 +111,7 @@ class AsteriskNotificationReceiver:
         print
 
         tickets = None
-        if i_from is not None and i_from['resource'] == 'sugar' \
+        if 'resource' in i_from and i_from['resource'] == 'sugar' \
             and i_from['company_id'] != '':
             tickets = self.goforge.getTickets(i_from['company_id'])
 
@@ -113,7 +119,7 @@ class AsteriskNotificationReceiver:
         print tickets
         print
 
-        if i_to is not None and i_to['resource'] == 'ldap':
+        if 'contact_id' in i_to:
             # Assemble caller info
             c_from = "From: "
             if i_from is None:
@@ -125,14 +131,16 @@ class AsteriskNotificationReceiver:
                 if i_from['company_name'] != "":
                     c_from += "(" + i_from['company_name'] + ")"
 
-            elif i_from['company_name'] != "":
-                c_from += i_from['company_name']
+            else:
+                c_from += "Unknown"
+
             c_from += "\n"
 
             msg = ""
             msg += c_from
 
-            self.proxy.notifyUser(i_to['contact_id'], self.TYPE_MAP[etype], msg)
+            self.proxy.notifyUser(i_to['contact_id'], self.TYPE_MAP[etype],
+                    unicode(msg, 'utf-8'))
 
 def main():
     # For usage inside of __main__ we need a dummy initialization

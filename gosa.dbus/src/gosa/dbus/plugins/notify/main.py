@@ -57,8 +57,8 @@ class DBusNotifyHandler(dbus.service.Object, Plugin):
             # Build up the subprocess command
             # and add parameters on demand.
             cmd = ["notify-user"]
-            cmd += [str(title)]
-            cmd += [str(message)]
+            cmd += [title]
+            cmd += [message]
 
             if broadcast:
                 cmd += ["--broadcast"]
