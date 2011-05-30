@@ -23,7 +23,8 @@ class XMLNumberResolver (PhoneNumberResolver):
                 'contact_id': '',
                 'contact_name': '',
                 'contact_phone': number,
-                'contact_detail_url': ''}
+                'contact_detail_url': '',
+                'resource': 'xml'}
             for e in entry:
                 if e.tag not in self.numbers[number]:
                     raise RuntimeError("Invalid XML element while parsing.")
@@ -32,7 +33,6 @@ class XMLNumberResolver (PhoneNumberResolver):
 
     def resolve(self, number):
         if number in self.numbers:
-            return None
             return self.numbers[number]
         else:
             return None
