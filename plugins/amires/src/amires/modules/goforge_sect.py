@@ -64,7 +64,6 @@ class MainSection(BubbleSectionBuilder):
         if 'Duration' in event:
             html += "\n\n<b>%s</b>\n" % _("Duration")
             html += event['Duration'] + _("seconds") + "\n"
-            
 
         return html + "\n\n"
 

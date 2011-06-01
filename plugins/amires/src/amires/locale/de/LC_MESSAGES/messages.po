@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: amires 0.1\n"
 "Report-Msgid-Bugs-To: gosa@oss.gonicus.de\n"
 "POT-Creation-Date: 2011-06-01 13:01+0200\n"
-"PO-Revision-Date: 2011-06-01 14:13+0200\n"
+"PO-Revision-Date: 2011-06-01 16:45+0200\n"
 "Last-Translator: Cajus Pollmeier <pollmeier@gonicus.de>\n"
 "Language-Team: de <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -17,23 +17,31 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.5\n"
 
-#: src/amires/main.py:21
+#: src/amires/main.py:22
 msgid "Missed call"
 msgstr "Verpasster Anruf"
 
-#: src/amires/main.py:22
+#: src/amires/main.py:23
 msgid "Call ended"
 msgstr "Anruf beendet"
 
-#: src/amires/main.py:23
+#: src/amires/main.py:24
 msgid "Incoming call"
 msgstr "Eingehender Anruf"
 
-#: src/amires/modules/goforge_sect.py:48
+#: src/amires/modules/goforge_sect.py:56
 msgid "Caller"
 msgstr "Anrufer"
 
-#: src/amires/modules/goforge_sect.py:125
+#: src/amires/modules/goforge_sect.py:65
+msgid "Duration"
+msgstr "Dauer"
+
+#: src/amires/modules/goforge_sect.py:66
+msgid "seconds"
+msgstr "Sekunden"
+
+#: src/amires/modules/goforge_sect.py:140
 msgid "Open GOForge tickets"
 msgstr "Offene GOForge-Tickets"
 
