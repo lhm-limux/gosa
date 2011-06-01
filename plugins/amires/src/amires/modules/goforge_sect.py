@@ -34,8 +34,8 @@ class MainSection(BubbleSectionBuilder):
 
         # build html for company name
         comp = ""
-        if p['company_name'] != "":
-            if p['company_detail_url']:
+        if p['company_name']:
+            if 'company_detail_url' in p and p['company_detail_url']:
                 comp += "<a href='%s'>%s</a>" %(
                     cgi.escape(p['company_detail_url']),
                     p['company_name'])
@@ -44,8 +44,8 @@ class MainSection(BubbleSectionBuilder):
 
         # build html for contact name
         cont = ""
-        if p['contact_name'] != "":
-            if p['contact_detail_url'] != "":
+        if p['contact_name']:
+            if 'contact_detail_url' in p and p['contact_detail_url']:
                 cont += "<a href='%s'>%s</a>" %(
                     cgi.escape(p['contact_detail_url']),
                     p['contact_name'])
@@ -54,11 +54,11 @@ class MainSection(BubbleSectionBuilder):
 
         # build actual html section
         html = "<b>%s</b>\n" % _("Caller")
-        if cont != "":
+        if cont:
             html += cont
-            if comp != "":
+            if comp:
                 html += " (" + comp + ")"
-        elif comp != "":
+        elif comp:
             html += comp
 
         return html + "\n\n"
@@ -87,8 +87,11 @@ class GOforgeSection(BubbleSectionBuilder):
     def getHTML(self, particiantInfo):
         super(GOforgeSection, self).getHTML(particiantInfo)
 
+        if not 'company_id' in particiantInfo:
+            return ""
+
         company_id = particiantInfo['company_id']
-        if company_id == "":
+        if not company_id:
             return ""
 
         # prepare result

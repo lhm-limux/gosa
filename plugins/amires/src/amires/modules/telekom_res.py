@@ -86,6 +86,7 @@ class TelekomNumberResolver(PhoneNumberResolver):
             return {
                 'contact_name': self.build_string(out, 'vorname', 'nachname'),
                 'contact_phone': number,
+                'company_name': "",
                 'resource': 'telekom'
             }
 
