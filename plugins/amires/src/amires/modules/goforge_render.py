@@ -34,7 +34,7 @@ class GOForgeRenderer(BaseRenderer):
             default="http://localhost/")
 
     def getHTML(self, particiantInfo, event):
-        super(GOforgeRenderer, self).getHTML(particiantInfo)
+        super(GOForgeRenderer, self).getHTML(particiantInfo)
 
         if not 'company_id' in particiantInfo:
             return ""
