@@ -13,7 +13,7 @@ from amires.modules.goforge_sect import GOforgeSection, MainSection
 
 # Set locale domain
 t = gettext.translation('messages', pkg_resources.resource_filename("amires", "locale"),
-        fallback=True)
+        fallback=False)
 _ = t.ugettext
 
 
@@ -106,28 +106,12 @@ class AsteriskNotificationReceiver:
         if not i_to:
             i_to = {'contact_phone': n_to, 'contact_name': "Unknown"}
 
-        # give some output to the console
-        if etype in self.TYPE_MAP:
-            print self.TYPE_MAP[etype]
-        print "-----------"
-        print "From:"
-        print i_from
-        print
-        print "To:"
-        print i_to
-        print
-
-
         tickets = None
         """
         if 'resource' in i_from and i_from['resource'] == 'sugar' \
             and i_from['company_id'] != '':
             tickets = self.goforge.getTickets(i_from['company_id'])
         """
-
-        print "Open Tickets:"
-        print tickets
-        print
 
         if 'contact_id' in i_to:
             # Assemble caller info
@@ -152,7 +136,6 @@ class AsteriskNotificationReceiver:
             # render bubble with BubbleSectionBuilders
             msg = self.mainsection.getHTML(i_from)
             msg += self.goforge.getHTML(i_from)
-            print msg
 
             self.proxy.notifyUser(i_to['contact_id'], self.TYPE_MAP[etype],
                     unicode(msg, 'utf-8'))
