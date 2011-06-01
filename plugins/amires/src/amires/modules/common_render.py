@@ -52,7 +52,7 @@ class CommonRenderer(BaseRenderer):
             html += comp
 
         if 'Duration' in event:
-            duration = int(event['Duration'])
+            duration = int(float(event['Duration']))
             html += "\n\n<b>%s</b>\n" % _("Duration")
             html += "%d\'%02d\"\n" % (duration % 60, duration // 60)
 
