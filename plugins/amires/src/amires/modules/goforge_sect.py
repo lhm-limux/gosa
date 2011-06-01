@@ -27,7 +27,7 @@ class MainSection(BubbleSectionBuilder):
     def __init__(self):
         pass
 
-    def getHTML(self, particiantInfo):
+    def getHTML(self, particiantInfo, event):
         super(MainSection, self).getHTML(particiantInfo)
 
         p = particiantInfo
@@ -61,6 +61,11 @@ class MainSection(BubbleSectionBuilder):
         elif comp:
             html += comp
 
+        if 'Duration' in event:
+            html += "\n\n<b>%s</b>\n" % _("Duration")
+            html += event['Duration'] + _("seconds") + "\n"
+            
+
         return html + "\n\n"
 
 
@@ -84,7 +89,7 @@ class GOforgeSection(BubbleSectionBuilder):
         self.forge_url = self.env.config.getOption("site_url", "fetcher-goforge",
             default="http://localhost/")
 
-    def getHTML(self, particiantInfo):
+    def getHTML(self, particiantInfo, event):
         super(GOforgeSection, self).getHTML(particiantInfo)
 
         if not 'company_id' in particiantInfo:

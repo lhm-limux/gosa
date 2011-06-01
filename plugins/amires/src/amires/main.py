@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import pkg_resources
 import gettext
+import re
 from lxml import etree
 from gosa.common.env import Environment
 from gosa.common.utils import parseURL, makeAuthURL
@@ -87,6 +88,14 @@ class AsteriskNotificationReceiver:
 
         etype = dat[0][0].text
 
+        event = {}
+        for t in dat[0]:
+            tag = re.sub(r"^\{.*\}(.*)$", r"\1", t.tag)
+            if t.tag == 'From':
+                event[tag] = t.text.split(" ")[0]
+            else:
+                event[tag] = str(t.text)
+
         # Resolve numbers with all resolvers, sorted by priority
         i_from = None
         i_to = None
@@ -108,20 +117,20 @@ class AsteriskNotificationReceiver:
             i_to = {'contact_phone': n_to, 'contact_name': n_to,
                     'company_name': None}
 
-        tickets = None
-        """
-        if 'resource' in i_from and i_from['resource'] == 'sugar' \
-            and i_from['company_id'] != '':
-            tickets = self.goforge.getTickets(i_from['company_id'])
-        """
-
-        if 'ldap_uid' in i_to:
+        if 'ldap_uid' in i_to and i_to['ldap_uid']:
             # render bubble with BubbleSectionBuilders
-            msg = self.mainsection.getHTML(i_from)
-            msg += self.goforge.getHTML(i_from)
+            msg = self.mainsection.getHTML(i_from, event)
+            msg += self.goforge.getHTML(i_from, event)
 
             self.proxy.notifyUser(i_to['ldap_uid'], self.TYPE_MAP[etype],
-                    msg)
+                msg)
+
+        if 'ldap_uid' in i_from and i_from['ldap_uid'] and etype == 'CallEnded':
+            msg = self.mainsection.getHTML(i_from, event)
+            msg += self.goforge.getHTML(i_from, event)
+
+            self.proxy.notifyUser(i_from['ldap_uid'], self.TYPE_MAP[etype],
+                msg)
 
 def main():
     # For usage inside of __main__ we need a dummy initialization
