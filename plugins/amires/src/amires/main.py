@@ -8,7 +8,7 @@ from gosa.common.components.amqp_proxy import AMQPEventConsumer, \
     AMQPServiceProxy
 
 #TODO: modularize later on, maybe two fetcher: sugar/goforge
-from amires.modules.goforge_fetch import GOforgeFetcher
+from amires.modules.goforge_sect import GOforgeSection, MainSection
 
 
 class AsteriskNotificationReceiver:
@@ -42,7 +42,8 @@ class AsteriskNotificationReceiver:
             }
 
         #TODO: make this a dynamically loaded fetcher module
-        self.goforge = GOforgeFetcher()
+        self.goforge = GOforgeSection()
+        self.mainsection = MainSection()
 
         # Create event consumer
         self.consumer = AMQPEventConsumer(self.url,
@@ -138,6 +139,10 @@ class AsteriskNotificationReceiver:
 
             msg = ""
             msg += c_from
+
+            # render bubble with BubbleSectionBuilders
+            msg = self.mainsection.getHTML(i_from)
+            msg += self.goforge.getHTML(i_from)
 
             self.proxy.notifyUser(i_to['contact_id'], self.TYPE_MAP[etype],
                     unicode(msg, 'utf-8'))

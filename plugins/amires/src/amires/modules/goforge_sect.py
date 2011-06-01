@@ -3,7 +3,57 @@ import MySQLdb
 from gosa.common.env import Environment
 
 
-class GOforgeFetcher:
+class BubbleSectionBuilder(object):
+    def __init__(self):
+        pass
+
+    def getHTML(self, particiantInfo):
+        if not particiantInfo:
+            raise RuntimeError("particiantInfo must not be None.")
+        if type(particiantInfo) is not dict:
+            raise TypeError("particiant Info must be a dictionary.")
+
+
+class MainSection(BubbleSectionBuilder):
+    def __init__(self):
+        pass
+
+    def getHTML(self, particiantInfo):
+        super(MainSection, self).getHTML(particiantInfo)
+
+        p = particiantInfo
+
+        # build html for company name
+        comp = ""
+        if p['company_name'] != "":
+            if p['company_detail_url']:
+                comp += "<a href='%s'>%s</a>" %(
+                    p['company_detail_url'],
+                    p['company_name'])
+            else:
+                comp += p['company_name']
+
+        # build html for contact name
+        cont = ""
+        if p['contact_name'] != "":
+            if p['contact_detail_url'] != "":
+                cont += "<a href='%s'>%s</a>" %(
+                    p['contact_detail_url'],
+                    p['contact_name'])
+            else:
+                cont += p['contact_name']
+
+        # build actual html section
+        html = ""
+        if cont != "":
+            html += cont
+            if comp != "":
+                html += " (" + comp + ")"
+
+        return html
+
+
+class GOforgeSection(BubbleSectionBuilder):
 
     def __init__(self):
         self.env = env = Environment.getInstance()
@@ -20,7 +70,13 @@ class GOforgeFetcher:
         self.forge_db = MySQLdb.connect(host=host,
             user=user, passwd=passwd, db=db)
 
-    def getTickets(self, company_id):
+    def getHTML(self, particiantInfo):
+        super(GOforgeSection, self).getHTML(particiantInfo)
+
+        company_id = particiantInfo['company_id']
+        if company_id == "":
+            return ""
+
         # prepare result
         result = []
 
@@ -60,4 +116,10 @@ class GOforgeFetcher:
         finally:
             cursor.close()
 
-        return result
+        html = "<h2>GOforge</h2><ul>"
+        for row in result:
+            html += "<li>%s: '%s'</li>" %(row['id'], row['summary'])
+        html += "</ul>"
+
+        return html
+
