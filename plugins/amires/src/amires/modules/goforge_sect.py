@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import MySQLdb
+import cgi
 from gosa.common.env import Environment
 
 
@@ -28,7 +29,7 @@ class MainSection(BubbleSectionBuilder):
         if p['company_name'] != "":
             if p['company_detail_url']:
                 comp += "<a href='%s'>%s</a>" %(
-                    p['company_detail_url'],
+                    cgi.escape(p['company_detail_url']),
                     p['company_name'])
             else:
                 comp += p['company_name']
@@ -38,19 +39,21 @@ class MainSection(BubbleSectionBuilder):
         if p['contact_name'] != "":
             if p['contact_detail_url'] != "":
                 cont += "<a href='%s'>%s</a>" %(
-                    p['contact_detail_url'],
+                    cgi.escape(p['contact_detail_url']),
                     p['contact_name'])
             else:
                 cont += p['contact_name']
 
         # build actual html section
-        html = ""
+        html = "<b>Caller</b>\n"
         if cont != "":
             html += cont
             if comp != "":
                 html += " (" + comp + ")"
+        elif comp != "":
+            html += comp
 
-        return html
+        return html + "\n\n"
 
 
 class GOforgeSection(BubbleSectionBuilder):
@@ -69,6 +72,9 @@ class GOforgeSection(BubbleSectionBuilder):
         # connect to GOforge db
         self.forge_db = MySQLdb.connect(host=host,
             user=user, passwd=passwd, db=db)
+
+        self.forge_url = self.env.config.getOption("site_url", "fetcher-goforge",
+            default="http://localhost/")
 
     def getHTML(self, particiantInfo):
         super(GOforgeSection, self).getHTML(particiantInfo)
@@ -110,16 +116,21 @@ class GOforgeSection(BubbleSectionBuilder):
                 for row in rows:
                     result.append({'id': row[0],
                         'summary': row[1],
-                        'priority': row[2],
+                        'group_id': row[2],
                         'assigned': row[3]})
 
         finally:
             cursor.close()
 
-        html = "<h2>GOforge</h2><ul>"
+        html = "<b>Open GOforge tickets</b>\n"
         for row in result:
-            html += "<li>%s: '%s'</li>" %(row['id'], row['summary'])
-        html += "</ul>"
+            html += "<a href='%s'>%s</a>: '%s'\n" %(
+                cgi.escape(self.forge_url + "/bugs/?func=detailbug" \
+                    + "&bug_id=" + str(row['id']) \
+                    + "&group_id=" + str(row['group_id'])),
+                row['id'],
+                row['summary'])
+        #html += ""
 
         return html
 
