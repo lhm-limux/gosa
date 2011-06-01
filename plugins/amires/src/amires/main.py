@@ -12,7 +12,7 @@ from gosa.common.components.amqp_proxy import AMQPEventConsumer, \
 from amires.modules.goforge_sect import GOforgeSection, MainSection
 
 # Set locale domain
-t = gettext.translation('messages', resource_filename("amires", "locale"),
+t = gettext.translation('messages', pkg_resources.resource_filename("amires", "locale"),
         fallback=True)
 _ = t.ugettext
 
