@@ -3,72 +3,17 @@ import cgi
 import MySQLdb
 import pkg_resources
 import gettext
+from amires.render import BaseRenderer
 from gosa.common.env import Environment
 
 # Set locale domain
-t = gettext.translation('messages', pkg_resources.resource_filename("amires",
-"locale"),
-        fallback=False)
+t = gettext.translation('messages', pkg_resources.resource_filename("amires", "locale"), fallback=False)
 _ = t.ugettext
 
 
-class BubbleSectionBuilder(object):
-    def __init__(self):
-        pass
+class GOForgeRenderer(BaseRenderer):
 
-    def getHTML(self, particiantInfo):
-        if not particiantInfo:
-            raise RuntimeError("particiantInfo must not be None.")
-        if type(particiantInfo) is not dict:
-            raise TypeError("particiant Info must be a dictionary.")
-
-
-class MainSection(BubbleSectionBuilder):
-    def __init__(self):
-        pass
-
-    def getHTML(self, particiantInfo, event):
-        super(MainSection, self).getHTML(particiantInfo)
-
-        p = particiantInfo
-
-        # build html for company name
-        comp = ""
-        if p['company_name']:
-            if 'company_detail_url' in p and p['company_detail_url']:
-                comp += "<a href='%s'>%s</a>" %(
-                    cgi.escape(p['company_detail_url']),
-                    p['company_name'])
-            else:
-                comp += p['company_name']
-
-        # build html for contact name
-        cont = ""
-        if p['contact_name']:
-            if 'contact_detail_url' in p and p['contact_detail_url']:
-                cont += "<a href='%s'>%s</a>" %(
-                    cgi.escape(p['contact_detail_url']),
-                    p['contact_name'])
-            else:
-                cont += p['contact_name']
-
-        # build actual html section
-        html = "<b>%s</b>\n" % _("Caller")
-        if cont:
-            html += cont
-            if comp:
-                html += " (" + comp + ")"
-        elif comp:
-            html += comp
-
-        if 'Duration' in event:
-            html += "\n\n<b>%s</b>\n" % _("Duration")
-            html += str(int(float(event['Duration']))) + " " + _("seconds") + "\n"
-
-        return html + "\n\n"
-
-
-class GOforgeSection(BubbleSectionBuilder):
+    priority = 10
 
     def __init__(self):
         self.env = env = Environment.getInstance()
@@ -145,7 +90,5 @@ class GOforgeSection(BubbleSectionBuilder):
                     + "&group_id=" + str(row['group_id'])),
                 row['id'],
                 row['summary'])
-        #html += ""
 
         return html
-

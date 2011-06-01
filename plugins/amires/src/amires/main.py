@@ -9,9 +9,6 @@ from gosa.common.utils import parseURL, makeAuthURL
 from gosa.common.components.amqp_proxy import AMQPEventConsumer, \
     AMQPServiceProxy
 
-#TODO: modularize later on, maybe two fetcher: sugar/goforge
-from amires.modules.goforge_sect import GOforgeSection, MainSection
-
 # Set locale domain
 t = gettext.translation('messages', pkg_resources.resource_filename("amires", "locale"),
         fallback=False)
@@ -24,6 +21,7 @@ class AsteriskNotificationReceiver:
                 'IncomingCall': _("Incoming call")}
 
     resolver = {}
+    renderer = {}
 
     def __init__(self):
         self.env = env = Environment.getInstance()
@@ -48,9 +46,13 @@ class AsteriskNotificationReceiver:
                     'priority': module.priority,
             }
 
-        #TODO: make this a dynamically loaded fetcher module
-        self.goforge = GOforgeSection()
-        self.mainsection = MainSection()
+        # Load renderer
+        for entry in pkg_resources.iter_entry_points("notification.renderer"):
+            module = entry.load()
+            self.renderer[module.__name__] = {
+                    'object': module(),
+                    'priority': module.priority,
+            }
 
         # Create event consumer
         self.consumer = AMQPEventConsumer(self.url,
@@ -99,7 +101,7 @@ class AsteriskNotificationReceiver:
             if i_from and i_to:
                 break
 
-        # Back to original numbers
+        # Fallback to original number if nothing has been found
         if not i_from:
             i_from = {'contact_phone': event['From'], 'contact_name': event['From'],
                     'company_name': None}
@@ -107,20 +109,28 @@ class AsteriskNotificationReceiver:
             i_to = {'contact_phone': event['To'], 'contact_name': event['To'],
                     'company_name': None}
 
-        if 'ldap_uid' in i_to and i_to['ldap_uid']:
-            # render bubble with BubbleSectionBuilders
-            msg = self.mainsection.getHTML(i_from, event)
-            msg += self.goforge.getHTML(i_from, event)
+        # Render messages
+        to_msg = from_msg = ""
+        for mod, info in sorted(self.renderer.iteritems(),
+                key=lambda k: k[1]['priority']):
 
-            self.proxy.notifyUser(i_to['ldap_uid'], self.TYPE_MAP[event['Type']],
-                msg)
+            if 'ldap_uid' in i_to and i_to['ldap_uid']:
+                to_msg += info['object'].getHTML(i_from, event)
 
-        if 'ldap_uid' in i_from and i_from['ldap_uid'] and event['Type'] == 'CallEnded':
-            msg = self.mainsection.getHTML(i_from, event)
-            msg += self.goforge.getHTML(i_from, event)
+            if 'ldap_uid' in i_from and i_from['ldap_uid'] and event['Type'] == 'CallEnded':
+                from_msg += info['object'].getHTML(i_from, event)
 
-            self.proxy.notifyUser(i_from['ldap_uid'], self.TYPE_MAP[event['Type']],
-                msg)
+        # Send from/to messages as needed
+        if from_msg:
+            self.proxy.notifyUser(i_from['ldap_uid'],
+                    self.TYPE_MAP[event['Type']],
+                    from_msg)
+
+        if to_msg:
+            self.proxy.notifyUser(i_to['ldap_uid'],
+                    self.TYPE_MAP[event['Type']],
+                    to_msg)
+
 
 def main():
     # For usage inside of __main__ we need a dummy initialization

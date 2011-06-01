@@ -56,8 +56,9 @@ setup(
         res.telekom = amires.modules.telekom_res:TelekomNumberResolver
         res.xml = amires.modules.xml_res:XMLNumberResolver
 
-        [notification.fetcher]
-        #fetch.sugar = amires.modules.sugar_res:SugarFetcher
-        fetch.goforge = amires.modules.goforge_res:GOForgerFetcher
+        [notification.renderer]
+        render.main = amires.modules.common_render:CommonRenderer
+        render.goforge = amires.modules.goforge_render:GOForgeRenderer
+
     """,
 )
