@@ -113,7 +113,7 @@ class AsteriskNotificationReceiver:
             tickets = self.goforge.getTickets(i_from['company_id'])
         """
 
-        if 'contact_id' in i_to:
+        if 'ldap_uid' in i_to:
             # Assemble caller info
             c_from = "From: "
             if i_from is None:
@@ -137,7 +137,7 @@ class AsteriskNotificationReceiver:
             msg = self.mainsection.getHTML(i_from)
             msg += self.goforge.getHTML(i_from)
 
-            self.proxy.notifyUser(i_to['contact_id'], self.TYPE_MAP[etype],
+            self.proxy.notifyUser(i_to['ldap_uid'], self.TYPE_MAP[etype],
                     msg)
 
 def main():
