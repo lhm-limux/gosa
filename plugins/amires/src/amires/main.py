@@ -138,7 +138,7 @@ class AsteriskNotificationReceiver:
             msg += self.goforge.getHTML(i_from)
 
             self.proxy.notifyUser(i_to['contact_id'], self.TYPE_MAP[etype],
-                    unicode(msg, 'utf-8'))
+                    msg)
 
 def main():
     # For usage inside of __main__ we need a dummy initialization

@@ -1,8 +1,7 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from lxml import etree
-
 from amires.resolver import PhoneNumberResolver
+
 
 class XMLNumberResolver (PhoneNumberResolver):
 
@@ -40,9 +39,3 @@ class XMLNumberResolver (PhoneNumberResolver):
             return self.numbers[number]
         else:
             return None
-
-if __name__ == "__main__":
-    num = raw_input("Enter telephone number: ")
-    resolver = XMLNumberResolver("./numbers.xml", [])
-    print resolver.resolve(num)
-
