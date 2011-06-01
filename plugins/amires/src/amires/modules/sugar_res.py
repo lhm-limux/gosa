@@ -67,6 +67,7 @@ class SugarNumberResolver(PhoneNumberResolver):
             'contact_name': '',
             'contact_phone': '',
             'contact_detail_url': '',
+            'ldap_uid': '',
             'resource': 'sugar'}
 
         cursor = self.sugar_db.cursor()
