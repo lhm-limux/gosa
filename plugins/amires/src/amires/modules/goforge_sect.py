@@ -1,7 +1,15 @@
 # -*- coding: utf-8 -*-
-import MySQLdb
 import cgi
+import MySQLdb
+import pkg_resources
+import gettext
 from gosa.common.env import Environment
+
+# Set locale domain
+t = gettext.translation('messages', pkg_resources.resource_filename("amires",
+"locale"),
+        fallback=False)
+_ = t.ugettext
 
 
 class BubbleSectionBuilder(object):
@@ -45,7 +53,7 @@ class MainSection(BubbleSectionBuilder):
                 cont += p['contact_name']
 
         # build actual html section
-        html = "<b>Caller</b>\n"
+        html = "<b>%s</b>\n" % _("Caller")
         if cont != "":
             html += cont
             if comp != "":
@@ -122,7 +130,7 @@ class GOforgeSection(BubbleSectionBuilder):
         finally:
             cursor.close()
 
-        html = "<b>Open GOforge tickets</b>\n"
+        html = "<b>%s</b>\n" % _("Open GOForge tickets")
         for row in result:
             html += "<a href='%s'>%s</a>: '%s'\n" %(
                 cgi.escape(self.forge_url + "/bugs/?func=detailbug" \
