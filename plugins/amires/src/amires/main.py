@@ -12,9 +12,9 @@ from amires.modules.goforge_sect import GOforgeSection, MainSection
 
 
 class AsteriskNotificationReceiver:
-    TYPE_MAP = {'CallMissed': "Missed call",
-                'CallEnded': "Call ended",
-                'IncomingCall': "Incoming call"}
+    TYPE_MAP = {'CallMissed': _("Missed call"),
+                'CallEnded': _("Call ended"),
+                'IncomingCall': _("Incoming call")}
 
     resolver = {}
 
