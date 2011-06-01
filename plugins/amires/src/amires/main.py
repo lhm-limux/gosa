@@ -102,9 +102,11 @@ class AsteriskNotificationReceiver:
 
         # Back to original numbers
         if not i_from:
-            i_from = {'contact_phone': n_from, 'contact_name': "Unknown"}
+            i_from = {'contact_phone': n_from, 'contact_name': n_from,
+                    'company_name': None}
         if not i_to:
-            i_to = {'contact_phone': n_to, 'contact_name': "Unknown"}
+            i_to = {'contact_phone': n_to, 'contact_name': n_to,
+                    'company_name': None}
 
         tickets = None
         """
@@ -114,25 +116,6 @@ class AsteriskNotificationReceiver:
         """
 
         if 'ldap_uid' in i_to:
-            # Assemble caller info
-            c_from = "From: "
-            if i_from is None:
-                c_from += n_from
-
-            elif i_from['contact_name'] != "":
-                c_from += i_from['contact_name']
-
-                if i_from['company_name'] != "":
-                    c_from += "(" + i_from['company_name'] + ")"
-
-            else:
-                c_from += "Unknown"
-
-            c_from += "\n"
-
-            msg = ""
-            msg += c_from
-
             # render bubble with BubbleSectionBuilders
             msg = self.mainsection.getHTML(i_from)
             msg += self.goforge.getHTML(i_from)

@@ -14,7 +14,7 @@ class TelekomNumberResolver(PhoneNumberResolver):
         super(TelekomNumberResolver, self).__init__()
 
         #TODO: internal
-        self.internal = 3
+        self.internal = 4
 
     def build_string(self, src, *keys):
         """
@@ -44,7 +44,7 @@ class TelekomNumberResolver(PhoneNumberResolver):
 
         # Try to find extensions padded with a '0' which may be used
         # as a "hotline" number
-        for ext in range(self.internal, 1, -1):
+        for ext in range(1, self.internal):
             res = self._resolve_telekom(number[0:-ext] + '0')
             if res:
                 return res
@@ -86,6 +86,7 @@ class TelekomNumberResolver(PhoneNumberResolver):
             return {
                 'contact_name': self.build_string(out, 'vorname', 'nachname'),
                 'contact_phone': number,
+                'company_name': "",
                 'resource': 'telekom'
             }
 
