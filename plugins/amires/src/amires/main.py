@@ -78,16 +78,6 @@ class AsteriskNotificationReceiver:
         cstr = etree.tostring(data, pretty_print = True)
         dat = etree.fromstring(cstr)
 
-        # retrive data from xml
-        numbers = dat[0][2].text
-        numbers = numbers.split(" ")
-        n_from = numbers[0]
-        numbers = dat[0][3].text
-        numbers = numbers.split(" ")
-        n_to = numbers[0]
-
-        etype = dat[0][0].text
-
         event = {}
         for t in dat[0]:
             tag = re.sub(r"^\{.*\}(.*)$", r"\1", t.tag)
@@ -103,18 +93,18 @@ class AsteriskNotificationReceiver:
         for mod, info in sorted(self.resolver.iteritems(),
                 key=lambda k: k[1]['priority']):
             if not i_from:
-                i_from = info['object'].resolve(n_from)
+                i_from = info['object'].resolve(event['From'])
             if not i_to:
-                i_to = info['object'].resolve(n_to)
+                i_to = info['object'].resolve(event['To'])
             if i_from and i_to:
                 break
 
         # Back to original numbers
         if not i_from:
-            i_from = {'contact_phone': n_from, 'contact_name': n_from,
+            i_from = {'contact_phone': event['From'], 'contact_name': event['From'],
                     'company_name': None}
         if not i_to:
-            i_to = {'contact_phone': n_to, 'contact_name': n_to,
+            i_to = {'contact_phone': event['To'], 'contact_name': event['To'],
                     'company_name': None}
 
         if 'ldap_uid' in i_to and i_to['ldap_uid']:
@@ -122,14 +112,14 @@ class AsteriskNotificationReceiver:
             msg = self.mainsection.getHTML(i_from, event)
             msg += self.goforge.getHTML(i_from, event)
 
-            self.proxy.notifyUser(i_to['ldap_uid'], self.TYPE_MAP[etype],
+            self.proxy.notifyUser(i_to['ldap_uid'], self.TYPE_MAP[event['Type']],
                 msg)
 
-        if 'ldap_uid' in i_from and i_from['ldap_uid'] and etype == 'CallEnded':
+        if 'ldap_uid' in i_from and i_from['ldap_uid'] and event['Type'] == 'CallEnded':
             msg = self.mainsection.getHTML(i_from, event)
             msg += self.goforge.getHTML(i_from, event)
 
-            self.proxy.notifyUser(i_from['ldap_uid'], self.TYPE_MAP[etype],
+            self.proxy.notifyUser(i_from['ldap_uid'], self.TYPE_MAP[event['Type']],
                 msg)
 
 def main():
