@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import pkg_resources
+import gettext
 from lxml import etree
 from gosa.common.env import Environment
 from gosa.common.utils import parseURL, makeAuthURL
@@ -9,6 +10,11 @@ from gosa.common.components.amqp_proxy import AMQPEventConsumer, \
 
 #TODO: modularize later on, maybe two fetcher: sugar/goforge
 from amires.modules.goforge_sect import GOforgeSection, MainSection
+
+# Set locale domain
+t = gettext.translation('messages', resource_filename("amires", "locale"),
+        fallback=True)
+_ = t.ugettext
 
 
 class AsteriskNotificationReceiver:
