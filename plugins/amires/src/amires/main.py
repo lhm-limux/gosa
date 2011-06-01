@@ -111,10 +111,13 @@ class AsteriskNotificationReceiver:
         print i_to
         print
 
+
         tickets = None
+        """
         if 'resource' in i_from and i_from['resource'] == 'sugar' \
             and i_from['company_id'] != '':
             tickets = self.goforge.getTickets(i_from['company_id'])
+        """
 
         print "Open Tickets:"
         print tickets
@@ -143,6 +146,7 @@ class AsteriskNotificationReceiver:
             # render bubble with BubbleSectionBuilders
             msg = self.mainsection.getHTML(i_from)
             msg += self.goforge.getHTML(i_from)
+            print msg
 
             self.proxy.notifyUser(i_to['contact_id'], self.TYPE_MAP[etype],
                     unicode(msg, 'utf-8'))

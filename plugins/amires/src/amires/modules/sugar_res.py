@@ -24,7 +24,7 @@ class SugarNumberResolver(PhoneNumberResolver):
         self.sugar_db = MySQLdb.connect(host=host,
             user=user, passwd=passwd, db=base)
 
-        self.sugar_url = self.env.config.getOption("site_url", "sugar",
+        self.sugar_url = self.env.config.getOption("site_url", "resolver-sugar",
             default="http://localhost/sugarcrm")
 
     def __del__(self):
@@ -32,6 +32,7 @@ class SugarNumberResolver(PhoneNumberResolver):
             self.sugar_db.close()
 
     def resolve(self, number):
+        print "here."
         number = self.replaceNumber(number)
 
         # split optional country code from rest of number
@@ -105,8 +106,9 @@ class SugarNumberResolver(PhoneNumberResolver):
                     result['contact_id'] = dat[0]
                     result['contact_name'] = dat[1] + " " + dat[2]
                     result['contact_phone'] = dat[3]
-                    result['contect_detail_url'] = self.sugar_url \
+                    result['contact_detail_url'] = self.sugar_url \
                         + 'index.php?module=Contacts&action=DetailView' \
+                        + '&record=' + dat[0]
 
                     found = True
 
