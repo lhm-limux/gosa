@@ -20,7 +20,7 @@ class CommonRenderer(BaseRenderer):
         pass
 
     def getHTML(self, info, event):
-        super(MainSection, self).getHTML(info)
+        super(CommonRenderer, self).getHTML(info)
 
         # build html for company name
         comp = ""
