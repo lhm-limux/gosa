@@ -26,6 +26,7 @@ class XMLNumberResolver (PhoneNumberResolver):
                 'contact_id': '',
                 'contact_name': '',
                 'contact_phone': number,
+                'ldap_uid': '',
                 'contact_detail_url': ''}
             for e in entry:
                 if e.tag not in self.numbers[number]:

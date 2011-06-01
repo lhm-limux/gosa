@@ -32,7 +32,6 @@ class SugarNumberResolver(PhoneNumberResolver):
             self.sugar_db.close()
 
     def resolve(self, number):
-        print "here."
         number = self.replaceNumber(number)
 
         # split optional country code from rest of number
@@ -68,6 +67,7 @@ class SugarNumberResolver(PhoneNumberResolver):
             'contact_name': '',
             'contact_phone': '',
             'contact_detail_url': '',
+            'ldap_uid': '',
             'resource': 'sugar'}
 
         cursor = self.sugar_db.cursor()
