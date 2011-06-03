@@ -12,7 +12,8 @@ class TelekomNumberResolver(PhoneNumberResolver):
     ttl = 86400# 1 day
 
     def __init__(self):
-        super(TelekomNumberResolver, self).__init__()
+        # Todo: calling super will replace number with not international format
+        #super(TelekomNumberResolver, self).__init__()
 
         try:
             self.priority = float(self.env.config.getOption("priority",
@@ -27,7 +28,6 @@ class TelekomNumberResolver(PhoneNumberResolver):
         except:
             pass
 
-        print self.priority
         #TODO: internal
         self.internal = 4
 
