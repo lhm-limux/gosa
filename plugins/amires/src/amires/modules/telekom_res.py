@@ -87,7 +87,9 @@ class TelekomNumberResolver(PhoneNumberResolver):
                 'contact_name': self.build_string(out, 'vorname', 'nachname'),
                 'contact_phone': number,
                 'company_name': "",
-                'resource': 'telekom'
+                'resource': 'telekom',
+                'ttl': 86400.0, # 1 day
+                'timestamp': time.time()
             }
 
         # Nothing found

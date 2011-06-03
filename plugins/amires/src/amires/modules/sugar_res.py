@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
+import time
 import MySQLdb
 from amires.resolver import PhoneNumberResolver
 
@@ -68,7 +69,9 @@ class SugarNumberResolver(PhoneNumberResolver):
             'contact_phone': '',
             'contact_detail_url': '',
             'ldap_uid': '',
-            'resource': 'sugar'}
+            'resource': 'sugar',
+            'ttl': 10.0,
+            'timestamp': time.time()}
 
         cursor = self.sugar_db.cursor()
 

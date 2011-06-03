@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import ldap
+import time
 from gosa.agent.ldap_utils import LDAPHandler
 from amires.resolver import PhoneNumberResolver
 
@@ -30,7 +31,10 @@ class LDAPNumberResolver(PhoneNumberResolver):
                         'contact_phone': res[0][1]['telephoneNumber'][0],
                         'contact_detail_url': '',
                         'ldap_uid': res[0][1]['uid'][0],
-                        'resource': 'ldap'}
+                        'resource': 'ldap',
+                        'ttl': 30.0, # I'd also rather not cache very long, here
+                        'timestamp': time.time()
+                }
                 return result
             else:
                 return None

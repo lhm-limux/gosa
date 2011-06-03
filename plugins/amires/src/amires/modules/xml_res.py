@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import time
 from lxml import etree
 from amires.resolver import PhoneNumberResolver
 
@@ -26,7 +27,9 @@ class XMLNumberResolver (PhoneNumberResolver):
                 'contact_name': '',
                 'contact_phone': number,
                 'ldap_uid': '',
-                'contact_detail_url': ''}
+                'contact_detail_url': '',
+                'ttl': -1.0,# no need to cache from cache
+                'timestamp': time.time()}
             for e in entry:
                 if e.tag not in self.numbers[number]:
                     raise RuntimeError("Invalid XML element while parsing.")

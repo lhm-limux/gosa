@@ -41,10 +41,13 @@ class AsteriskNotificationReceiver:
         # Load resolver
         for entry in pkg_resources.iter_entry_points("phone.resolver"):
             module = entry.load()
+            obj = module()
             self.resolver[module.__name__] = {
-                    'object': module(),
+                    'object': obj,
                     'priority': module.priority,
             }
+            if module.__name__ == 'CacheNumberResolver':
+                self.cache = obj
 
         # Load renderer
         for entry in pkg_resources.iter_entry_points("notification.renderer"):
@@ -100,6 +103,12 @@ class AsteriskNotificationReceiver:
                 i_to = info['object'].resolve(event['To'])
             if i_from and i_to:
                 break
+        
+        # Cache number
+        if hasattr(self, 'cache'):
+            self.cache.cacheNumber(i_from, event['From'])
+            self.cache.cacheNumber(i_to, event['To'])
+            self.cache.collectGarbage()
 
         # Fallback to original number if nothing has been found
         if not i_from:
