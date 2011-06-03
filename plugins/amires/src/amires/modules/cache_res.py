@@ -13,6 +13,13 @@ class CacheNumberResolver (PhoneNumberResolver):
         super(CacheNumberResolver, self).__init__()
         self.cache = {}
 
+        try:
+            self.priority = float(self.env.config.getOption("priority",
+                "resolver-cache", default=str(self.priority)))
+        except:
+            # leave default priority
+            pass
+
     def resolve(self, number):
         if number in self.cache:
             item = self.cache[number]
