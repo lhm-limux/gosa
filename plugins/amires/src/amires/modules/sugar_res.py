@@ -8,6 +8,7 @@ from amires.resolver import PhoneNumberResolver
 class SugarNumberResolver(PhoneNumberResolver):
 
     priority = 5
+    ttl = 60
 
     def __init__(self):
         super(SugarNumberResolver, self).__init__()
@@ -20,6 +21,20 @@ class SugarNumberResolver(PhoneNumberResolver):
             default="")
         base = self.env.config.getOption("base", "resolver-sugar",
             default="sugarcrm")
+
+        try:
+            self.priority = float(self.env.config.getOption("priority",
+                "resolver-sugar", default=str(self.priority)))
+        except:
+            # leave default priority
+            pass
+
+        try:
+            self.ttl = float(self.env.config.getOption("ttl",
+                "resolver-sugar", default=str(self.ttl)))
+        except:
+            pass
+
 
         # connect to sugar db
         self.sugar_db = MySQLdb.connect(host=host,

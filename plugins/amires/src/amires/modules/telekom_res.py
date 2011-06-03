@@ -9,9 +9,23 @@ from amires.resolver import PhoneNumberResolver
 
 class TelekomNumberResolver(PhoneNumberResolver):
     priority = 99
+    ttl = 86400# 1 day
 
     def __init__(self):
         super(TelekomNumberResolver, self).__init__()
+
+        try:
+            self.priority = float(self.env.config.getOption("priority",
+                "resolver-telekom", default=str(self.priority)))
+        except:
+            # leave default priority
+            pass
+
+        try:
+            self.ttl = float(self.env.config.getOption("ttl",
+                "resolver-telekom", default=str(self.ttl)))
+        except:
+            pass
 
         #TODO: internal
         self.internal = 4
@@ -88,7 +102,7 @@ class TelekomNumberResolver(PhoneNumberResolver):
                 'contact_phone': number,
                 'company_name': "",
                 'resource': 'telekom',
-                'ttl': 86400.0, # 1 day
+                'ttl': self.ttl, # 1 day
                 'timestamp': time.time()
             }
 

@@ -7,12 +7,22 @@ from amires.resolver import PhoneNumberResolver
 class XMLNumberResolver (PhoneNumberResolver):
 
     priority = 2
+    ttl = -1# no need to cache from cache
 
     def __init__(self):
         super(XMLNumberResolver, self).__init__()
 
+        # read config
         filename = self.env.config.getOption("filename", "resolver-xml",
              default="./numbers.xml")
+
+        try:
+            self.priority = float(self.env.config.getOption("priority",
+                "resolver-xml", default=str(self.priority)))
+        except:
+            # leave default priority
+            pass
+
         xml = etree.parse(filename).getroot()
 
         self.numbers = {}
@@ -28,7 +38,7 @@ class XMLNumberResolver (PhoneNumberResolver):
                 'contact_phone': number,
                 'ldap_uid': '',
                 'contact_detail_url': '',
-                'ttl': -1.0,# no need to cache from cache
+                'ttl': self.ttl,
                 'timestamp': time.time()}
             for e in entry:
                 if e.tag not in self.numbers[number]:
