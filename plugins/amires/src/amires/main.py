@@ -125,9 +125,11 @@ class AsteriskNotificationReceiver:
 
             if 'ldap_uid' in i_to and i_to['ldap_uid']:
                 to_msg += info['object'].getHTML(i_from, event)
+                to_msg += "\n\n"
 
             if 'ldap_uid' in i_from and i_from['ldap_uid'] and event['Type'] == 'CallEnded':
                 from_msg += info['object'].getHTML(i_from, event)
+                to_msg += "\n\n"
 
         # Send from/to messages as needed
         if from_msg:

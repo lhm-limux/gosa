@@ -50,7 +50,7 @@ class GOForgeRenderer(BaseRenderer):
 
         try:
             # obtain GOforge internal customer id
-            len = cursor.execute("""
+            leng = cursor.execute("""
                 SELECT customer_id
                 FROM customer
                 WHERE customer_unique_ldap_attribute = %s""",
@@ -58,9 +58,9 @@ class GOForgeRenderer(BaseRenderer):
             row = cursor.fetchone()
 
             # if entry for company exists ...
-            if len == 1:
+            if leng == 1:
                 # fetch tickets from database
-                len = cursor.execute("""
+                leng = cursor.execute("""
                     SELECT bug.bug_id, bug.summary,
                         bug.group_id, user.user_name
                     FROM bug, user
@@ -82,13 +82,15 @@ class GOForgeRenderer(BaseRenderer):
         finally:
             cursor.close()
 
-        html = "<b>%s</b>\n" % _("Open GOForge tickets")
+        html = "<b>%s</b>" % _("Open GOForge tickets")
         for row in result:
-            html += "<a href='%s'>%s</a>: '%s'\n" %(
+            html += "\n<a href='%s'>%s</a>: '%s'" %(
                 cgi.escape(self.forge_url + "/bugs/?func=detailbug" \
                     + "&bug_id=" + str(row['id']) \
                     + "&group_id=" + str(row['group_id'])),
                 row['id'],
                 row['summary'])
+        if len(result) == 0:
+            html += "\n" + _("None.")
 
         return html

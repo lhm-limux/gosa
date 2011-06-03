@@ -56,4 +56,4 @@ class CommonRenderer(BaseRenderer):
             html += "\n\n<b>%s</b>\n" % _("Duration")
             html += "%d\'%02d\"\n" % (duration // 60, duration % 60)
 
-        return html + "\n\n"
+        return html
