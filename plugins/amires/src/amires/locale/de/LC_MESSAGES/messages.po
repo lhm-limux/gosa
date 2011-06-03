@@ -45,3 +45,26 @@ msgstr "Sekunden"
 msgid "Open GOForge tickets"
 msgstr "Offene GOForge-Tickets"
 
+#: src/amires/modules/cache_render.py
+msgid "%d seconds"
+msgstr "%d Sekunden"
+
+#: src/amires/modules/cache_render.py
+msgid "%d minutes and %s"
+msgstr "%d Minuten und %s"
+
+#: src/amires/modules/cache_render.py
+msgid "%d hours, %s"
+msgstr "%d Stunden, %s"
+
+#: src/amires/modules/cache_render.py
+msgid "%d days, %s"
+msgstr "%d Tage, %s"
+
+#: src/amires/modules/cache_render.py
+msgid "This is a cached info"
+msgstr "Diese Information stammt aus dem Cache"
+
+#: src/amires/modules/cache_render.py
+msgid "Added to cache %s ago."
+msgstr "Vor %s dem Cache hinzugefugt."
