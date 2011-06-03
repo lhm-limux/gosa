@@ -21,6 +21,9 @@ class CacheInfoRenderer(BaseRenderer):
         pass
 
     def getHTML(self, info, event):
+        if not info or not event:
+            return ""
+
         super(CacheInfoRenderer, self).getHTML(info)
 
         # is resource cached?

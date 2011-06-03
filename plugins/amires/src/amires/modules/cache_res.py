@@ -36,6 +36,12 @@ class CacheNumberResolver (PhoneNumberResolver):
         return item['ttl'] + item['timestamp'] < time.time()
 
     def cacheNumber(self, item, number):
+        if not number or not item:
+            return
+
+        if type(number) != str:
+            raise RuntimeError("number must be a string.")
+
         if number in self.cache and \
             not self.hasExpired(self.cache[number]):
             return

@@ -44,7 +44,7 @@ class AsteriskNotificationReceiver:
             obj = module()
             self.resolver[module.__name__] = {
                     'object': obj,
-                    'priority': module.priority,
+                    'priority': obj.priority,
             }
             if module.__name__ == 'CacheNumberResolver':
                 self.cache = obj
@@ -113,10 +113,10 @@ class AsteriskNotificationReceiver:
         # Fallback to original number if nothing has been found
         if not i_from:
             i_from = {'contact_phone': event['From'], 'contact_name': event['From'],
-                    'company_name': None}
+                    'company_name': None, 'resource': 'none', 'ttl': -1}
         if not i_to:
             i_to = {'contact_phone': event['To'], 'contact_name': event['To'],
-                    'company_name': None}
+                    'company_name': None, 'resource': 'none', 'ttl': -1}
 
         # Render messages
         to_msg = from_msg = ""

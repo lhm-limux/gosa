@@ -27,6 +27,7 @@ class TelekomNumberResolver(PhoneNumberResolver):
         except:
             pass
 
+        print self.priority
         #TODO: internal
         self.internal = 4
 
