@@ -24,7 +24,7 @@ import ldap
 import platform
 import datetime
 
-from types import StringTypes, DictType
+from types import StringTypes, DictType, ListType
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import sessionmaker, scoped_session
 
@@ -271,23 +271,17 @@ class RepositoryManager(Plugin):
         """
         result = None
         session = None
-        
+
         if not distribution:
             raise ValueError(N_("Distribution parameter is mandatory"))
-        
+
         try:
             session = self.getSession()
-        
             if isinstance(distribution, StringTypes):
-                instance = self._getDistribution(distribution)
-                if not instance:
-                    raise ValueError(N_("Distribution %s not found" % distribution))
-                else:
-                    distribution = instance
-                distribution = session.merge(distribution)
-            result = distribution
-    
-            result = distribution.getInfo()
+                result = self._getDistribution(distribution)
+            if result is not None:
+                result = session.merge(result)
+                result = result.getInfo()
             session.commit()
         except:
             session.rollback()
@@ -353,20 +347,14 @@ class RepositoryManager(Plugin):
 
         if not release:
             raise ValueError(N_("Release parameter is mandatory"))
-        
+
         try:
             session = self.getSession()
-        
             if isinstance(release, StringTypes):
-                instance = self._getRelease(release)
-                if not instance:
-                    raise ValueError(N_("Release %s not found" % release))
-                else:
-                    release = instance
-                release = session.merge(release)
-            result = release
-    
-            result = release.getInfo()
+                result = self._getRelease(release)
+            if result is not None:
+                result = session.merge(result)
+                result = result.getInfo()
             session.commit()
         except:
             session.rollback()
@@ -1242,9 +1230,15 @@ class RepositoryManager(Plugin):
                 package = self._getPackage(package, arch=arch)
 
             if package is not None:
-                package = session.merge(package)
-                package_name = package.name
-                result = self.type_reg[package.type.name].removePackage(session, package, arch=arch, release=release, distribution=distribution)
+                if isinstance(package, ListType):
+                    for package_instance in package:
+                        package_instance = session.merge(package_instance)
+                        package_name = package_instance.name
+                        result = self.type_reg[package_instance.type.name].removePackage(session, package_instance, arch=arch, release=release, distribution=distribution)
+                else:
+                    package = session.merge(package)
+                    package_name = package.name
+                    result = self.type_reg[package.type.name].removePackage(session, package, arch=arch, release=release, distribution=distribution)
                 session.commit()
             else:
                 raise ValueError(N_("Package {package} not found!").format(package=package_name))
@@ -1327,10 +1321,22 @@ class RepositoryManager(Plugin):
         return result
 
     def listKeys(self):
-        work_dir = self._getGPGEnvironment()
-        gpg = gnupg.GPG(gnupghome=work_dir)
-        result = gpg.list_keys(True)
-        shutil.rmtree(work_dir)
+        result = None
+        try:
+            session = self.getSession()
+            repository = self._getRepository(path=self.path)
+            session.add(repository)
+            if repository.keyring is not None:
+                work_dir = self._getGPGEnvironment()
+                gpg = gnupg.GPG(gnupghome=work_dir)
+                result = gpg.list_keys(True)
+                shutil.rmtree(work_dir)
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
         return result
 
     @Command(__doc__=N_("Returns a list of items of item_type (if given) for the specified release - or all."))
@@ -1954,7 +1960,10 @@ class RepositoryManager(Plugin):
                     arch = self._getArchitecture(arch)
                 arch = session.merge(arch)
                 result = result.filter_by(arch=arch)
-            result = result.one()
+            if result.count() > 1:
+                result = result.all()
+            else:
+                result = result.one()
         except:
             session.rollback()
             raise
