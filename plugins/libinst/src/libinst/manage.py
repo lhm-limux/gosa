@@ -21,6 +21,7 @@ import re
 import pytz
 import gettext
 import ldap
+import platform
 from types import StringTypes, DictType
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -91,6 +92,9 @@ class RepositoryManager(Plugin):
                 os.makedirs(self.path)
             except:
                 raise
+
+        self.hostname = platform.node()
+        #self.path = self.hostname+":"+self.path
 
         # Load all repository handlers
         self.type_reg = {}
@@ -1305,7 +1309,7 @@ class RepositoryManager(Plugin):
             if gpg.delete_keys(fp, secret=True).status == "ok":
                 try:
                     session = self.getSession()
-                    repository = self._getRepository()
+                    repository = self._getRepository(path=self.path)
                     repository = session.merge(repository)
                     repository.keyring.data = gpg.list_keys(True)
                     if repository.keyring.name == fp:
