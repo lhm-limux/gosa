@@ -1962,7 +1962,7 @@ class RepositoryManager(Plugin):
                 result = result.filter_by(arch=arch)
             if result.count() > 1:
                 result = result.all()
-            else:
+            elif result.count() == 1:
                 result = result.one()
         except:
             session.rollback()
