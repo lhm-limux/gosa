@@ -132,19 +132,22 @@ class DebianHandler(DistributionHandler):
                 if isinstance(component, StringTypes):
                     component = self._getComponent(session, component)
                 packages = self.manager.getPackages(release=release, component=component)
+                self.env.log.info(N_("Searching for updates for release '{distribution}/{release}'").format(distribution=release.distribution.name, release=release.name))
+
+                # Binary
                 for architecture in architectures if architectures is not None else distribution.architectures:
                     if isinstance(architecture, StringTypes):
                         architecture = self._getArchitecture(architecture)
-                    if architecture.name == 'all':
+                    if architecture.name in ('all', 'source'):
                         continue
 
                     packagelist = self.getMirrorPackageList(session, release, component, architecture)
-                    for package in deb822.Packages.iter_paragraphs(file(packagelist)):
-                        if package.has_key('Package'):
-                            if not package['Package'] in [p['name'] for p in packages]:
-                                if sections and package['Section'] not in sections:
-                                    next
-                                else:
+                    with file(packagelist) as packages_file:
+                        for package in deb822.Packages.iter_paragraphs(packages_file):
+                            if package.has_key('Package'):
+                                if sections and package.has_key('Section') and package['Section'] not in sections:
+                                    continue
+                                if not package['Package'] in [p['name'] for p in packages]:
                                     self.env.log.debug("Adding package '%s' from URL '%s'" % (package['Package'], distribution.origin + "/" + package['Filename']))
                                     self.addPackage(session, distribution.origin + "/" + package['Filename'], release=release.name, component=component.name, section=package['Section'])
                                     try:
@@ -152,29 +155,57 @@ class DebianHandler(DistributionHandler):
                                     except:
                                         session.rollback()
                                         raise
-                            else:
-                                existing_packages = [p for p in packages if p['name']==package['Package']]
-                                if package['Architecture'] not in [p['arch'] for p in existing_packages]:
-                                    self.env.log.debug("Adding package '%s' from URL '%s'" % (package['Package'], distribution.origin + "/" + package['Filename']))
-                                    self.addPackage(session, distribution.origin + "/" + package['Filename'], release=release.name, component=component.name, section=package['Section'])
-                                    try:
-                                        session.commit()
-                                    except:
-                                        session.rollback()
-                                        raise
-                                elif package['Version'] not in [p['version'] for p in existing_packages]:
-                                    self.env.log.debug("Upgrading package '%s' from URL '%s'" % (package['Package'], distribution.origin + "/" + package['Filename']))
-                                    self.addPackage(session, distribution.origin + "/" + package['Filename'], release=release.name, component=component.name, section=package['Section'])
-                                    try:
-                                        session.commit()
-                                    except:
-                                        session.rollback()
-                                        raise
                                 else:
-                                    # package already present in archive
-                                    pass
+                                    existing_packages = [p for p in packages if p['name']==package['Package']]
+                                    if package['Architecture'] not in [p['arch'] for p in existing_packages]:
+                                        self.env.log.debug("Adding package '%s' from URL '%s'" % (package['Package'], distribution.origin + "/" + package['Filename']))
+                                        self.addPackage(session, distribution.origin + "/" + package['Filename'], release=release.name, component=component.name, section=package['Section'])
+                                        try:
+                                            session.commit()
+                                        except:
+                                            session.rollback()
+                                            raise
+                                    elif package['Version'] not in [p['version'] for p in existing_packages]:
+                                        self.env.log.debug("Upgrading package '%s' from URL '%s'" % (package['Package'], distribution.origin + "/" + package['Filename']))
+                                        self.addPackage(session, distribution.origin + "/" + package['Filename'], release=release.name, component=component.name, section=package['Section'])
+                                        try:
+                                            session.commit()
+                                        except:
+                                            session.rollback()
+                                            raise
+                                    else:
+                                        # package already present in archive
+                                        pass
+                    os.unlink(packagelist)
                     result = True
 
+                # Source
+                if release.distribution.mirror_sources:
+                    sourcelist = self.getMirrorSourceList(session, release, component)
+                    for source in deb822.Sources.iter_paragraphs(file(sourcelist)):
+                        if source.has_key('Package'):
+                            if sections and source.has_key('Section') and source['Section'] not in sections:
+                                continue
+                            if not source['Package'] in [s['name'] for s in packages]:
+                                self.addPackage(session, '/'.join((distribution.origin, source['Directory'], [f['name'] for f in source['Files']][0])), release=release.name, component=component.name, section=source['Section'])
+                                try:
+                                    session.commit()
+                                except:
+                                    session.rollback()
+                                    raise
+                            else:
+                                existing_packages = [s for s in packages if s['name']==source['Package']]
+                                if source['Version'] not in [p['version'] for p in existing_packages]:
+                                    self.env.log.debug("Upgrading source package '%s' from URL '%s'" % (source['Package'], distribution.origin + "/" + [f['name'] for f in source['Files']][0]))
+                                    self.addPackage(session, '/'.join((distribution.origin, source['Directory'], [f['name'] for f in source['Files']][0])), release=release.name, component=component.name, section=source['Section'])
+                                    try:
+                                        session.commit()
+                                    except:
+                                        session.rollback()
+                                        raise
+                    os.unlink(sourcelist)
+
+                self.env.log.info(N_("Done searching for updates for release '{distribution}/{release}'").format(distribution=release.distribution.name, release=release.name))
         try:
             session.commit()
         except:
@@ -389,6 +420,40 @@ class DebianHandler(DistributionHandler):
             result = None
         return result
 
+    def getMirrorSourceList(self, session, release, component):
+        result = None
+        local_file = None
+
+        for extension in (".bz2", ".gz", ""):
+            try:
+                sources_file = "/".join((release.distribution.origin, "dists", release.name, component.name, "source", "Sources" + extension))
+                local_file = downloadFile(sources_file)
+                if sources_file.endswith(".bz2"):
+                    with file(local_file + ".asc", 'wb', os.O_CREAT) as uncompressed_file:
+                        uncompressed_file.writelines(bz2.BZ2File(local_file, 'rb').read())
+                    os.unlink(local_file)
+                    os.rename(local_file + ".asc", local_file)
+                elif sources_file.endswith(".gz"):
+                    with file(local_file + ".asc", 'wb', os.O_CREAT) as uncompressed_file:
+                        uncompressed_file.writelines(gzip.GzipFile(local_file, 'rb').read())
+                    os.unlink(local_file)
+                    os.rename(local_file + ".asc", local_file)
+                break
+            except urllib2.HTTPError, e:
+                if e.code == 404:
+                    continue
+                raise
+            except:
+                raise
+
+        if not local_file:
+            raise ValueError(N_("Could not download a Sources file for {release}/{component}").format(release=release.name, component=component.name))
+            return result
+
+        result = local_file
+
+        return result
+
     def getMirrorPackageList(self, session, release, component, architecture):
         result = None
         local_file = None
@@ -400,25 +465,21 @@ class DebianHandler(DistributionHandler):
             try:
                 packages_file = "/".join((release.distribution.origin, "dists", release.name, component.name, "binary-" + architecture.name, "Packages" + extension))
                 local_file = downloadFile(packages_file)
-                if extension is ".bz2":
-                    compressed_file = bz2.BZ2File(local_file, 'rb')
-                    file_content = compressed_file.readlines();
-                    compressed_file.close()
-
-                    uncompressed_file = file(local_file, 'wb')
-                    uncompressed_file.writelines(file_content)
-                    uncompressed_file.close()
-                elif extension is ".gz":
-                    compressed_file = gzip.GzipFile(local_file, 'rb')
-                    file_content = compressed_file.readlines();
-                    compressed_file.close()
-
-                    uncompressed_file = file(local_file, 'wb')
-                    uncompressed_file.writelines(file_content)
-                    uncompressed_file.close()
+                if packages_file.endswith(".bz2"):
+                    with file(local_file + ".asc", 'wb', os.O_CREAT) as uncompressed_file:
+                        uncompressed_file.writelines(bz2.BZ2File(local_file, 'rb').read())
+                    os.unlink(local_file)
+                    os.rename(local_file + ".asc", local_file)
+                elif packages_file.endswith(".gz"):
+                    with file(local_file + ".asc", 'wb', os.O_CREAT) as uncompressed_file:
+                        uncompressed_file.writelines(gzip.GzipFile(local_file, 'rb').read())
+                    os.unlink(local_file)
+                    os.rename(local_file + ".asc", local_file)
                 break
-            except urllib2.HTTPError:
-                pass
+            except urllib2.HTTPError, e:
+                if e.code == 404:
+                    continue
+                raise
             except:
                 raise
 
@@ -492,8 +553,7 @@ class DebianHandler(DistributionHandler):
                 result.files.append(self._getFile(session, url, add=True))
                 result.type = self._getType(session, "dsc", add=True)
                 if component:
-                    result.component = self._getComponent(session, component,
-                                                          add=True)
+                    result.component = self._getComponent(session, component, add=True)
             if origin is not None:
                 base_url = origin[0:origin.rfind(os.path.basename(url))]
                 download_dir = os.path.dirname(url)
@@ -501,6 +561,7 @@ class DebianHandler(DistributionHandler):
                 if origin.startswith(('http', 'ftp')):
                     if c.has_key('Files'):
                         for source_file in c['Files']:
+                            print "Downloading", base_url + source_file['name']
                             request = urllib2.Request(base_url + source_file['name'])
                             try:
                                 file = urllib2.urlopen(request)
