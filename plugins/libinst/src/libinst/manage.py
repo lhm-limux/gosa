@@ -22,6 +22,8 @@ import pytz
 import gettext
 import ldap
 import platform
+import datetime
+
 from types import StringTypes, DictType
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -941,6 +943,7 @@ class RepositoryManager(Plugin):
                         components=components, 
                         architectures=architectures, 
                         sections=sections)
+                    distribution.last_updated=datetime.datetime.utcnow()
                 else:
                     raise ValueError(N_("Distribution %s has no releases", distribution.name))
             else:
