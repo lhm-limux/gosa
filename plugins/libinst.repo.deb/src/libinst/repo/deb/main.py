@@ -149,7 +149,15 @@ class DebianHandler(DistributionHandler):
                                     continue
                                 if not package['Package'] in [p['name'] for p in packages]:
                                     self.env.log.debug("Adding package '%s' from URL '%s'" % (package['Package'], distribution.origin + "/" + package['Filename']))
-                                    self.addPackage(session, distribution.origin + "/" + package['Filename'], release=release.name, component=component.name, section=package['Section'], origin=distribution.origin + "/" + package['Filename'])
+                                    self.addPackage(
+                                        session,
+                                        distribution.origin + "/" + package['Filename'],
+                                        release=release.name,
+                                        component=component.name,
+                                        section=package['Section'],
+                                        origin=distribution.origin + "/" + package['Filename'],
+                                        updateInventory=False
+                                    )
                                     try:
                                         session.commit()
                                     except:
@@ -159,7 +167,15 @@ class DebianHandler(DistributionHandler):
                                     existing_packages = [p for p in packages if p['name']==package['Package']]
                                     if package['Architecture'] not in [p['arch'] for p in existing_packages]:
                                         self.env.log.debug("Adding package '%s' from URL '%s'" % (package['Package'], distribution.origin + "/" + package['Filename']))
-                                        self.addPackage(session, distribution.origin + "/" + package['Filename'], release=release.name, component=component.name, section=package['Section'], origin=distribution.origin + "/" + package['Filename'])
+                                        self.addPackage(
+                                            session,
+                                            distribution.origin + "/" + package['Filename'],
+                                            release=release.name,
+                                            component=component.name,
+                                            section=package['Section'],
+                                            origin=distribution.origin + "/" + package['Filename'],
+                                            updateInventory=False
+                                        )
                                         try:
                                             session.commit()
                                         except:
@@ -167,7 +183,15 @@ class DebianHandler(DistributionHandler):
                                             raise
                                     elif package['Version'] not in [p['version'] for p in existing_packages]:
                                         self.env.log.debug("Upgrading package '%s' from URL '%s'" % (package['Package'], distribution.origin + "/" + package['Filename']))
-                                        self.addPackage(session, distribution.origin + "/" + package['Filename'], release=release.name, component=component.name, section=package['Section'], origin=distribution.origin + "/" + package['Filename'])
+                                        self.addPackage(
+                                            session,
+                                            distribution.origin + "/" + package['Filename'],
+                                            release=release.name,
+                                            component=component.name,
+                                            section=package['Section'],
+                                            origin=distribution.origin + "/" + package['Filename'],
+                                            updateInventory=False
+                                        )
                                         try:
                                             session.commit()
                                         except:
@@ -194,7 +218,8 @@ class DebianHandler(DistributionHandler):
                                     release=release.name,
                                     component=component.name,
                                     section=source['Section'],
-                                    origin='/'.join((distribution.origin, source['Directory'], [f['name'] for f in source['Files']][0]))
+                                    origin='/'.join((distribution.origin, source['Directory'], [f['name'] for f in source['Files']][0])),
+                                    updateInventory=False
                                 )
                                 try:
                                     session.commit()
@@ -211,7 +236,8 @@ class DebianHandler(DistributionHandler):
                                         release=release.name,
                                         component=component.name,
                                         section=source['Section'],
-                                        origin='/'.join((distribution.origin, source['Directory'], [f['name'] for f in source['Files']][0]))
+                                        origin='/'.join((distribution.origin, source['Directory'], [f['name'] for f in source['Files']][0])),
+                                        updateInventory=False
                                     )
                                     try:
                                         session.commit()
@@ -220,6 +246,7 @@ class DebianHandler(DistributionHandler):
                                         raise
                     os.unlink(sourcelist)
 
+                self._updateInventory(session, release=release, distribution=distribution)
                 self.env.log.info(N_("Done searching for updates for release '{distribution}/{release}'").format(distribution=release.distribution.name, release=release.name))
         try:
             session.commit()
@@ -267,11 +294,19 @@ class DebianHandler(DistributionHandler):
                 if result is not None:
                     # Copy file to pool
                     pool_path = os.sep.join((release.distribution.repository.path, "pool", release.distribution.type.name, result.component.name))
-                    if result.name.startswith('lib'):
-                        pool_path += os.sep + str(result.name).lower()[:3]
+                    if result.source is not None:
+                        if result.source.startswith('lib'):
+                            pool_path += os.sep + str(result.source).lower()[:4]
+                        else:
+                            pool_path += os.sep + str(result.source).lower()[0]
+                        pool_path += os.sep + result.source.lower()
                     else:
-                        pool_path += os.sep + str(result.name).lower()[0]
-                    pool_path += os.sep + result.name.lower()
+                        if result.name.startswith('lib'):
+                            pool_path += os.sep + str(result.name).lower()[:4]
+                        else:
+                            pool_path += os.sep + str(result.name).lower()[0]
+                        pool_path += os.sep + result.name.lower()
+
                     if not os.path.exists(pool_path):
                         os.makedirs(pool_path)
 
@@ -315,20 +350,23 @@ class DebianHandler(DistributionHandler):
     def removePackage(self, session, package, arch=None, release=None, distribution=None):
         result = None
 
-        if isinstance(arch, (str, unicode)):
+        if isinstance(arch, StringTypes):
             arch = self._getArchitecture(session, arch)
 
-        if isinstance(package, (str, unicode)) and arch is None:
+        if isinstance(package, StringTypes) and arch is None:
             for p in self._getPackages(session, package):
-                self.env.log.debug("Trying to remove Package %s with Architecture %s" % (p.name, p.arch))
+                self.env.log.debug("Removing package %s/%s/%s/%s" % (distribution, release, package if isinstance(package, StringTypes) else package.name), p.arch.name)
                 self.removePackage(session, p, arch = p.arch, release=release, distribution=distribution)
-        elif isinstance(package, (str, unicode)):
+        elif isinstance(package, StringTypes):
+            self.env.log.debug("Removing package %s/%s/%s/%s" % (distribution, release, package if isinstance(package, StringTypes) else package.name), arch.name)
             package = self._getPackage(session, package, arch=arch)
+        elif distribution is not None:
+            self.env.log.debug("Removing package %s/%s/%s/%s" % (distribution, release, package.name, package.arch.name))
 
-        if isinstance(release, (str, unicode)):
+        if isinstance(release, StringTypes):
             release = self._getRelease(session, release)
 
-        if isinstance(distribution, (str, unicode)):
+        if isinstance(distribution, StringTypes):
             distribution = self._getDistribution(session, distribution)
 
         if package is not None:
@@ -361,11 +399,21 @@ class DebianHandler(DistributionHandler):
                     try:
                         # Move package to rollback pool, remove row if no release is linked
                         if not package.releases:
-                            if package.name.startswith('lib'):
-                                pool_path += os.sep + str(package.name).lower()[:3]
+                            if package.source is not None:
+                                if package.source.startswith('lib'):
+                                    pool_path += os.sep + str(package.source).lower()[:4]
+                                    pool_path += os.sep + package.source.lower()
+                                else:
+                                    pool_path += os.sep + str(package.source).lower()[0]
+                                    pool_path += os.sep + package.source.lower()
                             else:
-                                pool_path += os.sep + str(package.name).lower()[0]
-                                pool_path += os.sep + package.name.lower()
+                                if package.name.startswith('lib'):
+                                    pool_path += os.sep + str(package.name).lower()[:4]
+                                    pool_path += os.sep + package.name.lower()
+                                else:
+                                    pool_path += os.sep + str(package.name).lower()[0]
+                                    pool_path += os.sep + package.name.lower()
+
                             for file in package.files:
                                 package_path = pool_path + os.sep + file.name
                                 if os.path.exists(package_path):
@@ -373,6 +421,7 @@ class DebianHandler(DistributionHandler):
                                         shutil.move(package_path, rollback_path + os.sep + file.name)
                                     else:
                                         os.unlink(package_path)  # Remove package file
+                                session.delete(file)
                             session.delete(package)
                     except:
                         self.env.log.error("Could not remove file %s" % package_path)
@@ -389,7 +438,7 @@ class DebianHandler(DistributionHandler):
                 if distribution.releases:
                     result = True
                 for release in distribution.releases:
-                    self.removePackage(session, package, release=release)
+                    self.removePackage(session, package, release=release, distribution=distribution, arch=arch)
             else:
                 distributions = []
                 if package.releases is not None:
@@ -400,7 +449,7 @@ class DebianHandler(DistributionHandler):
                 if distributions:
                     result = True
                 for distribution in distributions:
-                    result &= self.removePackage(session, package, distribution=distribution)
+                    result &= self.removePackage(session, package, distribution=distribution, release=release, arch=arch)
 
         return result
 
