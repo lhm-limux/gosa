@@ -149,7 +149,7 @@ class DebianHandler(DistributionHandler):
                                     continue
                                 if not package['Package'] in [p['name'] for p in packages]:
                                     self.env.log.debug("Adding package '%s' from URL '%s'" % (package['Package'], distribution.origin + "/" + package['Filename']))
-                                    self.addPackage(session, distribution.origin + "/" + package['Filename'], release=release.name, component=component.name, section=package['Section'])
+                                    self.addPackage(session, distribution.origin + "/" + package['Filename'], release=release.name, component=component.name, section=package['Section'], origin=distribution.origin + "/" + package['Filename'])
                                     try:
                                         session.commit()
                                     except:
@@ -159,7 +159,7 @@ class DebianHandler(DistributionHandler):
                                     existing_packages = [p for p in packages if p['name']==package['Package']]
                                     if package['Architecture'] not in [p['arch'] for p in existing_packages]:
                                         self.env.log.debug("Adding package '%s' from URL '%s'" % (package['Package'], distribution.origin + "/" + package['Filename']))
-                                        self.addPackage(session, distribution.origin + "/" + package['Filename'], release=release.name, component=component.name, section=package['Section'])
+                                        self.addPackage(session, distribution.origin + "/" + package['Filename'], release=release.name, component=component.name, section=package['Section'], origin=distribution.origin + "/" + package['Filename'])
                                         try:
                                             session.commit()
                                         except:
@@ -167,7 +167,7 @@ class DebianHandler(DistributionHandler):
                                             raise
                                     elif package['Version'] not in [p['version'] for p in existing_packages]:
                                         self.env.log.debug("Upgrading package '%s' from URL '%s'" % (package['Package'], distribution.origin + "/" + package['Filename']))
-                                        self.addPackage(session, distribution.origin + "/" + package['Filename'], release=release.name, component=component.name, section=package['Section'])
+                                        self.addPackage(session, distribution.origin + "/" + package['Filename'], release=release.name, component=component.name, section=package['Section'], origin=distribution.origin + "/" + package['Filename'])
                                         try:
                                             session.commit()
                                         except:
@@ -187,7 +187,15 @@ class DebianHandler(DistributionHandler):
                             if sections and source.has_key('Section') and source['Section'] not in sections:
                                 continue
                             if not source['Package'] in [s['name'] for s in packages]:
-                                self.addPackage(session, '/'.join((distribution.origin, source['Directory'], [f['name'] for f in source['Files']][0])), release=release.name, component=component.name, section=source['Section'])
+                                self.env.log.debug("Adding source package '%s' from URL '%s'" % (source['Package'], '/'.join((distribution.origin, source['Directory'], [f['name'] for f in source['Files']][0]))))
+                                self.addPackage(
+                                    session,
+                                    '/'.join((distribution.origin, source['Directory'], [f['name'] for f in source['Files']][0])),
+                                    release=release.name,
+                                    component=component.name,
+                                    section=source['Section'],
+                                    origin='/'.join((distribution.origin, source['Directory'], [f['name'] for f in source['Files']][0]))
+                                )
                                 try:
                                     session.commit()
                                 except:
@@ -197,7 +205,14 @@ class DebianHandler(DistributionHandler):
                                 existing_packages = [s for s in packages if s['name']==source['Package']]
                                 if source['Version'] not in [p['version'] for p in existing_packages]:
                                     self.env.log.debug("Upgrading source package '%s' from URL '%s'" % (source['Package'], distribution.origin + "/" + [f['name'] for f in source['Files']][0]))
-                                    self.addPackage(session, '/'.join((distribution.origin, source['Directory'], [f['name'] for f in source['Files']][0])), release=release.name, component=component.name, section=source['Section'])
+                                    self.addPackage(
+                                        session,
+                                        '/'.join((distribution.origin, source['Directory'], [f['name'] for f in source['Files']][0])),
+                                        release=release.name,
+                                        component=component.name,
+                                        section=source['Section'],
+                                        origin='/'.join((distribution.origin, source['Directory'], [f['name'] for f in source['Files']][0]))
+                                    )
                                     try:
                                         session.commit()
                                     except:
@@ -260,9 +275,13 @@ class DebianHandler(DistributionHandler):
                     if not os.path.exists(pool_path):
                         os.makedirs(pool_path)
 
+                    basedir = os.path.dirname(url)
                     for file in result.files:
                         if not os.path.exists(pool_path + os.sep + file.name):
-                            shutil.copy2(url, pool_path + os.sep + file.name)
+                            shutil.move(basedir + os.sep + file.name, pool_path + os.sep + file.name)
+                        if os.path.exists(basedir + os.sep + file.name):
+                            os.unlink(basedir + os.sep + file.name)
+                    os.removedirs(basedir)
 
                     # Manage DB content, update associative properties
                     release.packages.append(result)
@@ -410,7 +429,6 @@ class DebianHandler(DistributionHandler):
             result = result.one()
         except:
             result = None
-        self.env.log.debug("name = %s, arch = %s -> %s" % (name, arch, result))
         return result
 
     def _getPackages(self, session, name):
@@ -538,6 +556,7 @@ class DebianHandler(DistributionHandler):
                 result.type = self._getType(session, str(result.files[0].name).split('.')[-1], add=True)
                 result.standards_version = deb.version
                 result.source = control.get("Source")
+                result.origin = origin
             existing = self._getPackage(session, result.name, arch=result.arch, version=result.version)
             if existing is not None:
                 result = existing
@@ -550,18 +569,23 @@ class DebianHandler(DistributionHandler):
                 result.maintainer = c['Maintainer']
                 result.build_depends = c['Build-Depends']
                 result.standards_version = c['Standards-Version']
+                if c.has_key('Priority'):
+                    result.priority = self._getPriority(session, c['Priority'], add=True)
                 result.files.append(self._getFile(session, url, add=True))
                 result.type = self._getType(session, "dsc", add=True)
                 if component:
                     result.component = self._getComponent(session, component, add=True)
+                if section:
+                    result.section = self._getSection(session, section, add=True)
             if origin is not None:
                 base_url = origin[0:origin.rfind(os.path.basename(url))]
                 download_dir = os.path.dirname(url)
                 # Download additional files
                 if origin.startswith(('http', 'ftp')):
+                    result.origin = origin
                     if c.has_key('Files'):
                         for source_file in c['Files']:
-                            print "Downloading", base_url + source_file['name']
+                            self.env.log.debug("Downloading additional file '%s'" % (base_url + source_file['name']))
                             request = urllib2.Request(base_url + source_file['name'])
                             try:
                                 file = urllib2.urlopen(request)
@@ -575,8 +599,10 @@ class DebianHandler(DistributionHandler):
                                 result.files.append(self._getFile(session, local_url, add=True))
                             except urllib2.HTTPError, e:
                                 print "HTTP Error:", e.code, url
+                                raise
                             except urllib2.URLError, e:
                                 print "URL Error:", e.reason, url
+                                raise
                 else:
                     download_dir = os.path.dirname(origin)
                     if c.has_key('Files'):
@@ -608,18 +634,18 @@ class DebianHandler(DistributionHandler):
                         p.stdout.close()
                         if os.path.exists(download_dir + os.sep + dir_name):
                             try:
-                                f = open(os.sep.join((download_dir, dir_name, "debian", "control")), 'r')
-                                for line in f:
-                                    if line.startswith("Section:"):
-                                        result.section = self._getSection(session, line[line.find(":")+1:].strip(), add=True)
-                                        if component:
-                                            result.component = self._getComponent(session, component, add=True)
+                                f = deb822.Deb822(open(os.sep.join((download_dir, dir_name, "debian", "control"))))
+                                if result.section is None:
+                                    result.section = self._getSection(session, f['Section'], add=True)
+                                if result.component is None:
+                                    if component:
+                                        result.component = self._getComponent(session, component, add=True)
+                                    else:
+                                        if "/" in result.section.name:
+                                            result.component = self._getComponent(session, result.section.name.split("/")[0], add=True)
                                         else:
-                                            if "/" in result.section.name:
-                                                result.component = self._getComponent(session, result.section.name.split("/")[0], add=True)
-                                            else:
-                                                result.component = self._getComponent(session, "main", add=True)
-                                f.close()
+                                            result.component = self._getComponent(session, "main", add=True)
+                                shutil.rmtree(os.sep.join((download_dir, dir_name)))
                             except:
                                 raise
         return result, url
