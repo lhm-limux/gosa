@@ -57,7 +57,7 @@ class Package(Base, UseInnoDB):
         return {
             "name": self.name,
             "description": self.description,
-            "section": self.section.name,
+            "section": None if not self.section else self.section.name,
             "component": self.component.name,
             "arch": self.arch.name,
             "type": self.type.name,
