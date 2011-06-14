@@ -1164,6 +1164,9 @@ class RepositoryManager(Plugin):
                 except urllib2.URLError, e:
                     print "URL Error:", e.reason, url
 
+            if local_url is None:
+                return None
+
             if os.path.exists(local_url):
                 # get file extension
                 file_ext = local_url.split('.')[-1]
