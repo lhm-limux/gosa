@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm.session import Session
 
 # Establish the database connection and open a session
-metadata.bind = create_engine('mysql://admin@gosa-playground/test', echo=False)
+metadata.bind = create_engine('mysql://admin@gosa-playground.intranet.gonicus.de/test', echo=False)
 metadata.create_all()
 session = Session()
 
