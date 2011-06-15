@@ -19,7 +19,7 @@ XS = Namespace("http://www.w3.org/2001/XMLSchema#")
 # Open database connection 
 openstr= 'db=test,host=gosa-playground,user=admin'
 store = plugin.get('MySQL', Store)('test')
-store.open(openstr,create=False)
+store.open(openstr,create=True)
 rdfSubject.db = ConjunctiveGraph(store)
 
 # Store namespace prefix in database. 
@@ -105,4 +105,4 @@ print len(rdfSubject.db)
 #print rdfSubject.db.serialize(format="xml")
 #print rdfSubject.db.serialize(format="n3")
 #print rdfSubject.db.serialize(format="rdf")
-#print rdfSubject.db.serialize(format="rdf/xml")
+print rdfSubject.db.serialize(format="rdf/xml")
