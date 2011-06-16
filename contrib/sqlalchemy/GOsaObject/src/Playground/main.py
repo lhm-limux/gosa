@@ -14,37 +14,26 @@ entry = None
 
 
 
-for entry in session.query(GOsaObject).filter(GOsaObject.properties.any(GOsaProperty.value== u'Hickert')).all():
+if False:
+   
+    c = GOsaObject(u'GONICUS GmbH')
+    c['address'] = u'Moehnestrasse 11-17'
+    
+    for i in range(1,1000):
+        o = GOsaObject(u'User %s' % str(i))
+        o['username'] = u'Username %s' % str(i)
+        o['company'] = c
+        o['relationships'] = [c]
+    
+        session.add(o)
+        session.commit()
+
+
+
+for entry in session.query(GOsaObject).filter(GOsaObject.properties.any(GOsaProperty.key== u'username')).all():
     
     print entry
-    print entry.name, ',' , entry['givenName']
-    print entry['addressObject']['mail']
-    print entry['alternateAddresses']
-    print entry['list']    
+    print entry.name
+    print entry['company']
+    #print entry['relationships']
  
-    o = GOsaObject(u'Hubert')
-    
-    entry[u'list'] = [u'test', u'herbert', 3, o]
-
-    session.add(entry)
-    session.commit()
-
- 
-if not entry:
-
-    address = GOsaObject(name=u'Hickerts address')
-    address['mail'] = u'hickert@gonicus.de'
-
-    o = GOsaObject(name=u'User hickert')
-    o['name'] = u'Hickert'
-    o['givenName'] = u'Fabian'
-    o['objectClass'] = u'person'
-    o['addressObject'] = address
-    o['alternateAddresses'] = [address]
-
-    o['list'] = ['a', 'b'] 
-    
-    session.add(o)
-    session.commit()
-    
-
