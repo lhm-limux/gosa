@@ -11,8 +11,9 @@
 
     <complexType name="Class">
     	<sequence>
-    		<element name="name" type="string"></element>
-    		<element name="properties" type="gosa:Properties"></element>
+    		<element name="name" type="string" maxOccurs="1" minOccurs="1"></element>
+    		<element name="extends" type="string" maxOccurs="1" minOccurs="0"></element>
+    		<element name="properties" type="gosa:Properties" maxOccurs="1" minOccurs="0"></element>
     	</sequence>
     </complexType>
 

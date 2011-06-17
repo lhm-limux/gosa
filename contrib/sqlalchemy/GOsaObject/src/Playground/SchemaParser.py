@@ -6,6 +6,7 @@ class GOsaBaseObject(object):
 
     session = None
     gosa_object = None
+    _db_properties = []
 
     def __init__(self, uri = None, gosa_object=None):
         
@@ -111,6 +112,7 @@ class SchemaLoader(object):
         for id in schema['Classes']:
             
             className = properties = None
+            extends = GOsaBaseObject
             for entry in id['Class']:
                 if 'properties' in entry:
                     properties = entry['properties']
@@ -118,19 +120,31 @@ class SchemaLoader(object):
                 if 'name' in entry:
                     className = entry['name']
                 
+                if 'extends' in entry:
+                    eName = entry['extends']
+                    if eName in self.classes:
+                        extends = self.classes[eName]
+                    else:
+                        raise Exception("Cannot extends class '%s' from"
+                                        " '%s'. The class '%s'wasn't "
+                                        "defined yet!" % (
+                                        className, eName, eName
+                                        ))
+                
+                
             if className:
-                self._registerClass(className, properties)
+                self._registerClass(className, properties, extends)
 
     def getClasses(self):
         return self.classes
 
-    def _registerClass(self, name, props):
+    def _registerClass(self, name, props, extends = GOsaBaseObject):
 
         # The class wasn't defined yet, create a new metaclass for it.
         if not name in globals():
 
             # Create the class 
-            class klass(GOsaBaseObject):
+            class klass(extends):
                 pass
                 
             setattr(klass, '__name__', name)
@@ -143,7 +157,7 @@ class SchemaLoader(object):
         klass = self.classes[name]
         if props:
             prop = {}
-            properties = []
+            properties = klass._db_properties
             for key in props:
                 
                 # Normalise xml-generated dict.
@@ -155,8 +169,11 @@ class SchemaLoader(object):
                         prop[n] = pEntry[n]
                 
                 # Add the property to the class
-                properties.append(prop['name']) 
+                if prop['name'] not in properties:
+                    properties.append(prop['name'])
+                     
                 setattr(klass, prop['name'], self.typemap[prop['type']])
 
-            setattr(klass, '_db_properties', properties)
+            klass._db_properties = properties
+            print klass._db_properties
 

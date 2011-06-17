@@ -30,9 +30,10 @@
   </Class>
   <Class>
     <name>Employee</name>
+    <extends>Person</extends>
     <properties>
       <property>
-        <name>givenName</name>
+        <name>wurst</name>
         <type>str</type>
       </property>
     </properties>

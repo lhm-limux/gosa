@@ -19,10 +19,11 @@ for (cName, cClass) in factory.getClasses().items():
 
 father = Employee('cn=Father of Horst, ...')
 father.givenName = 'The father!'
+father.age = 1234
 father.add()
 Employee.session.commit()
 
-for i in range(1, 10):
+for i in range(1, 2):
     tim = Person('cn=Horst Hackpeter, ist voll toll')
     tim.givenName = 'Horst'
     tim.sn = 'Hackepeter'
