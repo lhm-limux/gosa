@@ -6,7 +6,7 @@
 	<xsl:template match="/">
 		<html>
 		<head>
-			<title>GOsa schema file</title>title>
+			<title>GOsa schema file</title>
 			<style type="text/css">
 				@media screen{
 					body {
