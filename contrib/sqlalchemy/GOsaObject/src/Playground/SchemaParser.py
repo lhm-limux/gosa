@@ -4,9 +4,11 @@ import xml.etree.ElementTree as etree
 
 class GOsaBaseObject(object):
 
-    session = None
     gosa_object = None
     _db_properties = []
+    
+    def getObject(self):
+        return self.gosa_object
 
     def __init__(self, uri = None, gosa_object=None):
         
@@ -16,15 +18,6 @@ class GOsaBaseObject(object):
             self.gosa_object = GOsaDBObject(unicode(uri))
             self.gosa_object[u'type'] = unicode(self.__class__.__name__)
 
-    def add(self):
-        self.session.add(self.gosa_object)
-
-    def delete(self):
-        self.session.delete(self.gosa_object)
-
-    def getSession(self):
-        return(self.session)
-    
     def __getattribute__(self, name):
 
         db_props = object.__getattribute__(self, '_db_properties')
@@ -75,10 +68,6 @@ class SchemaLoader(object):
                'object' : GOsaDBObject(),
                'list' : list()
                }
-
-    
-    def __init__(self, session):
-        self.session = session
     
     def xml_to_dict(self, el):
         d={}
@@ -148,7 +137,6 @@ class SchemaLoader(object):
                 pass
                 
             setattr(klass, '__name__', name)
-            klass.session = self.session
 
             # populate the newly created class
             self.classes[name] = klass

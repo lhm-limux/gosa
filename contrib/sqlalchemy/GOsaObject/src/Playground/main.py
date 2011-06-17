@@ -9,7 +9,7 @@ metadata.create_all()
 session = Session()
 
 # Load schema
-factory = SchemaLoader(session)
+factory = SchemaLoader()
 factory.loadSchema('schema/Person-schema.xml')
 
 # Populate metaclasses
@@ -20,19 +20,19 @@ for (cName, cClass) in factory.getClasses().items():
 father = Employee('cn=Father of Horst, ...')
 father.givenName = 'The father!'
 father.age = 1234
-father.add()
-Employee.session.commit()
+session.add(father.getObject())
+session.commit()
 
-for i in range(1, 2):
+for i in range(1, 3):
     tim = Person('cn=Horst Hackpeter, ist voll toll')
     tim.givenName = 'Horst'
     tim.sn = 'Hackepeter'
     tim.age = 2
-    tim.parent = father.gosa_object
-    tim.notes = ['tester', '44', 55, father.gosa_object]
-    tim.add()
+    tim.parent = father.getObject()
+    tim.notes = ['tester', '44', 55, father.getObject()]
+    session.add(tim.getObject())
     
-Person.session.commit()
+session.commit()
 
 for entry in session.query(GOsaDBObject).filter(GOsaDBObject.properties.any(GOsaDBProperty.value == u'Horst')).all():
     entry = factory.toObject(entry)
