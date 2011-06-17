@@ -42,7 +42,7 @@ for entry in session.query(GOsaDBObject).filter(GOsaDBObject.properties.any(GOsa
     print "Object is of type: %s" % entry.type
     print "Age is: %i" % entry.age
     print "Parent is: %s" % str(entry.parent)
-    print "He as some notes", entry.notes
+    print "He has some notes", entry.notes
     if entry.parent:
         print "The father is: %s" % str(factory.toObject(entry.parent).givenName)
     #entry.delete()
