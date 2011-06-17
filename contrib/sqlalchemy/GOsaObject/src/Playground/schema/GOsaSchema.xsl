@@ -24,6 +24,16 @@
 						background-color: lightblue;
 					}
 					
+					div.box {
+						border-radius: 6px;
+						-moz-border-radius: 6px;
+						left:10px;
+						right:10px;
+						padding:4px;
+						background-color: #EEEEFF;
+						border: 2px solid black;
+					}
+					
 					div.classItem {
 						font-weight: bold;
 						border-radius: 4px;
@@ -31,7 +41,8 @@
 						margin-top:25px;
 						left:10px;
 						right:10px;
-						padding:5px;
+						padding-top:10px;
+						padding-left:10px;
 						margin-left:10px;
 						border: 1px solid black;
 						background-color: lightyellow;
@@ -41,8 +52,9 @@
 						border-radius: 4px;
 						-moz-border-radius: 4px;
 						padding:5px;
+						margin: 5px;
 						margin-left:15px;
-						margin-top: 5px;
+						margin-top: 10px;
 						border: 1px solid black;
 						background-color: lightgrey;
 					}
@@ -61,9 +73,10 @@
 		</head>
 		<body>
 		
-			<div class='head'>GOsa Schema information file</div>
-			
-			<xsl:apply-templates select="Classes/Class"></xsl:apply-templates>
+			<div class="box">
+				<div class='head'>GOsa Schema information file</div>
+				<xsl:apply-templates select="Classes/Class"></xsl:apply-templates>
+			</div>
 			
 		</body>
 		</html>
@@ -77,10 +90,8 @@
 			<xsl:if test="extends">
 				-  <i>Extends (<xsl:value-of select="extends" />)</i>
 			</xsl:if>
+			<xsl:apply-templates select="properties"></xsl:apply-templates>
 		</div>
-		
-		
-		<xsl:apply-templates select="properties"></xsl:apply-templates>
 	</xsl:template>
 	
 	<xsl:template match="properties">
