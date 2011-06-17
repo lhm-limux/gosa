@@ -1,4 +1,4 @@
-from GOsaObject import *
+from GOsaDBObject import *
 from SchemaParser import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm.session import Session
@@ -26,7 +26,7 @@ for i in range(1,10):
     
 Person.session.commit()
 
-for entry in session.query(GOsaObject).filter(GOsaObject.properties.any(GOsaProperty.value == u'Horst')).all():
+for entry in session.query(GOsaDBObject).filter(GOsaDBObject.properties.any(GOsaDBProperty.value == u'Horst')).all():
     entry = factory.load(entry)
     print entry.gosa_object.name
     print entry.age

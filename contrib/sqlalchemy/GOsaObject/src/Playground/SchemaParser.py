@@ -1,4 +1,4 @@
-from GOsaObject import GOsaObject
+from GOsaDBObject import GOsaDBObject
 import xml.etree.ElementTree as etree
 
 
@@ -12,7 +12,7 @@ class GOsaBaseObject(object):
         if gosa_object:
             self.gosa_object = gosa_object
         else:
-            self.gosa_object = GOsaObject(unicode(uri))
+            self.gosa_object = GOsaDBObject(unicode(uri))
             self.gosa_object['__class_type'] = self.__class__.__name__
 
     def add(self):
@@ -32,7 +32,7 @@ class GOsaBaseObject(object):
         
         else:
             v = object.__getattribute__(self, name)
-            if isinstance(v, GOsaObject):
+            if isinstance(v, GOsaDBObject):
                 return self.gosa_object[name]
             else:
                 old_type = type(v)
@@ -50,7 +50,7 @@ class GOsaBaseObject(object):
         if name in db_props:
 
             # Check if given value matches the requested types 
-            if (type(value) != type(getattr(self, name))) and not isinstance(value, GOsaObject):
+            if (type(value) != type(getattr(self, name))) and not isinstance(value, GOsaDBObject):
                 raise Exception("Invalid type given '%s', expected '%s'" % (type(value), type(getattr(self, name))))
             else:
                 object.__setattr__(self, name, value)
