@@ -71,7 +71,8 @@ class SchemaLoader(object):
     typemap = { 
                'str': str(), 
                'int' : int(),
-               'object' : GOsaDBObject()
+               'object' : GOsaDBObject(),
+               'list' : list()
                }
 
     

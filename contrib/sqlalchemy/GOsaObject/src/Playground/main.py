@@ -28,6 +28,7 @@ for i in range(1, 10):
     tim.sn = 'Hackepeter'
     tim.age = 2
     tim.parent = father.gosa_object
+    tim.notes = ['tester', '44', 55, father.gosa_object]
     tim.add()
     
 Person.session.commit()
@@ -36,6 +37,7 @@ for entry in session.query(GOsaDBObject).filter(GOsaDBObject.properties.any(GOsa
     entry = factory.toObject(entry)
     print entry.age
     print entry.parent
+    print entry.notes
     if entry.parent:
         print factory.toObject(entry.parent)
         print factory.toObject(entry.parent).givenName
