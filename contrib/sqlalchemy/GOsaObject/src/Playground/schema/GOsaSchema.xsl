@@ -14,6 +14,8 @@
 					}
 					
 					div.head {
+						border-radius: 6px;
+						-moz-border-radius: 6px;
 						font-weight: bold;
 						left:10px;
 						right:10px;
@@ -23,6 +25,9 @@
 					}
 					
 					div.classItem {
+						font-weight: bold;
+						border-radius: 4px;
+						-moz-border-radius: 4px;
 						margin-top:25px;
 						left:10px;
 						right:10px;
@@ -33,6 +38,8 @@
 					}
 					
 					div.classProperties {
+						border-radius: 4px;
+						-moz-border-radius: 4px;
 						padding:5px;
 						margin-left:15px;
 						margin-top: 5px;
