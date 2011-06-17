@@ -76,7 +76,9 @@ class VerticalPropertyDictMixin(object):
         """
         Returns the value for the requested object property.
         """
-        return self.__map[key].value
+        if key in self.__map:
+            return self.__map[key].value
+        return None
 
     def __setitem__(self, key, value):
         """
@@ -347,7 +349,8 @@ mapper(GOsaObject, GOsaObjectTBL, properties={
         'properties': relationship(
             GOsaProperty,
             primaryjoin=GOsaObjectTBL.c.id==GOsaPropertyTBL.c.parent_object,
-            collection_class=attribute_mapped_collection('key')),
+            collection_class=attribute_mapped_collection('key'),
+            cascade="all, delete, delete-orphan"),
         }) 
 
 mapper(GOsaProperty, GOsaPropertyTBL, properties={
