@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="GOsaSchema.xsl"?>
+<Classes 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://www.gonicus.de/GOsa GOsaSchema.xsd ">
+  <Class>
+    <name>Base</name>
+    <properties>
+      <property>
+        <name>type</name>
+        <type>str</type>
+      </property>
+    </properties>
+  </Class>
+</Classes>
+
