@@ -13,7 +13,7 @@ class GOsaBaseObject(object):
             self.gosa_object = gosa_object
         else:
             self.gosa_object = GOsaDBObject(unicode(uri))
-            self.gosa_object['__class_type'] = self.__class__.__name__
+            self.gosa_object['type'] = self.__class__.__name__
 
     def add(self):
         self.session.add(self.gosa_object)
@@ -50,7 +50,7 @@ class GOsaBaseObject(object):
         if name in db_props:
 
             # Check if given value matches the requested types 
-            if (type(value) != type(getattr(self, name))) and not isinstance(value, GOsaDBObject):
+            if (type(value) != type(getattr(self, name))) and not issubclass(type(value), GOsaDBObject):
                 raise Exception("Invalid type given '%s', expected '%s'" % (type(value), type(getattr(self, name))))
             else:
                 object.__setattr__(self, name, value)
@@ -68,7 +68,11 @@ class SchemaLoader(object):
     classes = {}
     
     # Find a better mapping here later
-    typemap = {'str': str(), 'int' : int()}
+    typemap = { 
+               'str': str(), 
+               'int' : int(),
+               'object' : GOsaDBObject()
+               }
 
     
     def __init__(self, session):
@@ -92,7 +96,7 @@ class SchemaLoader(object):
         return(self.xml_to_dict(tree.getroot()))
        
     def load(self, obj):
-        cName = str(obj['__class_type'])
+        cName = str(obj['type'])
         if cName in self.classes:
             cMeta = self.classes[cName]
             newObj = cMeta(gosa_object=obj)

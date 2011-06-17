@@ -17,11 +17,17 @@ for (cName, cClass) in factory.getClasses().items():
     globals()[cName] = cClass 
 
 
-for i in range(1,10):
+father = Employee('Father')
+father.givenName = 'The father!'
+father.add()
+Employee.session.commit()
+
+for i in range(1, 10):
     tim = Person('cn=Horst Hackpeter, ist voll toll')
     tim.givenName = 'Horst'
     tim.sn = 'Hackepeter'
     tim.age = 2
+    tim.parent = father.gosa_object
     tim.add()
     
 Person.session.commit()
@@ -30,8 +36,12 @@ for entry in session.query(GOsaDBObject).filter(GOsaDBObject.properties.any(GOsa
     entry = factory.load(entry)
     print entry.gosa_object.name
     print entry.age
-    entry.delete()
-    entry.getSession().commit()
+    print entry.parent
+    if entry.parent:
+        print factory.load(entry.parent)
+        print factory.load(entry.parent).givenName
+    #entry.delete()
+    #entry.getSession().commit()
 
 
 
