@@ -45,7 +45,7 @@
 						padding-left:10px;
 						margin-left:10px;
 						border: 1px solid black;
-						background-color: lightyellow;
+						background-color: white;
 					}
 					
 					div.classProperties {
