@@ -13,7 +13,7 @@ class GOsaBaseObject(object):
             self.gosa_object = gosa_object
         else:
             self.gosa_object = GOsaDBObject(unicode(uri))
-            self.gosa_object['type'] = self.__class__.__name__
+            self.gosa_object[u'type'] = unicode(self.__class__.__name__)
 
     def add(self):
         self.session.add(self.gosa_object)
@@ -54,7 +54,7 @@ class GOsaBaseObject(object):
                 raise Exception("Invalid type given '%s', expected '%s'" % (type(value), type(getattr(self, name))))
             else:
                 object.__setattr__(self, name, value)
-                self.gosa_object[name] = value
+                self.gosa_object[unicode(name)] = value
                 return
         
         # Check if the given property was defined in the xml schema
@@ -95,7 +95,7 @@ class SchemaLoader(object):
         tree = etree.parse('schema/Person-schema.xml')
         return(self.xml_to_dict(tree.getroot()))
        
-    def load(self, obj):
+    def toObject(self, obj):
         cName = str(obj['type'])
         if cName in self.classes:
             cMeta = self.classes[cName]

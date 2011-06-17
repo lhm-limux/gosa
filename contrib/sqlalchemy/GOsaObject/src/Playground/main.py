@@ -17,7 +17,7 @@ for (cName, cClass) in factory.getClasses().items():
     globals()[cName] = cClass 
 
 
-father = Employee('Father')
+father = Employee('cn=Father of Horst, ...')
 father.givenName = 'The father!'
 father.add()
 Employee.session.commit()
@@ -33,13 +33,12 @@ for i in range(1, 10):
 Person.session.commit()
 
 for entry in session.query(GOsaDBObject).filter(GOsaDBObject.properties.any(GOsaDBProperty.value == u'Horst')).all():
-    entry = factory.load(entry)
-    print entry.gosa_object.name
+    entry = factory.toObject(entry)
     print entry.age
     print entry.parent
     if entry.parent:
-        print factory.load(entry.parent)
-        print factory.load(entry.parent).givenName
+        print factory.toObject(entry.parent)
+        print factory.toObject(entry.parent).givenName
     #entry.delete()
     #entry.getSession().commit()
 
