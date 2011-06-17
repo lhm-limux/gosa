@@ -5,8 +5,56 @@
 	
 	<xsl:template match="/">
 		<html>
+		<head>
+			<title>GOsa schema file</title>title>
+			<style type="text/css">
+				@media screen{
+					body {
+						font-family: sans					
+					}
+					
+					div.head {
+						font-weight: bold;
+						left:10px;
+						right:10px;
+						padding:10px;
+						border: 1px solid black;
+						background-color: lightblue;
+					}
+					
+					div.classItem {
+						margin-top:25px;
+						left:10px;
+						right:10px;
+						padding:5px;
+						margin-left:10px;
+						border: 1px solid black;
+						background-color: lightyellow;
+					}
+					
+					div.classProperties {
+						padding:5px;
+						margin-left:15px;
+						margin-top: 5px;
+						border: 1px solid black;
+						background-color: lightgrey;
+					}
+					
+					div.classPropertyName {
+						font-size: 0.8em;
+						width: 350px;
+						float: left;
+					}
+					div.classPropertyType {
+						font-size: 0.8em;
+						float:none;
+					}
+				}
+			</style>
+		</head>
 		<body>
-			<h2>Schema information</h2>
+		
+			<div class='head'>GOsa Schema information file</div>
 			
 			<xsl:apply-templates select="Classes/Class"></xsl:apply-templates>
 			
@@ -15,17 +63,30 @@
 	</xsl:template>
 	
 	<xsl:template match="Class">
-		<h3><xsl:value-of select="name" /></h3>
+	
+		<div class="classItem">
+			Class: 
+			<xsl:value-of select="name" />
+			<xsl:if test="extends">
+				-  <i>Extends (<xsl:value-of select="extends" />)</i>
+			</xsl:if>
+		</div>
+		
+		
 		<xsl:apply-templates select="properties"></xsl:apply-templates>
 	</xsl:template>
 	
 	<xsl:template match="properties">
-		<b>Properties</b>
-		<ul>
+		<div class="classProperties">
 			<xsl:for-each select="property">
-				 <li><xsl:value-of select="name" /></li>
+				 <div class="classPropertyName">
+				 	<xsl:value-of select="name" />
+				 </div>
+				 <div class="classPropertyType">
+				 	<xsl:value-of select="type" />
+				 </div>
 			</xsl:for-each>
-		</ul>
+		</div>
 	</xsl:template>
 	
 </xsl:stylesheet>
