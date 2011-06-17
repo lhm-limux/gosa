@@ -5,7 +5,7 @@ import xml.etree.ElementTree as etree
 class GOsaBaseObject(object):
 
     gosa_object = None
-    _db_properties = []
+    _db_properties = ['type']
     
     def getObject(self):
         return self.gosa_object
@@ -83,7 +83,7 @@ class SchemaLoader(object):
         return d
     
     def __parse(self, filename):
-        tree = etree.parse('schema/Person-schema.xml')
+        tree = etree.parse(filename)
         return(self.xml_to_dict(tree.getroot()))
        
     def toObject(self, obj):
@@ -115,7 +115,7 @@ class SchemaLoader(object):
                         extends = self.classes[eName]
                     else:
                         raise Exception("Cannot extends class '%s' from"
-                                        " '%s'. The class '%s'wasn't "
+                                        " '%s'. The class '%s' wasn't "
                                         "defined yet!" % (
                                         className, eName, eName
                                         ))
@@ -163,5 +163,4 @@ class SchemaLoader(object):
                 setattr(klass, prop['name'], self.typemap[prop['type']])
 
             klass._db_properties = properties
-            print klass._db_properties
 

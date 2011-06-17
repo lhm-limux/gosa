@@ -5,6 +5,7 @@
 	xsi:schemaLocation="http://www.gonicus.de/GOsa GOsaSchema.xsd ">
   <Class>
     <name>Person</name>
+    <extends>Base</extends>
     <properties>
       <property>
         <name>givenName</name>
