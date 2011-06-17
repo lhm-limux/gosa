@@ -45,7 +45,7 @@
 						padding-left:10px;
 						margin-left:10px;
 						border: 1px solid black;
-						background-color: white;
+						background-color: lightyellow;
 					}
 					
 					div.classProperties {
@@ -56,7 +56,7 @@
 						margin-left:15px;
 						margin-top: 10px;
 						border: 1px solid black;
-						background-color: lightgrey;
+						background-color: #FFF;
 					}
 					
 					div.classPropertyName {
