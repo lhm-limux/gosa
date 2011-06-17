@@ -20,10 +20,6 @@
         <type>str</type>
       </property>
       <property>
-        <name>parent</name>
-        <type>object</type>
-      </property>
-      <property>
         <name>notes</name>
         <type>list</type>
       </property>

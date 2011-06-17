@@ -13,7 +13,7 @@ factory = SchemaLoader()
 factory.loadSchema('schema/Base-schema.xml')
 factory.loadSchema('schema/Person-schema.xml')
 
-# Populate metaclasses
+# Populate metaclasses, maybe there is a nicer way to do this
 for (cName, cClass) in factory.getClasses().items():
     globals()[cName] = cClass 
 

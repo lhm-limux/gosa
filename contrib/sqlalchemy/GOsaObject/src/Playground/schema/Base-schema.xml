@@ -10,6 +10,10 @@
         <name>type</name>
         <type>str</type>
       </property>
+      <property>
+        <name>parent</name>
+        <type>object</type>
+      </property>
     </properties>
   </Class>
 </Classes>
