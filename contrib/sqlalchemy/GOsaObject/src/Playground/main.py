@@ -1,4 +1,5 @@
-from GOsaObject import GOsaObject, GOsaProperty, metadata
+from GOsaObject import *
+from SchemaParser2 import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm.session import Session
 
@@ -7,33 +8,41 @@ metadata.bind = create_engine('mysql://admin@gosa-playground.intranet.gonicus.de
 metadata.create_all()
 session = Session()
 
+# Load schema
+factory = SchemaLoader(session)
+factory.loadSchema('schema/Person-schema.xml')
 
-# Query existing objects with a name
-entry = None
+# Populate metaclasses
+for (cName, cClass) in factory.getClasses().items():
+    globals()[cName] = cClass 
 
 
-
-
-if False:
-   
-    c = GOsaObject(u'GONICUS GmbH')
-    c['address'] = u'Moehnestrasse 11-17'
-    
-    for i in range(1,1000):
-        o = GOsaObject(u'User %s' % str(i))
-        o['username'] = u'Username %s' % str(i)
-        o['company'] = c
-        o['relationships'] = [c]
-    
-        session.add(o)
-        session.commit()
+#p = Person('test')
 
 
 
-for entry in session.query(GOsaObject).filter(GOsaObject.properties.any(GOsaProperty.key== u'username')).all():
-    
-    print entry
-    print entry.name
-    print entry['company']
-    #print entry['relationships']
- 
+
+#tim = Person('cn=Horst Hackpeter, ist voll toll')
+#tim.givenName = 'Horst'
+#tim.sn = 'Hackepeter'
+#tim.age = 2
+
+
+#print tim.givenName
+#print tim.sn
+#print tim.age
+
+#tim.add()
+#Person.session.commit()
+
+for entry in session.query(GOsaObject).filter(GOsaObject.properties.any(GOsaProperty.value == u'Horst')).all():
+    entry = factory.load(entry)
+    print entry.age
+    print entry.gosa_object
+    entry.age = entry.age + 1
+    entry.add()
+    entry.getSession().commit()
+
+
+
+
