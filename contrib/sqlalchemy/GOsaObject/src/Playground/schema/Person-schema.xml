@@ -9,19 +9,19 @@
     <properties>
       <property>
         <name>givenName</name>
-        <type>str</type>
+        <type>String</type>
       </property>
       <property>
         <name>age</name>
-        <type>int</type>
+        <type>Integer</type>
       </property>
       <property>
         <name>sn</name>
-        <type>str</type>
+        <type>String</type>
       </property>
       <property>
         <name>notes</name>
-        <type>list</type>
+        <type>ObjectList</type>
       </property>
     </properties>
   </Class>
@@ -31,7 +31,7 @@
     <properties>
       <property>
         <name>wurst</name>
-        <type>str</type>
+        <type>String</type>
       </property>
     </properties>
   </Class>

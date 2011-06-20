@@ -40,7 +40,7 @@ for entry in session.query(GOsaDBObject).filter(GOsaDBObject.properties.any(GOsa
 
     print '-' * 80
     print "Object is of type: %s" % entry.type
-    print "Age is: %i" % entry.age
+    print "Age is: %i" % entry.age, type(entry.age)
     print "Parent is: %s" % str(entry.parent)
     print "He has some notes", entry.notes
     if entry.parent:
