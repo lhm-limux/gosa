@@ -1196,7 +1196,10 @@ class RepositoryManager(Plugin):
                 raise ValueError(N_("Path '{url}' is not readable").format(url=url))
 
             if download_dir:
-                shutil.rmtree(download_dir)
+                try:
+                    shutil.rmtree(download_dir)
+                except:
+                    pass
 
         except ValueError:
             raise
