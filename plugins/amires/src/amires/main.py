@@ -26,7 +26,6 @@ class AsteriskNotificationReceiver(object):
                 'CallEnded': _("Call ended"),
                 'IncomingCall': _("Incoming call")}
 
-    __proxy = None
     resolver = {}
     renderer = {}
 
@@ -65,9 +64,7 @@ class AsteriskNotificationReceiver(object):
             """,
             callback=self.process)
 
-        amqp = PluginRegistry.getInstance("AMQPHandler")
-        self.__proxy = AMQPServiceProxy(amqp.url['source'] + "/" + self.env.domain)
-
+        self.__cr = PluginRegistry.getInstance("CommandRegistry")
 
     # Event callback
     def process(self, data):
@@ -119,12 +116,11 @@ class AsteriskNotificationReceiver(object):
                 to_msg += "\n\n"
 
         # Send from/to messages as needed
+        amqp = PluginRegistry.getInstance('AMQPHandler')
         if from_msg:
-            self.__proxy.notifyUser(i_from['ldap_uid'],
-                    self.TYPE_MAP[event['Type']],
-                    from_msg)
+            self.__cr.dispatch(amqp.url['user'], None, "notifyUser",
+                i_from['ldap_uid'], self.TYPE_MAP[event['Type']], from_msg)
 
         if to_msg:
-            self.__proxy.notifyUser(i_to['ldap_uid'],
-                    self.TYPE_MAP[event['Type']],
-                    to_msg)
+            self.__cr.dispatch(amqp.url['user'], None, "notifyUser",
+                    i_to['ldap_uid'], self.TYPE_MAP[event['Type']], to_msg)
