@@ -6,8 +6,9 @@ import re
 from lxml import etree
 from gosa.common.env import Environment
 from gosa.common.utils import parseURL, makeAuthURL
-from gosa.common.components.amqp_proxy import AMQPEventConsumer, \
-    AMQPServiceProxy
+from gosa.common.components.registry import PluginRegistry
+from gosa.common.components.amqp import EventConsumer
+from gosa.common.components.amqp_proxy import AMQPServiceProxy
 
 # Set locale domain
 t = gettext.translation('messages', pkg_resources.resource_filename("amires", "locale"),
@@ -25,18 +26,7 @@ class AsteriskNotificationReceiver:
 
     def __init__(self):
         self.env = env = Environment.getInstance()
-
-        # Evaluate AMQP URL
-        user = env.config.getOption("id", "amqp", default=None)
-        if not user:
-            user = env.uuid
-        password = env.config.getOption("key", "amqp")
-        url = parseURL(makeAuthURL(env.config.getOption('url', 'amqp'), user, password))
-        if url['path']:
-            self.url = url['source']
-        else:
-            domain = self.env.config.getOption('domain', 'amqp', default="org.gosa")
-            self.url = "/".join([url['source'], domain])
+        domain = env.config.getOption('domain', 'amqp', default="org.gosa")
 
         # Load resolver
         for entry in pkg_resources.iter_entry_points("phone.resolver"):
@@ -46,8 +36,6 @@ class AsteriskNotificationReceiver:
                     'object': obj,
                     'priority': obj.priority,
             }
-            if module.__name__ == 'CacheNumberResolver':
-                self.cache = obj
 
         # Load renderer
         for entry in pkg_resources.iter_entry_points("notification.renderer"):
@@ -57,23 +45,24 @@ class AsteriskNotificationReceiver:
                     'priority': module.priority,
             }
 
-        # Create event consumer
-        self.consumer = AMQPEventConsumer(self.url,
-            xquery = """
-                declare namespace f='http://www.gonicus.de/Events';
-                let $e := ./f:Event
-                return $e/f:AsteriskNotification
-            """,
-            callback = self.process)
-
-        self.proxy = AMQPServiceProxy(self.url)
-
     def __del__(self):
         if hasattr(self, 'consumer') and self.consumer is not None:
             del self.consumer
 
     def serve(self):
-        self.env.log.info("Service running...")
+        self.env.log.info("Listening for asterisk events...")
+        amqp = PluginRegistry.getInstance('AMQPHandler')
+        EventConsumer(self.env,
+            amqp.getConnection(),
+            xquery="""
+                declare namespace f='http://www.gonicus.de/Events';
+                let $e := ./f:Event
+                return $e/f:AsteriskNotification
+            """,
+            callback=self.process)
+
+        self.proxy = AMQPServiceProxy(amqp.url['source'], domain)
+
         while True:
             self.consumer.join()
 
@@ -103,12 +92,6 @@ class AsteriskNotificationReceiver:
                 i_to = info['object'].resolve(event['To'])
             if i_from and i_to:
                 break
-        
-        # Cache number
-        if hasattr(self, 'cache'):
-            self.cache.cacheNumber(i_from, event['From'])
-            self.cache.cacheNumber(i_to, event['To'])
-            self.cache.collectGarbage()
 
         # Fallback to original number if nothing has been found
         if not i_from:
