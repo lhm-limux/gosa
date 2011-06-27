@@ -407,18 +407,23 @@ reportdir=$logdir
         section = 'remote "%s"' % device_uuid
         if not config.has_section(section):
             cs = PluginRegistry.getInstance("ClientService")
-            
-            # Eventually add our ssh key
             key = self._get_public_key()
-            try:            
-                if not key[1] in [p["data"] for p in cs.clientDispatch(device_uuid, "puppetListKeys")]:
-                    cs.clientDispatch(device_uuid, "puppetAddKey", key)
-            except:
-                return False
             
-            # Add machine to the nodes.pp
-            self.__update_nodes(device_uuid)
-            
+            if not key[1] in [p["data"] for p in cs.clientDispatch(device_uuid, "puppetListKeys")]:
+                cs.clientDispatch(device_uuid, "puppetAddKey", key)
+
+            #TODO: Manage nodes.pp (!)
+            #node ldap-server {
+            #  import "dns"
+            #  include sudo
+            #  include openldap
+            #  include resolv
+            #}
+            #node 'dyn-10.muc.intranet.gonicus.de' inherits ldap-server {
+            #  $test = "hallo"
+            #}
+
+
             # Add git configuration 
             config.add_section(section)
 
@@ -430,7 +435,7 @@ reportdir=$logdir
                     config.write(f)
             except:
                 return False
-            
+
             # Reset "P" flag for client
             cs = PluginRegistry.getInstance("ClientService")
             cs.systemSetStatus(device_uuid, "-P")
@@ -474,8 +479,7 @@ reportdir=$logdir
 
     def _get_public_key(self):
         default = os.path.join(os.path.expanduser('~'), ".ssh", "id_dsa.pub")
-        
-        # Read SSH key
+
         try:
             with open(self.env.config.getOption("public_key", "puppet", default)) as f:
                 content = f.read()
@@ -483,6 +487,7 @@ reportdir=$logdir
                 return ""
 
         return content.strip()
+
 
     #TODO: Manage nodes.pp (!)
     def __update_nodes(self, device_uuid):    
@@ -504,4 +509,3 @@ reportdir=$logdir
         #node 'dyn-10.muc.intranet.gonicus.de' inherits ldap-server {
         #  $test = "hallo"
         #}
-
