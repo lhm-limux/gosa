@@ -1,5 +1,0 @@
-include CHANGELOG
-include LICENSE
-include example.py
-include run_tests.py
-graft test

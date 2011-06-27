@@ -107,15 +107,20 @@ reports=store_gosa
 reportdir=$logdir
 """ % logdir)
 
-            #TODO: ...
-            # Handle site.pp
-            #import "manifests/nodes.pp"
-            # create: manifests/nodes.pp
+            # Add manifests and write initial size.pp
+            os.mkdir(os.path.join(tmp_path, "manifests"))
+            with open(os.path.join(tmp_path, "manifests", "site.pp"), "w") as f:
+                f.write('import "manifests/nodes.pp"\n')
+
+            # Add manifests and write initial size.pp
+            with open(os.path.join(tmp_path, "manifests", "nodes.pp"), "w") as f:
+                f.write('# Automatically managed by GOsa\n')
 
             cmd = Git(tmp_path)
             cmd.add("README")
             cmd.add("puppet.conf")
-            cmd.commit(m="Initially created master branch")
+            cmd.add("manifests")
+            cmd.commit(m="Initially created puppet master branch")
             cmd.push("origin", "master")
             shutil.rmtree(tmp_path)
 
@@ -402,9 +407,8 @@ reportdir=$logdir
         section = 'remote "%s"' % device_uuid
         if not config.has_section(section):
             cs = PluginRegistry.getInstance("ClientService")
-
-            # Check ssh key
             key = self._get_public_key()
+            
             if not key[1] in [p["data"] for p in cs.clientDispatch(device_uuid, "puppetListKeys")]:
                 cs.clientDispatch(device_uuid, "puppetAddKey", key)
 
@@ -476,7 +480,6 @@ reportdir=$logdir
     def _get_public_key(self):
         default = os.path.join(os.path.expanduser('~'), ".ssh", "id_dsa.pub")
 
-        # Read dsa key
         try:
             with open(self.env.config.getOption("public_key", "puppet", default)) as f:
                 content = f.read()
@@ -484,3 +487,25 @@ reportdir=$logdir
                 return ""
 
         return content.strip()
+
+
+    #TODO: Manage nodes.pp (!)
+    def __update_nodes(self, device_uuid):    
+        nodes_file = os.path.join(self.__repo_path, "manifests", "nodes.pp")
+    
+        # Load all configRecipes and update the node hierarchy    
+        #TODO: cascading
+        
+        #node device-uuid {
+        #    include configItem
+        #}
+                
+        #node ldap-server {
+        #  import "dns"
+        #  include sudo
+        #  include openldap
+        #  include resolv
+        #}
+        #node 'dyn-10.muc.intranet.gonicus.de' inherits ldap-server {
+        #  $test = "hallo"
+        #}
