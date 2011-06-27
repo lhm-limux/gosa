@@ -1,0 +1,47 @@
+# Translations template for amires.
+# Copyright (C) 2011 GONICUS GmbH
+# This file is distributed under the same license as the amires project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: amires 0.1\n"
+"Report-Msgid-Bugs-To: gosa@oss.gonicus.de\n"
+"POT-Creation-Date: 2011-06-01 16:45+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.5\n"
+
+#: src/amires/main.py:22
+msgid "Missed call"
+msgstr ""
+
+#: src/amires/main.py:23
+msgid "Call ended"
+msgstr ""
+
+#: src/amires/main.py:24
+msgid "Incoming call"
+msgstr ""
+
+#: src/amires/modules/goforge_sect.py:56
+msgid "Caller"
+msgstr ""
+
+#: src/amires/modules/goforge_sect.py:65
+msgid "Duration"
+msgstr ""
+
+#: src/amires/modules/goforge_sect.py:66
+msgid "seconds"
+msgstr ""
+
+#: src/amires/modules/goforge_sect.py:140
+msgid "Open GOForge tickets"
+msgstr ""
+

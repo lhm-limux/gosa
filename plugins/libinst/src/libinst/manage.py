@@ -21,7 +21,10 @@ import re
 import pytz
 import gettext
 import ldap
-from types import StringTypes, DictType
+import platform
+import datetime
+
+from types import StringTypes, DictType, ListType
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import sessionmaker, scoped_session
 
@@ -91,6 +94,9 @@ class RepositoryManager(Plugin):
                 os.makedirs(self.path)
             except:
                 raise
+
+        self.hostname = platform.node()
+        #self.path = self.hostname+":"+self.path
 
         # Load all repository handlers
         self.type_reg = {}
@@ -265,23 +271,17 @@ class RepositoryManager(Plugin):
         """
         result = None
         session = None
-        
+
         if not distribution:
             raise ValueError(N_("Distribution parameter is mandatory"))
-        
+
         try:
             session = self.getSession()
-        
             if isinstance(distribution, StringTypes):
-                instance = self._getDistribution(distribution)
-                if not instance:
-                    raise ValueError(N_("Distribution %s not found" % distribution))
-                else:
-                    distribution = instance
-                distribution = session.merge(distribution)
-            result = distribution
-    
-            result = distribution.getInfo()
+                result = self._getDistribution(distribution)
+            if result is not None:
+                result = session.merge(result)
+                result = result.getInfo()
             session.commit()
         except:
             session.rollback()
@@ -347,20 +347,14 @@ class RepositoryManager(Plugin):
 
         if not release:
             raise ValueError(N_("Release parameter is mandatory"))
-        
+
         try:
             session = self.getSession()
-        
             if isinstance(release, StringTypes):
-                instance = self._getRelease(release)
-                if not instance:
-                    raise ValueError(N_("Release %s not found" % release))
-                else:
-                    release = instance
-                release = session.merge(release)
-            result = release
-    
-            result = release.getInfo()
+                result = self._getRelease(release)
+            if result is not None:
+                result = session.merge(result)
+                result = result.getInfo()
             session.commit()
         except:
             session.rollback()
@@ -562,10 +556,11 @@ class RepositoryManager(Plugin):
                     if not '/' in release.name:
                         self.env.log.debug("Removing release %s/%s" % (distribution.name,  release.name))
                         self.removeRelease(release, recursive=recursive)
-                session.refresh(distribution)
+                session.expire(distribution)
 
             result = self.type_reg[distribution.type.name].removeDistribution(session, distribution, recursive=recursive)
             if result is not None:
+                session.commit()
                 distribution.repository.distributions.remove(distribution)
                 session.delete(distribution)
             session.commit()
@@ -596,25 +591,25 @@ class RepositoryManager(Plugin):
         result = None
         session = None
 
-        if not self._getRelease(name):
-            p = re.compile(ALLOWED_CHARS_RELEASE)
-            if not p.match(name):
-                raise ValueError(N_("Release name {release} contains invalid characters!").format(release=name))
-            if name == "master":
-                raise ValueError(N_("master is a reserved keyword!"))
+        try:
+            session = self.getSession()
+            if isinstance(distribution, StringTypes):
+                instance = self._getDistribution(distribution)
+                if instance:
+                    distribution = instance
+                else:
+                    raise ValueError(N_("Distribution {distribution} does not exist!").format(distribution=distribution))
+            distribution = session.merge(distribution)
 
-            try:
-                session = self.getSession()
-                if isinstance(distribution, StringTypes):
-                    instance = self._getDistribution(distribution)
-                    if instance:
-                        distribution = instance
-                    else:
-                        raise ValueError(N_("Distribution {distribution} does not exist!").format(distribution=distribution))
-                distribution = session.merge(distribution)
+            if '/' in name and not self._getRelease(name.rsplit('/', 1)[0]):
+                raise ValueError(N_("Parent release {release} not found!").format(release=name.rsplit('/', 1)[0]))
 
-                if '/' in name and not self._getRelease(name.rsplit('/', 1)[0]):
-                    raise ValueError(N_("Parent release {release} not found!").format(release=name.rsplit('/', 1)[0]))
+            if not self._getRelease(name):
+                p = re.compile(ALLOWED_CHARS_RELEASE)
+                if not p.match(name):
+                    raise ValueError(N_("Release name {release} contains invalid characters!").format(release=name))
+                if name == "master":
+                    raise ValueError(N_("master is a reserved keyword!"))
 
                 result = self.type_reg[distribution.type.name].createRelease(session, distribution, name)
                 if result is not None:
@@ -627,13 +622,13 @@ class RepositoryManager(Plugin):
                     distribution.repository._initDirs()
                     if result.distribution.installation_method is not None:
                         self.install_method_reg[result.distribution.installation_method].createRelease(result.name, result.parent)
-            except:
-                session.rollback()
-                raise
-            finally:
-                session.close()
-        else:
-            raise ValueError(N_("Release {release} already exists!").format(release=name))
+            else:
+                raise ValueError(N_("Release {release} already exists!").format(release=name))
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
         return result != None
 
     @Command(__doc__=N_("Remove a release"))
@@ -670,7 +665,7 @@ class RepositoryManager(Plugin):
                 for child_release in release.children[:]:
                     self.env.log.debug("Removing child release %s" % child_release)
                     self.removeRelease(child_release, recursive=True)
-                session.refresh(release)
+                session.expire(release)
             else:
                 # pylint: disable-msg=E1101
                 for package in release.packages[:]:
@@ -679,17 +674,20 @@ class RepositoryManager(Plugin):
                         self.env.log.error("Could not remove package %s from release %s" % (package.name, release.name))
                     else:
                         self.env.log.debug("Package %s/%s/%s was removed from release %s" % (package.name, package.version, package.arch.name, release.name))
-                session.refresh(release)
+                session.expire(release)
 
             if release.distribution.installation_method is not None:
                 self.install_method_reg[release.distribution.installation_method].removeRelease(release.name, recursive=recursive)
-                session.refresh(release)
+                session.expire(release)
 
-            result = self.type_reg[release.distribution.type.name].removeRelease(session, release, recursive=recursive)
+            self.env.log.debug("Removing release %s" % release.name)
+            result = self.type_reg[release.distribution.type.name].removeRelease(session, release.name, recursive=recursive)
             if result is not None:
+                session.commit()
                 release.distribution.releases.remove(release)
                 session.delete(release)
                 session.commit()
+                self.env.log.info("Removed release %s" % release.name)
         except:
             session.rollback()
             raise
@@ -811,7 +809,7 @@ class RepositoryManager(Plugin):
 
     @Command(__doc__=N_("Add new properties to a mirrored distribution"))
     @NamedArgs("m_hash")
-    def addMirrorProperty(self, m_hash=None, distribution=None, arch=None, component=None, mirror_sources=None):
+    def addMirrorProperty(self, m_hash=None, distribution=None, arch=None, component=None, mirror_sources=None, origin=None):
         result = None
         session = None
         try:
@@ -833,7 +831,6 @@ class RepositoryManager(Plugin):
                             arch = instance
                     session.commit()
                     arch = session.merge(arch)
-                    print arch
                     if arch not in distribution.architectures:
                         distribution.architectures.append(arch)
                 if component:
@@ -849,6 +846,8 @@ class RepositoryManager(Plugin):
                         distribution.components.append(component)
                 if mirror_sources:
                     distribution.mirror_sources = mirror_sources
+                if origin:
+                    distribution.origin = origin
             else:
                 raise ValueError(N_("Need a distribution to add properties"))
             session.commit()
@@ -932,6 +931,7 @@ class RepositoryManager(Plugin):
                         components=components, 
                         architectures=architectures, 
                         sections=sections)
+                    distribution.last_updated=datetime.datetime.utcnow()
                 else:
                     raise ValueError(N_("Distribution %s has no releases", distribution.name))
             else:
@@ -1001,7 +1001,6 @@ class RepositoryManager(Plugin):
                 return False
             if custom_filter:
                 if custom_filter.has_key('name'):
-                    print 'name:', custom_filter['name']
                     if package.name.startswith(custom_filter['name']):
                         return True
                     else:
@@ -1165,6 +1164,9 @@ class RepositoryManager(Plugin):
                 except urllib2.URLError, e:
                     print "URL Error:", e.reason, url
 
+            if local_url is None:
+                return None
+
             if os.path.exists(local_url):
                 # get file extension
                 file_ext = local_url.split('.')[-1]
@@ -1194,7 +1196,10 @@ class RepositoryManager(Plugin):
                 raise ValueError(N_("Path '{url}' is not readable").format(url=url))
 
             if download_dir:
-                shutil.rmtree(download_dir)
+                try:
+                    shutil.rmtree(download_dir)
+                except:
+                    pass
 
         except ValueError:
             raise
@@ -1231,9 +1236,15 @@ class RepositoryManager(Plugin):
                 package = self._getPackage(package, arch=arch)
 
             if package is not None:
-                package = session.merge(package)
-                package_name = package.name
-                result = self.type_reg[package.type.name].removePackage(session, package, arch=arch, release=release, distribution=distribution)
+                if isinstance(package, ListType):
+                    for package_instance in package:
+                        package_instance = session.merge(package_instance)
+                        package_name = package_instance.name
+                        result = self.type_reg[package_instance.type.name].removePackage(session, package_instance, arch=arch, release=release, distribution=distribution)
+                else:
+                    package = session.merge(package)
+                    package_name = package.name
+                    result = self.type_reg[package.type.name].removePackage(session, package, arch=arch, release=release, distribution=distribution)
                 session.commit()
             else:
                 raise ValueError(N_("Package {package} not found!").format(package=package_name))
@@ -1301,7 +1312,7 @@ class RepositoryManager(Plugin):
             if gpg.delete_keys(fp, secret=True).status == "ok":
                 try:
                     session = self.getSession()
-                    repository = self._getRepository()
+                    repository = self._getRepository(path=self.path)
                     repository = session.merge(repository)
                     repository.keyring.data = gpg.list_keys(True)
                     if repository.keyring.name == fp:
@@ -1316,10 +1327,22 @@ class RepositoryManager(Plugin):
         return result
 
     def listKeys(self):
-        work_dir = self._getGPGEnvironment()
-        gpg = gnupg.GPG(gnupghome=work_dir)
-        result = gpg.list_keys(True)
-        shutil.rmtree(work_dir)
+        result = None
+        try:
+            session = self.getSession()
+            repository = self._getRepository(path=self.path)
+            session.add(repository)
+            if repository.keyring is not None:
+                work_dir = self._getGPGEnvironment()
+                gpg = gnupg.GPG(gnupghome=work_dir)
+                result = gpg.list_keys(True)
+                shutil.rmtree(work_dir)
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
         return result
 
     @Command(__doc__=N_("Returns a list of items of item_type (if given) for the specified release - or all."))
@@ -1898,11 +1921,11 @@ class RepositoryManager(Plugin):
         try:
             session = self.getSession()
             result = session.query(Release).filter_by(name=name).one()
+            session.commit()
         except NoResultFound:
             pass
         finally:
             session.close()
-
         return result
 
     def _getRepository(self, name=None, path=None, add=False):
@@ -1943,7 +1966,10 @@ class RepositoryManager(Plugin):
                     arch = self._getArchitecture(arch)
                 arch = session.merge(arch)
                 result = result.filter_by(arch=arch)
-            result = result.one()
+            if result.count() > 1:
+                result = result.all()
+            elif result.count() == 1:
+                result = result.one()
         except:
             session.rollback()
             raise

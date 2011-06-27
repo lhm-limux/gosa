@@ -1,55 +1,81 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import pkg_resources
+import gettext
+import re
+from lxml import etree
+from gosa.common.env import Environment
+from gosa.common.utils import parseURL, makeAuthURL
 from gosa.common.components.amqp_proxy import AMQPEventConsumer, \
     AMQPServiceProxy
-from qpid.util import URL
-from lxml import etree
-import sys
-import re
-import ConfigParser
-import MySQLdb
 
-from GOforgeFetcher import GOforgeFetcher
-from PhoneNumberResolver import PhoneNumberResolver
-
-
-""" Not needed atm. Might be relevant for wrapping the database.
-class ConnectionError(Exception):
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        return repr(self.value)
-"""
+# Set locale domain
+t = gettext.translation('messages', pkg_resources.resource_filename("amires", "locale"),
+        fallback=False)
+_ = t.ugettext
 
 
 class AsteriskNotificationReceiver:
-    TYPE_MAP = {'CallMissed': "Missed call",
-                'CallEnded': "Call ended",
-                'IncomingCall': "Incoming call"}
+    TYPE_MAP = {'CallMissed': _("Missed call"),
+                'CallEnded': _("Call ended"),
+                'IncomingCall': _("Incoming call")}
 
-    def __init__(self, config, resolver, goforge):
+    resolver = {}
+    renderer = {}
+
+    def __init__(self):
+        self.env = env = Environment.getInstance()
+
+        # Evaluate AMQP URL
+        user = env.config.getOption("id", "amqp", default=None)
+        if not user:
+            user = env.uuid
+        password = env.config.getOption("key", "amqp")
+        url = parseURL(makeAuthURL(env.config.getOption('url', 'amqp'), user, password))
+        if url['path']:
+            self.url = url['source']
+        else:
+            domain = self.env.config.getOption('domain', 'amqp', default="org.gosa")
+            self.url = "/".join([url['source'], domain])
+
+        # Load resolver
+        for entry in pkg_resources.iter_entry_points("phone.resolver"):
+            module = entry.load()
+            obj = module()
+            self.resolver[module.__name__] = {
+                    'object': obj,
+                    'priority': obj.priority,
+            }
+            if module.__name__ == 'CacheNumberResolver':
+                self.cache = obj
+
+        # Load renderer
+        for entry in pkg_resources.iter_entry_points("notification.renderer"):
+            module = entry.load()
+            self.renderer[module.__name__] = {
+                    'object': module(),
+                    'priority': module.priority,
+            }
+
         # Create event consumer
-        self.consumer = AMQPEventConsumer(config['url'],
+        self.consumer = AMQPEventConsumer(self.url,
             xquery = """
                 declare namespace f='http://www.gonicus.de/Events';
                 let $e := ./f:Event
                 return $e/f:AsteriskNotification
             """,
             callback = self.process)
-        self.resolver = resolver
-        self.goforge = goforge
 
-        self.proxy = AMQPServiceProxy(config['url'])
+        self.proxy = AMQPServiceProxy(self.url)
 
     def __del__(self):
         if hasattr(self, 'consumer') and self.consumer is not None:
             del self.consumer
 
-    def serve_forever(self):
-        print "Running ..."
+    def serve(self):
+        self.env.log.info("Service running...")
         while True:
-            res = self.consumer.join()
+            self.consumer.join()
 
     # Event callback
     def process(self, data):
@@ -57,139 +83,81 @@ class AsteriskNotificationReceiver:
         cstr = etree.tostring(data, pretty_print = True)
         dat = etree.fromstring(cstr)
 
-        # retrive data from xml
-        numbers = dat[0][2].text
-        numbers = numbers.split(" ")
-        n_from = numbers[0]
-        numbers = dat[0][3].text
-        numbers = numbers.split(" ")
-        n_to = numbers[0]
+        event = {}
+        for t in dat[0]:
+            tag = re.sub(r"^\{.*\}(.*)$", r"\1", t.tag)
+            if t.tag == 'From':
+                event[tag] = t.text.split(" ")[0]
+            else:
+                event[tag] = str(t.text)
 
-        type = dat[0][0].text
+        # Resolve numbers with all resolvers, sorted by priority
+        i_from = None
+        i_to = None
 
-        # resolve numbers
-        i_from = self.resolver.resolve(n_from)
-        i_to = self.resolver.resolve(n_to)
+        for mod, info in sorted(self.resolver.iteritems(),
+                key=lambda k: k[1]['priority']):
+            if not i_from:
+                i_from = info['object'].resolve(event['From'])
+            if not i_to:
+                i_to = info['object'].resolve(event['To'])
+            if i_from and i_to:
+                break
+        
+        # Cache number
+        if hasattr(self, 'cache'):
+            self.cache.cacheNumber(i_from, event['From'])
+            self.cache.cacheNumber(i_to, event['To'])
+            self.cache.collectGarbage()
 
-        # give some output to the console
-        if type in self.TYPE_MAP:
-            print self.TYPE_MAP[type]
-        print "-----------"
-        print "From:"
-        print i_from
-        print
-        print "To:"
-        print i_to
-        print
+        # Fallback to original number if nothing has been found
+        if not i_from:
+            i_from = {'contact_phone': event['From'], 'contact_name': event['From'],
+                    'company_name': None, 'resource': 'none', 'ttl': -1}
+        if not i_to:
+            i_to = {'contact_phone': event['To'], 'contact_name': event['To'],
+                    'company_name': None, 'resource': 'none', 'ttl': -1}
 
-        tickets = None
-        if i_from is not None and i_from['resource'] == 'sugar' \
-            and i_from['company_id'] != '':
-            tickets = self.goforge.getTickets(i_from['company_id'])
+        # Render messages
+        to_msg = from_msg = ""
+        for mod, info in sorted(self.renderer.iteritems(),
+                key=lambda k: k[1]['priority']):
 
-        print "Open Tickets:"
-        print tickets
-        print
+            if 'ldap_uid' in i_to and i_to['ldap_uid']:
+                to_msg += info['object'].getHTML(i_from, event)
+                to_msg += "\n\n"
 
-        if i_to is not None and i_to['resource'] == 'ldap':
-            # Assemble caller info
-            c_from = "From: "
-            if i_from is None:
-                c_from += n_from
+            if 'ldap_uid' in i_from and i_from['ldap_uid'] and event['Type'] == 'CallEnded':
+                from_msg += info['object'].getHTML(i_from, event)
+                to_msg += "\n\n"
 
-            elif i_from['contact_name'] != "":
-                c_from += i_from['contact_name']
+        # Send from/to messages as needed
+        if from_msg:
+            self.proxy.notifyUser(i_from['ldap_uid'],
+                    self.TYPE_MAP[event['Type']],
+                    from_msg)
 
-                if i_from['company_name'] != "":
-                    c_from += "(" + i_from['company_name'] + ")"
-
-            elif i_from['company_name'] != "":
-                c_from += i_from['company_name']
-            c_from += "\n"
-
-            msg = ""
-            msg += c_from
-
-            self.proxy.notifyUser(i_to['contact_id'], self.TYPE_MAP[type], msg)
+        if to_msg:
+            self.proxy.notifyUser(i_to['ldap_uid'],
+                    self.TYPE_MAP[event['Type']],
+                    to_msg)
 
 
-class AMQPReceive:
-    def __init__(self):
-                # read configuration file
-        conf = ConfigParser.RawConfigParser()
-        conf.read("amqp_receive.cfg")
+def main():
+    # For usage inside of __main__ we need a dummy initialization
+    # to load the environment, because there's no one who's doing
+    # it for us...
+    Environment.config = "/etc/gosa/config"
+    Environment.noargs = True
+    env = Environment.getInstance()
 
-        # read replacement configuration
-        replace = []
-        items = conf.items("replace")
-        for itm in items:
-            res = re.search("^\"(.*)\",\"(.*)\"$", itm[1])
-            res = re.search("^\"(.*)\"[\s]*,[\s]*\"(.*)\"$", itm[1])
-            if not res == None:
-                replace.append([res.group(1), res.group(2)])
-
-        # set defaults for amqp config
-        conf_amqp = {
-            'url': 'amqps://localhost/org.gosa'}
-
-        # set defaults for ldap config
-        conf_ldap = {
-            'host': 'localhost',
-            'use_tls': '0'}
-
-        # set defaults for sugar config
-        conf_sugar = {
-            'host': 'localhost',
-            'user': 'root',
-            'pass': '',
-            'base': 'sugarcrm',
-            'site_url': 'http://localhost/sugarcrm'}
-
-        # set defaults for sugar config
-        conf_goforge = {
-            'host': 'localhost',
-            'user': 'root',
-            'pass': '',
-            'base': 'sugarcrm'}
-
-        # replace config from file
-        if "sugar" in conf.sections():
-            for key, val in conf.items("sugar"):
-                conf_sugar[key] = val
-        if "goforge" in conf.sections():
-            for key, val in conf.items("goforge"):
-                conf_goforge[key] = val
-        if "amqp" in conf.sections():
-            for key, val in conf.items("amqp"):
-                conf_amqp[key] = val
-        if "ldap" in conf.sections():
-            for key, val in conf.items("ldap"):
-                conf_ldap[key] = val
-
-        # create phone number resolver
-        resolver = PhoneNumberResolver(conf_sugar, conf_ldap,
-                                       conf_goforge, replace)
-
-        # create GOforge fetcher
-        goforge = GOforgeFetcher(conf_goforge)
-
-        # create amqp event receiver
-        self.receiver = AsteriskNotificationReceiver(conf_amqp,
-            resolver, goforge)
-
-    def __del__(self):
-        if hasattr(self, 'receiver') and self.receiver is not None:
-            del self.receiver
-
-    def serve_forever(self):
-        try:
-            self.receiver.serve_forever()
-        except KeyboardInterrupt:
-            print "Bye."
+    # Load receiver and serve forever
+    handler = AsteriskNotificationReceiver()
+    try:
+        handler.serve()
+    except KeyboardInterrupt:
+        pass
 
 
 if __name__ == "__main__":
-    print "AMQP Asterisk Event Receiver."
-
-    plugin = AMQPReceive()
-    plugin.serve_forever()
+    main()
