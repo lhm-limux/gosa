@@ -489,7 +489,12 @@ reportdir=$logdir
         nodes_file = os.path.join(self.__repo_path, "manifests", "nodes.pp")
     
         # Load all configRecipes and update the node hierarchy    
+        #TODO: cascading
         
+        #node device-uuid {
+        #    include configItem
+        #}
+                
         #node ldap-server {
         #  import "dns"
         #  include sudo
