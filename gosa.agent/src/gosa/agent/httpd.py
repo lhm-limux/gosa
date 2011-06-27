@@ -47,8 +47,8 @@ class HTTPDispatcher(object):
 
 
 class HTTPService(object):
-
     implements(IInterfaceHandler)
+    _priority_ = 10
 
     __register = {}
 

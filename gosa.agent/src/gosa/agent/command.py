@@ -59,6 +59,7 @@ class CommandRegistry(object):
     @ivar proxy: command proxies for queues
     """
     implements(IInterfaceHandler)
+    _priority_ = 0
 
     # Target queue
     _target_ = 'core'

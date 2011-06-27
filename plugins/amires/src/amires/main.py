@@ -4,6 +4,8 @@ import pkg_resources
 import gettext
 import re
 from lxml import etree
+from zope.interface import implements
+from gosa.common.handler import IInterfaceHandler
 from gosa.common.env import Environment
 from gosa.common.utils import parseURL, makeAuthURL
 from gosa.common.components.registry import PluginRegistry
@@ -16,21 +18,26 @@ t = gettext.translation('messages', pkg_resources.resource_filename("amires", "l
 _ = t.ugettext
 
 
-class AsteriskNotificationReceiver:
+class AsteriskNotificationReceiver(object):
+    implements(IInterfaceHandler)
+    _priority_ = 99
+
     TYPE_MAP = {'CallMissed': _("Missed call"),
                 'CallEnded': _("Call ended"),
                 'IncomingCall': _("Incoming call")}
 
+    __proxy = None
     resolver = {}
     renderer = {}
 
     def __init__(self):
         self.env = env = Environment.getInstance()
-        domain = env.config.getOption('domain', 'amqp', default="org.gosa")
+        self.env.log.debug("initializing asterisk number resolver")
 
         # Load resolver
         for entry in pkg_resources.iter_entry_points("phone.resolver"):
             module = entry.load()
+            self.env.log.debug("loading resolver module '%s'" % module.__name__)
             obj = module()
             self.resolver[module.__name__] = {
                     'object': obj,
@@ -40,17 +47,14 @@ class AsteriskNotificationReceiver:
         # Load renderer
         for entry in pkg_resources.iter_entry_points("notification.renderer"):
             module = entry.load()
+            self.env.log.debug("loading renderer module '%s'" % module.__name__)
             self.renderer[module.__name__] = {
                     'object': module(),
                     'priority': module.priority,
             }
 
-    def __del__(self):
-        if hasattr(self, 'consumer') and self.consumer is not None:
-            del self.consumer
-
     def serve(self):
-        self.env.log.info("Listening for asterisk events...")
+        self.env.log.info("listening for asterisk events...")
         amqp = PluginRegistry.getInstance('AMQPHandler')
         EventConsumer(self.env,
             amqp.getConnection(),
@@ -61,13 +65,13 @@ class AsteriskNotificationReceiver:
             """,
             callback=self.process)
 
-        self.proxy = AMQPServiceProxy(amqp.url['source'], domain)
+        amqp = PluginRegistry.getInstance("AMQPHandler")
+        self.__proxy = AMQPServiceProxy(amqp.url['source'] + "/" + self.env.domain)
 
-        while True:
-            self.consumer.join()
 
     # Event callback
     def process(self, data):
+
         # for some reason we need to convert to string and back
         cstr = etree.tostring(data, pretty_print = True)
         dat = etree.fromstring(cstr)
@@ -116,31 +120,11 @@ class AsteriskNotificationReceiver:
 
         # Send from/to messages as needed
         if from_msg:
-            self.proxy.notifyUser(i_from['ldap_uid'],
+            self.__proxy.notifyUser(i_from['ldap_uid'],
                     self.TYPE_MAP[event['Type']],
                     from_msg)
 
         if to_msg:
-            self.proxy.notifyUser(i_to['ldap_uid'],
+            self.__proxy.notifyUser(i_to['ldap_uid'],
                     self.TYPE_MAP[event['Type']],
                     to_msg)
-
-
-def main():
-    # For usage inside of __main__ we need a dummy initialization
-    # to load the environment, because there's no one who's doing
-    # it for us...
-    Environment.config = "/etc/gosa/config"
-    Environment.noargs = True
-    env = Environment.getInstance()
-
-    # Load receiver and serve forever
-    handler = AsteriskNotificationReceiver()
-    try:
-        handler.serve()
-    except KeyboardInterrupt:
-        pass
-
-
-if __name__ == "__main__":
-    main()

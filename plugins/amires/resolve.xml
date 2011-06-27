@@ -1,0 +1,21 @@
+<numbers>
+    <entry number="+4989120212790">
+        <contact_name>Cajus Pollmeier</contact_name>
+        <ldap_uid>cajus</ldap_uid>
+    </entry>
+    
+    <entry number="+4989120212793">
+        <contact_name>Cajus Pollmeier</contact_name>
+        <ldap_uid>cajus</ldap_uid>
+    </entry>
+    
+    <entry number="+4989120212790">
+        <contact_name>Cajus Pollmeier</contact_name>
+        <ldap_uid>cajus</ldap_uid>
+    </entry>
+    
+    <entry number="+4989120212796">
+        <contact_name>Dennis Radon</contact_name>
+        <ldap_uid>dradon</ldap_uid>
+    </entry>
+</numbers>

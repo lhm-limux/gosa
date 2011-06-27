@@ -59,7 +59,7 @@ class ClientService(object):
     to the users.
     """
     implements(IInterfaceHandler)
-
+    _priority_ = 90
     _target_ = 'goto'
     __client = {}
     __proxy = {}

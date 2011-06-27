@@ -30,7 +30,7 @@ class SessionKeeper(Plugin):
     functionality.
     """
     implements(IInterfaceHandler)
-
+    _priority_ = 99
     _target_ = 'session'
     __sessions = {}
     __callback = None

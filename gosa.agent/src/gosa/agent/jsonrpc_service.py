@@ -219,6 +219,7 @@ class JsonRpcApp(object):
 class JSONRPCService(object):
     """ GOsa JSON-RPC provider """
     implements(IInterfaceHandler)
+    _priority_ = 11
 
     __proxy = {}
 

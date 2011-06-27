@@ -44,9 +44,6 @@ setup(
         ],
 
     entry_points = """
-        [console_scripts]
-        ami-resolver = amires.main:main
-
         [gosa.modules]
         ami.resolver = amires.main:AsteriskNotificationReceiver
 
