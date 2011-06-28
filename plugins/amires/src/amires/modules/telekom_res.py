@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 import re
-import sys
 import urllib
 import urllib2
 from urlparse import urlparse, parse_qs
 from amires.resolver import PhoneNumberResolver
+from gosa.common.components.cache import cache
 
 
 class TelekomNumberResolver(PhoneNumberResolver):
     priority = 99
-    ttl = 86400# 1 day
 
     def __init__(self):
         # Todo: calling super will replace number with not international format
@@ -20,12 +19,6 @@ class TelekomNumberResolver(PhoneNumberResolver):
                 "resolver-telekom", default=str(self.priority)))
         except:
             # leave default priority
-            pass
-
-        try:
-            self.ttl = float(self.env.config.getOption("ttl",
-                "resolver-telekom", default=str(self.ttl)))
-        except:
             pass
 
         #TODO: internal
@@ -40,6 +33,7 @@ class TelekomNumberResolver(PhoneNumberResolver):
                 filter(lambda k: k in src, keys))),
             'latin1').encode('utf-8')
 
+    @cache()
     def resolve(self, number):
         """
         Probe a couple of numbers in order to find one which is
@@ -103,8 +97,6 @@ class TelekomNumberResolver(PhoneNumberResolver):
                 'contact_phone': number,
                 'company_name': "",
                 'resource': 'telekom',
-                'ttl': self.ttl, # 1 day
-                'timestamp': time.time()
             }
 
         # Nothing found

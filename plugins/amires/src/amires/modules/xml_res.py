@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-import time
 from lxml import etree
+from gosa.common.components.cache import cache
 from amires.resolver import PhoneNumberResolver
 
 
 class XMLNumberResolver (PhoneNumberResolver):
 
     priority = 2
-    ttl = -1# no need to cache from cache
 
     def __init__(self):
         super(XMLNumberResolver, self).__init__()
@@ -37,15 +36,14 @@ class XMLNumberResolver (PhoneNumberResolver):
                 'contact_name': '',
                 'contact_phone': number,
                 'ldap_uid': '',
-                'contact_detail_url': '',
-                'ttl': self.ttl,
-                'timestamp': time.time()}
+                'contact_detail_url': ''}
             for e in entry:
                 if e.tag not in self.numbers[number]:
                     raise RuntimeError("Invalid XML element while parsing.")
 
                 self.numbers[number][e.tag] = e.text
 
+    @cache()
     def resolve(self, number):
         if number in self.numbers:
             self.numbers[number]['resource'] = "xml"

@@ -97,10 +97,10 @@ class AsteriskNotificationReceiver(object):
         # Fallback to original number if nothing has been found
         if not i_from:
             i_from = {'contact_phone': event['From'], 'contact_name': event['From'],
-                    'company_name': None, 'resource': 'none', 'ttl': -1}
+                    'company_name': None, 'resource': 'none'}
         if not i_to:
             i_to = {'contact_phone': event['To'], 'contact_name': event['To'],
-                    'company_name': None, 'resource': 'none', 'ttl': -1}
+                    'company_name': None, 'resource': 'none'}
 
         # Render messages
         to_msg = from_msg = ""

@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 import ldap
-import time
 from gosa.agent.ldap_utils import LDAPHandler
 from amires.resolver import PhoneNumberResolver
+from gosa.common.components.cache import cache
 
 
 class LDAPNumberResolver(PhoneNumberResolver):
 
     priority = 4
-    ttl = 30
 
     def __init__(self):
         super(LDAPNumberResolver, self).__init__()
@@ -20,13 +19,7 @@ class LDAPNumberResolver(PhoneNumberResolver):
             # leave default priority
             pass
 
-        try:
-            self.ttl = float(self.env.config.getOption("ttl",
-                "resolver-ldap", default=str(self.ttl)))
-        except:
-            pass
-
-
+    @cache(ttl=3600)
     def resolve(self, number):
         number = self.replaceNumber(number)
 
@@ -49,8 +42,6 @@ class LDAPNumberResolver(PhoneNumberResolver):
                         'contact_detail_url': '',
                         'ldap_uid': res[0][1]['uid'][0],
                         'resource': 'ldap',
-                        'ttl': self.ttl, # I'd also rather not cache very long, here
-                        'timestamp': time.time()
                 }
                 return result
             else:
