@@ -112,15 +112,17 @@ class AsteriskNotificationReceiver(object):
                 to_msg += "\n\n"
 
             if 'ldap_uid' in i_from and i_from['ldap_uid'] and event['Type'] == 'CallEnded':
-                from_msg += info['object'].getHTML(i_from, event)
-                to_msg += "\n\n"
+                from_msg += info['object'].getHTML(i_to, event)
+                from_msg += "\n\n"
 
         # Send from/to messages as needed
         amqp = PluginRegistry.getInstance('AMQPHandler')
         if from_msg:
             self.__cr.dispatch(amqp.url['user'], None, "notifyUser",
-                i_from['ldap_uid'], self.TYPE_MAP[event['Type']], from_msg)
+                i_from['ldap_uid'], self.TYPE_MAP[event['Type']],
+                from_msg.strip())
 
         if to_msg:
             self.__cr.dispatch(amqp.url['user'], None, "notifyUser",
-                    i_to['ldap_uid'], self.TYPE_MAP[event['Type']], to_msg)
+                    i_to['ldap_uid'], self.TYPE_MAP[event['Type']],
+                    to_msg.strip())

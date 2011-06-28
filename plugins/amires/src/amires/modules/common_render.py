@@ -43,7 +43,7 @@ class CommonRenderer(BaseRenderer):
                 cont += info['contact_name']
 
         # build actual html section
-        html = "<b>%s</b>\n" % _("Caller")
+        html = "<b>%s:</b>\n" % _("Attendee")
         if cont:
             html += cont
             if comp:
@@ -53,7 +53,7 @@ class CommonRenderer(BaseRenderer):
 
         if 'Duration' in event:
             duration = int(float(event['Duration']))
-            html += "\n\n<b>%s</b>\n" % _("Duration")
+            html += "\n\n<b>%s:</b> " % _("Duration")
             html += "%d\'%02d\"\n" % (duration // 60, duration % 60)
 
         return html
