@@ -30,7 +30,7 @@ class LDAPNumberResolver(PhoneNumberResolver):
         lh = LDAPHandler.get_instance()
         with lh.get_handle() as conn:
             res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE, filtr, attrs)
-            if len(res) == 1:
+            if len(res) == 1 and 'uid' in res[0][1]:
                 result = {
                         'company_id': '',
                         'company_name': 'Intern',
