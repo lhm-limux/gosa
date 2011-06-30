@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Classes xmlns="http://www.gonicus.de/Objects">
+  <Class>
+    <name>Base</name>
+    <properties>
+      <property>
+        <name>type</name>
+        <type>String</type>
+      </property>
+      <property>
+        <name>parent</name>
+        <type>Object</type>
+      </property>
+    </properties>
+  </Class>
+</Classes>
+

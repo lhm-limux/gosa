@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Classes xmlns="http://www.gonicus.de/Objects">
+<Class>
+  <name>Employee</name>
+  <extends>Person</extends>
+  <properties>
+    <property>
+      <name>wurst</name>
+      <type>String</type>
+    </property>
+  </properties>
+</Class>
+</Classes>
