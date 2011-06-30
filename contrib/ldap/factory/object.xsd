@@ -104,13 +104,7 @@
 
     <complexType name="ContainerType">
     	<sequence>
-<<<<<<< HEAD
     		<element name="Type" type="string" maxOccurs="unbounded" minOccurs="1"></element>
-=======
-    		<element name="name" type="string"></element>
-    		<element name="syntax" type="string"></element>
-    		<element name="description" type="string" minOccurs="0" maxOccurs="1"></element>
->>>>>>> 21ebda36d690ef1e9052759858d3c9f1289c1cf7
     	</sequence>
     </complexType>
 
