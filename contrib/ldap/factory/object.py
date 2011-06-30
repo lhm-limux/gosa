@@ -31,7 +31,7 @@ class GOsaObjectFactory(object):
         # Load and validate objects
         try:
             xml = objectify.fromstring(open(path).read(), self.__parser)
-            self.classes[str(xml.Class['name'][0])] = xml
+            self.classes[str(xml.Object['Name'][0])] = xml
 
         except etree.XMLSyntaxError as e:
             print "Error:", e
@@ -56,15 +56,15 @@ class GOsaObjectFactory(object):
         setattr(klass, '__name__', name)
 
         # What kind of attributes do we have?
-        classr = self.classes[name].Class
+        classr = self.classes[name].Object
         props = {}
 
         try:
-            for prop in classr['properties']['property']:
-                print "Property %s (%s)" % (prop['name'], prop['type'])
-                props[str(prop['name'])] = {
+            for prop in classr['Attributes']['Attribute']:
+                print "Attribute %s (%s)" % (prop['Name'], prop['Syntax'])
+                props[str(prop['Name'])] = {
                         'value': None,
-                        'type': str(prop['type'])}
+                        'type': str(prop['Syntax'])}
 
         except KeyError:
             pass
