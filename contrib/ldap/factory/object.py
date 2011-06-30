@@ -71,12 +71,19 @@ class GOsaObjectFactory(object):
             def __getattr__(me, name):
                 return me._getattr_(name)
 
+            def __del__(me):
+                me._del_()
+
         # Tweak name to the new target
         setattr(klass, '__name__', name)
 
         # What kind of properties do we have?
         classr = self.__xml_defs[name].Class
         props = {}
+
+        # Add documentation if available
+        if 'description' in classr:
+            setattr(klass, '__doc__', str(classr['description']))
 
         try:
             for prop in classr['properties']['property']:
@@ -91,6 +98,7 @@ class GOsaObjectFactory(object):
             pass
 
         setattr(klass, '__properties', props)
+        setattr(klass, '__methods', {})
 
         return klass
 
@@ -99,7 +107,7 @@ class GOsaObject(object):
     # This may contain some useful stuff later on
 
     def __init__(self):
-        pass
+        print "--> init"
 
     def _setattr_(self, name, value):
         props = getattr(self, '__properties')
@@ -123,8 +131,7 @@ class GOsaObject(object):
 
     def _getattr_(self, name):
         props = getattr(self, '__properties')
-#        methods = getattr(self, '__methods')
-        methods = {'notify': {'ref': notify, 'signature': None}}
+        methods = getattr(self, '__methods')
 
         if name in props:
             return props[name]['value']
@@ -133,7 +140,10 @@ class GOsaObject(object):
             return methods[name]['ref']
 
         else:
-            raise AttributeError("no such property")
+            raise AttributeError("no such property '%s'" % name)
+
+    def _del_(self):
+        print "--> cleanup"
 
     def commit(self):
         print "--> built in commit method"
@@ -150,9 +160,9 @@ def notify(message):
 # --------------------------------- Test -------------------------------------
 f = GOsaObjectFactory('.')
 p = f.getObjectInstance('Person')
-print type(p)
+print "Object type:", type(p)
 
 p.sn = u"Pollmeier"
 print "sn:", p.sn
 p.commit()
-p.notify("Hallo Karl-Gustav!")
+#p.notify("Hallo Karl-Gustav!")
