@@ -46,7 +46,7 @@ class GOsaObjectFactory(object):
         # Load and validate objects
         try:
             xml = objectify.fromstring(open(path).read(), self.__parser)
-            self.__xml_defs[str(xml.Class['name'][0])] = xml
+            self.__xml_defs[str(xml.Object['Name'][0])] = xml
 
         except etree.XMLSyntaxError as e:
             print "Error:", e
@@ -78,7 +78,7 @@ class GOsaObjectFactory(object):
         setattr(klass, '__name__', name)
 
         # What kind of properties do we have?
-        classr = self.__xml_defs[name].Class
+        classr = self.__xml_defs[name].Object
         props = {}
 
         # Add documentation if available
@@ -86,9 +86,9 @@ class GOsaObjectFactory(object):
             setattr(klass, '__doc__', str(classr['description']))
 
         try:
-            for prop in classr['properties']['property']:
-                syntax = str(prop['syntax'])
-                props[str(prop['name'])] = {
+            for prop in classr['Attributes']['Attribute']:
+                syntax = str(prop['Syntax'])
+                props[str(prop['Name'])] = {
                         'value': None,
                         'type': TYPE_MAP[syntax],
                         'syntax': syntax
