@@ -5,11 +5,11 @@
     <properties>
       <property>
         <name>type</name>
-        <type>String</type>
+        <syntax>String</syntax>
       </property>
       <property>
         <name>parent</name>
-        <type>Object</type>
+        <syntax>Object</syntax>
       </property>
     </properties>
   </Class>

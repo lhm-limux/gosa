@@ -6,7 +6,7 @@
   <properties>
     <property>
       <name>wurst</name>
-      <type>String</type>
+      <syntax>String</syntax>
     </property>
   </properties>
 </Class>

@@ -6,19 +6,19 @@
   <properties>
     <property>
       <name>givenName</name>
-      <type>String</type>
+      <syntax>String</syntax>
     </property>
     <property>
       <name>age</name>
-      <type>Integer</type>
+      <syntax>Integer</syntax>
     </property>
     <property>
       <name>sn</name>
-      <type>String</type>
+      <syntax>String</syntax>
     </property>
     <property>
       <name>notes</name>
-      <type>ObjectList</type>
+      <syntax>ObjectList</syntax>
     </property>
   </properties>
 </Class>
