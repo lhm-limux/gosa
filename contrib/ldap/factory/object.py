@@ -82,20 +82,25 @@ class GOsaObject(object):
         print "+++ superclass init"
 
     def _setattr_(self, name, value):
-        print "Props:", getattr(self, '__properties')
-        print "---"
-        print name, "=", value
+        props = getattr(self, '__properties')
+        if name in props:
+            props[name]['value'] = value
+        else:
+            raise AttributeError("no such property")
 
     def _getattr_(self, name):
-        print name, "?"
-        return None
+        props = getattr(self, '__properties')
+        if name in props:
+            return props[name]['value']
+        else:
+            raise AttributeError("no such property")
 
 
 # --------------------------------- Test -------------------------------------
 f = GOsaObjectFactory('.')
 p = f.getObjectInstance('Person')
 
-p.klaus = 16
-print p.klaus
+p.sn = "Pollmeier"
+print p.sn
 print type(p)
 print p.__dict__
