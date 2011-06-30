@@ -56,8 +56,20 @@ class GOsaObjectFactory(object):
         setattr(klass, '__name__', name)
 
         # What kind of attributes do we have?
-        print objectify.dump(self.classes[name].Class['properties'])
-        setattr(klass, '__properties', {'data': 'test'})
+        classr = self.classes[name].Class
+        props = {}
+
+        try:
+            for prop in classr['properties']['property']:
+                print "Property %s (%s)" % (prop['name'], prop['type'])
+                props[str(prop['name'])] = {
+                        'value': None,
+                        'type': str(prop['type'])}
+
+        except KeyError:
+            pass
+
+        setattr(klass, '__properties', props)
 
         return klass(*args, **kwargs)
 
