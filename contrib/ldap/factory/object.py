@@ -22,10 +22,8 @@ class GOsaObjectFactory(object):
         path = os.path.join(path, "objects")
 
         # Look on path and check for xml files
-        for f in os.listdir(path):
-
-            if f.endswith(os.extsep + 'xml'):
-                self.__parse_schema(os.path.join(path, f))
+        for f in [n for n in os.listdir(path) if n.endswith(os.extsep + 'xml')]:
+            self.__parse_schema(os.path.join(path, f))
 
     def __parse_schema(self, path):
         print "Loading %s..." % path
