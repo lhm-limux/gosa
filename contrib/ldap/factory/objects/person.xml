@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<<<<<<< HEAD
 <Objects xmlns="http://www.gonicus.de/Objects"> 
   <Object>
     <Name>Person</Name>
@@ -38,3 +39,29 @@
     <BaseObject>false</BaseObject>
   </Object>
 </Objects>
+=======
+<Classes xmlns="http://www.gonicus.de/Objects">
+<Class>
+  <name>Person</name>
+  <extends>Base</extends>
+  <properties>
+    <property>
+      <name>givenName</name>
+      <syntax>String</syntax>
+    </property>
+    <property>
+      <name>age</name>
+      <syntax>Integer</syntax>
+    </property>
+    <property>
+      <name>sn</name>
+      <syntax>String</syntax>
+    </property>
+    <property>
+      <name>notes</name>
+      <syntax>ObjectList</syntax>
+    </property>
+  </properties>
+</Class>
+</Classes>
+>>>>>>> 21ebda36d690ef1e9052759858d3c9f1289c1cf7
