@@ -1,22 +1,47 @@
 # -*- coding: utf-8 -*-
+import ldap
+import ldap.schema
+
 
 class ObjectBackend(object):
-    pass
+
+    def loadAttr(self, uuid, key, target_type):
+        raise NotImplementedError("object backend is missing loadAttr()")
+
+    def dn2uuid(self, dn):
+        raise NotImplementedError("object backend is not capable of mapping DN to UUID")
 
 
 class LDAPBackend(ObjectBackend):
 
     def __init__(self):
-        #TODO: load schema
-        pass
+        #TODO: config
+        self.url = "ldap://vm-ldap.intranet.gonicus.de"
+        self.base = "dc=gonicus,dc=de"
 
-    def loadAttr(self, uuid, key):
-        #TODO: load entry (non-cached)
-        return ["s3cr3t"]
+        # Load schema
+        con = ldap.initialize(self.url)
+        con.protocol = ldap.VERSION3
+        con.simple_bind_s()
+        #res = con.search_s('cn=subschema', ldap.SCOPE_BASE, 'objectClass=*',
+        #        ['*', '+'])[0][1]
+
+        self.con = con
+        #self.subschema = ldap.schema.SubSchema(res)
+
+    def loadAttr(self, uuid, key, target_type):
+        #TODO: type mapping, convert with help of schema
+        res = self.con.search_s(self.base, ldap.SCOPE_SUBTREE, 'entryUUID=%s' % uuid,
+                [key])[0][1][key]
+        return res
+
+    def dn2uuid(self, dn):
+        res = self.con.search_s(dn, ldap.SCOPE_BASE, 'objectClass=*',
+                ['entryUUID'])[0][1]['entryUUID'][0]
+        return res
 
 
 class ObjectBackendRegistry(object):
-
     instance = None
     backends = {}
     uuidAttr = "entryUUID"
@@ -27,9 +52,8 @@ class ObjectBackendRegistry(object):
         #      load from configuration later on
         ObjectBackendRegistry.backends['ldap'] = LDAPBackend()
 
-    def dn2uuid(self, dn):
-        #TODO: missing dn mapping
-        return "d47afd0c-0f1c-102b-93c4-d7eaa5111f95"
+    def dn2uuid(self, backend, dn):
+        return ObjectBackendRegistry.backends['ldap'].dn2uuid(dn)
 
     @staticmethod
     def getInstance():
@@ -62,7 +86,9 @@ def mksmbpasswd(obj, dst):
 
 def loadAttr(obj, key):
     backend = ObjectBackendRegistry.getBackend(obj._backend)
-    return backend.loadAttr(obj.uuid, key)
+    #TODO: use attribute backend, not object backend
+    #TODO: provide object type
+    return backend.loadAttr(obj.uuid, key, None)
 
 #---------------------------------------
 
@@ -76,7 +102,7 @@ dst.update(mksmbpasswd(obj, dst))
 """
 
 fltr3 = """
-dst = loadAttr(obj, "userPassword")[0].upper()
+dst = loadAttr(obj, "givenName")[0]
 """
 #---------------------------------------
 
@@ -89,10 +115,10 @@ class klass(object):
 
     def load(self, dn):
         self.reg = ObjectBackendRegistry.getInstance()
-        self.uuid = self.reg.dn2uuid(dn)
+        self.uuid = self.reg.dn2uuid(self._backend, dn)
 
 obj = klass()
-key = "Password"
+key = "GivenName"
 dst = {}
 #exec fltr2
 #print dst
