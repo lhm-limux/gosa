@@ -2,10 +2,10 @@
 from factory import GOsaObjectFactory
 
 f = GOsaObjectFactory('.')
-p = f.getObjectInstance('Person')
+p = f.getObjectInstance('Person', "cn=Cajus Pollmeier,ou=people,ou=Technik,dc=gonicus,dc=de")
 print "Object type:", type(p)
-
-p.sn = u"Pollmeier"
+print "sn:", p.sn
+p.sn = u"Dengler"
 print "sn:", p.sn
 p.commit()
 #p.notify("Achtung!", "Hallo Karl-Gustav ;-)")

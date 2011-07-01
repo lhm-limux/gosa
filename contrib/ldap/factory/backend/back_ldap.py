@@ -21,8 +21,7 @@ class LDAPBackend(ObjectBackend):
         self.con = con
         #self.subschema = ldap.schema.SubSchema(res)
 
-    def loadAttr(self, uuid, key, target_type):
-        #TODO: type mapping, convert with help of schema
+    def loadAttr(self, uuid, key):
         res = self.con.search_s(self.base, ldap.SCOPE_SUBTREE, 'entryUUID=%s' % uuid,
                 [key])[0][1][key]
         return res

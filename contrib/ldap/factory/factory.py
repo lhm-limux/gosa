@@ -4,6 +4,7 @@ import time
 import datetime
 import re
 from lxml import etree, objectify
+from backend.registry import ObjectBackendRegistry, loadAttr
 
 # Map XML base types to python values
 TYPE_MAP = {
@@ -16,6 +17,10 @@ TYPE_MAP = {
         'Dictionary': dict,
         'List': list,
         }
+
+# Status
+STATUS_OK = 0
+STATUS_CHANGED = 1
 
 
 class GOsaObjectFactory(object):
@@ -78,6 +83,7 @@ class GOsaObjectFactory(object):
 
         # Tweak name to the new target
         setattr(klass, '__name__', name)
+        setattr(klass, '_backend', str(self.__xml_defs[name].Object.DefaultBackend))
 
         # What kind of properties do we have?
         classr = self.__xml_defs[name].Object
@@ -90,11 +96,26 @@ class GOsaObjectFactory(object):
 
         try:
             for prop in classr['Attributes']['Attribute']:
+
+                # Do we have a filter definition?
+                in_f = None
+                if len(getattr(prop, 'InFilter')):
+                    in_f = unicode(prop['InFilter']['Code'])
+                    if len(getattr(prop['InFilter'], 'Backend')):
+                        in_b = str(prop['InFilter']['Backend'])
+                    else:
+                        in_b = str(classr.DefaultBackend)
+
                 syntax = str(prop['Syntax'])
                 props[str(prop['Name'])] = {
                         'value': None,
+                        'orig': None,
+                        'status': STATUS_OK,
                         'type': TYPE_MAP[syntax],
-                        'syntax': syntax
+                        'syntax': syntax,
+                        'in_filter': in_f,
+                        'in_backend': in_b,
+                        'multivalue': bool(prop['MultiValue'])
                         }
 
             for method in classr['Methods']['Method']:
@@ -128,26 +149,71 @@ class GOsaObjectFactory(object):
 
 class GOsaObject(object):
     # This may contain some useful stuff later on
+    _reg = None
+    _backend = None
+    uuid = None
 
-    def __init__(self):
-        print "--> init"
+    def __init__(self, dn=None):
+        if dn:
+            print "--> init '%s'" % dn
+            self._read(dn)
+
+        else:
+            print "--> empty init"
+
+    def _read(self, dn):
+        self._reg = ObjectBackendRegistry.getInstance()
+        self.uuid = self._reg.dn2uuid(self._backend, dn)
+
+        # Walk thru all properties and fill them accordingly
+        props = getattr(self, '__properties')
+        for key in props:
+            obj = self
+            dst = None
+
+            if props[key]['in_filter']:
+                #TODO: load all available filter in "filter.xxx" to
+                #      make them available inside of the exec
+                #TODO: load all available validators in "validator.xxx" to
+                #      make them available inside of the exec
+                exec props[key]['in_filter']
+            else:
+                dst = loadAttr(obj, key) if props[key]['multivalue'] \
+                    else loadAttr(obj, key)[0]
+
+            props[key]['value'] = dst
+            props[key]['old'] = dst
 
     def _setattr_(self, name, value):
+        try:
+            getattr(self, name)
+            self.__dict__[name] = value
+            return
+
+        except:
+            pass
+
         props = getattr(self, '__properties')
         if name in props:
+            current = props[name]['value']
 
-            if props[name]['type']:
+            # Run type check
+            if props[name]['type'] and not issubclass(type(value), props[name]['type']):
+                raise TypeError("cannot assign value '%s'(%s) to property '%s'(%s)" % (
+                    value, type(value).__name__,
+                    name, props[name]['syntax']))
 
-                if issubclass(type(value), props[name]['type']):
-                    props[name]['value'] = value
+            # Run validator
+                #TODO: load all available filter in "filter.xxx" to
+                #      make them available inside of the exec
+                #TODO: load all available validators in "validator.xxx" to
+                #      make them available inside of the exec
+            props[name]['value'] = value
 
-                else:
-                    raise TypeError("cannot assign value '%s'(%s) to property '%s'(%s)" % (
-                        value, type(value).__name__,
-                        name, props[name]['syntax']))
-
-            else:
-                props[name]['value'] = value
+            # Update status if there's a change
+            if current != props[name]['value'] and props[name]['status'] != STATUS_CHANGED:
+                props[name]['status'] = STATUS_CHANGED
+                props[name]['old'] = current
 
         else:
             raise AttributeError("no such property '%s'" % name)
@@ -168,8 +234,21 @@ class GOsaObject(object):
     def _del_(self):
         print "--> cleanup"
 
+    def getAttrType(self, name):
+        props = getattr(self, '__properties')
+        if name in props:
+            return props[name]['type']
+
+        raise AttributeError("no such property '%s'" % name)
+
     def commit(self):
         print "--> built in commit method"
+        # Schauen was sich so alles verändert hat, dann nach backend getrennt
+        # in ein dict packen
 
     def delete(self):
         print "--> built in delete method"
+
+    def revert(self):
+        print "--> built in revert method"
+        # Alle CHANGED attribute wieder zurück auf "old" setzen

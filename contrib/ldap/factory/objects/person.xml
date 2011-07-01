@@ -32,15 +32,14 @@ print 'Geht'
       <Attribute>
         <Name>sn</Name>
         <Description>Surname</Description>
-        <Backend>LDAP</Backend>
         <Syntax>String</Syntax>
         <Validators>
           <Validator>func(bla)</Validator>
           <Validator>func(bla)</Validator>
         </Validators>
         <InFilter>
-          <Backend>LDAP2</Backend>
-          <Code>function2</Code>
+          <Backend>LDAP</Backend>
+          <Code>dst = loadAttr(obj, "givenName")[0]</Code>
         </InFilter>
         <OutFilters>
           <Filter>

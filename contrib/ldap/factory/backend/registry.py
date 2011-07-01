@@ -11,10 +11,10 @@ class ObjectBackendRegistry(object):
         #TODO: this is hard coded LDAP stuff in the moment,
         #      load from configuration later on
         from back_ldap import LDAPBackend
-        ObjectBackendRegistry.backends['ldap'] = LDAPBackend()
+        ObjectBackendRegistry.backends['LDAP'] = LDAPBackend()
 
     def dn2uuid(self, backend, dn):
-        return ObjectBackendRegistry.backends['ldap'].dn2uuid(dn)
+        return ObjectBackendRegistry.backends[backend].dn2uuid(dn)
 
     @staticmethod
     def getInstance():
@@ -33,6 +33,4 @@ class ObjectBackendRegistry(object):
 
 def loadAttr(obj, key):
     backend = ObjectBackendRegistry.getBackend(obj._backend)
-    #TODO: use attribute backend, not object backend
-    #TODO: provide object type
-    return backend.loadAttr(obj.uuid, key, None)
+    return backend.loadAttr(obj.uuid, key)
