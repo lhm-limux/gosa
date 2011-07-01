@@ -2,6 +2,7 @@
 import os
 import time
 import datetime
+import re
 from lxml import etree, objectify
 
 # Map XML base types to python values
@@ -21,6 +22,7 @@ class GOsaObjectFactory(object):
 
     __xml_defs = {}
     __classes = {}
+    __var_regex = re.compile('^[a-z_][a-z0-9\-_]*$', re.IGNORECASE)
 
     def __init__(self, path):
         # Initialize parser
@@ -79,7 +81,8 @@ class GOsaObjectFactory(object):
 
         # What kind of properties do we have?
         classr = self.__xml_defs[name].Object
-        props = {}
+        props = {} 
+        methods = {}
 
         # Add documentation if available
         if 'description' in classr:
@@ -94,13 +97,35 @@ class GOsaObjectFactory(object):
                         'syntax': syntax
                         }
 
+            for method in classr['Functions']['Function']:
+                name = str(method['Name'])
+                def funk(*args, **kwargs):
+                    variables = {}  
+                    variables['title'] = args[0];
+                    variables['message'] = args[1];
+                    self.__exec(unicode(str(method['Code']).strip()), variables)
+
+                methods[name] = {
+                        'ref': funk
+                        }
+
         except KeyError:
             pass
 
         setattr(klass, '__properties', props)
-        setattr(klass, '__methods', {})
+        setattr(klass, '__methods', methods)
 
         return klass
+
+    def __exec(self, code, args):
+        for _key in args.keys():
+            if self.__var_regex.match(_key):            
+                exec "%(key)s = args['%(key)s']" % {'key': _key}
+            else:
+                print u"\nNo! I don't like this key '%s'." % _key
+                return
+
+        exec code
 
 
 class GOsaObject(object):
@@ -152,9 +177,9 @@ class GOsaObject(object):
         print "--> built in delete method"
 
 
-def notify(message):
+def notify(title, message):
     """ Dummy method to be dispatched """
-    print "Message:", message
+    print "Message:", title, message
 
 
 # --------------------------------- Test -------------------------------------
@@ -165,4 +190,4 @@ print "Object type:", type(p)
 p.sn = u"Pollmeier"
 print "sn:", p.sn
 p.commit()
-#p.notify("Hallo Karl-Gustav!")
+p.notify("Hallo", "Hallo Karl-Gustav!")

@@ -6,6 +6,28 @@
     <DefaultBackend>LDAP</DefaultBackend>
     <BaseRDN>ou=people</BaseRDN>
     
+    <Functions>
+      <Function>
+        <Name>notify</Name>
+        <Signature>
+          <Parameter>
+        	<Name>title</Name>
+        	<Type>String</Type>
+            <Required>true</Required>
+          </Parameter>
+          <Parameter>
+        	<Name>message</Name>
+        	<Type>String</Type>
+            <Required>true</Required>
+          </Parameter>
+        </Signature>	
+        <Code>
+notify(message, title)
+print 'Geht'
+		</Code>
+      </Function>
+    </Functions>
+    
     <Attributes>
       <Attribute>
         <Name>sn</Name>
