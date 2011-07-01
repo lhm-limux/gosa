@@ -18,7 +18,7 @@
         </Validators>
         <InFilter>
           <Backend>LDAP2</Backend>
-          <Code>function2</Code>        
+          <Code>function2</Code>
         </InFilter>
         <OutFilters>
           <Filter>
