@@ -6,33 +6,36 @@
 	
     <complexType name="Object">
         <all>
-            <element name="Name" type="string" maxOccurs="1"
-                minOccurs="1">
-            </element>
-            <element name="Description" type="string" maxOccurs="1"
-                minOccurs="1">
-            </element>
-            <element name="DefaultBackend" type="string" maxOccurs="1"
-                minOccurs="1">
-            </element>
-            <element name="BaseRDN" type="string" maxOccurs="1"
-                minOccurs="0">
-            </element>
-            <element name="Attributes" type="gosa:Attributes"
-                maxOccurs="1" minOccurs="0">
-            </element>
-            <element name="Container" type="gosa:ContainerType"
-                maxOccurs="1" minOccurs="0">
-            </element>
-            <element name="Extends" type="string" maxOccurs="1"
-                minOccurs="0">
-            </element>
-            <element name="Mandatory" type="boolean" maxOccurs="1"
-                minOccurs="1">
-            </element>
-            <element name="BaseObject" type="boolean" maxOccurs="1"
-                minOccurs="1">
-            </element>
+        	<element name="Name" type="string" maxOccurs="1"
+        		minOccurs="1">
+        	</element>
+        	<element name="Description" type="string" maxOccurs="1"
+        		minOccurs="1">
+        	</element>
+        	<element name="DefaultBackend" type="string" maxOccurs="1"
+        		minOccurs="1">
+        	</element>
+        	<element name="BaseRDN" type="string" maxOccurs="1"
+        		minOccurs="0">
+        	</element>
+        	<element name="Attributes" type="gosa:Attributes"
+        		maxOccurs="1" minOccurs="0">
+        	</element>
+        	<element name="Container" type="gosa:ContainerType"
+        		maxOccurs="1" minOccurs="0">
+        	</element>
+        	<element name="Extends" type="string" maxOccurs="1"
+        		minOccurs="0">
+        	</element>
+        	<element name="Mandatory" type="boolean" maxOccurs="1"
+        		minOccurs="1">
+        	</element>
+        	<element name="BaseObject" type="boolean" maxOccurs="1"
+        		minOccurs="1">
+        	</element>
+        	<element name="Functions" type="gosa:Functions"
+        		maxOccurs="1" minOccurs="0">
+        	</element>
         </all>
     </complexType>
 
@@ -123,4 +126,32 @@
         </all>
     </complexType>
 
+
+    <complexType name="Functions">
+    	<sequence>
+    		<element name="Function" type="gosa:Function" maxOccurs="unbounded" minOccurs="1"></element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="Function">
+    	<all>
+    		<element name="Name" type="string" maxOccurs="1" minOccurs="1"></element>
+    		<element name="Signature" type="gosa:Signature" maxOccurs="1" minOccurs="0"></element>
+    		<element name="Code" type="string" maxOccurs="1" minOccurs="1"></element>
+    	</all>
+    </complexType>
+
+    <complexType name="Signature">
+    	<sequence>
+    		<element name="Parameter" type="gosa:Parameter" maxOccurs="unbounded" minOccurs="1"></element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="Parameter">
+    	<all>
+    		<element name="Name" type="string" maxOccurs="1" minOccurs="1"></element>
+    		<element name="Type" type="gosa:SyntaxType" maxOccurs="1" minOccurs="1"></element>
+    		<element name="Required" type="boolean" maxOccurs="1" minOccurs="0"></element>
+    	</all>
+    </complexType>
 </schema>
