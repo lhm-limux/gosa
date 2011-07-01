@@ -2,6 +2,7 @@
 import os
 import time
 import datetime
+import re
 from lxml import etree, objectify
 
 # Map XML base types to python values
@@ -21,6 +22,7 @@ class GOsaObjectFactory(object):
 
     __xml_defs = {}
     __classes = {}
+    __var_regex = re.compile('^[a-z_][a-z0-9\-_]*$', re.IGNORECASE)
 
     def __init__(self, path):
         # Initialize parser
@@ -116,11 +118,13 @@ class GOsaObjectFactory(object):
         return klass
 
     def __exec(self, code, args):
-        print args 
-
         for _key in args.keys():
-            exec "%(key)s = args['%(key)s']" % {'key': _key}
-        print message
+            if self.__var_regex.match(_key):            
+                exec "%(key)s = args['%(key)s']" % {'key': _key}
+            else:
+                print u"\nNo! I don't like this key '%s'." % _key
+                return
+
         exec code
 
 
