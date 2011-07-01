@@ -33,7 +33,7 @@
         	<element name="BaseObject" type="boolean" maxOccurs="1"
         		minOccurs="1">
         	</element>
-        	<element name="Functions" type="gosa:Functions"
+        	<element name="Methods" type="gosa:Methods"
         		maxOccurs="1" minOccurs="0">
         	</element>
         </all>
@@ -127,13 +127,13 @@
     </complexType>
 
 
-    <complexType name="Functions">
+    <complexType name="Methods">
     	<sequence>
-    		<element name="Function" type="gosa:Function" maxOccurs="unbounded" minOccurs="1"></element>
+    		<element name="Method" type="gosa:Method" maxOccurs="unbounded" minOccurs="1"></element>
     	</sequence>
     </complexType>
 
-    <complexType name="Function">
+    <complexType name="Method">
     	<all>
     		<element name="Name" type="string" maxOccurs="1" minOccurs="1"></element>
     		<element name="Signature" type="gosa:Signature" maxOccurs="1" minOccurs="0"></element>
