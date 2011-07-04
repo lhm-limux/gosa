@@ -50,6 +50,27 @@ print 'Geht'
         </OutFilters>
         <MultiValue>false</MultiValue>
       </Attribute>
+      <Attribute>
+        <Name>givenName</Name>
+        <Description>Given name</Description>
+        <Backend>LDAP</Backend>
+        <Syntax>String</Syntax>
+        <Validators>
+          <Validator>func(bla)</Validator>
+          <Validator>func(bla)</Validator>
+        </Validators>
+        <InFilter>
+          <Backend>LDAP2</Backend>
+          <Code>function2</Code>        
+        </InFilter>
+        <OutFilters>
+          <Filter>
+            <Backend>LDAP2</Backend>
+            <Code>function2</Code>
+          </Filter>
+        </OutFilters>
+        <MultiValue>false</MultiValue>
+      </Attribute>
     </Attributes>
     
     <Container>

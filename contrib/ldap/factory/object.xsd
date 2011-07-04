@@ -41,7 +41,7 @@
 
     <complexType name="Attributes">
     	<sequence>
-    		<element name="Attribute" type="gosa:Attribute" maxOccurs="1" minOccurs="0"></element>
+    		<element name="Attribute" type="gosa:Attribute" maxOccurs="unbounded" minOccurs="1"></element>
     	</sequence>
     </complexType>
 
