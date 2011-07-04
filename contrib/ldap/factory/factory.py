@@ -118,6 +118,10 @@ class GOsaObjectFactory(object):
                         'multivalue': bool(prop['MultiValue'])
                         }
 
+                #-----------------
+                #validators....
+                #-----------------
+
             for method in classr['Methods']['Method']:
                 name = str(method['Name'])
                 def funk(*args, **kwargs):
@@ -162,6 +166,9 @@ class GOsaObject(object):
             print "--> empty init"
 
     def _read(self, dn):
+        #TODO: look at all requrired backends and load the
+        #      required data
+
         self._reg = ObjectBackendRegistry.getInstance()
         self.uuid = self._reg.dn2uuid(self._backend, dn)
 
@@ -178,7 +185,7 @@ class GOsaObject(object):
                 #      make them available inside of the exec
                 exec props[key]['in_filter']
             else:
-                dst = loadAttr(obj, key) if props[key]['multivalue'] \
+                dst = loadAttr(obj, key) if props[key]['Multivalue'] \
                     else loadAttr(obj, key)[0]
 
             props[key]['value'] = dst

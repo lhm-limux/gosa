@@ -22,9 +22,8 @@
           </Parameter>
         </Signature>	
         <Code>
-notify(message, title)
-print 'Geht'
-		</Code>
+proxy.notify(message, title)
+	</Code>
       </Method>
     </Methods>
     
@@ -39,7 +38,7 @@ print 'Geht'
         </Validators>
         <InFilter>
           <Backend>LDAP</Backend>
-          <Code>dst = loadAttr(obj, "givenName")[0]</Code>
+          <Code>dst = loadAttr(obj, "sn")[0]</Code>
         </InFilter>
         <OutFilters>
           <Filter>
