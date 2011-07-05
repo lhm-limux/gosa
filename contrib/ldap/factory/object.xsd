@@ -179,7 +179,7 @@
 
     <complexType name="FilterElement">
     	<sequence>
-    		<element name="Backend" type="string" maxOccurs="1" minOccurs="1"></element>
+    		<element name="Backend" type="string" maxOccurs="1" minOccurs="0"></element>
     		<element name="FilterChain" type="gosa:FilterChain" maxOccurs="unbounded" minOccurs="0"></element>
     	</sequence>
     </complexType>
