@@ -33,7 +33,7 @@
         	<element name="BaseObject" type="boolean" maxOccurs="1"
         		minOccurs="1">
         	</element>
-        	<element name="Functions" type="gosa:Functions"
+        	<element name="Methods" type="gosa:Methods"
         		maxOccurs="1" minOccurs="0">
         	</element>
         </all>
@@ -65,8 +65,9 @@
             <element name="InFilter" type="gosa:FilterElement"
                 maxOccurs="1" minOccurs="0">
             </element>
-            <element name="OutFilters" type="gosa:OutFilters"
-                maxOccurs="1" minOccurs="0">
+            <element name="OutFilter" type="gosa:FilterElement"
+            	maxOccurs="1" minOccurs="0"
+            >
             </element>
             <element name="MultiValue" type="boolean" maxOccurs="1"
                 minOccurs="1">
@@ -93,11 +94,6 @@
     	</sequence>
     </complexType>
 
-    <complexType name="OutFilters">
-    	<sequence>
-    		<element name="Filter" type="gosa:FilterElement" maxOccurs="unbounded" minOccurs="1"></element>
-    	</sequence>
-    </complexType>
 
     <simpleType name="ValidatorElement">
     	<restriction base="string">
@@ -119,21 +115,13 @@
     	</sequence>
     </complexType>
 
-    <complexType name="FilterElement">
-        <all>
-            <element name="Backend" type="string" maxOccurs="1" minOccurs="1"></element>
-            <element name="Code" type="string" maxOccurs="1" minOccurs="1"></element>
-        </all>
-    </complexType>
-
-
-    <complexType name="Functions">
+    <complexType name="Methods">
     	<sequence>
-    		<element name="Function" type="gosa:Function" maxOccurs="unbounded" minOccurs="1"></element>
+    		<element name="Method" type="gosa:Method" maxOccurs="unbounded" minOccurs="1"></element>
     	</sequence>
     </complexType>
 
-    <complexType name="Function">
+    <complexType name="Method">
     	<all>
     		<element name="Name" type="string" maxOccurs="1" minOccurs="1"></element>
     		<element name="Signature" type="gosa:Signature" maxOccurs="1" minOccurs="0"></element>
@@ -153,5 +141,59 @@
     		<element name="Type" type="gosa:SyntaxType" maxOccurs="1" minOccurs="1"></element>
     		<element name="Required" type="boolean" maxOccurs="1" minOccurs="0"></element>
     	</all>
+    </complexType>
+
+    <complexType name="FilterChain">
+    	<choice>
+    		<element name="Filter" type="gosa:Filter"
+    			maxOccurs="unbounded" minOccurs="0"
+    		>
+    		</element>
+    		<element name="Switch" type="gosa:Switch" maxOccurs="unbounded"
+    			minOccurs="0"
+    		>
+    		</element>
+    	</choice>
+    </complexType>
+
+    <complexType name="Switch">
+    	<sequence>
+    		<element name="Case" type="gosa:Case" maxOccurs="unbounded"
+    			minOccurs="1"
+    		>
+    		</element>
+    		<element name="Else" type="gosa:Else" maxOccurs="1"
+    			minOccurs="0"
+    		>
+    		</element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="Case">
+    	<sequence>
+    		<element name="Param" type="string" maxOccurs="unbounded" minOccurs="0"></element>
+    		<element name="FilterChain" type="gosa:FilterChain" maxOccurs="unbounded" minOccurs="1"></element>
+    	</sequence>
+    	<attribute name="name" type="string"></attribute>
+    </complexType>
+
+    <complexType name="FilterElement">
+    	<sequence>
+    		<element name="Backend" type="string" maxOccurs="1" minOccurs="1"></element>
+    		<element name="FilterChain" type="gosa:FilterChain" maxOccurs="unbounded" minOccurs="0"></element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="Filter">
+    	<sequence>
+    		<element name="Param" type="string" maxOccurs="unbounded" minOccurs="0"></element>
+    	</sequence>
+    	<attribute name="name" type="string"></attribute>
+    </complexType>
+
+    <complexType name="Else">
+    	<sequence>
+    		<element name="FilterChain" type="gosa:FilterChain" maxOccurs="unbounded" minOccurs="1"></element>
+    	</sequence>
     </complexType>
 </schema>

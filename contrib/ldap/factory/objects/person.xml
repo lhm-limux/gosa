@@ -6,8 +6,8 @@
 		<DefaultBackend>LDAP</DefaultBackend>
 		<BaseRDN>ou=people</BaseRDN>
 
-		<Functions>
-			<Function>
+		<Methods>
+			<Method>
 				<Name>notify</Name>
 				<Signature>
 					<Parameter>
@@ -25,8 +25,8 @@
 					notify(message, title)
 					print 'Geht'
 		</Code>
-			</Function>
-		</Functions>
+			</Method>
+		</Methods>
 
 		<Attributes>
 			<Attribute>
@@ -43,71 +43,37 @@
 						<Filter name="loadAttr" />
 					</FilterChain>
 				</InFilter>
-				<OutFilters>
-					<OutFilter>
-						<Backend>LDAP2</Backend>
-						<FilterChain>
-							<Switch>
-								<Case name="regexMatch">
-									<Param>{%gender}</Param>
-									<Param>^M$</Param>
-
-									<FilterChain>
-										<Filter name="concatStringLeft">
-											<Param>Herr </Param>
-										</Filter>
-									</FilterChain>
-
-								</Case>
-								<Case name="regexMatch">
-									<Param>{%gender}</Param>
-									<Param>^F$</Param>
-
-									<FilterChain>
-										<Filter name="concatString">
-											<Param>Frau </Param>
-											<Param>{%cn}</Param>
-										</Filter>
-									</FilterChain>
-
-								</Case>
-								<Else>
-									<FilterChain>
-										<Filter name="discard" />
-									</FilterChain>
-								</Else>
-							</Switch>
-						</FilterChain>
-					</OutFilter>
-				</OutFilters>
-				<MultiValue>false</MultiValue>
-			</Attribute>
-
-			<Attribute>
-				<Name>userPassword</Name>
-				<Description>The users password</Description>
-				<Backend>LDAP</Backend>
-				<Syntax>String</Syntax>
-				<InFilter>
+				<OutFilter>
 					<Backend>LDAP2</Backend>
 					<FilterChain>
-						<Filter name="loadAttr" />
+						<Switch>
+							<Case name="regexMatch">
+								<Param>{%gender}</Param>
+								<Param>^M$</Param>
+								<FilterChain>
+									<Filter name="concatStringLeft">
+										<Param>Herr </Param>
+									</Filter>
+								</FilterChain>
+							</Case>
+							<Case name="regexMatch">
+								<Param>{%gender}</Param>
+								<Param>^F$</Param>
+								<FilterChain>
+									<Filter name="concatString">
+										<Param>Frau </Param>
+										<Param>{%cn}</Param>
+									</Filter>
+								</FilterChain>
+							</Case>
+							<Else>
+								<FilterChain>
+									<Filter name="discard" />
+								</FilterChain>
+							</Else>
+						</Switch>
 					</FilterChain>
-				</InFilter>
-				<OutFilters>
-					<Filter>
-						<Backend>LDAP2</Backend>
-						<FilterChain>
-							<Filter name="rename">
-								<Param>sambaLMPassword</Param>
-							</Filter>
-							<Filter name="gen_smb_lm" />
-						</FilterChain>
-						<FilterChain>
-							<Filter name="gen_unix_passwd" />
-						</FilterChain>
-					</Filter>
-				</OutFilters>
+				</OutFilter>
 				<MultiValue>false</MultiValue>
 			</Attribute>
 		</Attributes>
