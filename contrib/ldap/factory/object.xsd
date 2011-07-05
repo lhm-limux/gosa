@@ -175,7 +175,7 @@
     			maxOccurs="unbounded" minOccurs="1"
     		>
     		</element>
-    		<element name="FilterChain" type="gosa:FilterChain"></element>
+    		<element name="FilterChain" type="gosa:FilterChain" maxOccurs="unbounded" minOccurs="1"></element>
     	</sequence>
 
     </complexType>
