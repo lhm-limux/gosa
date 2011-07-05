@@ -39,37 +39,56 @@
 				</Validators>
 				<InFilter>
 					<FilterChain>
-						<Filter name="loadAttr" />
+						<Filter>
+							<Name>loadAttr</Name>
+						</Filter>
 					</FilterChain>
 				</InFilter>
 				<OutFilter>
 					<FilterChain>
-						<Switch>
-							<Case name="regexMatch">
-								<Param>{%gender}</Param>
-								<Param>^M$</Param>
+						<Choice>
+							<When>
+								<ConditionChain>
+									<Type>or</Type>
+									<Condition>
+										<Name>equals</Name>
+										<Param>{%sn}</Param>
+										<Param>"M"</Param>
+									</Condition>
+								</ConditionChain>
 								<FilterChain>
-									<Filter name="concatStringLeft">
-										<Param>Herr </Param>
+									<Filter>
+										<Name>concatString</Name>
+										<Param>"Herr "</Param>
+										<Param>left</Param>
 									</Filter>
 								</FilterChain>
-							</Case>
-							<Case name="regexMatch">
-								<Param>{%gender}</Param>
-								<Param>^F$</Param>
+							</When>
+							<When>
+								<ConditionChain>
+									<Type>or</Type>
+									<Condition>
+										<Name>equals</Name>
+										<Param>{%sn}</Param>
+										<Param>"F"</Param>
+									</Condition>
+								</ConditionChain>
 								<FilterChain>
-									<Filter name="concatString">
-										<Param>Frau </Param>
-										<Param>{%cn}</Param>
+									<Filter>
+										<Name>concatString</Name>
+										<Param>"Frau "</Param>
+										<Param>left</Param>
 									</Filter>
 								</FilterChain>
-							</Case>
+							</When>
 							<Else>
 								<FilterChain>
-									<Filter name="discard" />
+									<Filter>
+										<Name>no-op</Name>
+									</Filter>
 								</FilterChain>
 							</Else>
-						</Switch>
+						</Choice>
 					</FilterChain>
 				</OutFilter>
 				<MultiValue>false</MultiValue>
