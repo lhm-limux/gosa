@@ -23,7 +23,7 @@ class CommonRenderer(BaseRenderer):
         super(CommonRenderer, self).getHTML(info)
 
         # build html for company name
-        comp = ""
+        comp = u""
         if info['company_name']:
             if 'company_detail_url' in info and info['company_detail_url']:
                 comp += "<a href='%s'>%s</a>" %(
@@ -33,7 +33,7 @@ class CommonRenderer(BaseRenderer):
                 comp += info['company_name']
 
         # build html for contact name
-        cont = ""
+        cont = u""
         if info['contact_name']:
             if 'contact_detail_url' in info and info['contact_detail_url']:
                 cont += "<a href='%s'>%s</a>" %(
@@ -43,9 +43,9 @@ class CommonRenderer(BaseRenderer):
                 cont += info['contact_name']
 
         # build actual html section
-        html = "<b>%s:</b>\n" % _("Attendee")
+        html = u"<b>%s:</b>\n" % _("Attendee")
         if cont:
-            html += cont.encode('ascii', 'xmlcharrefreplace')
+            html += cont
             if comp:
                 html += " (" + comp + ")"
         elif comp:
