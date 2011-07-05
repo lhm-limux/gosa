@@ -170,7 +170,6 @@ class dummy(object):
 o = dummy()
 exit()
 
-
 # --- Comparator test
 
 e = Equals(o)

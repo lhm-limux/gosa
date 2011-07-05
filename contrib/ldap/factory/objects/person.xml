@@ -38,13 +38,11 @@
 					<Validator></Validator>
 				</Validators>
 				<InFilter>
-					<Backend>LDAP2</Backend>
 					<FilterChain>
 						<Filter name="loadAttr" />
 					</FilterChain>
 				</InFilter>
 				<OutFilter>
-					<Backend>LDAP2</Backend>
 					<FilterChain>
 						<Switch>
 							<Case name="regexMatch">

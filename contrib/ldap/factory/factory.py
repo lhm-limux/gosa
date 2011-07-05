@@ -97,14 +97,27 @@ class GOsaObjectFactory(object):
         try:
             for prop in classr['Attributes']['Attribute']:
 
-                # Do we have a filter definition?
+                # Do we have a input filter definition?
                 in_f = None
                 if len(getattr(prop, 'InFilter')):
-                    in_f = unicode(prop['InFilter']['Code'])
+#                    in_f = unicode(prop['InFilter']['Code'])
+                    print objectify.dump(prop['InFilter'])
                     if len(getattr(prop['InFilter'], 'Backend')):
                         in_b = str(prop['InFilter']['Backend'])
                     else:
                         in_b = str(classr.DefaultBackend)
+
+                # Do we have a input filter definition?
+                in_f = None
+                if len(getattr(prop, 'OutFilter')):
+                    print objectify.dump(prop['OutFilter'])
+                    if len(getattr(prop['OutFilter'], 'Backend')):
+                        in_b = str(prop['OutFilter']['Backend'])
+                    else:
+                        in_b = str(classr.DefaultBackend)
+
+                print "BREAK"
+                exit()
 
                 syntax = str(prop['Syntax'])
                 props[str(prop['Name'])] = {
@@ -183,10 +196,11 @@ class GOsaObject(object):
                 #      make them available inside of the exec
                 #TODO: load all available validators in "validator.xxx" to
                 #      make them available inside of the exec
-                exec props[key]['in_filter']
+                print "Filter-processing is missing - break"
+                exit()
             else:
-                dst = loadAttr(obj, key) if props[key]['Multivalue'] \
-                    else loadAttr(obj, key)[0]
+                dst = loadAttr(obj, key)[0] if 'MultiValue' in props[key] and \
+                    not props[key]['MultiValue'] else loadAttr(obj, key)
 
             props[key]['value'] = dst
             props[key]['old'] = dst
