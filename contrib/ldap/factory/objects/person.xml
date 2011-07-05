@@ -21,21 +21,87 @@
 						<Required>true</Required>
 					</Parameter>
 				</Signature>
-				<Code>
-					notify(message, title)
-					print 'Geht'
-		</Code>
+				<Code>notify(message, title)</Code>
 			</Method>
 		</Methods>
 
 		<Attributes>
+			<Attribute>
+				<Name>sn</Name>
+				<Description>Surname</Description>
+				<Backend>LDAP</Backend>
+				<Syntax>String</Syntax>
+				<Validators>
+					<ConditionChain>
+						<Type>or</Type>
+						<Condition>
+							<Name>isString</Name>
+						</Condition>
+					</ConditionChain>
+				</Validators>
+				<InFilter>
+					<Backend>LDAP2</Backend>
+					<FilterChain>
+						<Filter>
+							<Name>loadAttr</Name>
+						</Filter>
+					</FilterChain>
+				</InFilter>
+				<OutFilter>
+					<Backend>LDAP2</Backend>
+					<FilterChain>
+						<Filter>
+							<Name>saveAttr</Name>
+						</Filter>
+					</FilterChain>
+				</OutFilter>
+				<MultiValue>false</MultiValue>
+			</Attribute>
+
+			<Attribute>
+				<Name>givenName</Name>
+				<Description>Given name</Description>
+				<Backend>LDAP</Backend>
+				<Syntax>String</Syntax>
+				<Validators>
+					<ConditionChain>
+						<Type>or</Type>
+						<Condition>
+							<Name>isString</Name>
+						</Condition>
+					</ConditionChain>
+				</Validators>
+				<InFilter>
+					<Backend>LDAP2</Backend>
+					<FilterChain>
+						<Filter>
+							<Name>loadAttr</Name>
+						</Filter>
+					</FilterChain>
+				</InFilter>
+				<OutFilter>
+					<Backend>LDAP2</Backend>
+					<FilterChain>
+						<Filter>
+							<Name>saveAttr</Name>
+						</Filter>
+					</FilterChain>
+				</OutFilter>
+				<MultiValue>false</MultiValue>
+			</Attribute>
+
 			<Attribute>
 				<Name>cn</Name>
 				<Description>Common name</Description>
 				<Backend>LDAP</Backend>
 				<Syntax>String</Syntax>
 				<Validators>
-					<Validator></Validator>
+					<ConditionChain>
+						<Type>or</Type>
+						<Condition>
+							<Name>isString</Name>
+						</Condition>
+					</ConditionChain>
 				</Validators>
 				<InFilter>
 					<FilterChain>

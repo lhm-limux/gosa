@@ -13,8 +13,12 @@
 				<Backend>LDAP</Backend>
 				<Syntax>String</Syntax>
 				<Validators>
-					<Validator>func(bla)</Validator>
-					<Validator>func(bla)</Validator>
+					<ConditionChain>
+						<Type>or</Type>
+						<Condition>
+							<Name>isString</Name>
+						</Condition>
+					</ConditionChain>
 				</Validators>
 				<InFilter>
 					<Backend>LDAP2</Backend>

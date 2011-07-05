@@ -59,8 +59,9 @@
             <element name="Syntax" type="gosa:SyntaxType"
                 maxOccurs="1" minOccurs="1">
             </element>
-            <element name="Validators"
-                type="gosa:AttributeValidators" maxOccurs="1" minOccurs="0">
+            <element name="Validators" type="gosa:Validator"
+            	maxOccurs="1" minOccurs="0"
+            >
             </element>
             <element name="InFilter" type="gosa:FilterElement"
                 maxOccurs="1" minOccurs="0">
@@ -88,18 +89,8 @@
     	</restriction>
     </simpleType>
 
-    <complexType name="AttributeValidators">
-    	<sequence>
-    		<element name="Validator" maxOccurs="unbounded" minOccurs="1" type="gosa:ValidatorElement"></element>
-    	</sequence>
-    </complexType>
 
 
-    <simpleType name="ValidatorElement">
-    	<restriction base="string">
-      		<pattern value=".*" />
-    	</restriction>
-    </simpleType>
 
     <complexType name="ContainerType">
     	<sequence>
@@ -223,6 +214,12 @@
     	<sequence>
     		<element name="Name" type="string" maxOccurs="1" minOccurs="1"></element>
     		<element name="Param" type="string" maxOccurs="unbounded" minOccurs="0"></element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="Validator">
+    	<sequence>
+    		<element name="ConditionChain" type="gosa:ConditionChain" maxOccurs="unbounded" minOccurs="1"></element>
     	</sequence>
     </complexType>
 </schema>
