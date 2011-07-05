@@ -45,7 +45,7 @@ class CommonRenderer(BaseRenderer):
         # build actual html section
         html = "<b>%s:</b>\n" % _("Attendee")
         if cont:
-            html += cont
+            html += cont.encode('ascii', 'xmlcharrefreplace')
             if comp:
                 html += " (" + comp + ")"
         elif comp:
