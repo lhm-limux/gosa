@@ -4,6 +4,7 @@ import datetime
 import Levenshtein
 from time import mktime
 
+
 class ElementFilter(object):
 
     def __init__(self, obj):
@@ -29,6 +30,42 @@ class ElementComparator(object):
 
     def process(self, *args, **kwargs):
         raise NotImplementedError("not implemented")
+
+
+class ElementOperator(object):
+
+    def __init(self, obj):
+        pass
+
+    def process(self, *args, **kwargs):
+        raise NotImplementedError("not implemented")
+
+
+class And(ElementOperator):
+
+    def __init__(self, obj):
+        super(And, self).__init__()
+
+    def process(self, a, b):
+        return a and b
+
+
+class Or(ElementOperator):
+
+    def __init__(self, obj):
+        super(Or, self).__init__()
+
+    def process(self, a, b):
+        return a or b
+
+
+class Not(ElementOperator):
+
+    def __init__(self, obj):
+        super(Not, self).__init__()
+
+    def process(self, a):
+        return not a
 
 
 class Equals(ElementComparator):
@@ -131,6 +168,8 @@ class dummy(object):
     tm = datetime.datetime.now()
 
 o = dummy()
+exit()
+
 
 # --- Comparator test
 
@@ -139,7 +178,27 @@ el = Like(o)
 print "99 == 12", e.process(99, 12)
 print "88 == 88", e.process(88, 88)
 print "Klaus == Claus", el.process("Klaus", "Claus")
-exit()
+
+
+# --- Operator test
+sa = And(o)
+so = Or(o)
+print sa.process(True, True)
+print sa.process(False, True)
+print so.process(False, True)
+
+# --- Validator test
+# Comparator operator Comparator
+
+#filters = [........................]
+#
+#<FilterChain>
+#  <CASE>
+#    ...
+#    ...
+#    ...
+#  </CASE>
+#</FilterChain>
 
 
 # --- Out test
