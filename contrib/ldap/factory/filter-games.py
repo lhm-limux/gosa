@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+import re
 import datetime
+import Levenshtein
 from time import mktime
 
 class ElementFilter(object):
@@ -62,11 +64,19 @@ class Smaller(ElementComparator):
 class Like(ElementComparator):
 
     def __init__(self, obj):
-        super(Smaller, self).__init__()
+        super(Like, self).__init__()
 
     def process(self, a, b):
-        return a < b
+        return Levenshtein.distance(a, b) < 4
 
+
+class RegEx(ElementComparator):
+
+    def __init__(self, obj):
+        super(RegEx, self).__init__()
+
+    def process(self, a, b):
+        return re.match(a, b)
 
 
 class ToUnixTime(ElementFilter):
@@ -125,8 +135,10 @@ o = dummy()
 # --- Comparator test
 
 e = Equals(o)
+el = Like(o)
 print "99 == 12", e.process(99, 12)
 print "88 == 88", e.process(88, 88)
+print "Klaus == Claus", el.process("Klaus", "Claus")
 exit()
 
 
