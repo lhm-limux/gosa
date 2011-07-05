@@ -4,7 +4,7 @@ from time import mktime
 
 class ElementFilter(object):
 
-    def __init__(self):
+    def __init__(self, obj):
         #TODO: load parameters
         #      decide what we "need"
         pass
@@ -20,10 +20,59 @@ class ElementFilter(object):
         return {}
 
 
+class ElementComparator(object):
+
+    def __init(self, obj):
+        pass
+
+    def process(self, *args, **kwargs):
+        raise NotImplementedError("not implemented")
+
+
+class Equals(ElementComparator):
+
+    def __init__(self, obj):
+        super(Equals, self).__init__()
+
+    def process(self, a, b, case_ignore=False):
+        if case_ignore:
+            return a.lower() == b.lower()
+
+        return a == b
+
+
+class Greater(ElementComparator):
+
+    def __init__(self, obj):
+        super(Greater, self).__init__()
+
+    def process(self, a, b):
+        return a > b
+
+
+class Smaller(ElementComparator):
+
+    def __init__(self, obj):
+        super(Smaller, self).__init__()
+
+    def process(self, a, b):
+        return a < b
+
+
+class Like(ElementComparator):
+
+    def __init__(self, obj):
+        super(Smaller, self).__init__()
+
+    def process(self, a, b):
+        return a < b
+
+
+
 class ToUnixTime(ElementFilter):
 
-    def __init__(self):
-        super(ToUnixTime, self).__init__()
+    def __init__(self, obj):
+        super(ToUnixTime, self).__init__(obj)
 
     def process(self, obj, key, value):
         value = mktime(value.timetuple())
@@ -32,8 +81,8 @@ class ToUnixTime(ElementFilter):
 
 class FromUnixTime(ElementFilter):
 
-    def __init__(self):
-        super(FromUnixTime, self).__init__()
+    def __init__(self, obj):
+        super(FromUnixTime, self).__init__(obj)
 
     def process(self, obj, key, value):
         value = datetime.datetime.fromtimestamp(value)
@@ -43,8 +92,8 @@ class FromUnixTime(ElementFilter):
 
 class Target(ElementFilter):
 
-    def __init__(self):
-        super(Target, self).__init__()
+    def __init__(self, obj):
+        super(Target, self).__init__(obj)
 
     def process(self, obj, key, value, new_key):
         key = new_key
@@ -53,14 +102,15 @@ class Target(ElementFilter):
 
 class Load(ElementFilter):
 
-    def __init__(self):
-        super(Load, self).__init__()
+    def __init__(self, obj):
+        super(Load, self).__init__(obj)
 
     def process(self, obj, key, value, attr):
         return key, 854711
 
 
-# --- Out test
+
+# --- Prepare
 
 class dummy(object):
 
@@ -71,10 +121,20 @@ class dummy(object):
     tm = datetime.datetime.now()
 
 o = dummy()
-t = ToUnixTime()
-f = FromUnixTime()
-s = Target()
-l = Load()
+
+# --- Comparator test
+
+e = Equals(o)
+print "99 == 12", e.process(99, 12)
+print "88 == 88", e.process(88, 88)
+exit()
+
+
+# --- Out test
+t = ToUnixTime(o)
+f = FromUnixTime(o)
+s = Target(o)
+l = Load(o)
 
 key = "tm"
 value = o.tm
