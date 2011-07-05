@@ -1,60 +1,88 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Objects xmlns="http://www.gonicus.de/Objects"> 
-  <Object>
-    <Name>Person</Name>
-    <Description>Person class</Description>
-    <DefaultBackend>LDAP</DefaultBackend>
-    <BaseRDN>ou=people</BaseRDN>
-    
-    <Methods>
-      <Method>
-        <Name>notify</Name>
-        <Signature>
-          <Parameter>
-        	<Name>title</Name>
-        	<Type>String</Type>
-            <Required>true</Required>
-          </Parameter>
-          <Parameter>
-        	<Name>message</Name>
-        	<Type>String</Type>
-            <Required>true</Required>
-          </Parameter>
-        </Signature>	
-        <Code>
-proxy.notify(message, title)
-	</Code>
-      </Method>
-    </Methods>
-    
-    <Attributes>
-      <Attribute>
-        <Name>sn</Name>
-        <Description>Surname</Description>
-        <Syntax>String</Syntax>
-        <Validators>
-          <Validator>func(bla)</Validator>
-          <Validator>func(bla)</Validator>
-        </Validators>
-        <InFilter>
-          <Backend>LDAP</Backend>
-          <Code>dst = loadAttr(obj, "sn")[0]</Code>
-        </InFilter>
-        <OutFilters>
-          <Filter>
-            <Backend>LDAP2</Backend>
-            <Code>function2</Code>
-          </Filter>
-        </OutFilters>
-        <MultiValue>false</MultiValue>
-      </Attribute>
-    </Attributes>
-    
-    <Container>
-      <Type>Nothing</Type>
-    </Container>
-    
-    <Mandatory>false</Mandatory>
-    <BaseObject>false</BaseObject>
-  </Object>
+<Objects xmlns="http://www.gonicus.de/Objects">
+	<Object>
+		<Name>Person</Name>
+		<Description>Person class</Description>
+		<DefaultBackend>LDAP</DefaultBackend>
+		<BaseRDN>ou=people</BaseRDN>
+
+		<Methods>
+			<Method>
+				<Name>notify</Name>
+				<Signature>
+					<Parameter>
+						<Name>title</Name>
+						<Type>String</Type>
+						<Required>true</Required>
+					</Parameter>
+					<Parameter>
+						<Name>message</Name>
+						<Type>String</Type>
+						<Required>true</Required>
+					</Parameter>
+				</Signature>
+				<Code>
+					notify(message, title)
+					print 'Geht'
+		</Code>
+			</Method>
+		</Methods>
+
+		<Attributes>
+			<Attribute>
+				<Name>cn</Name>
+				<Description>Common name</Description>
+				<Backend>LDAP</Backend>
+				<Syntax>String</Syntax>
+				<Validators>
+					<Validator></Validator>
+				</Validators>
+				<InFilter>
+					<Backend>LDAP2</Backend>
+					<FilterChain>
+						<Filter name="loadAttr" />
+					</FilterChain>
+				</InFilter>
+				<OutFilter>
+					<Backend>LDAP2</Backend>
+					<FilterChain>
+						<Switch>
+							<Case name="regexMatch">
+								<Param>{%gender}</Param>
+								<Param>^M$</Param>
+								<FilterChain>
+									<Filter name="concatStringLeft">
+										<Param>Herr </Param>
+									</Filter>
+								</FilterChain>
+							</Case>
+							<Case name="regexMatch">
+								<Param>{%gender}</Param>
+								<Param>^F$</Param>
+								<FilterChain>
+									<Filter name="concatString">
+										<Param>Frau </Param>
+										<Param>{%cn}</Param>
+									</Filter>
+								</FilterChain>
+							</Case>
+							<Else>
+								<FilterChain>
+									<Filter name="discard" />
+								</FilterChain>
+							</Else>
+						</Switch>
+					</FilterChain>
+				</OutFilter>
+				<MultiValue>false</MultiValue>
+			</Attribute>
+		</Attributes>
+
+		<Container>
+			<Type>Nothing</Type>
+		</Container>
+
+		<Mandatory>false</Mandatory>
+		<BaseObject>false</BaseObject>
+	</Object>
 </Objects>

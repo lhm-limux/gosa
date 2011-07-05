@@ -1,41 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Objects xmlns="http://www.gonicus.de/Objects"> 
-  <Object>
-    <Name>Base</Name>
-    <Description>Base class</Description>
-    <DefaultBackend>LDAP</DefaultBackend>
-    <BaseRDN></BaseRDN>
-    
-    <Attributes>
-      <Attribute>
-        <Name>type</Name>
-        <Description>The attribute type</Description>
-        <Backend>LDAP</Backend>
-        <Syntax>String</Syntax>
-        <Validators>
-          <Validator>func(bla)</Validator>
-          <Validator>func(bla)</Validator>
-        </Validators>
-        <InFilter>
-          <Backend>LDAP2</Backend>
-          <Code>function2</Code>        
-        </InFilter>
-        <OutFilters>
-          <Filter>
-            <Backend>LDAP2</Backend>
-            <Code>function2</Code>
-          </Filter>
-        </OutFilters>
-        <MultiValue>false</MultiValue>
-      </Attribute>
-    </Attributes>
-    
-    <Container>
-      <Type>Nothing</Type>
-    </Container>
-    
-    <Mandatory>false</Mandatory>
-    <BaseObject>false</BaseObject>
-    
-  </Object>
+<Objects xmlns="http://www.gonicus.de/Objects">
+	<Object>
+		<Name>Base</Name>
+		<Description>Base class</Description>
+		<DefaultBackend>LDAP</DefaultBackend>
+		<BaseRDN></BaseRDN>
+
+		<Attributes>
+			<Attribute>
+				<Name>type</Name>
+				<Description>The attribute type</Description>
+				<Backend>LDAP</Backend>
+				<Syntax>String</Syntax>
+				<Validators>
+					<Validator>func(bla)</Validator>
+					<Validator>func(bla)</Validator>
+				</Validators>
+				<InFilter>
+					<Backend>LDAP2</Backend>
+					<FilterChain>
+						<Filter name="loadAttr" />
+					</FilterChain>
+				</InFilter>
+				<OutFilter>
+					<Backend>LDAP2</Backend>
+					<FilterChain>
+						<Filter name="saveAttr" />
+					</FilterChain>
+				</OutFilter>
+				<MultiValue>false</MultiValue>
+			</Attribute>
+		</Attributes>
+
+		<Container>
+			<Type>Nothing</Type>
+		</Container>
+
+		<Mandatory>false</Mandatory>
+		<BaseObject>false</BaseObject>
+
+	</Object>
 </Objects>
