@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 import sys
+import time
 import urllib
 import urllib2
 from urlparse import urlparse, parse_qs
