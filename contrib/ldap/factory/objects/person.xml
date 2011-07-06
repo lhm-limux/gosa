@@ -38,6 +38,7 @@
 					<Validator></Validator>
 				</Validators>
 				<InFilter>
+						<Backend>LDAP</Backend>
 					<FilterChain>
 						<Filter name="loadAttr" />
 					</FilterChain>

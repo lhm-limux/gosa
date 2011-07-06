@@ -66,6 +66,13 @@ class GOsaObjectFactory(object):
 
         return self.__classes[name](*args, **kwargs)
 
+    def __build_filter(self, elements, out=None):
+
+        for el in elements.iterchildren():
+            print el.tag
+
+        return out
+
     def __build_class(self, name):
         class klass(GOsaObject):
 
@@ -100,23 +107,21 @@ class GOsaObjectFactory(object):
                 # Do we have a input filter definition?
                 in_f = None
                 if len(getattr(prop, 'InFilter')):
-#                    in_f = unicode(prop['InFilter']['Code'])
-                    print objectify.dump(prop['InFilter'])
-                    if len(getattr(prop['InFilter'], 'Backend')):
+                    in_f = self.__build_filter(prop['InFilter'])
+                    if 'Backend' in prop['InFilter'].__dict__:
                         in_b = str(prop['InFilter']['Backend'])
                     else:
                         in_b = str(classr.DefaultBackend)
 
                 # Do we have a input filter definition?
                 in_f = None
-                if len(getattr(prop, 'OutFilter')):
+                if 'Backend' in prop['OutFilter'].__dict__:
                     print objectify.dump(prop['OutFilter'])
                     if len(getattr(prop['OutFilter'], 'Backend')):
                         in_b = str(prop['OutFilter']['Backend'])
                     else:
                         in_b = str(classr.DefaultBackend)
 
-                print "BREAK"
                 exit()
 
                 syntax = str(prop['Syntax'])
