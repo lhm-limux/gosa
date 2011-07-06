@@ -51,6 +51,8 @@ class SugarNumberResolver(PhoneNumberResolver):
         country = res.group(2)
         rest = res.group(3)
 
+        print res.group(0)
+
         found = False
 
         # build regular expression for DB search
@@ -91,12 +93,15 @@ class SugarNumberResolver(PhoneNumberResolver):
 
             if dat is not None:
                 # fill result data with found data
-                result['company_id'] = dat[0]
-                result['company_name'] = dat[1]
-                result['company_phone'] = dat[2]
-                result['company_detail_url'] = self.sugar_url \
-                    + 'index.php?module=Accounts&action=DetailView' \
-                    + '&record=' + dat[0]
+                if dat[0] is not None:
+                    result['company_id'] = dat[0]
+                    result['company_detail_url'] = self.sugar_url \
+                        + 'index.php?module=Accounts&action=DetailView' \
+                        + '&record=' + dat[0]
+                if dat[1] is not None:
+                    result['company_name'] = dat[1]
+                if dat[2] is not None:
+                    result['company_phone'] = dat[2]
 
                 found = True
             else:
@@ -113,8 +118,14 @@ class SugarNumberResolver(PhoneNumberResolver):
                 if dat is not None:
                     # fill result data with found data
                     result['contact_id'] = dat[0]
-                    result['contact_name'] = dat[1] + " " + dat[2]
-                    result['contact_phone'] = dat[3]
+                    if dat[1] is not None:
+                        result['contact_name'] = dat[1]
+                    if dat[2] is not None:
+                        if not result['contact_name'] == '':
+                            result['contact_name'] += ' '
+                        result['contact_name'] += dat[2]
+                    if dat[3] is not None:
+                        result['contact_phone'] = dat[3]
                     result['contact_detail_url'] = self.sugar_url \
                         + 'index.php?module=Contacts&action=DetailView' \
                         + '&record=' + dat[0]
@@ -135,12 +146,15 @@ class SugarNumberResolver(PhoneNumberResolver):
                         dat = cursor.fetchone()
 
                         if dat is not None:
-                            result['company_id'] = dat[0]
-                            result['company_name'] = dat[1]
-                            result['company_phone'] = dat[2]
-                            result['company_detail_url'] = self.sugar_url \
-                                + 'index.php?module=Accounts&action=DetailView'\
-                                + '&record=' + dat[0]
+                            if dat[0] is not None:
+                                result['company_id'] = dat[0]
+                                result['company_detail_url'] = self.sugar_url \
+                                    + 'index.php?module=Accounts&action=DetailView'\
+                                    + '&record=' + dat[0]
+                            if dat[1] is not None:
+                                result['company_name'] = dat[1]
+                            if dat[2] is not None:
+                                result['company_phone'] = dat[2]
         finally:
             # clean up
             cursor.close()
