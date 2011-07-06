@@ -104,6 +104,7 @@
 					</ConditionChain>
 				</Validators>
 				<InFilter>
+						<Backend>LDAP</Backend>
 					<FilterChain>
 						<Filter>
 							<Name>loadAttr</Name>
