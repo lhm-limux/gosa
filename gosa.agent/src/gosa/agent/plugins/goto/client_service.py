@@ -146,10 +146,14 @@ class ClientService(object):
             self.__proxy[client] = AMQPServiceProxy(amqp.url['source'], queue)
 
         # Call her to the moon...
+        print "Q--->", queue
         methodCall = getattr(self.__proxy[client], method)
+        print "M--->", methodCall
 
         # Do the call
-        return methodCall(*arg, **larg)
+        res = methodCall(*arg, **larg)
+        print "D--->", queue
+        return res
 
     @Command(__doc__=N_("Get the client Interface/IP/Netmask/Broadcast/MAC list."))
     def getClientNetInfo(self, client):
@@ -214,7 +218,7 @@ class ClientService(object):
                 raise ValueError("no device '%s' available" % device_uuid)
 
             return res[0][1]["deviceStatus"][0]
-        
+
         return ""
 
     @Command(__doc__=N_("Set system status"))
@@ -429,14 +433,14 @@ class ClientService(object):
         }
 
         self.__client[data.Id.text] = info
-        
+
         # Handle pending "P"repare actions for that client
         if "P" in self.systemGetStatus(client):
             try:
                 rm = PluginRegistry.getInstance("RepositoryManager")
                 rm.prepareClient(client)
             except ValueError:
-                pass     
+                pass
 
     def _handleClientLeave(self, data):
         data = data.ClientLeave

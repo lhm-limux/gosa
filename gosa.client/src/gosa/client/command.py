@@ -15,7 +15,7 @@ import inspect
 from zope.interface import implements
 
 from gosa.common.handler import IInterfaceHandler
-from gosa.common.components.command import Command, CommandInvalid, CommandNotAuthorized 
+from gosa.common.components.command import Command, CommandInvalid, CommandNotAuthorized
 from gosa.common.components.registry import PluginRegistry
 from gosa.common.env import Environment
 
