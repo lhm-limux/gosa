@@ -37,7 +37,7 @@ class LDAPNumberResolver(PhoneNumberResolver):
                         'company_phone': '',
                         'company_detail_url': '',
                         'contact_id': res[0][1]['uid'][0],
-                        'contact_name': res[0][1]['cn'][0],
+                        'contact_name': unicode(res[0][1]['cn'][0], 'UTF-8'),
                         'contact_phone': res[0][1]['telephoneNumber'][0],
                         'contact_detail_url': '',
                         'ldap_uid': res[0][1]['uid'][0],
