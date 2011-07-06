@@ -59,8 +59,9 @@
             <element name="Syntax" type="gosa:SyntaxType"
                 maxOccurs="1" minOccurs="1">
             </element>
-            <element name="Validators"
-                type="gosa:AttributeValidators" maxOccurs="1" minOccurs="0">
+            <element name="Validators" type="gosa:Validator"
+            	maxOccurs="1" minOccurs="0"
+            >
             </element>
             <element name="InFilter" type="gosa:FilterElement"
                 maxOccurs="1" minOccurs="0">
@@ -88,18 +89,8 @@
     	</restriction>
     </simpleType>
 
-    <complexType name="AttributeValidators">
-    	<sequence>
-    		<element name="Validator" maxOccurs="unbounded" minOccurs="1" type="gosa:ValidatorElement"></element>
-    	</sequence>
-    </complexType>
 
 
-    <simpleType name="ValidatorElement">
-    	<restriction base="string">
-      		<pattern value=".*" />
-    	</restriction>
-    </simpleType>
 
     <complexType name="ContainerType">
     	<sequence>
@@ -149,16 +140,16 @@
     			maxOccurs="unbounded" minOccurs="0"
     		>
     		</element>
-    		<element name="Switch" type="gosa:Switch" maxOccurs="unbounded"
+    		<element name="Choice" type="gosa:Choice" maxOccurs="unbounded"
     			minOccurs="0"
     		>
     		</element>
     	</choice>
     </complexType>
 
-    <complexType name="Switch">
+    <complexType name="Choice">
     	<sequence>
-    		<element name="Case" type="gosa:Case" maxOccurs="unbounded"
+    		<element name="When" type="gosa:When" maxOccurs="unbounded"
     			minOccurs="1"
     		>
     		</element>
@@ -169,12 +160,15 @@
     	</sequence>
     </complexType>
 
-    <complexType name="Case">
+    <complexType name="When">
     	<sequence>
-    		<element name="Param" type="string" maxOccurs="unbounded" minOccurs="0"></element>
+    		<element name="ConditionChain" type="gosa:ConditionChain"
+    			maxOccurs="unbounded" minOccurs="1"
+    		>
+    		</element>
     		<element name="FilterChain" type="gosa:FilterChain" maxOccurs="unbounded" minOccurs="1"></element>
     	</sequence>
-    	<attribute name="name" type="string"></attribute>
+
     </complexType>
 
     <complexType name="FilterElement">
@@ -186,14 +180,46 @@
 
     <complexType name="Filter">
     	<sequence>
-    		<element name="Param" type="string" maxOccurs="unbounded" minOccurs="0"></element>
+    		<element name="Name" type="string" maxOccurs="1" minOccurs="1"></element>
+    		<element name="Param" type="string" maxOccurs="unbounded"
+    			minOccurs="0"
+    		>
+    		</element>
     	</sequence>
-    	<attribute name="name" type="string"></attribute>
+    	
+    	
     </complexType>
-
+    
     <complexType name="Else">
     	<sequence>
     		<element name="FilterChain" type="gosa:FilterChain" maxOccurs="unbounded" minOccurs="1"></element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="ConditionChain">
+    	<sequence>
+    		<element name="Type" type="string" maxOccurs="1"
+    			minOccurs="0"
+    		>
+    		</element>
+    		<element name="Condition" type="gosa:Condition"
+    			maxOccurs="unbounded" minOccurs="1"
+    		>
+    		</element>
+    		<element name="ConditionChain" type="gosa:ConditionChain" maxOccurs="unbounded" minOccurs="0"></element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="Condition">
+    	<sequence>
+    		<element name="Name" type="string" maxOccurs="1" minOccurs="1"></element>
+    		<element name="Param" type="string" maxOccurs="unbounded" minOccurs="0"></element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="Validator">
+    	<sequence>
+    		<element name="ConditionChain" type="gosa:ConditionChain" maxOccurs="unbounded" minOccurs="1"></element>
     	</sequence>
     </complexType>
 </schema>

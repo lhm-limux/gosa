@@ -13,19 +13,27 @@
 				<Backend>LDAP</Backend>
 				<Syntax>String</Syntax>
 				<Validators>
-					<Validator>func(bla)</Validator>
-					<Validator>func(bla)</Validator>
+					<ConditionChain>
+						<Type>or</Type>
+						<Condition>
+							<Name>isString</Name>
+						</Condition>
+					</ConditionChain>
 				</Validators>
 				<InFilter>
 					<Backend>LDAP2</Backend>
 					<FilterChain>
-						<Filter name="loadAttr" />
+						<Filter>
+							<Name>loadAttr</Name>
+						</Filter>
 					</FilterChain>
 				</InFilter>
 				<OutFilter>
 					<Backend>LDAP2</Backend>
 					<FilterChain>
-						<Filter name="saveAttr" />
+						<Filter>
+							<Name>saveAttr</Name>
+						</Filter>
 					</FilterChain>
 				</OutFilter>
 				<MultiValue>false</MultiValue>
