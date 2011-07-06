@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects">
+	<Object>
+		<Name>Employee</Name>
+		<Description>Employee class</Description>
+		<DefaultBackend>LDAP</DefaultBackend>
+		<BaseRDN>ou=people</BaseRDN>
+
+		<Attributes>
+			<Attribute>
+				<Name>wurst</Name>
+				<Description>Wurst</Description>
+				<Backend>LDAP</Backend>
+				<Syntax>String</Syntax>
+				<Validators>
+					<ConditionChain>
+						<Type>or</Type>
+						<Condition>
+							<Name>isString</Name>
+						</Condition>
+					</ConditionChain>
+				</Validators>
+				<InFilter>
+					<Backend>LDAP2</Backend>
+					<FilterChain>
+						<Filter>
+							<Name>loadAttr</Name>
+						</Filter>
+					</FilterChain>
+				</InFilter>
+				<OutFilter>
+					<Backend>LDAP2</Backend>
+					<FilterChain>
+						<Filter>
+							<Name>saveAttr</Name>
+						</Filter>
+					</FilterChain>
+				</OutFilter>
+				<MultiValue>false</MultiValue>
+			</Attribute>
+		</Attributes>
+
+		<Container>
+			<Type>Nothing</Type>
+		</Container>
+
+		<Extends>Person</Extends>
+		<Mandatory>false</Mandatory>
+		<BaseObject>false</BaseObject>
+	</Object>
+</Objects>

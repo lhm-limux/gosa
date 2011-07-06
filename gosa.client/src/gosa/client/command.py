@@ -22,6 +22,7 @@ from gosa.common.env import Environment
 
 class ClientCommandRegistry(object):
     implements(IInterfaceHandler)
+    _priority_ = 2
     commands = {}
     nodes = {}
     proxy = {}

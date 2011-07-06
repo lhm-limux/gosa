@@ -44,23 +44,18 @@ setup(
         ],
 
     entry_points = """
-        [console_scripts]
-        ami-resolver = amires.main:main
-
-        #[gosa.modules]
-        #ami.resolver = amires.main:AMIResolver
+        [gosa.modules]
+        ami.resolver = amires.main:AsteriskNotificationReceiver
 
         [phone.resolver]
         res.ldap = amires.modules.ldap_res:LDAPNumberResolver
         res.sugar = amires.modules.sugar_res:SugarNumberResolver
         res.telekom = amires.modules.telekom_res:TelekomNumberResolver
         res.xml = amires.modules.xml_res:XMLNumberResolver
-        res.cache = amires.modules.cache_res:CacheNumberResolver
 
         [notification.renderer]
         render.main = amires.modules.common_render:CommonRenderer
         render.goforge = amires.modules.goforge_render:GOForgeRenderer
-        render.cache = amires.modules.cache_render:CacheInfoRenderer
 
     """,
 )

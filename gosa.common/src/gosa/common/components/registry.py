@@ -66,7 +66,9 @@ class PluginRegistry(object):
                 PluginRegistry.modules[module] = clazz()
 
         # Let handlers serve
-        for handler, clazz in PluginRegistry.handlers.iteritems():
+        for handler, clazz in sorted(PluginRegistry.handlers.iteritems(),
+                key=lambda k: k[1]._priority_):
+
             if hasattr(clazz, 'serve'):
                 clazz.serve()
 

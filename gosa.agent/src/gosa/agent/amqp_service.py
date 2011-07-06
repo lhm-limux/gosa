@@ -31,6 +31,7 @@ class AMQPService(object):
     the AMQP broker.
     """
     implements(IInterfaceHandler)
+    _priority_ = 1
 
     def __init__(self):
         """

@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 import re
-import time
 import MySQLdb
 from amires.resolver import PhoneNumberResolver
+from gosa.common.components.cache import cache
 
 
 class SugarNumberResolver(PhoneNumberResolver):
 
     priority = 5
-    ttl = 60
 
     def __init__(self):
         super(SugarNumberResolver, self).__init__()
@@ -29,13 +28,6 @@ class SugarNumberResolver(PhoneNumberResolver):
             # leave default priority
             pass
 
-        try:
-            self.ttl = float(self.env.config.getOption("ttl",
-                "resolver-sugar", default=str(self.ttl)))
-        except:
-            pass
-
-
         # connect to sugar db
         self.sugar_db = MySQLdb.connect(host=host,
             user=user, passwd=passwd, db=base)
@@ -47,6 +39,7 @@ class SugarNumberResolver(PhoneNumberResolver):
         if hasattr(self, 'sugar_db') and self.sugar_db is not None:
             self.sugar_db.close()
 
+    @cache(ttl=3600)
     def resolve(self, number):
         number = self.replaceNumber(number)
 
@@ -84,9 +77,7 @@ class SugarNumberResolver(PhoneNumberResolver):
             'contact_phone': '',
             'contact_detail_url': '',
             'ldap_uid': '',
-            'resource': 'sugar',
-            'ttl': 10.0,
-            'timestamp': time.time()}
+            'resource': 'sugar'}
 
         cursor = self.sugar_db.cursor()
 

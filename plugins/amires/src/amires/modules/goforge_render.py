@@ -82,6 +82,9 @@ class GOForgeRenderer(BaseRenderer):
         finally:
             cursor.close()
 
+        if len(result) == 0:
+            return ""
+
         html = "<b>%s</b>" % _("Open GOForge tickets")
         for row in result:
             html += "\n<a href='%s'>%s</a>: '%s'" %(
@@ -89,8 +92,6 @@ class GOForgeRenderer(BaseRenderer):
                     + "&bug_id=" + str(row['id']) \
                     + "&group_id=" + str(row['group_id'])),
                 row['id'],
-                row['summary'])
-        if len(result) == 0:
-            html += "\n" + _("None.")
+                row['summary'].encode("ascii", "xmlcharrefreplace"))
 
         return html
