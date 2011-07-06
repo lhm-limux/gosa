@@ -1543,13 +1543,16 @@ class RepositoryManager(Plugin):
             data = load_system(device_uuid)
 
         if not "installTemplateDN" in data:
-            raise ValueError("device with UUID '%s' has no install template assigned" % device_uuid)
-
-        # Inspect template for install method
-        if not "installMethod" in data:
             return None
 
-        return data["installMethod"].lower()
+        # Load template and get the install method
+        lh = LDAPHandler.get_instance()
+
+        with lh.get_handle() as conn:
+            res = conn.search_s(data['installTemplateDN'], ldap.SCOPE_BASE,
+                "(cn=*)", ['cn'])
+
+        return res[0][1]["installMethod"][0].lower()
 
     @Command(__doc__=N_("Get device's filled install template"))
     def systemGetTemplate(self, device_uuid):
@@ -1632,8 +1635,18 @@ class RepositoryManager(Plugin):
     @Command(__doc__=N_("Set device's base install parameters"))
     def systemSetBaseInstallParameters(self, device_uuid, data):
         sys_data = load_system(device_uuid, None, False)
-        method = self.systemGetBaseInstallMethod(device_uuid, sys_data)
+        method = self.systemGetBaseInstallMethod(device_uuid, data)
+
+        # If there's no method, we're new. Look for the method in the
+        # template.
+        if not method:
+            tmp = self.installGetTemplate(data['template'])
+            method = tmp['method']
+
+        print "--->", 1
+
         inst_m = self.base_install_method_reg[method]
+        print "--->", 2
         return inst_m.setBaseInstallParameters(device_uuid, data, sys_data)
 
     @Command(__doc__=N_("Get device's config parameters"))

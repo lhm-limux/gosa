@@ -156,12 +156,13 @@ class BaseInstallMethod(object):
             if key in data:
                 res[value] = data[key]
 
-        lh = LDAPHandler.get_instance()
-        with lh.get_handle() as conn:
-            lres = conn.search_s(data['installTemplateDN'][0],
-                    ldap.SCOPE_BASE, "(objectClass=installTemplate)", ["cn"])
+        if 'installTemplateDN' in data:
+            lh = LDAPHandler.get_instance()
+            with lh.get_handle() as conn:
+                lres = conn.search_s(data['installTemplateDN'][0],
+                        ldap.SCOPE_BASE, "(objectClass=installTemplate)", ["cn"])
 
-        res['template'] = lres[0][1]['cn'][0]
+            res['template'] = lres[0][1]['cn'][0]
 
         return res
 
@@ -203,6 +204,7 @@ class BaseInstallMethod(object):
                 mods.append((ldap.MOD_DELETE, self.rev_attributes[key], None))
 
         # Do LDAP operations to add the system
+        res = None
         lh = LDAPHandler.get_instance()
         with lh.get_handle() as conn:
             res = conn.search_s(",".join([self.env.config.getOption("template-rdn",
@@ -217,7 +219,9 @@ class BaseInstallMethod(object):
             else:
                 mods.append((ldap.MOD_REPLACE, 'installTemplateDN', [template_dn]))
 
-            conn.modify_s(dn, mods)
+            res = conn.modify_s(dn, mods)
+
+        return res
 
     def removeBaseInstallParameters(self, device_uuid, data=None):
         if not data:
