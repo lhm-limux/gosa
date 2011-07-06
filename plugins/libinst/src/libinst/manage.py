@@ -1549,8 +1549,9 @@ class RepositoryManager(Plugin):
         lh = LDAPHandler.get_instance()
 
         with lh.get_handle() as conn:
-            res = conn.search_s(data['installTemplateDN'], ldap.SCOPE_BASE,
-                "(cn=*)", ['cn'])
+            print data
+            res = conn.search_s(data['installTemplateDN'][0], ldap.SCOPE_BASE,
+                "(cn=*)", ['installMethod'])
 
         return res[0][1]["installMethod"][0].lower()
 
@@ -1643,10 +1644,7 @@ class RepositoryManager(Plugin):
             tmp = self.installGetTemplate(data['template'])
             method = tmp['method']
 
-        print "--->", 1
-
         inst_m = self.base_install_method_reg[method]
-        print "--->", 2
         return inst_m.setBaseInstallParameters(device_uuid, data, sys_data)
 
     @Command(__doc__=N_("Get device's config parameters"))
