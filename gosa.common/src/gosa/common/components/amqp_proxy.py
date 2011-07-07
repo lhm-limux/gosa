@@ -146,7 +146,8 @@ class AMQPServiceProxy(object):
         if self.__serviceName != None:
             name = "%s.%s" % (self.__serviceName, name)
 
-        return AMQPServiceProxy(self.__serviceURL, self.__serviceAddress, name, self.__conn)
+        return AMQPServiceProxy(self.__serviceURL, self.__serviceAddress, name,
+                self.__conn, workers=self.__workers)
 
     def __call__(self, *args):
         if AMQPServiceProxy.methods[self.__serviceAddress]:
@@ -207,7 +208,9 @@ class AMQPServiceProxy(object):
                 for prop in resp:
                     data[prop] = resp[prop]
 
-                jc.insert(0, AMQPServiceProxy(self.__serviceURL, self.__serviceAddress, None, self.__conn))
+                jc.insert(0, AMQPServiceProxy(self.__serviceURL,
+                    self.__serviceAddress, None, self.__conn,
+                    workers=self.__workers))
                 jc.append(data)
                 AMQPServiceProxy.worker[self.__serviceAddress][self.__worker]['locked'] = False
                 return ObjectFactory.get_instance(*jc)
