@@ -146,13 +146,10 @@ class ClientService(object):
             self.__proxy[client] = AMQPServiceProxy(amqp.url['source'], queue)
 
         # Call her to the moon...
-        print "Q--->", queue
         methodCall = getattr(self.__proxy[client], method)
-        print "M--->", methodCall
 
         # Do the call
         res = methodCall(*arg, **larg)
-        print "D--->", queue
         return res
 
     @Command(__doc__=N_("Get the client Interface/IP/Netmask/Broadcast/MAC list."))
