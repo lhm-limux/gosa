@@ -15,6 +15,7 @@ import shutil
 import pkg_resources
 import StringIO
 import ConfigParser
+import ldap
 from datetime import datetime
 from libinst.methods import InstallMethod
 from git import Repo
@@ -24,6 +25,7 @@ from threading import RLock
 from types import StringTypes
 from gosa.common.components.registry import PluginRegistry
 from gosa.agent.ldap_utils import LDAPHandler
+from nodes import PuppetNodeManager
 
 # Global puppet lock
 puppet_lock = RLock()
@@ -297,36 +299,9 @@ reportdir=$logdir
         if not module.commit():
             return
 
-        # Add changes to git
-        changed = False
-        cmd = Git(self.getBaseDir(release))
-        for line in cmd.status("--porcelain").splitlines():
-            changed = True
-            line = line.lstrip()
-            self.env.log.info("staging changes for module %s" % line.split(" ", 1)[1:])
-
-            mode, file_path = line.split(" ", 1)
-            file_path = os.path.join(*file_path.split("/")[0:])
-
-            # Remove data?
-            if mode == "D":
-                cmd.rm("-r", file_path)
-
-            # Add data...
-            else:
-                cmd.add(file_path)
-
-        # No need to deal...
-        if not changed:
+        if not self.gitPush(self.getBaseDir(release)):
             return
 
-        # Commit changes
-        if not comment:
-            comment = "Change made with no comment"
-
-        self.env.log.info("committing changes for module %s" % target_name)
-        cmd.commit("-m", comment)
-        cmd.push("origin")
         return result
 
     def removeItem(self, release, path, comment=None):
@@ -410,45 +385,57 @@ reportdir=$logdir
             cs = PluginRegistry.getInstance("ClientService")
             key = self._get_public_key()
 
-            if not key[1] in [p["data"] for p in cs.clientDispatch(device_uuid, "puppetListKeys")]:
-                cs.clientDispatch(device_uuid, "puppetAddKey", key)
+            if not key[1] in [p["data"] for p in cs.clientDispatch(device_uuid, "puppetListKeys").values()]:
+                cs.clientDispatch(device_uuid, "puppetAddKey", [key])
 
             # Load template and get the install method
             lh = LDAPHandler.get_instance()
             with lh.get_handle() as conn:
                 #TODO: either replace with device or fix potential filter fsa
-                res = conn.search_s(lh.get_base(), ldap.SCOPE_SUB,
-                    "(&(objectClass=configRecipe)(deviceUUID=%s))" % device_uuid,
-                    ['cn', 'installRecipeDN', 'configVariable', 'configItem'])
+                res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
+                    "(&(objectClass=configRecipe)(objectClass=installRecipe)(deviceUUID=%s))" % device_uuid,
+                    ['cn', 'installRecipeDN', 'configVariable', 'configItem',
+                    'installRelease'])
 
             # Bail out if not present
             if len(res) != 1:
                 raise ValueError("unknown device %s" % device_uuid)
 
-#HIER marker
+            data = res[0][1]
 
-            # Hole variablen
-            # Hole client fqdn -> CN
-            # Hole installRecipeDN und baue Abhängigkeits chain
+            # Load device variables
+            variables = {}
+            if 'configVariable' in data:
+                for var in data['configVariable']:
+                    key, value =  var.split('=', 1)
+                    variables[key] = value
 
+            # Get FQDN / Release
+            fqdn = data['cn'][0].lower()
+            release = "/".join(data['installRelease'][0].split("/")[1:])
 
-            # Füge alle fehlenden Abhängigkeiten in nodes.pp hinzu
-            # Füge Host-Eintrag in nodes.pp mit variablen und includes hinzu
+            # Open nodes.pp and maintain it
+            target_path, target_name = self.__get_target(release, "/")
+            nodes_file = os.path.join(target_path, "manifests", "nodes.pp")
 
-            #----<>----
-
-            #TODO: Manage nodes.pp (!)
-            #?? nodes = self._git_get_config(...)
+            #TODO: resolve recipe chain
+            #data['installRecipe'][0]
+            #->
             #node ldap-server {
             #  import "dns"
             #  include sudo
             #  include openldap
             #  include resolv
             #}
-            #node 'dyn-10.muc.intranet.gonicus.de' inherits ldap-server {
-            #  $test = "hallo"
-            #}
+            inherit = None
 
+            nm = PuppetNodeManager(nodes_file)
+            nm.add(fqdn, variables, data['configItem'] if data['configItem'] else [], None)
+            nm.write()
+            del nm
+
+            # Update git if needed
+            self.gitPush(self.getBaseDir(release))
 
             # Add git configuration
             config.add_section(section)
@@ -485,6 +472,40 @@ reportdir=$logdir
             with open(cfg_file, "w") as f:
                 config.write(f)
 
+    def gitPush(self, path):
+            # Announce changes to git
+            cmd = Git(path)
+            changed = False
+            for line in cmd.status("--porcelain").splitlines():
+                changed = True
+                line = line.lstrip()
+                self.env.log.info("staging changes for %s" % line.split(" ", 1)[1:])
+
+                mode, file_path = line.split(" ", 1)
+                file_path = os.path.join(*file_path.split("/")[0:])
+
+                # Remove data?
+                if mode == "D":
+                    cmd.rm("-r", file_path)
+
+                # Add data...
+                else:
+                    cmd.add(file_path)
+
+            # No need to deal...
+            if not changed:
+                return False
+
+            # Commit changes
+            if not comment:
+                comment = "Change made with no comment"
+
+            self.env.log.info("committing changes for module %s" % target_name)
+            cmd.commit("-m", comment)
+            cmd.push("origin")
+
+            return True
+
     def __get_target(self, release, path):
         """ Build target path for release """
         session = None
@@ -512,7 +533,7 @@ reportdir=$logdir
         except IOError:
                 return ""
 
-        return content.strip()
+        return content.strip().split(" ")
 
 
     #TODO: Manage nodes.pp (!)

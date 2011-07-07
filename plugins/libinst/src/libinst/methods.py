@@ -553,7 +553,7 @@ class InstallMethod(object):
 
     def getItemsAssignableElements(self, release, item):
         return {}
-    
+
     def addClient(self, device_uuid):
         pass
 
