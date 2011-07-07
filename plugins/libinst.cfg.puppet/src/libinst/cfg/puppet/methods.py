@@ -23,6 +23,7 @@ from subprocess import Popen, PIPE
 from threading import RLock
 from types import StringTypes
 from gosa.common.components.registry import PluginRegistry
+from gosa.agent.ldap_utils import LDAPHandler
 
 # Global puppet lock
 puppet_lock = RLock()
@@ -389,7 +390,7 @@ reportdir=$logdir
 
         return content[0].strip()
 
-    def _git_get_client_config(self, cfg_file):
+    def _git_get_config(self, cfg_file):
         data = ""
 
         for line in open(cfg_file, "r"):
@@ -402,17 +403,42 @@ reportdir=$logdir
 
     def addClient(self, device_uuid):
         cfg_file = os.path.join(self.__repo_path, "config")
-        config = self._git_get_client_config(cfg_file)
+        config = self._git_get_config(cfg_file)
 
         section = 'remote "%s"' % device_uuid
         if not config.has_section(section):
             cs = PluginRegistry.getInstance("ClientService")
             key = self._get_public_key()
-            
+
             if not key[1] in [p["data"] for p in cs.clientDispatch(device_uuid, "puppetListKeys")]:
                 cs.clientDispatch(device_uuid, "puppetAddKey", key)
 
+            # Load template and get the install method
+            lh = LDAPHandler.get_instance()
+            with lh.get_handle() as conn:
+                #TODO: either replace with device or fix potential filter fsa
+                res = conn.search_s(lh.get_base(), ldap.SCOPE_SUB,
+                    "(&(objectClass=configRecipe)(deviceUUID=%s))" % device_uuid,
+                    ['cn', 'installRecipeDN', 'configVariable', 'configItem'])
+
+            # Bail out if not present
+            if len(res) != 1:
+                raise ValueError("unknown device %s" % device_uuid)
+
+#HIER marker
+
+            # Hole variablen
+            # Hole client fqdn -> CN
+            # Hole installRecipeDN und baue Abhängigkeits chain
+
+
+            # Füge alle fehlenden Abhängigkeiten in nodes.pp hinzu
+            # Füge Host-Eintrag in nodes.pp mit variablen und includes hinzu
+
+            #----<>----
+
             #TODO: Manage nodes.pp (!)
+            #?? nodes = self._git_get_config(...)
             #node ldap-server {
             #  import "dns"
             #  include sudo
@@ -424,7 +450,7 @@ reportdir=$logdir
             #}
 
 
-            # Add git configuration 
+            # Add git configuration
             config.add_section(section)
 
             # Build push URL for client, it needs to be online
@@ -443,7 +469,7 @@ reportdir=$logdir
 
     def removeClient(self, device_uuid):
         cfg_file = os.path.join(self.__repo_path, "config")
-        config = self._git_get_client_config(cfg_file)
+        config = self._git_get_config(cfg_file)
 
         section = 'remote "%s"' % device_uuid
         if config.has_section(section):
@@ -452,7 +478,7 @@ reportdir=$logdir
             #puppetListKeys
             #puppetDelKey
 
-            # Remove config sections            
+            # Remove config sections
             config.remove_section(section)
 
             # Update value
@@ -490,16 +516,16 @@ reportdir=$logdir
 
 
     #TODO: Manage nodes.pp (!)
-    def __update_nodes(self, device_uuid):    
+    def __update_nodes(self, device_uuid):
         nodes_file = os.path.join(self.__repo_path, "manifests", "nodes.pp")
-    
-        # Load all configRecipes and update the node hierarchy    
+
+        # Load all configRecipes and update the node hierarchy
         #TODO: cascading
-        
+
         #node device-uuid {
         #    include configItem
         #}
-                
+
         #node ldap-server {
         #  import "dns"
         #  include sudo

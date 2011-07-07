@@ -229,7 +229,8 @@ class BaseInstallMethod(object):
 
         mods = [(ldap.MOD_DELETE, 'objectClass', 'installRecipe')]
         for attr in self.attributes.keys() + ["installTemplateDN"]:
-            mods.append((ldap.MOD_DELETE, attr, None))
+            if attr in data:
+                mods.append((ldap.MOD_DELETE, attr, None))
 
         # Do LDAP operations to remove the device
         lh = LDAPHandler.get_instance()

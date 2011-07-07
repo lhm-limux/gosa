@@ -1549,7 +1549,6 @@ class RepositoryManager(Plugin):
         lh = LDAPHandler.get_instance()
 
         with lh.get_handle() as conn:
-            print data
             res = conn.search_s(data['installTemplateDN'][0], ldap.SCOPE_BASE,
                 "(cn=*)", ['installMethod'])
 
