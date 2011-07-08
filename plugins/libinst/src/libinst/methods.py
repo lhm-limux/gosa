@@ -522,25 +522,6 @@ class InstallMethod(object):
                 raise ValueError("'%s' is not allowed for container '%s'" %
                         (item_type, parent.item_type))
 
-            # Check if path has changed
-            if "name" in data:
-                newPath = os.path.dirname(path)
-                if newPath != "/":
-                    newPath = newPath + "/"
-                newPath= newPath + data['name']
-
-                if newPath != path:
-
-                    # Update path values for the child config items.
-                    # Get those entries that starts with 'oldB' and then replace the oldB part in the path.
-                    oldB = path.rstrip("/")
-                    newB = newPath.rstrip("/")
-                    length = len(oldB)
-                    session.query(ConfigItem).filter(ConfigItem.path.startswith(oldB)).update( \
-                        {ConfigItem.path: func.concat(newB, func.right(ConfigItem.path, func.char_length(ConfigItem.path) - length))}, \
-                        synchronize_session=False)
-                    session.commit()
-
             # Load instance of ConfigItem
             item = self._manager._getConfigItem(name=name, item_type=item_type, release=release, add=True)
             session.commit() # FIXME: Does not work without this commit??
@@ -562,6 +543,26 @@ class InstallMethod(object):
 
             # Try to commit the changes
             session.commit()
+            
+            # Check if path has changed
+            if "name" in data:
+                newPath = os.path.dirname(path)
+                if newPath != "/":
+                    newPath = newPath + "/"
+                newPath= newPath + data['name']
+
+                if newPath != path:
+
+                    # Update path values for the child config items.
+                    # Get those entries that starts with 'oldB' and then replace the oldB part in the path.
+                    oldB = path.rstrip("/")
+                    newB = newPath.rstrip("/")
+                    length = len(oldB)
+                    session.query(ConfigItem).filter(ConfigItem.path.startswith(oldB)).update( \
+                        {ConfigItem.path: func.concat(newB, func.right(ConfigItem.path, func.char_length(ConfigItem.path) - length))}, \
+                        synchronize_session=False)
+                    session.commit()
+
             result = True
         except:
             self.env.log.error("Caught unknown exception %s" % sys.exc_info()[0])
