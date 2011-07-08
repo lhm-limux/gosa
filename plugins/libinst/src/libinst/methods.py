@@ -529,15 +529,18 @@ class InstallMethod(object):
 
             # Check if path has changed
             if "name" in data:
-                newPath = os.path.dirname(path) + "/" + data['name']
+                newPath = os.path.dirname(path)
+                if newPath != "/":
+                    newPath = newPath + "/"
+                newPath= newPath + data['name']
+
                 if newPath != path:
 
                     # Update path values for the child config items.
                     # Get those entries that starts with 'oldB' and then replace the oldB part in the path.
-                    oldB = path.rstrip("/") + "/"
-                    newB = newPath.rstrip("/") + "/"
+                    oldB = path.rstrip("/")
+                    newB = newPath.rstrip("/")
                     length = len(oldB)
-                    print '+' * 20, oldB, newB, length 
                     session.query(ConfigItem).filter(ConfigItem.path.startswith(oldB)).update( \
                         {ConfigItem.path: func.concat(newB, func.right(ConfigItem.path, func.char_length(ConfigItem.path) - length))}, \
                         synchronize_session=False)
