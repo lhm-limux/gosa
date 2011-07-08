@@ -547,7 +547,7 @@ class InstallMethod(object):
                     session.commit()
 
             # Update ourselves item path.
-            item.path = path
+            #item.path = path
 
             # Check if item will be renamed
             if "name" in data and name != data["name"]:
