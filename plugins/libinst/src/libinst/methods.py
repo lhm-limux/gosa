@@ -528,22 +528,23 @@ class InstallMethod(object):
             item = session.merge(item)
 
             # Check if path has changed
-            if item.path != path:
+            if name in data:
+                newPath = os.path.dirname(path) + "/" + data['name']
+                if newPath != path:
 
+                    # Update path values for the child config items.
+                    # Get those entries that starts with 'oldB' and then replace the oldB part in the path.
+                    oldB = path.rstrip("/") + "/"
+                    newB = newPath.rstrip("/") + "/"
+                    length = len(oldB)
+                    print '+' * 20, oldB, newB, length 
+                    session.query(ConfigItem).filter(ConfigItem.path.startswith(oldB)).update( \
+                        {ConfigItem.path: func.concat(newB, func.right(ConfigItem.path, func.char_length(ConfigItem.path) - length))}, \
+                        synchronize_session=False)
+                    session.commit()
 
-                # Update path values for the child config items.
-                # Get those entries that starts with 'oldB' and then replace the oldB part in the path.
-                oldB = item.path.rstrip("/") + "/"
-                newB = path.rstrip("/") + "/"
-                length = len(oldB)
-                print '+' * 20, oldB, newB, length 
-                session.query(ConfigItem).filter(ConfigItem.path.startswith(oldB)).update( \
-                    {ConfigItem.path: func.concat(newB, func.right(ConfigItem.path, func.char_length(ConfigItem.path) - length))}, \
-                    synchronize_session=False)
-                session.commit()
-
-                # Update ourselves item path.
-                item.path = path
+            # Update ourselves item path.
+            item.path = path
 
             # Check if item will be renamed
             if "name" in data and name != data["name"]:
