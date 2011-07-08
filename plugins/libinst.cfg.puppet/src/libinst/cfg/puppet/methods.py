@@ -299,7 +299,7 @@ reportdir=$logdir
         if not module.commit():
             return
 
-        if not self.gitPush(self.getBaseDir(release)):
+        if not self.gitPush(self.getBaseDir(release), comment):
             return
 
         return result
@@ -388,54 +388,11 @@ reportdir=$logdir
             if not key[1] in [p["data"] for p in cs.clientDispatch(device_uuid, "puppetListKeys").values()]:
                 cs.clientDispatch(device_uuid, "puppetAddKey", [key])
 
-            # Load template and get the install method
-            lh = LDAPHandler.get_instance()
-            with lh.get_handle() as conn:
-                #TODO: either replace with device or fix potential filter fsa
-                res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
-                    "(&(objectClass=configRecipe)(objectClass=installRecipe)(deviceUUID=%s))" % device_uuid,
-                    ['cn', 'installRecipeDN', 'configVariable', 'configItem',
-                    'installRelease'])
-
-            # Bail out if not present
-            if len(res) != 1:
-                raise ValueError("unknown device %s" % device_uuid)
-
-            data = res[0][1]
-
-            # Load device variables
-            variables = {}
-            if 'configVariable' in data:
-                for var in data['configVariable']:
-                    key, value =  var.split('=', 1)
-                    variables[key] = value
-
-            # Get FQDN / Release
-            fqdn = data['cn'][0].lower()
-            release = "/".join(data['installRelease'][0].split("/")[1:])
-
-            # Open nodes.pp and maintain it
-            target_path, target_name = self.__get_target(release, "/")
-            nodes_file = os.path.join(target_path, "manifests", "nodes.pp")
-
-            #TODO: resolve recipe chain
-            #data['installRecipe'][0]
-            #->
-            #node ldap-server {
-            #  import "dns"
-            #  include sudo
-            #  include openldap
-            #  include resolv
-            #}
-            inherit = None
-
-            nm = PuppetNodeManager(nodes_file)
-            nm.add(fqdn, variables, data['configItem'] if data['configItem'] else [], None)
-            nm.write()
-            del nm
-
             # Update git if needed
             self.gitPush(self.getBaseDir(release))
+
+            # Update nodes.pp
+            self.__update_node(device_uuid)
 
             # Add git configuration
             config.add_section(section)
@@ -460,10 +417,12 @@ reportdir=$logdir
 
         section = 'remote "%s"' % device_uuid
         if config.has_section(section):
-            # Remove ssh key
-            #TODO: ...
-            #puppetListKeys
-            #puppetDelKey
+            #TODO: Remove ssh key
+            # -> puppetListKeys
+            # -> puppetDelKey
+
+            # Remove from nodes.pp
+            self.__update_node(device_uuid, True)
 
             # Remove config sections
             config.remove_section(section)
@@ -472,7 +431,7 @@ reportdir=$logdir
             with open(cfg_file, "w") as f:
                 config.write(f)
 
-    def gitPush(self, path):
+    def gitPush(self, path, comment=None):
             # Announce changes to git
             cmd = Git(path)
             changed = False
@@ -500,7 +459,7 @@ reportdir=$logdir
             if not comment:
                 comment = "Change made with no comment"
 
-            self.env.log.info("committing changes for module %s" % target_name)
+            self.env.log.info("committing changes for module %s" % path)
             cmd.commit("-m", comment)
             cmd.push("origin")
 
@@ -535,24 +494,52 @@ reportdir=$logdir
 
         return content.strip().split(" ")
 
+    def __update_node(self, device_uuid, remove=False):
+        # Load template and get the install method
+        lh = LDAPHandler.get_instance()
+        with lh.get_handle() as conn:
+            res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
+                ldap.filter.format("(&(objectClass=configRecipe)(objectClass=installRecipe)(deviceUUID=%s))",
+                    device_uuid),
+                ['cn', 'installRecipeDN', 'configVariable', 'configItem',
+                'installRelease'])
 
-    #TODO: Manage nodes.pp (!)
-    def __update_nodes(self, device_uuid):
-        nodes_file = os.path.join(self.__repo_path, "manifests", "nodes.pp")
+        # Bail out if not present
+        if len(res) != 1:
+            raise ValueError("unknown device %s" % device_uuid)
 
-        # Load all configRecipes and update the node hierarchy
-        #TODO: cascading
+        data = res[0][1]
 
-        #node device-uuid {
-        #    include configItem
-        #}
+        # Load device variables
+        variables = {}
+        if 'configVariable' in data:
+            for var in data['configVariable']:
+                key, value =  var.split('=', 1)
+                variables[key] = value
 
+        # Get FQDN / Release
+        fqdn = data['cn'][0].lower()
+        release = "/".join(data['installRelease'][0].split("/")[1:])
+
+        # Open nodes.pp and maintain it
+        target_path, target_name = self.__get_target(release, "/")
+        nodes_file = os.path.join(target_path, "manifests", "nodes.pp")
+
+        #TODO: resolve recipe chain
+        #data['installRecipe'][0]
+        #->
         #node ldap-server {
         #  import "dns"
         #  include sudo
         #  include openldap
         #  include resolv
         #}
-        #node 'dyn-10.muc.intranet.gonicus.de' inherits ldap-server {
-        #  $test = "hallo"
-        #}
+        inherit = None
+
+        nm = PuppetNodeManager(nodes_file)
+        if remove:
+            nm.remove(fqdn)
+        else:
+            nm.add(fqdn, variables, data['configItem'] if data['configItem'] else [], None)
+        nm.write()
+        del nm
