@@ -522,11 +522,6 @@ class InstallMethod(object):
                 raise ValueError("'%s' is not allowed for container '%s'" %
                         (item_type, parent.item_type))
 
-            # Load instance of ConfigItem
-            item = self._manager._getConfigItem(name=name, item_type=item_type, release=release, add=True)
-            session.commit() # FIXME: Does not work without this commit??
-            item = session.merge(item)
-
             # Check if path has changed
             if "name" in data:
                 newPath = os.path.dirname(path)
@@ -546,8 +541,11 @@ class InstallMethod(object):
                         synchronize_session=False)
                     session.commit()
 
-            # Update ourselves item path.
-            #item.path = path
+            # Load instance of ConfigItem
+            item = self._manager._getConfigItem(name=name, item_type=item_type, release=release, add=True)
+            session.commit() # FIXME: Does not work without this commit??
+            item = session.merge(item)
+            item.path = path
 
             # Check if item will be renamed
             if "name" in data and name != data["name"]:
