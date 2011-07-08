@@ -538,7 +538,6 @@ class InstallMethod(object):
                 session.query(ConfigItem).filter(ConfigItem.path.startswith(oldB)).update( \
                     {ConfigItem.path: func.concat(newB, func.right(ConfigItem.path, func.char_length(ConfigItem.path) - length))}, \
                     synchronize_session=False)
-                session.commit()
 
                 # Update ourselves item path.
                 item.path = path
