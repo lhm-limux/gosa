@@ -528,7 +528,7 @@ class InstallMethod(object):
             item = session.merge(item)
 
             # Check if path has changed
-            if name in data:
+            if "name" in data:
                 newPath = os.path.dirname(path) + "/" + data['name']
                 if newPath != path:
 
