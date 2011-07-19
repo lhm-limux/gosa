@@ -136,14 +136,8 @@
 
     <complexType name="FilterChain">
     	<choice>
-    		<element name="Filter" type="gosa:Filter"
-    			maxOccurs="unbounded" minOccurs="0"
-    		>
-    		</element>
-    		<element name="Choice" type="gosa:Choice" maxOccurs="unbounded"
-    			minOccurs="0"
-    		>
-    		</element>
+    		<element name="Filter" type="gosa:Filter" maxOccurs="unbounded" minOccurs="0"></element>
+    		<element name="Choice" type="gosa:Choice" maxOccurs="unbounded" minOccurs="0"></element>
     	</choice>
     </complexType>
 

@@ -33,7 +33,7 @@
 				<Syntax>String</Syntax>
 				<Validators>
 					<ConditionChain>
-						<Type>or</Type>
+						<Type>Or</Type>
 						<Condition>
 							<Name>isString</Name>
 						</Condition>
@@ -51,7 +51,7 @@
 					<Backend>LDAP2</Backend>
 					<FilterChain>
 						<Filter>
-							<Name>saveAttr</Name>
+							<Name>SaveAttr</Name>
 						</Filter>
 					</FilterChain>
 				</OutFilter>
@@ -65,7 +65,7 @@
 				<Syntax>String</Syntax>
 				<Validators>
 					<ConditionChain>
-						<Type>or</Type>
+						<Type>Or</Type>
 						<Condition>
 							<Name>isString</Name>
 						</Condition>
@@ -83,7 +83,7 @@
 					<Backend>LDAP2</Backend>
 					<FilterChain>
 						<Filter>
-							<Name>saveAttr</Name>
+							<Name>SaveAttr</Name>
 						</Filter>
 					</FilterChain>
 				</OutFilter>
@@ -97,14 +97,14 @@
 				<Syntax>String</Syntax>
 				<Validators>
 					<ConditionChain>
-						<Type>or</Type>
+						<Type>Or</Type>
 						<Condition>
 							<Name>isString</Name>
 						</Condition>
 					</ConditionChain>
 				</Validators>
 				<InFilter>
-						<Backend>LDAP</Backend>
+					<Backend>LDAP</Backend>
 					<FilterChain>
 						<Filter>
 							<Name>loadAttr</Name>
@@ -116,33 +116,38 @@
 						<Choice>
 							<When>
 								<ConditionChain>
-									<Type>or</Type>
+									<Type>Or</Type>
 									<Condition>
-										<Name>equals</Name>
-										<Param>{%sn}</Param>
+										<Name>Equals</Name>
+										<Param>"M"</Param>
 										<Param>"M"</Param>
 									</Condition>
 								</ConditionChain>
 								<FilterChain>
 									<Filter>
-										<Name>concatString</Name>
-										<Param>"Herr "</Param>
+										<Name>ConcatString</Name>
+										<Param>M == M</Param>
 										<Param>left</Param>
 									</Filter>
 								</FilterChain>
 							</When>
 							<When>
 								<ConditionChain>
-									<Type>or</Type>
+									<Type>Or</Type>
 									<Condition>
-										<Name>equals</Name>
+										<Name>Equals</Name>
 										<Param>{%sn}</Param>
 										<Param>"F"</Param>
+									</Condition>
+									<Condition>
+										<Name>Equals</Name>
+										<Param>{%sn}</Param>
+										<Param>"W"</Param>
 									</Condition>
 								</ConditionChain>
 								<FilterChain>
 									<Filter>
-										<Name>concatString</Name>
+										<Name>ConcatString</Name>
 										<Param>"Frau "</Param>
 										<Param>left</Param>
 									</Filter>
