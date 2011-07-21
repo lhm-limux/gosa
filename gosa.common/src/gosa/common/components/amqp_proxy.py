@@ -159,7 +159,7 @@ class AMQPServiceProxy(object):
             else:
                 queue= self.__serviceAddress
         else:
-            #TODO: domain
+            # Default to 'core' queue
             queue= "core"
 
         # Find free session for requested queue

@@ -71,8 +71,6 @@ class Config(object):
             self.__registry['core']['workdir'] = userHome
 
         # Load file configuration
-        # TODO: remove double parsing of CmdOptions, get --config
-        #       directly
         if not self.__noargs:
             self.__parseCmdOptions()
         self.__parseCfgOptions()

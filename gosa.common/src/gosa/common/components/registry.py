@@ -52,8 +52,6 @@ class PluginRegistry(object):
                 self.env.log.debug("registering handler module %s" % module.__name__)
                 PluginRegistry.handlers[module.__name__] = module
 
-        #TODO: dependency sort
-
         # Initialize component handlers
         for handler, clazz  in PluginRegistry.handlers.iteritems():
             PluginRegistry.handlers[handler] = clazz()
