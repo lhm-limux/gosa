@@ -2,7 +2,7 @@
 
 class ObjectBackend(object):
 
-    def loadAttr(self, uuid, key):
+    def loadAttrs(self, uuid, key):
         raise NotImplementedError("object backend is missing loadAttr()")
 
     def dn2uuid(self, dn):

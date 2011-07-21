@@ -21,10 +21,10 @@ class LDAPBackend(ObjectBackend):
         self.con = con
         #self.subschema = ldap.schema.SubSchema(res)
 
-    def loadAttr(self, uuid, key):
+    def loadAttrs(self, uuid, keys):
         res = self.con.search_s(self.base, ldap.SCOPE_SUBTREE, 'entryUUID=%s' % uuid,
-                [key])[0][1][key]
-        return res
+                keys)[0][1]
+        return dict((k,v) for k, v in res.iteritems() if k in keys)
 
     def dn2uuid(self, dn):
         res = self.con.search_s(dn, ldap.SCOPE_BASE, 'objectClass=*',

@@ -4,7 +4,7 @@ import time
 import datetime
 import re
 from lxml import etree, objectify
-from backend.registry import ObjectBackendRegistry, loadAttr
+from backend.registry import ObjectBackendRegistry, loadAttrs
 from filter_hickert_games import *
 
 # Map XML base types to python values
@@ -370,8 +370,8 @@ class GOsaObject(object):
                 print "Filter-processing is missing - break"
                 exit()
             else:
-                dst = loadAttr(obj, key)[0] if 'MultiValue' in props[key] and \
-                    not props[key]['MultiValue'] else loadAttr(obj, key)
+                dst = loadAttrs(obj, [key])[0] if 'MultiValue' in props[key] and \
+                    not props[key]['MultiValue'] else loadAttrs(obj, [key])
 
             props[key]['value'] = dst
             props[key]['old'] = dst
