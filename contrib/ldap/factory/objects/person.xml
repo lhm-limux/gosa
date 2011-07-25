@@ -141,7 +141,16 @@
 										<FilterEntry>
 											<Filter>
 												<Name>ConcatString</Name>
-												<Param>M == M</Param>
+												<Param>True</Param>
+												<Param>left</Param>
+											</Filter>
+										</FilterEntry>
+									</FilterChain>
+									<FilterChain>
+										<FilterEntry>
+											<Filter>
+												<Name>ConcatString</Name>
+												<Param>Genau</Param>
 												<Param>left</Param>
 											</Filter>
 										</FilterEntry>
@@ -154,15 +163,15 @@
 											<LeftConditionChain>
 												<Condition>
 													<Name>Equals</Name>
-													<Param>{%sn}</Param>
-													<Param>"F"</Param>
+													<Param>1</Param>
+													<Param>1</Param>
 												</Condition>
 											</LeftConditionChain>
 											<RightConditionChain>
 												<Condition>
 													<Name>Equals</Name>
-													<Param>{%sn}</Param>
-													<Param>"W"</Param>
+													<Param>1</Param>
+													<Param>2</Param>
 												</Condition>
 											</RightConditionChain>
 										</ConditionOperator>
@@ -171,7 +180,7 @@
 										<FilterEntry>
 											<Filter>
 												<Name>ConcatString</Name>
-												<Param>"Frau "</Param>
+												<Param>Matched! "</Param>
 												<Param>left</Param>
 											</Filter>
 										</FilterEntry>

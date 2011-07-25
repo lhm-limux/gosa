@@ -49,8 +49,8 @@ class And(ElementOperator):
     def __init__(self, obj):
         super(And, self).__init__()
 
-    def process(self, stack):
-        return reduce(lambda x,y: x or y, stack)
+    def process(self, v1, v2):
+        return v1 and v2
 
 
 class Or(ElementOperator):
@@ -58,8 +58,8 @@ class Or(ElementOperator):
     def __init__(self, obj):
         super(Or, self).__init__()
 
-    def process(self, stack):
-        return reduce(lambda x,y: x or y, stack)
+    def process(self, v1, v2):
+        return v1 or v2
 
 
 class Not(ElementOperator):

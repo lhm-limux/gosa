@@ -501,47 +501,44 @@ class GOsaObject(object):
         
         # This is our process-line pointer it points to the process-list line 
         #  we're executing at the moment
-        lptr = 1;
+        lptr = 0;
 
         # Read current key, value
         key = prop['name']
         value = prop['value']
 
-        print "-" * 40
-        print key 
-        print "-" * 40
-        print "--> Vorher: ", key, value
-        print "+" * 40
+        orig_value = value
+        orig_key = key
 
+        print "+" * 40
         for entry in fltr:
             print entry, fltr[entry];
         print "+" * 40
-
-        return
 
         # Our filter result stack
         stack = list()
 
         # Process the list till we reach the end..
-        while lptr in fltr:
+        while (lptr+1) in fltr:
 
             # Get the current line and increase the process list pointer.
-            curline = fltr[lptr]
             lptr = lptr + 1
+            curline = fltr[lptr]
 
-            # Handle jump, for example if a condition has failed, jump over its filter-chain.
-            if 'jump' in curline:
-                v = stack.pop()
-                stack.append(v)
-                if v == curline['value']:
-                    lptr = curline['jump']
+            print "Processing line:", lptr
+            print stack
 
-            # A comparator compares two values from the stack and then returns a single 
-            #  boolean value.
-            if 'comparator' in curline:
-                v = (curline['comparator']).process(stack)
-                stack = list([v])
-
+            # A filter is used to manipulate the 'value' or the 'key' or maybe both.
+            if 'filter' in curline:
+   
+                #FIXME: Es gibt sicherlich eine bessere Loesung, aber spaeter... 
+                if not curline['params'] or len(curline['params']) == 0:
+                    key, value = (curline['filter']).process(self, key, value)
+                elif len(curline['params']) == 1:
+                    key, value = (curline['filter']).process(self, key, value, curline['params'][0])
+                elif len(curline['params']) == 2:
+                    key, value = (curline['filter']).process(self, key, value, curline['params'][0], curline['params'][1])
+            
             # A condition matches for something and returns a boolean value.
             # We'll put this value on the stack for later use.
             if 'condition' in curline:
@@ -556,17 +553,27 @@ class GOsaObject(object):
 
                 stack.append(v)
 
-            # A filter is used to manipulate the 'value' or the 'key' or maybe both.
-            if 'filter' in curline:
-   
-                #FIXME: Es gibt sicherlich eine bessere Loesung, aber spaeter... 
-                if not curline['params'] or len(curline['params']) == 0:
-                    key, value = (curline['filter']).process(self, key, value)
-                elif len(curline['params']) == 1:
-                    key, value = (curline['filter']).process(self, key, value, curline['params'][0])
-                elif len(curline['params']) == 2:
-                    key, value = (curline['filter']).process(self, key, value, curline['params'][0], curline['params'][1])
+            # Handle jump, for example if a condition has failed, jump over its filter-chain.
+            if 'jump' in curline:
+                v = stack.pop()
+                if v:
+                    lptr = curline['jump'] -1
+                else:
+                    lptr = curline['onFalse'] -1
+                               
 
+            # A comparator compares two values from the stack and then returns a single 
+            #  boolean value.
+            if 'operator' in curline:
+                v1 = stack.pop()
+                v2 = stack.pop()
+                stack.append((curline['operator']).process(v1,v2))
+
+
+        print "-" * 40
+        print "-" * 40
+        print "--> Vorher: ", orig_key, orig_value
         print "--> Nachher: ", key, value
 
+        print "STACK:", stack
 
