@@ -23,17 +23,21 @@
 				<InFilter>
 					<Backend>LDAP2</Backend>
 					<FilterChain>
-						<Filter>
-							<Name>loadAttr</Name>
-						</Filter>
+						<FilterEntry>
+							<Filter>
+								<Name>loadAttr</Name>
+							</Filter>
+						</FilterEntry>
 					</FilterChain>
 				</InFilter>
 				<OutFilter>
 					<Backend>LDAP2</Backend>
 					<FilterChain>
-						<Filter>
-							<Name>saveAttr</Name>
-						</Filter>
+						<FilterEntry>
+							<Filter>
+								<Name>saveAttr</Name>
+							</Filter>
+						</FilterEntry>
 					</FilterChain>
 				</OutFilter>
 				<MultiValue>false</MultiValue>

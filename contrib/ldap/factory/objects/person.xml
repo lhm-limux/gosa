@@ -42,17 +42,21 @@
 				<InFilter>
 					<Backend>LDAP2</Backend>
 					<FilterChain>
-						<Filter>
-							<Name>loadAttr</Name>
-						</Filter>
+						<FilterEntry>
+							<Filter>
+								<Name>loadAttr</Name>
+							</Filter>
+						</FilterEntry>
 					</FilterChain>
 				</InFilter>
 				<OutFilter>
 					<Backend>LDAP2</Backend>
 					<FilterChain>
-						<Filter>
-							<Name>SaveAttr</Name>
-						</Filter>
+						<FilterEntry>
+							<Filter>
+								<Name>SaveAttr</Name>
+							</Filter>
+						</FilterEntry>
 					</FilterChain>
 				</OutFilter>
 				<MultiValue>false</MultiValue>
@@ -74,17 +78,21 @@
 				<InFilter>
 					<Backend>LDAP2</Backend>
 					<FilterChain>
-						<Filter>
-							<Name>loadAttr</Name>
-						</Filter>
+						<FilterEntry>
+							<Filter>
+								<Name>loadAttr</Name>
+							</Filter>
+						</FilterEntry>
 					</FilterChain>
 				</InFilter>
 				<OutFilter>
 					<Backend>LDAP2</Backend>
 					<FilterChain>
-						<Filter>
-							<Name>SaveAttr</Name>
-						</Filter>
+						<FilterEntry>
+							<Filter>
+								<Name>SaveAttr</Name>
+							</Filter>
+						</FilterEntry>
 					</FilterChain>
 				</OutFilter>
 				<MultiValue>false</MultiValue>
@@ -106,61 +114,79 @@
 				<InFilter>
 					<Backend>LDAP</Backend>
 					<FilterChain>
-						<Filter>
-							<Name>loadAttr</Name>
-						</Filter>
+						<FilterEntry>
+							<Filter>
+								<Name>loadAttr</Name>
+							</Filter>
+						</FilterEntry>
 					</FilterChain>
 				</InFilter>
 				<OutFilter>
 					<FilterChain>
-						<Choice>
-							<When>
-								<ConditionChain>
-									<Type>Or</Type>
-									<Condition>
-										<Name>Equals</Name>
-										<Param>"M"</Param>
-										<Param>"M"</Param>
-									</Condition>
-								</ConditionChain>
-								<FilterChain>
-									<Filter>
-										<Name>ConcatString</Name>
-										<Param>M == M</Param>
-										<Param>left</Param>
-									</Filter>
-								</FilterChain>
-							</When>
-							<When>
-								<ConditionChain>
-									<Type>Or</Type>
-									<Condition>
-										<Name>Equals</Name>
-										<Param>{%sn}</Param>
-										<Param>"F"</Param>
-									</Condition>
-									<Condition>
-										<Name>Equals</Name>
-										<Param>{%sn}</Param>
-										<Param>"W"</Param>
-									</Condition>
-								</ConditionChain>
-								<FilterChain>
-									<Filter>
-										<Name>ConcatString</Name>
-										<Param>"Frau "</Param>
-										<Param>left</Param>
-									</Filter>
-								</FilterChain>
-							</When>
-							<Else>
-								<FilterChain>
-									<Filter>
-										<Name>no-op</Name>
-									</Filter>
-								</FilterChain>
-							</Else>
-						</Choice>
+						<FilterEntry>
+							<Filter>
+								<Name>ConcatString</Name>
+								<Param>Hallo...</Param>
+								<Param>left</Param>
+							</Filter>
+						</FilterEntry>
+						<FilterEntry>
+							<Choice>
+								<When>
+									<ConditionChain>
+										<Type>Or</Type>
+										<Condition>
+											<Name>Equals</Name>
+											<Param>"M"</Param>
+											<Param>"M"</Param>
+										</Condition>
+									</ConditionChain>
+									<FilterChain>
+										<FilterEntry>
+											<Filter>
+												<Name>ConcatString</Name>
+												<Param>M == M</Param>
+												<Param>left</Param>
+											</Filter>
+										</FilterEntry>
+									</FilterChain>
+								</When>
+								<When>
+									<ConditionChain>
+										<Type>Or</Type>
+										<Condition>
+											<Name>Equals</Name>
+											<Param>{%sn}</Param>
+											<Param>"F"</Param>
+										</Condition>
+										<Condition>
+											<Name>Equals</Name>
+											<Param>{%sn}</Param>
+											<Param>"W"</Param>
+										</Condition>
+									</ConditionChain>
+									<FilterChain>
+										<FilterEntry>
+											<Filter>
+												<Name>ConcatString</Name>
+												<Param>"Frau "</Param>
+												<Param>left</Param>
+											</Filter>
+										</FilterEntry>
+									</FilterChain>
+								</When>
+								<Else>
+									<FilterChain>
+										<FilterEntry>
+											<Filter>
+												<Name>no-op</Name>
+											</Filter>
+										</FilterEntry>
+									</FilterChain>
+								</Else>
+							</Choice>
+
+						</FilterEntry>
 					</FilterChain>
 				</OutFilter>
 				<MultiValue>false</MultiValue>

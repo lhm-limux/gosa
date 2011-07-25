@@ -136,8 +136,7 @@
 
     <complexType name="FilterChain">
     	<choice>
-    		<element name="Filter" type="gosa:Filter" maxOccurs="unbounded" minOccurs="0"></element>
-    		<element name="Choice" type="gosa:Choice" maxOccurs="unbounded" minOccurs="0"></element>
+    		<element name="FilterEntry" type="gosa:FilterEntry" maxOccurs="unbounded" minOccurs="1"></element>
     	</choice>
     </complexType>
 
@@ -180,8 +179,6 @@
     		>
     		</element>
     	</sequence>
-    	
-    	
     </complexType>
     
     <complexType name="Else">
@@ -215,5 +212,12 @@
     	<sequence>
     		<element name="ConditionChain" type="gosa:ConditionChain" maxOccurs="unbounded" minOccurs="1"></element>
     	</sequence>
+    </complexType>
+
+    <complexType name="FilterEntry">
+    	<choice>
+    		<element name="Filter" type="gosa:Filter" maxOccurs="1" minOccurs="0"></element>
+    		<element name="Choice" type="gosa:Choice" maxOccurs="1" minOccurs="0"></element>
+    	</choice>
     </complexType>
 </schema>
