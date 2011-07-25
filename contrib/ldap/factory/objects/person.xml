@@ -33,7 +33,6 @@
 				<Syntax>String</Syntax>
 				<Validators>
 					<ConditionChain>
-						<Type>Or</Type>
 						<Condition>
 							<Name>isString</Name>
 						</Condition>
@@ -69,7 +68,6 @@
 				<Syntax>String</Syntax>
 				<Validators>
 					<ConditionChain>
-						<Type>Or</Type>
 						<Condition>
 							<Name>isString</Name>
 						</Condition>
@@ -105,7 +103,6 @@
 				<Syntax>String</Syntax>
 				<Validators>
 					<ConditionChain>
-						<Type>Or</Type>
 						<Condition>
 							<Name>isString</Name>
 						</Condition>
@@ -134,7 +131,6 @@
 							<Choice>
 								<When>
 									<ConditionChain>
-										<Type>Or</Type>
 										<Condition>
 											<Name>Equals</Name>
 											<Param>"M"</Param>
@@ -153,17 +149,23 @@
 								</When>
 								<When>
 									<ConditionChain>
-										<Type>Or</Type>
-										<Condition>
-											<Name>Equals</Name>
-											<Param>{%sn}</Param>
-											<Param>"F"</Param>
-										</Condition>
-										<Condition>
-											<Name>Equals</Name>
-											<Param>{%sn}</Param>
-											<Param>"W"</Param>
-										</Condition>
+										<ConditionOperator>
+											<Operator>or</Operator>
+											<LeftConditionChain>
+												<Condition>
+													<Name>Equals</Name>
+													<Param>{%sn}</Param>
+													<Param>"F"</Param>
+												</Condition>
+											</LeftConditionChain>
+											<RightConditionChain>
+												<Condition>
+													<Name>Equals</Name>
+													<Param>{%sn}</Param>
+													<Param>"W"</Param>
+												</Condition>
+											</RightConditionChain>
+										</ConditionOperator>
 									</ConditionChain>
 									<FilterChain>
 										<FilterEntry>

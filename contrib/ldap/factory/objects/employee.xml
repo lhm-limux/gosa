@@ -14,7 +14,6 @@
 				<Syntax>String</Syntax>
 				<Validators>
 					<ConditionChain>
-						<Type>or</Type>
 						<Condition>
 							<Name>isString</Name>
 						</Condition>

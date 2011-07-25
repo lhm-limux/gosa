@@ -66,30 +66,6 @@ class GOsaObjectFactory(object):
             self.__classes[name] = self.__build_class(name)
 
         return self.__classes[name](*args, **kwargs)
-
-    def __build_filter(self, element, out=None):
-        """
-        Converts an XML etree element into a process list.
-        This list can then be easily executed line by line for each property.
-        """
-       
-        # Create process list.
-        if out == None:
-            out = {}
-
-        # Forward special tags to predefined functions.
-        if element.tag == "{http://www.gonicus.de/Objects}FilterChain":
-            out = self.__handleFilterChain(element, out)   
-        elif element.tag == "{http://www.gonicus.de/Objects}Choice":
-            out = self.__handleChoice(element, out)   
-        else:
-            
-            # If this is an unknown tag, then call __build_filter for
-            # each child-element.
-            for el in element.iterchildren(): 
-                out = self.__build_filter(el, out)
-
-        return out
   
     def __build_class(self, name):
         class klass(GOsaObject):
@@ -123,7 +99,6 @@ class GOsaObjectFactory(object):
             for prop in classr['Attributes']['Attribute']:
 
                 # Do we have a input filter definition?
-                in_f = None
                 out_f = self.__build_filter(prop['OutFilter'])
                 if 'Backend' in prop['OutFilter'].__dict__:
                     out_b = str(prop['OutFilter']['Backend'])
@@ -132,6 +107,7 @@ class GOsaObjectFactory(object):
 
                 # Do we have a input filter definition?
                 in_f = None
+                #in_f = self.__build_filter(prop['InFilter'])
                 if 'Backend' in prop['InFilter'].__dict__:
                     in_b = str(prop['InFilter']['Backend'])
                 else:
@@ -184,6 +160,30 @@ class GOsaObjectFactory(object):
 
         exec code
 
+    def __build_filter(self, element, out=None):
+        """
+        Converts an XML etree element into a process list.
+        This list can then be easily executed line by line for each property.
+        """
+       
+        # Create process list.
+        if out == None:
+            out = {}
+
+        # Forward special tags to predefined functions.
+        if element.tag == "{http://www.gonicus.de/Objects}FilterChain":
+            out = self.__handleFilterChain(element, out)   
+        elif element.tag == "{http://www.gonicus.de/Objects}Choice":
+            out = self.__handleChoice(element, out)   
+        else:
+            
+            # If this is an unknown tag, then call __build_filter for
+            # each child-element.
+            for el in element.iterchildren(): 
+                out = self.__build_filter(el, out)
+
+        return out
+
     def __handleFilterChain(self, element, out):
         """
         This method is used in '__build_filter' to generate a process 
@@ -198,12 +198,34 @@ class GOsaObjectFactory(object):
         # tags in various order.
         # Here we forward the elements to their function handle.
         for el in element.iterchildren(): 
+            if el.tag == "{http://www.gonicus.de/Objects}FilterEntry":
+                out = self.__handleFilterEntry(el, out)
+
+        return out 
+
+    
+    def __handleFilterEntry(self, element, out):
+        """
+        This method is used in '__build_filter' to generate a process 
+        list for the in and out filters.
+
+        The 'FilterChain' element is handled here.
+
+        Occurrence: FilterChain->FilterEntry
+        """
+
+        # FilterEntries contain a "Filter" or a "Choice" tag.
+        # Here we forward the elements to their function handle.
+        for el in element.iterchildren(): 
             if el.tag == "{http://www.gonicus.de/Objects}Filter":
                 out = self.__handleFilter(el, out)
             elif el.tag == "{http://www.gonicus.de/Objects}Choice":
                 out = self.__handleChoice(el, out)
+            else:
+                raise Exception("Invalid tag")
 
         return out 
+
 
     def __handleFilter(self, element, out):
         """
@@ -244,6 +266,9 @@ class GOsaObjectFactory(object):
         for el in element.iterchildren():
             if el.tag == "{http://www.gonicus.de/Objects}When": 
                 out = self.__handleWhen(el, out)
+            elif el.tag == "{http://www.gonicus.de/Objects}Else": 
+                #FIXME Not yet implemented
+                print "Not yet implemented", el.tag
 
         return(out)
  
@@ -256,7 +281,7 @@ class GOsaObjectFactory(object):
 
         Occurrence: FilterChain->Choice->When
         """
-        
+ 
         # (<When> tags contain a <ConditionChain> and a <FilterChain> tag.
         #  The <FilterChain> is only executed when the <ConditionChain> matches
         #  the given values.)
@@ -269,15 +294,12 @@ class GOsaObjectFactory(object):
             if el.tag == "{http://www.gonicus.de/Objects}FilterChain":
                 filterChain = self.__handleFilterChain(el, filterChain)   
 
-        # Create the jump-point for a matching condition
-        cnt = len(out) + 1
-        out[cnt] = {'jump': len(out) + 3, 'value': True}
-
-        # Create the jump-point for a NOT matching condition
-        cnt = len(out) + 1
-        out[cnt] = {'jump': len(out) + 2 + len(filterChain), 'value': False}
+        # Add jump point for this condition
+        cnt = len(out) 
+        out[cnt +1 ] = {'jump': cnt + 2 , 'onFalse': cnt + len(filterChain) + 2}
 
         # Add the <FilterChain> process.
+        cnt = len(out) 
         for entry in filterChain:
             cnt = cnt + 1
             out[cnt] = filterChain[entry]
@@ -300,14 +322,32 @@ class GOsaObjectFactory(object):
         for el in element.iterchildren():
             if el.tag == "{http://www.gonicus.de/Objects}Condition":
                 out = self.__handleCondition(el, out)
+            elif el.tag == "{http://www.gonicus.de/Objects}ConditionOperator":
+                out = self.__handleConditionOperator(el, out)
         
-        # Add the comparator to the process list. 
-        cnt = len(out) + 1
-        if element.__dict__['Type'] == 'Or':
-            out[cnt] = {'comparator': Or(self)}
+        return out
+
+    def __handleConditionOperator(self, element, out):
+        """
+        This method is used in '__build_filter' to generate a process 
+        list for the in and out filters.
+
+        The 'ConditionChain' element is handled here.
+
+        Occurrence: FilterChain->Choice->When->ConditionChain->ConditionOperator
+        """
+
+        # Forward <Left and <RightConditionChains> to the ConditionChain handler.
+        out = self.__handleConditionChain(element.__dict__['LeftConditionChain'], out)
+        out = self.__handleConditionChain(element.__dict__['RightConditionChain'], out)
+
+        # Append operator 
+        cnt = len(out)
+        if element.__dict__['Operator'] == "or":
+            out[cnt +1] = {'operator': Or(self)}
         else:
-            out[cnt] = {'comparator': And(self)}
-       
+            out[cnt +1] = {'operator': And(self)}
+ 
         return out
 
     def __handleCondition(self, element, out):
@@ -467,7 +507,17 @@ class GOsaObject(object):
         key = prop['name']
         value = prop['value']
 
+        print "-" * 40
+        print key 
+        print "-" * 40
         print "--> Vorher: ", key, value
+        print "+" * 40
+
+        for entry in fltr:
+            print entry, fltr[entry];
+        print "+" * 40
+
+        return
 
         # Our filter result stack
         stack = list()
