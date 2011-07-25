@@ -165,19 +165,10 @@ class GOsaObjectFactory(object):
         This list can then be easily executed line by line for each property.
         """
 
-        # Create process list.
-        if out == None:
-            out = {}
-
-        # Handle <FilterChain> entry point
-        if element.tag == "{http://www.gonicus.de/Objects}FilterChain":
-            out = self.__handleFilterChain(element, out)
-        else:
-
-            # If this is an unknown tag, then call __build_filter for
-            # each child-element to ensure we catch all <FilterChain>s.
-            for el in element.iterchildren():
-                out = self.__build_filter(el, out)
+        # Parse each <FilterChain>
+        out = {}
+        for el in element.iterchildren():
+            out = self.__handleFilterChain(el, out)
 
         return out
 
@@ -191,9 +182,9 @@ class GOsaObjectFactory(object):
         Occurrence: OutFilter->FilterChain
         """
 
-        # FilterChains can contain muliple "Filter" and "Choice"
-        # tags in various order.
-        # Here we forward the elements to their function handle.
+        # FilterChains can contain muliple "FilterEntry" tags.
+        # But at least one.
+        # Here we forward these elements to their handler.
         for el in element.iterchildren():
             if el.tag == "{http://www.gonicus.de/Objects}FilterEntry":
                 out = self.__handleFilterEntry(el, out)
@@ -210,7 +201,7 @@ class GOsaObjectFactory(object):
         """
 
         # FilterEntries contain a "Filter" OR a "Choice" tag.
-        # Here we forward the elements to their function handle.
+        # Here we forward the elements to their handler.
         for el in element.iterchildren():
             if el.tag == "{http://www.gonicus.de/Objects}Filter":
                 out = self.__handleFilter(el, out)
@@ -228,7 +219,8 @@ class GOsaObjectFactory(object):
         Occurrence: OutFilter->FilterChain->FilterEntry->Filter
         """
 
-        # Get the Name and the Pram element values
+        # Get the <Name> and the <Param> element values to be able
+        # to create a process list entry.
         name = str(element.__dict__['Name'])
         params = []
         for entry in element.iterchildren():
@@ -269,7 +261,8 @@ class GOsaObjectFactory(object):
         Occurrence: OutFilter->FilterChain->FilterEntry->Choice->When
         """
 
-        # (<When> tags contain a <ConditionChain> and a <FilterChain> tag.
+        # (<When> tags contain a <ConditionChain>, a <FilterChain> tag and 
+        # an optional <Else> tag.
         #  The <FilterChain> is only executed when the <ConditionChain> matches
         #  the given values.)
 
@@ -323,6 +316,7 @@ class GOsaObjectFactory(object):
         Occurrence: OutFilter->FilterChain->FilterEntry->Choice->Else
         """
 
+        # Handle <FilterChain> elements of this else tree.
         for el in element.iterchildren():
             if el.tag == "{http://www.gonicus.de/Objects}FilterChain":
                 out = self.__handleFilterChain(el, out)

@@ -128,6 +128,7 @@ class FromUnixTime(ElementFilter):
         new_val = map(lambda x: datetime.datetime.fromtimestamp(x), value[key])
         return key, {key: new_val}
 
+
 class Target(ElementFilter):
 
     def __init__(self, obj):
@@ -174,7 +175,7 @@ class ConcatString(ElementFilter):
 
         new_val = {}
         if position == "right":
-            new_val = map(lambda x: x+appstr, value[key])
+            new_val = map(lambda x: x + appstr, value[key])
         else:
-            new_val = map(lambda x: appstr+x, value[key])
+            new_val = map(lambda x: appstr + x, value[key])
         return key, {key: new_val}
