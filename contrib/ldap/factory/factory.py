@@ -98,7 +98,7 @@ class GOsaObjectFactory(object):
         try:
             for prop in classr['Attributes']['Attribute']:
 
-                # Do we have a input filter definition?
+                # Do we have an output filter definition?
                 out_f = self.__build_filter(prop['OutFilter'])
                 if 'Backend' in prop['OutFilter'].__dict__:
                     out_b = str(prop['OutFilter']['Backend'])
@@ -106,8 +106,8 @@ class GOsaObjectFactory(object):
                     out_b = str(classr.DefaultBackend)
 
                 # Do we have a input filter definition?
-                in_f = None
                 #in_f = self.__build_filter(prop['InFilter'])
+                in_f = None
                 if 'Backend' in prop['InFilter'].__dict__:
                     in_b = str(prop['InFilter']['Backend'])
                 else:
@@ -570,7 +570,7 @@ class GOsaObject(object):
                 # Build up argument list
                 args = curline['params']
 
-                # Process filter and keep results
+                # Process condition and keep results
                 stack.append((curline['condition']).process(*args))
 
             # Handle jump, for example if a condition has failed, jump over its filter-chain.

@@ -43,7 +43,7 @@
 					<FilterChain>
 						<FilterEntry>
 							<Filter>
-								<Name>loadAttr</Name>
+								<Name>LoadAttr</Name>
 							</Filter>
 						</FilterEntry>
 					</FilterChain>
@@ -78,7 +78,7 @@
 					<FilterChain>
 						<FilterEntry>
 							<Filter>
-								<Name>loadAttr</Name>
+								<Name>LoadAttr</Name>
 							</Filter>
 						</FilterEntry>
 					</FilterChain>
@@ -113,7 +113,7 @@
 					<FilterChain>
 						<FilterEntry>
 							<Filter>
-								<Name>loadAttr</Name>
+								<Name>LoadAttr</Name>
 							</Filter>
 						</FilterEntry>
 					</FilterChain>

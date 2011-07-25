@@ -139,10 +139,10 @@ class Target(ElementFilter):
         return key, value
 
 
-class Load(ElementFilter):
+class LoadAttr(ElementFilter):
 
     def __init__(self, obj):
-        super(Load, self).__init__(obj)
+        super(LoadAttr, self).__init__(obj)
 
     def process(self, obj, key, value, attr):
         return key, 854711
