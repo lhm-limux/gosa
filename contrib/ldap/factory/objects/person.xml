@@ -33,7 +33,6 @@
 				<Syntax>String</Syntax>
 				<Validators>
 					<ConditionChain>
-						<Type>Or</Type>
 						<Condition>
 							<Name>isString</Name>
 						</Condition>
@@ -42,17 +41,21 @@
 				<InFilter>
 					<Backend>LDAP2</Backend>
 					<FilterChain>
-						<Filter>
-							<Name>loadAttr</Name>
-						</Filter>
+						<FilterEntry>
+							<Filter>
+								<Name>loadAttr</Name>
+							</Filter>
+						</FilterEntry>
 					</FilterChain>
 				</InFilter>
 				<OutFilter>
 					<Backend>LDAP2</Backend>
 					<FilterChain>
-						<Filter>
-							<Name>SaveAttr</Name>
-						</Filter>
+						<FilterEntry>
+							<Filter>
+								<Name>SaveAttr</Name>
+							</Filter>
+						</FilterEntry>
 					</FilterChain>
 				</OutFilter>
 				<MultiValue>false</MultiValue>
@@ -65,7 +68,6 @@
 				<Syntax>String</Syntax>
 				<Validators>
 					<ConditionChain>
-						<Type>Or</Type>
 						<Condition>
 							<Name>isString</Name>
 						</Condition>
@@ -74,17 +76,21 @@
 				<InFilter>
 					<Backend>LDAP2</Backend>
 					<FilterChain>
-						<Filter>
-							<Name>loadAttr</Name>
-						</Filter>
+						<FilterEntry>
+							<Filter>
+								<Name>loadAttr</Name>
+							</Filter>
+						</FilterEntry>
 					</FilterChain>
 				</InFilter>
 				<OutFilter>
 					<Backend>LDAP2</Backend>
 					<FilterChain>
-						<Filter>
-							<Name>SaveAttr</Name>
-						</Filter>
+						<FilterEntry>
+							<Filter>
+								<Name>SaveAttr</Name>
+							</Filter>
+						</FilterEntry>
 					</FilterChain>
 				</OutFilter>
 				<MultiValue>false</MultiValue>
@@ -97,7 +103,6 @@
 				<Syntax>String</Syntax>
 				<Validators>
 					<ConditionChain>
-						<Type>Or</Type>
 						<Condition>
 							<Name>isString</Name>
 						</Condition>
@@ -106,61 +111,100 @@
 				<InFilter>
 					<Backend>LDAP</Backend>
 					<FilterChain>
-						<Filter>
-							<Name>loadAttr</Name>
-						</Filter>
+						<FilterEntry>
+							<Filter>
+								<Name>loadAttr</Name>
+							</Filter>
+						</FilterEntry>
 					</FilterChain>
 				</InFilter>
 				<OutFilter>
 					<FilterChain>
-						<Choice>
-							<When>
-								<ConditionChain>
-									<Type>Or</Type>
-									<Condition>
-										<Name>Equals</Name>
-										<Param>"M"</Param>
-										<Param>"M"</Param>
-									</Condition>
-								</ConditionChain>
-								<FilterChain>
-									<Filter>
-										<Name>ConcatString</Name>
-										<Param>M == M</Param>
-										<Param>left</Param>
-									</Filter>
-								</FilterChain>
-							</When>
-							<When>
-								<ConditionChain>
-									<Type>Or</Type>
-									<Condition>
-										<Name>Equals</Name>
-										<Param>{%sn}</Param>
-										<Param>"F"</Param>
-									</Condition>
-									<Condition>
-										<Name>Equals</Name>
-										<Param>{%sn}</Param>
-										<Param>"W"</Param>
-									</Condition>
-								</ConditionChain>
-								<FilterChain>
-									<Filter>
-										<Name>ConcatString</Name>
-										<Param>"Frau "</Param>
-										<Param>left</Param>
-									</Filter>
-								</FilterChain>
-							</When>
-							<Else>
-								<FilterChain>
-									<Filter>
-										<Name>no-op</Name>
-									</Filter>
-								</FilterChain>
-							</Else>
-						</Choice>
+						<FilterEntry>
+							<Filter>
+								<Name>ConcatString</Name>
+								<Param>"</Param>
+								<Param>left</Param>
+							</Filter>
+						</FilterEntry>
+						<FilterEntry>
+							<Filter>
+								<Name>ConcatString</Name>
+								<Param>"</Param>
+								<Param>right</Param>
+							</Filter>
+						</FilterEntry>
+						<FilterEntry>
+							<Choice>
+								<When>
+									<ConditionChain>
+										<Condition>
+											<Name>Equals</Name>
+											<Param>0</Param>
+											<Param>1</Param>
+										</Condition>
+									</ConditionChain>
+									<FilterChain>
+										<FilterEntry>
+											<Filter>
+												<Name>ConcatString</Name>
+												<Param>Dr. </Param>
+												<Param>left</Param>
+											</Filter>
+										</FilterEntry>
+										<FilterEntry>
+											<Filter>
+												<Name>ConcatString</Name>
+												<Param>Professor </Param>
+												<Param>left</Param>
+											</Filter>
+										</FilterEntry>
+										<FilterEntry>
+											<Filter>
+												<Name>ConcatString</Name>
+												<Param>Herr </Param>
+												<Param>left</Param>
+											</Filter>
+										</FilterEntry>
+									</FilterChain>
+									<Else>
+										<FilterChain>
+											<FilterEntry>
+												<Filter>
+													<Name>ConcatString</Name>
+													<Param>rr </Param>
+													<Param>left</Param>
+												</Filter>
+											</FilterEntry>
+										</FilterChain>
+										<FilterChain>
+											<FilterEntry>
+												<Filter>
+													<Name>ConcatString</Name>
+													<Param>He</Param>
+													<Param>left</Param>
+												</Filter>
+											</FilterEntry>
+										</FilterChain>
+									</Else>
+								</When>
+							</Choice>
+
+						</FilterEntry>
+						<FilterEntry>
+							<Filter>
+								<Name>ConcatString</Name>
+								<Param>-&lt;</Param>
+								<Param>left</Param>
+							</Filter>
+						</FilterEntry>
+						<FilterEntry>
+							<Filter>
+								<Name>ConcatString</Name>
+								<Param>&gt;-</Param>
+								<Param>right</Param>
+							</Filter>
+						</FilterEntry>
 					</FilterChain>
 				</OutFilter>
 				<MultiValue>false</MultiValue>

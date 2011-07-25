@@ -6,8 +6,6 @@ from time import mktime
 
 
 
-
-
 class ElementFilter(object):
 
     def __init__(self, obj):
@@ -49,8 +47,8 @@ class And(ElementOperator):
     def __init__(self, obj):
         super(And, self).__init__()
 
-    def process(self, stack):
-        return reduce(lambda x,y: x or y, stack)
+    def process(self, v1, v2):
+        return v1 and v2
 
 
 class Or(ElementOperator):
@@ -58,8 +56,8 @@ class Or(ElementOperator):
     def __init__(self, obj):
         super(Or, self).__init__()
 
-    def process(self, stack):
-        return reduce(lambda x,y: x or y, stack)
+    def process(self, v1, v2):
+        return v1 or v2
 
 
 class Not(ElementOperator):
@@ -119,16 +117,14 @@ class RegEx(ElementComparator):
         return re.match(a, b)
 
 
-
-
 class ToUnixTime(ElementFilter):
 
     def __init__(self, obj):
         super(ToUnixTime, self).__init__(obj)
 
     def process(self, obj, key, value):
-        value = mktime(value.timetuple())
-        return key, int(value)
+        new_val = map(lambda x: mktime(x.timetuple()), value[key])
+        return key, {key: new_val}
 
 
 class FromUnixTime(ElementFilter):
@@ -137,8 +133,8 @@ class FromUnixTime(ElementFilter):
         super(FromUnixTime, self).__init__(obj)
 
     def process(self, obj, key, value):
-        value = datetime.datetime.fromtimestamp(value)
-        return key, value
+        new_val = map(lambda x: datetime.datetime.fromtimestamp(x), value[key])
+        return key, {key: new_val}
 
 class Target(ElementFilter):
 
@@ -147,24 +143,6 @@ class Target(ElementFilter):
 
     def process(self, obj, key, value, new_key):
         key = new_key
-        return key, value
-
-
-class JumpOnTrue(ElementFilter):
-    def __init__(self, obj):
-        super(JumpOnTrue, self).__init__(obj)
-
-    def process(self, obj, key, value, line):
-        print "Jump to line if condition stack has value True", line    
-        return key, value
-
-
-class JumpOnFalse(ElementFilter):
-    def __init__(self, obj):
-        super(JumpOnFalse, self).__init__(obj)
-
-    def process(self, obj, key, value, line):
-        print "Jump to line if condition stack has value False", line
         return key, value
 
 
@@ -186,17 +164,27 @@ class SaveAttr(ElementFilter):
         return key, value
 
 
+class Clear(ElementFilter):
+
+    def __init__(self, obj):
+        super(Clear, self).__init__(obj)
+    
+    def process(self, obj, key, value):
+        return key, {key: []}
+
 class ConcatString(ElementFilter):
 
     def __init__(self, obj):
         super(ConcatString, self).__init__(obj)
 
     def process(self, obj, key, value, appstr, position):
+
+        new_val = {}
         if position == "right":
-            value = map(lambda x: x+appstr, value)
+            new_val = map(lambda x: x+appstr, value[key])
         else:
-            value = map(lambda x: appstr+x, value)
-        return key, value
+            new_val = map(lambda x: appstr+x, value[key])
+        return key, {key: new_val}
 
 
 
