@@ -5,7 +5,7 @@ import datetime
 import re
 from lxml import etree, objectify
 from backend.registry import ObjectBackendRegistry, loadAttrs
-from filter_hickert_games import *
+from filters import *
 
 # Map XML base types to python values
 TYPE_MAP = {

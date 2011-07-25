@@ -510,7 +510,6 @@ class CommandRegistry(object):
                         'name': func,
                         'path': "%s.%s" % (clazz.__class__.__name__, mname),
                         'target': clazz._target_,
-                        #TODO: Check why this does not work with keyword arg only functions
                         'sig': 'unknown' if not getargspec(method).args else getargspec(method).args,
                         'type': getattr(method, "type", NORMAL),
                         'needsQueue': getattr(method, "needsQueue", False),

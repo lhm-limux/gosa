@@ -15,13 +15,6 @@ class ElementFilter(object):
     def process(self, obj, key, value):
         raise NotImplementedError("not implemented")
 
-    def getReferences(self):
-        """
-        Return the properties we reference to. This makes us speed up
-        value loading, because we cann pull everything we need in one step.
-        """
-        return {}
-
 
 class ElementComparator(object):
 
@@ -46,8 +39,8 @@ class And(ElementOperator):
     def __init__(self, obj):
         super(And, self).__init__()
 
-    def process(self, a, b):
-        return a and b
+    def process(self, v1, v2):
+        return v1 and v2
 
 
 class Or(ElementOperator):
@@ -55,8 +48,8 @@ class Or(ElementOperator):
     def __init__(self, obj):
         super(Or, self).__init__()
 
-    def process(self, a, b):
-        return a or b
+    def process(self, v1, v2):
+        return v1 or v2
 
 
 class Not(ElementOperator):
@@ -122,8 +115,8 @@ class ToUnixTime(ElementFilter):
         super(ToUnixTime, self).__init__(obj)
 
     def process(self, obj, key, value):
-        value = mktime(value.timetuple())
-        return key, int(value)
+        new_val = map(lambda x: mktime(x.timetuple()), value[key])
+        return key, {key: new_val}
 
 
 class FromUnixTime(ElementFilter):
@@ -132,10 +125,8 @@ class FromUnixTime(ElementFilter):
         super(FromUnixTime, self).__init__(obj)
 
     def process(self, obj, key, value):
-        value = datetime.datetime.fromtimestamp(value)
-        return key, value
-
-
+        new_val = map(lambda x: datetime.datetime.fromtimestamp(x), value[key])
+        return key, {key: new_val}
 
 class Target(ElementFilter):
 
@@ -156,68 +147,34 @@ class Load(ElementFilter):
         return key, 854711
 
 
+class SaveAttr(ElementFilter):
 
-# --- Prepare
+    def __init__(self, obj):
+        super(SaveAttr, self).__init__(obj)
 
-class dummy(object):
-
-    cn = "Cajus Pollmeier"
-    givenName = "Cajus"
-    sn = "Pollmeier"
-    uid = "cajus"
-    tm = datetime.datetime.now()
-
-o = dummy()
-exit()
-
-# --- Comparator test
-
-e = Equals(o)
-el = Like(o)
-print "99 == 12", e.process(99, 12)
-print "88 == 88", e.process(88, 88)
-print "Klaus == Claus", el.process("Klaus", "Claus")
+    def process(self, obj, key, value):
+        return key, value
 
 
-# --- Operator test
-sa = And(o)
-so = Or(o)
-print sa.process(True, True)
-print sa.process(False, True)
-print so.process(False, True)
+class Clear(ElementFilter):
 
-# --- Validator test
-# Comparator operator Comparator
+    def __init__(self, obj):
+        super(Clear, self).__init__(obj)
 
-#filters = [........................]
-#
-#<FilterChain>
-#  <CASE>
-#    ...
-#    ...
-#    ...
-#  </CASE>
-#</FilterChain>
+    def process(self, obj, key, value):
+        return key, {key: []}
 
 
-# --- Out test
-t = ToUnixTime(o)
-f = FromUnixTime(o)
-s = Target(o)
-l = Load(o)
+class ConcatString(ElementFilter):
 
-key = "tm"
-value = o.tm
-key, value = t.process(o, key, value)
-key, value = s.process(o, key, value, "sambaLogoffTime")
+    def __init__(self, obj):
+        super(ConcatString, self).__init__(obj)
 
-print "%s=%s" % (key, value)
+    def process(self, obj, key, value, appstr, position):
 
-
-# --- In test
-
-key = "tm"
-value = None
-key, value = l.process(o, key, value, "sambaLogoffTime")
-key, value = f.process(o, key, value)
-print "%s=%s" % (key, str(value))
+        new_val = {}
+        if position == "right":
+            new_val = map(lambda x: x+appstr, value[key])
+        else:
+            new_val = map(lambda x: appstr+x, value[key])
+        return key, {key: new_val}

@@ -114,7 +114,10 @@ class ClientService(object):
             # Elseways, ask other servers for more client info
             else:
                 #TODO: get from host
-                raise Exception("getting client information from other hosts is not implmeneted!")
+                #take a random node and:
+                # ... for all clients
+                #     ... load client capabilities and store them localy
+                raise Exception("getting client information from other nodes is not implmeneted!")
 
         #TODO: check for old clients
         # Register some task at the scheduler for that
