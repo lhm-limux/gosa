@@ -6,5 +6,6 @@ p = f.getObjectInstance('Person', "cn=Cajus Pollmeier,ou=people,ou=Technik,dc=go
 print "Object type:", type(p)
 print "sn:", p.sn
 p.sn = u"Dengler"
+print "sn:", p.sn
 p.commit()
 #p.notify("Achtung!", "Hallo Karl-Gustav ;-)")

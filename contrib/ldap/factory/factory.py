@@ -477,9 +477,22 @@ class GOsaObject(object):
     def commit(self):
         print "--> built in commit method"
         props = getattr(self, '__properties')
+
+        toStore = {}
         for key in props:
+            value = props[key]['value']
             if props[key]['out_filter']:
-                value = self.__processFilter(props[key]['out_filter'], props[key])
+                key, value = self.__processFilter(props[key]['out_filter'], props[key])
+            
+            if not props[key]['out_backend'] in toStore:
+                toStore[props[key]['out_backend']] = {}
+            toStore[props[key]['out_backend']][key] = value
+         
+        print "\n\n---- Saving ----"
+        for store in toStore:
+            print " |-> %s (Backend)" % store
+            for entry in toStore[store]:
+                print "   |-> %s: " % entry, toStore[store][entry]
 
         # Schauen was sich so alles verändert hat, dann nach backend getrennt
         # in ein dict packen
@@ -511,10 +524,10 @@ class GOsaObject(object):
         orig_value = value
         orig_key = key
 
-        print "+" * 40
-        for entry in fltr:
-            print entry, fltr[entry];
-        print "+" * 40
+        #print "+" * 40
+        #for entry in fltr:
+        #    print entry, fltr[entry];
+        #print "+" * 40
 
         # Our filter result stack
         stack = list()
@@ -526,9 +539,6 @@ class GOsaObject(object):
             lptr = lptr + 1
             curline = fltr[lptr]
 
-            #print "Processing line:", lptr
-            #print stack
-
             # A filter is used to manipulate the 'value' or the 'key' or maybe both.
             if 'filter' in curline:
  
@@ -539,10 +549,11 @@ class GOsaObject(object):
            
                 # Process filter and keep results     
                 key, value = (curline['filter']).process(*args)
+
             
             # A condition matches for something and returns a boolean value.
             # We'll put this value on the stack for later use.
-            if 'condition' in curline:
+            elif 'condition' in curline:
 
                 # Build up argument list 
                 args = curline['params']          
@@ -551,25 +562,21 @@ class GOsaObject(object):
                 stack.append( (curline['condition']).process(*args))
 
             # Handle jump, for example if a condition has failed, jump over its filter-chain.
-            if 'jump' in curline:
+            elif 'jump' in curline:
 
                 # Jump to <line> -1 because we will increase the line ptr later.
                 if stack.pop():
                     lptr = curline['jump'] -1 
                 else:
                     lptr = curline['onFalse'] -1
-                               
 
             # A comparator compares two values from the stack and then returns a single 
             #  boolean value.
-            if 'operator' in curline:
-                v1 = stack.pop()
-                v2 = stack.pop()
-                stack.append((curline['operator']).process(v1,v2))
+            elif 'operator' in curline:
+                stack.append((curline['operator']).process(stack.pop(),stack.pop()))
 
+        #print "-" * 40
+        #print "--> Vorher: ", orig_key, orig_value
+        #print "--> Nachher: ", key, value
 
-        print "-" * 40
-        print "-" * 40
-        print "--> Vorher: ", orig_key, orig_value
-        print "--> Nachher: ", key, value
-
+        return key, value
