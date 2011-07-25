@@ -127,7 +127,7 @@
 								<Param>left</Param>
 							</Filter>
 						</FilterEntry>
-												<FilterEntry>
+						<FilterEntry>
 							<Filter>
 								<Name>ConcatString</Name>
 								<Param>"</Param>
@@ -172,7 +172,16 @@
 											<FilterEntry>
 												<Filter>
 													<Name>ConcatString</Name>
-													<Param>Herr </Param>
+													<Param>rr </Param>
+													<Param>left</Param>
+												</Filter>
+											</FilterEntry>
+										</FilterChain>
+										<FilterChain>
+											<FilterEntry>
+												<Filter>
+													<Name>ConcatString</Name>
+													<Param>He</Param>
 													<Param>left</Param>
 												</Filter>
 											</FilterEntry>
