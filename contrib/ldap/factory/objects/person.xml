@@ -123,8 +123,15 @@
 						<FilterEntry>
 							<Filter>
 								<Name>ConcatString</Name>
-								<Param>Hallo...</Param>
+								<Param>"</Param>
 								<Param>left</Param>
+							</Filter>
+						</FilterEntry>
+												<FilterEntry>
+							<Filter>
+								<Name>ConcatString</Name>
+								<Param>"</Param>
+								<Param>right</Param>
 							</Filter>
 						</FilterEntry>
 						<FilterEntry>
@@ -133,7 +140,7 @@
 									<ConditionChain>
 										<Condition>
 											<Name>Equals</Name>
-											<Param>1</Param>
+											<Param>0</Param>
 											<Param>1</Param>
 										</Condition>
 									</ConditionChain>
@@ -141,62 +148,53 @@
 										<FilterEntry>
 											<Filter>
 												<Name>ConcatString</Name>
-												<Param>True</Param>
+												<Param>Dr. </Param>
 												<Param>left</Param>
 											</Filter>
 										</FilterEntry>
-									</FilterChain>
-									<FilterChain>
 										<FilterEntry>
 											<Filter>
 												<Name>ConcatString</Name>
-												<Param>Genau</Param>
+												<Param>Professor </Param>
 												<Param>left</Param>
 											</Filter>
 										</FilterEntry>
-									</FilterChain>
-								</When>
-								<When>
-									<ConditionChain>
-										<ConditionOperator>
-											<Operator>and</Operator>
-											<LeftConditionChain>
-												<Condition>
-													<Name>Equals</Name>
-													<Param>1</Param>
-													<Param>1</Param>
-												</Condition>
-											</LeftConditionChain>
-											<RightConditionChain>
-												<Condition>
-													<Name>Equals</Name>
-													<Param>1</Param>
-													<Param>2</Param>
-												</Condition>
-											</RightConditionChain>
-										</ConditionOperator>
-									</ConditionChain>
-									<FilterChain>
 										<FilterEntry>
 											<Filter>
 												<Name>ConcatString</Name>
-												<Param>Matched! "</Param>
+												<Param>Herr </Param>
 												<Param>left</Param>
 											</Filter>
 										</FilterEntry>
 									</FilterChain>
+									<Else>
+										<FilterChain>
+											<FilterEntry>
+												<Filter>
+													<Name>ConcatString</Name>
+													<Param>Herr </Param>
+													<Param>left</Param>
+												</Filter>
+											</FilterEntry>
+										</FilterChain>
+									</Else>
 								</When>
-								<Else>
-									<FilterChain>
-										<FilterEntry>
-											<Filter>
-												<Name>no-op</Name>
-											</Filter>
-										</FilterEntry>
-									</FilterChain>
-								</Else>
 							</Choice>
 
+						</FilterEntry>
+						<FilterEntry>
+							<Filter>
+								<Name>ConcatString</Name>
+								<Param>-&lt;</Param>
+								<Param>left</Param>
+							</Filter>
+						</FilterEntry>
+						<FilterEntry>
+							<Filter>
+								<Name>ConcatString</Name>
+								<Param>&gt;-</Param>
+								<Param>right</Param>
+							</Filter>
 						</FilterEntry>
 					</FilterChain>
 				</OutFilter>

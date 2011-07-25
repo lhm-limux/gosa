@@ -258,23 +258,8 @@ class GOsaObjectFactory(object):
         for el in element.iterchildren():
             if el.tag == "{http://www.gonicus.de/Objects}When": 
                 out = self.__handleWhen(el, out)
-            elif el.tag == "{http://www.gonicus.de/Objects}Else": 
-                out = self.__handleElse(el, out)
         return(out)
 
-    def __handleElse(self, element, out):
-        """
-        This method is used in '__build_filter' to generate a process 
-        list for the in and out filters.
-
-        The 'Else' element is handled here.
-
-        Occurrence: OutFilter->FilterChain->FilterEntry->Choice->Else
-        """
-        print "!!! Else is not yet implemented"
-        return out 
-    
- 
     def __handleWhen(self, element, out):
         """
         This method is used in '__build_filter' to generate a process 
@@ -291,15 +276,25 @@ class GOsaObjectFactory(object):
 
         # Forward the tags to their correct handler.
         filterChain = {}
+        elseChain = {}
         for el in element.iterchildren():
             if el.tag == "{http://www.gonicus.de/Objects}ConditionChain":
                 out = self.__handleConditionChain(el, out)   
             if el.tag == "{http://www.gonicus.de/Objects}FilterChain":
                 filterChain = self.__handleFilterChain(el, filterChain)   
+            elif el.tag == "{http://www.gonicus.de/Objects}Else": 
+                elseChain = self.__handleElse(el, elseChain)
+
+        # Collect jump points 
+        cnt = len(out) 
+        match = cnt + 2
+        endMatch = match + len(filterChain) 
+        noMatch = endMatch + 1
+        endNoMatch = noMatch + len(elseChain)
 
         # Add jump point for this condition
         cnt = len(out) 
-        out[cnt +1 ] = {'jump': cnt + 2 , 'onFalse': cnt + len(filterChain) + 2}
+        out[cnt +1 ] = {'jump': 'conditional', 'onTrue': match , 'onFalse': noMatch}
 
         # Add the <FilterChain> process.
         cnt = len(out) 
@@ -307,8 +302,35 @@ class GOsaObjectFactory(object):
             cnt = cnt + 1
             out[cnt] = filterChain[entry]
 
+        # Add jump point to jump over the else chain
+        cnt = len(out) 
+        out[cnt +1] = {'jump': 'non-conditional', 'to': endNoMatch}
+
+        # Add the <Else> process.
+        cnt = len(out) 
+        for entry in elseChain:
+            cnt = cnt + 1
+            out[cnt] = elseChain[entry]
+
+
         return(out)
 
+    def __handleElse(self, element, out):
+        """
+        This method is used in '__build_filter' to generate a process 
+        list for the in and out filters.
+
+        The 'Else' element is handled here.
+
+        Occurrence: OutFilter->FilterChain->FilterEntry->Choice->Else
+        """
+       
+        for el in element.iterchildren():
+            if el.tag == "{http://www.gonicus.de/Objects}FilterChain":
+                out = self.__handleFilterChain(el, out)
+ 
+        return out 
+ 
     def __handleConditionChain(self, element, out):
         """
         This method is used in '__build_filter' to generate a process 
@@ -524,10 +546,10 @@ class GOsaObject(object):
         orig_value = value
         orig_key = key
 
-        #print "+" * 40
-        #for entry in fltr:
-        #    print entry, fltr[entry];
-        #print "+" * 40
+        print "+" * 40
+        for entry in fltr:
+            print entry, fltr[entry];
+        print "+" * 40
 
         # Our filter result stack
         stack = list()
@@ -564,11 +586,15 @@ class GOsaObject(object):
             # Handle jump, for example if a condition has failed, jump over its filter-chain.
             elif 'jump' in curline:
 
+
                 # Jump to <line> -1 because we will increase the line ptr later.
-                if stack.pop():
-                    lptr = curline['jump'] -1 
+                if curline['jump'] == 'conditional':
+                    if stack.pop():
+                        lptr = curline['onTrue'] -1 
+                    else:
+                        lptr = curline['onFalse'] -1
                 else:
-                    lptr = curline['onFalse'] -1
+                    lptr = curline['to'] -1
 
             # A comparator compares two values from the stack and then returns a single 
             #  boolean value.

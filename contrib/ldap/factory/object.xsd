@@ -146,20 +146,20 @@
     			minOccurs="1"
     		>
     		</element>
-    		<element name="Else" type="gosa:Else" maxOccurs="1"
-    			minOccurs="0"
-    		>
-    		</element>
     	</sequence>
     </complexType>
 
     <complexType name="When">
     	<sequence>
     		<element name="ConditionChain" type="gosa:ConditionChain"
+    			maxOccurs="1" minOccurs="1"
+    		>
+    		</element>
+    		<element name="FilterChain" type="gosa:FilterChain"
     			maxOccurs="unbounded" minOccurs="1"
     		>
     		</element>
-    		<element name="FilterChain" type="gosa:FilterChain" maxOccurs="unbounded" minOccurs="1"></element>
+    		<element name="Else" type="gosa:Else" maxOccurs="1" minOccurs="0"></element>
     	</sequence>
 
     </complexType>

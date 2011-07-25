@@ -164,6 +164,14 @@ class SaveAttr(ElementFilter):
         return key, value
 
 
+class Clear(ElementFilter):
+
+    def __init__(self, obj):
+        super(Clear, self).__init__(obj)
+    
+    def process(self, obj, key, value):
+        return key, {key: []}
+
 class ConcatString(ElementFilter):
 
     def __init__(self, obj):
