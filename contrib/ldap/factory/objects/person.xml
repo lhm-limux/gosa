@@ -133,8 +133,8 @@
 									<ConditionChain>
 										<Condition>
 											<Name>Equals</Name>
-											<Param>"M"</Param>
-											<Param>"M"</Param>
+											<Param>1</Param>
+											<Param>1</Param>
 										</Condition>
 									</ConditionChain>
 									<FilterChain>
@@ -159,7 +159,7 @@
 								<When>
 									<ConditionChain>
 										<ConditionOperator>
-											<Operator>or</Operator>
+											<Operator>and</Operator>
 											<LeftConditionChain>
 												<Condition>
 													<Name>Equals</Name>

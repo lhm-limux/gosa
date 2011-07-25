@@ -170,15 +170,13 @@ class GOsaObjectFactory(object):
         if out == None:
             out = {}
 
-        # Forward special tags to predefined functions.
+        # Handle <FilterChain> entry point
         if element.tag == "{http://www.gonicus.de/Objects}FilterChain":
             out = self.__handleFilterChain(element, out)   
-        elif element.tag == "{http://www.gonicus.de/Objects}Choice":
-            out = self.__handleChoice(element, out)   
         else:
             
             # If this is an unknown tag, then call __build_filter for
-            # each child-element.
+            # each child-element to ensure we catch all <FilterChain>s.
             for el in element.iterchildren(): 
                 out = self.__build_filter(el, out)
 
@@ -191,7 +189,7 @@ class GOsaObjectFactory(object):
 
         The 'FilterChain' element is handled here.
 
-        Occurrence: FilterChain
+        Occurrence: OutFilter->FilterChain
         """
 
         # FilterChains can contain muliple "Filter" and "Choice" 
@@ -200,32 +198,26 @@ class GOsaObjectFactory(object):
         for el in element.iterchildren(): 
             if el.tag == "{http://www.gonicus.de/Objects}FilterEntry":
                 out = self.__handleFilterEntry(el, out)
-
         return out 
-
     
     def __handleFilterEntry(self, element, out):
         """
         This method is used in '__build_filter' to generate a process 
         list for the in and out filters.
 
-        The 'FilterChain' element is handled here.
+        The 'FilterEntry' element is handled here.
 
-        Occurrence: FilterChain->FilterEntry
+        Occurrence: OutFilter->FilterChain->FilterEntry
         """
 
-        # FilterEntries contain a "Filter" or a "Choice" tag.
+        # FilterEntries contain a "Filter" OR a "Choice" tag.
         # Here we forward the elements to their function handle.
         for el in element.iterchildren(): 
             if el.tag == "{http://www.gonicus.de/Objects}Filter":
                 out = self.__handleFilter(el, out)
             elif el.tag == "{http://www.gonicus.de/Objects}Choice":
                 out = self.__handleChoice(el, out)
-            else:
-                raise Exception("Invalid tag")
-
         return out 
-
 
     def __handleFilter(self, element, out):
         """
@@ -234,7 +226,7 @@ class GOsaObjectFactory(object):
 
         The 'Filter' element is handled here.
 
-        Occurrence: FilterChain->Filter
+        Occurrence: OutFilter->FilterChain->FilterEntry->Filter
         """
 
         # Get the Name and the Pram element values 
@@ -259,7 +251,7 @@ class GOsaObjectFactory(object):
 
         The 'Choice' element is handled here.
 
-        Occurrence: FilterChain->Choice
+        Occurrence: OutFilter->FilterChain->FilterEntry->Choice
         """
 
         # We just forward <When> tags to their handler.
@@ -267,10 +259,21 @@ class GOsaObjectFactory(object):
             if el.tag == "{http://www.gonicus.de/Objects}When": 
                 out = self.__handleWhen(el, out)
             elif el.tag == "{http://www.gonicus.de/Objects}Else": 
-                #FIXME Not yet implemented
-                print "Not yet implemented", el.tag
-
+                out = self.__handleElse(el, out)
         return(out)
+
+    def __handleElse(self, element, out):
+        """
+        This method is used in '__build_filter' to generate a process 
+        list for the in and out filters.
+
+        The 'Else' element is handled here.
+
+        Occurrence: OutFilter->FilterChain->FilterEntry->Choice->Else
+        """
+        print "!!! Else is not yet implemented"
+        return out 
+    
  
     def __handleWhen(self, element, out):
         """
@@ -279,7 +282,7 @@ class GOsaObjectFactory(object):
 
         The 'When' element is handled here.
 
-        Occurrence: FilterChain->Choice->When
+        Occurrence: OutFilter->FilterChain->FilterEntry->Choice->When
         """
  
         # (<When> tags contain a <ConditionChain> and a <FilterChain> tag.
@@ -313,10 +316,8 @@ class GOsaObjectFactory(object):
 
         The 'ConditionChain' element is handled here.
 
-        Occurrence: FilterChain->Choice->When->ConditionChain
+        Occurrence: OutFilter->FilterChain->FilterEntry->Choice->When->ConditionChain
         """
-
-        #FIXME: This is not complete at the moment. We cannot handle nested conditions, yet..
 
         # Forward <Condition> tags to their handler. 
         for el in element.iterchildren():
@@ -332,9 +333,9 @@ class GOsaObjectFactory(object):
         This method is used in '__build_filter' to generate a process 
         list for the in and out filters.
 
-        The 'ConditionChain' element is handled here.
+        The 'ConditionOperator' element is handled here.
 
-        Occurrence: FilterChain->Choice->When->ConditionChain->ConditionOperator
+        Occurrence: OutFilter->FilterChain->FilterEntry->Choice->When->ConditionChain->ConditionOperator
         """
 
         # Forward <Left and <RightConditionChains> to the ConditionChain handler.
@@ -357,7 +358,7 @@ class GOsaObjectFactory(object):
 
         The 'Condition' element is handled here.
 
-        Occurrence: FilterChain->Choice->When->ConditionChain->Condition
+        Occurrence: OutFilter->FilterChain->FilterEntry->Choice->When->ConditionChain->Condition
         """
 
         # Get the condition name and the parameters to use.
@@ -525,39 +526,36 @@ class GOsaObject(object):
             lptr = lptr + 1
             curline = fltr[lptr]
 
-            print "Processing line:", lptr
-            print stack
+            #print "Processing line:", lptr
+            #print stack
 
             # A filter is used to manipulate the 'value' or the 'key' or maybe both.
             if 'filter' in curline:
-   
-                #FIXME: Es gibt sicherlich eine bessere Loesung, aber spaeter... 
-                if not curline['params'] or len(curline['params']) == 0:
-                    key, value = (curline['filter']).process(self, key, value)
-                elif len(curline['params']) == 1:
-                    key, value = (curline['filter']).process(self, key, value, curline['params'][0])
-                elif len(curline['params']) == 2:
-                    key, value = (curline['filter']).process(self, key, value, curline['params'][0], curline['params'][1])
+ 
+                # Build up argument list 
+                args = [self, key, value]
+                for entry in curline['params']:
+                    args.append(entry)
+           
+                # Process filter and keep results     
+                key, value = (curline['filter']).process(*args)
             
             # A condition matches for something and returns a boolean value.
             # We'll put this value on the stack for later use.
             if 'condition' in curline:
-               
-                #FIXME: Es gibt sicherlich eine bessere Loesung, aber spaeter... 
-                if not curline['params'] or len(curline['params']) == 0:
-                    v = (curline['condition']).process()
-                elif len(curline['params']) == 1:
-                    v = (curline['condition']).process(curline['params'][0])
-                elif len(curline['params']) == 2:
-                    v = (curline['condition']).process(curline['params'][0], curline['params'][1])
 
-                stack.append(v)
+                # Build up argument list 
+                args = curline['params']          
+ 
+                # Process filter and keep results     
+                stack.append( (curline['condition']).process(*args))
 
             # Handle jump, for example if a condition has failed, jump over its filter-chain.
             if 'jump' in curline:
-                v = stack.pop()
-                if v:
-                    lptr = curline['jump'] -1
+
+                # Jump to <line> -1 because we will increase the line ptr later.
+                if stack.pop():
+                    lptr = curline['jump'] -1 
                 else:
                     lptr = curline['onFalse'] -1
                                
@@ -574,6 +572,4 @@ class GOsaObject(object):
         print "-" * 40
         print "--> Vorher: ", orig_key, orig_value
         print "--> Nachher: ", key, value
-
-        print "STACK:", stack
 
