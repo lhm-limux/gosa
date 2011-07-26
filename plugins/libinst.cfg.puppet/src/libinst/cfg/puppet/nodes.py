@@ -65,9 +65,13 @@ class PuppetNodeManager(object):
         res = ""
 
         for node, data in self.__nodes.items():
+
+            # Filter empty variables
+            r_vars = dict([(x, data['var'][x]) for x in data['var'] if data['var'][x]])
+
             res += "node '%s' %s{\n" % (node, "inherits " + data['inherit'] + " " if data['inherit'] else "")
             res += "\n".join(map(lambda x: "\tinclude %s" % x, data['include']))
             res += "\n"
-            res += "\n".join(map(lambda x: "\t$%s = %s" % (x, data['var'][x]), data['var']))
+            res += "\n".join(map(lambda x: "\t$%s = %s" % (x, r_vars[x]), r_vars))
             res += "\n}\n\n"
         return res.strip() + "\n"

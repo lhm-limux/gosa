@@ -563,3 +563,5 @@ reportdir=$logdir
             nm.add(fqdn, variables, data['configItem'] if data['configItem'] else [], None)
         nm.write()
         del nm
+
+        self.gitPush(self.getBaseDir(release), "Updated node %s" % device_uuid)
