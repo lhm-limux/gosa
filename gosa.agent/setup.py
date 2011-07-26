@@ -89,5 +89,29 @@ setup(
         gosa-agent.plugins.gravatar.utils = gosa.agent.plugins.gravatar.utils:GravatarUtils
         gosa-agent.plugins.goto.network = gosa.agent.plugins.goto.network:NetworkUtils
         gosa-agent.plugins.goto.client_service = gosa.agent.plugins.goto.client_service:ClientService
+
+        [gosa.object.backend]
+        backend.ldap = gosa.agent.objects.backend.back_ldap:LDAPBackend
+
+        [gosa.object.comparator]
+        comparator.like = gosa.agent.objects.comparator.strings:Like
+        comparator.regex = gosa.agent.objects.comparator.strings:RegEx
+        comparator.equals = gosa.agent.objects.comparator.basic:Equals
+        comparator.greater = gosa.agent.objects.comparator.greater:Greater
+        comparator.smaller = gosa.agent.objects.comparator.basic:Smaller
+
+        [gosa.object.filter]
+        filter.tounixtime = gosa.agent.objects.filter.timestamp:ToUnixTime
+        filter.fromunixtime = gosa.agent.objects.filter.timestamp:FromUnixTime
+        filter.concatstring = gosa.agent.objects.filter.strings:ConcatString
+        filter.target = gosa.agent.objects.filter.basic:Target
+        filter.loadattr = gosa.agent.objects.filter.basic:LoadAttr
+        filter.saveattr = gosa.agent.objects.filter.basic:SaveAttr
+        filter.clear = gosa.agent.objects.filter.basic:Clear
+
+        [gosa.object.operator]
+        operator.and = gosa.agent.objects.operator.bool:And
+        operator.or = gosa.agent.objects.operator.bool:Or
+        operator.not = gosa.agent.objects.operator.bool:Not
     """,
 )
