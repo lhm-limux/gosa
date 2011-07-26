@@ -16,6 +16,7 @@ import pkg_resources
 import StringIO
 import ConfigParser
 import ldap
+import ldap.filter
 from datetime import datetime
 from libinst.methods import InstallMethod
 from git import Repo
@@ -389,6 +390,7 @@ reportdir=$logdir
                 cs.clientDispatch(device_uuid, "puppetAddKey", [key])
 
             # Update git if needed
+            release = self.__get_client_release(device_uuid)
             self.gitPush(self.getBaseDir(release))
 
             # Update nodes.pp
@@ -494,13 +496,31 @@ reportdir=$logdir
 
         return content.strip().split(" ")
 
+    def __get_client_release(self, device_uuid):
+        # Load template and get the install method
+        lh = LDAPHandler.get_instance()
+        with lh.get_handle() as conn:
+            res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
+                ldap.filter.filter_format("(&(objectClass=configRecipe)(objectClass=installRecipe)(deviceUUID=%s))",
+                    [device_uuid]),
+                ['cn', 'installRecipeDN', 'configVariable', 'configItem',
+                'installRelease'])
+
+        # Bail out if not present
+        if len(res) != 1:
+            raise ValueError("unknown device %s" % device_uuid)
+
+        #TODO: resolve recipe chain
+        data = "/".join(res[0][1]['installRelease'][0].split("/")[1:])
+        return data
+
     def __update_node(self, device_uuid, remove=False):
         # Load template and get the install method
         lh = LDAPHandler.get_instance()
         with lh.get_handle() as conn:
             res = conn.search_s(lh.get_base(), ldap.SCOPE_SUBTREE,
-                ldap.filter.format("(&(objectClass=configRecipe)(objectClass=installRecipe)(deviceUUID=%s))",
-                    device_uuid),
+                ldap.filter.filter_format("(&(objectClass=configRecipe)(objectClass=installRecipe)(deviceUUID=%s))",
+                    [device_uuid]),
                 ['cn', 'installRecipeDN', 'configVariable', 'configItem',
                 'installRelease'])
 

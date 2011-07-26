@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
+import os
 
 
 class PuppetNodeManager(object):
@@ -13,6 +14,10 @@ class PuppetNodeManager(object):
         self.__nodes = {}
 
         trigger = False
+
+        # Create file, if it does not exist yet
+        if not os.path.exists(path):
+            open(path, "a")
 
         for line in open(path, "r").readlines():
             line = line.strip()

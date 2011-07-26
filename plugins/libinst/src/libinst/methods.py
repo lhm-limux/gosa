@@ -840,10 +840,11 @@ class InstallMethod(object):
         if 'var' in data:
             tmp = copy(data['var'])
             data['var'] = []
-            for key, value in tmp.items():
-                if "=" in key:
-                    raise ValueError("variable key doesn't allow equal signs")
-                data['var'].append("%s=%s" % (key, value))
+            if tmp:
+                for key, value in tmp.items():
+                    if "=" in key:
+                        raise ValueError("variable key doesn't allow equal signs")
+                    data['var'].append("%s=%s" % (key, value))
 
         # Transfer changed parameters
         for ldap_key, key in self.attributes.items():

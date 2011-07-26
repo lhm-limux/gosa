@@ -179,7 +179,7 @@ class JsonRpcApp(object):
 
             # If message starts with [, it's a translateable message in
             # repr format
-            if err.startswith("["):
+            if err.startswith("[") and not err.startswith("[Err"):
                 err = loads(repr2json(err))
             if err.startswith("("):
                 err = "[" + err[1:-1] + "]"
