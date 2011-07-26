@@ -1,0 +1,9 @@
+* Deployment triggern
+* Status von betroffenen Systemen bei Änderung setzen
+  System/zugewiesene Gruppe -> zugeordnete configItem's finden
+  Abhängigkeitsbaum aus DB und schauen ob die Änderungen Einfluss
+  auf unsere configItems haben
+  
+Puppet, serverseitig:
+* Empfangen des Status-Events bei Updates
+* Auswerten des Status-Events und aktualisieren des Client-Status
