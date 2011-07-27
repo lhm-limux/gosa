@@ -89,9 +89,6 @@
     	</restriction>
     </simpleType>
 
-
-
-
     <complexType name="ContainerType">
     	<sequence>
     		<element name="Type" type="string" maxOccurs="unbounded" minOccurs="1"></element>

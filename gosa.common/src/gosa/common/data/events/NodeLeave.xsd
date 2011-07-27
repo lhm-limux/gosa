@@ -5,7 +5,7 @@
 		<annotation>
 			<documentation>
 				The NodeLeave event is emitted when a node leaves. Other
-				Nodes can update their internal node availibility
+				Nodes can update their internal node availability
 				information then.
 			</documentation>
 		</annotation>

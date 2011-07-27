@@ -99,23 +99,41 @@ class GOsaObjectFactory(object):
         if 'description' in classr:
             setattr(klass, '__doc__', str(classr['description']))
 
-        #try:
+        # Check for a default backend
+        defaultBackend = None
+        if "DefaultBackend" in classr.__dict__:
+            defaultBackend = str(classr.DefaultBackend)
+
         for prop in classr['Attributes']['Attribute']:
 
+            # Read backend definitions per property (if they exists)
+            out_b = defaultBackend
+            in_b = defaultBackend
+            if "Backend" in prop.__dict__:
+                out_b =  str(prop.Backend)
+                in_b =  str(prop.Backend)
+
             # Do we have an output filter definition?
-            out_f = self.__build_filter(prop['OutFilter'])
-            if 'Backend' in prop['OutFilter'].__dict__:
-                out_b = str(prop['OutFilter']['Backend'])
-            else:
-                out_b = str(classr.DefaultBackend)
+            out_f =  None
+            if "OutFilter" in prop.__dict__:
+                out_f = self.__build_filter(prop['OutFilter'])
+                if 'Backend' in prop['OutFilter'].__dict__:
+                    out_b = str(prop['OutFilter']['Backend'])
 
             # Do we have a input filter definition?
-            #in_f = self.__build_filter(prop['InFilter'])
-            in_f = None
-            if 'Backend' in prop['InFilter'].__dict__:
-                in_b = str(prop['InFilter']['Backend'])
-            else:
-                out_b = str(classr.DefaultBackend)
+            in_f =  None
+            if "InFilter" in prop.__dict__:
+                in_f = self.__build_filter(prop['InFilter'])
+                if 'Backend' in prop['InFilter'].__dict__:
+                    in_b = str(prop['InFilter']['Backend'])
+
+            # We require at least one backend information tag
+            if not in_b:
+                raise Exception("Cannot detect a valid iinput backend for "
+                        "attribute %s!" % (prop['Name'],))
+            if not out_b:
+                raise Exception(_("Cannot detect a valid output backend for "
+                        "attribute %s!") % (prop['Name'],))
 
             syntax = str(prop['Syntax'])
             props[str(prop['Name'])] = {
@@ -416,11 +434,22 @@ class GOsaObject(object):
             # Append property
             propsByBackend[props[key]['in_backend']].append(key)
 
+        print "\n\n---- Loading ----"
+        for store in propsByBackend:
+            print " |-> %s (Backend)" % store
+            for entry in propsByBackend[store]:
+                print "   |-> %s: " % entry
+
         # Load attributes for each backend.
         # And then assign the values to the properties.
         obj = self
         for backend in propsByBackend:
-            attrs = loadAttrs(obj, propsByBackend[backend])
+
+            try:
+                attrs = loadAttrs(obj, propsByBackend[backend], backend)
+            except ValueError as e:
+                print "<<<<<<<<<<< Invalid Backend %s >>>>>>>>>>>>" % (backend,)
+                continue
 
             # Assign fetched value to the properties.
             for key in propsByBackend[backend]:
@@ -540,11 +569,6 @@ class GOsaObject(object):
         orig_value = value
         orig_key = key
 
-        print "+" * 40
-        for entry in fltr:
-            print entry, fltr[entry]
-        print "+" * 40
-
         # Our filter result stack
         stack = list()
 
@@ -592,9 +616,5 @@ class GOsaObject(object):
             #  boolean value.
             elif 'operator' in curline:
                 stack.append((curline['operator']).process(stack.pop(), stack.pop()))
-
-        #print "-" * 40
-        #print "--> Vorher: ", orig_key, orig_value
-        #print "--> Nachher: ", key, value
 
         return key, value

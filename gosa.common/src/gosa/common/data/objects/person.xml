@@ -38,26 +38,6 @@
 						</Condition>
 					</ConditionChain>
 				</Validators>
-				<InFilter>
-					<Backend>LDAP</Backend>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>LoadAttr</Name>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</InFilter>
-				<OutFilter>
-					<Backend>LDAP</Backend>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>SaveAttr</Name>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</OutFilter>
 				<MultiValue>false</MultiValue>
 			</Attribute>
 

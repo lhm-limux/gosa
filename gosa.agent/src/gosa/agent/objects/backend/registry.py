@@ -31,6 +31,9 @@ class ObjectBackendRegistry(object):
         return ObjectBackendRegistry.backends[name]
 
 
-def loadAttrs(obj, keys):
-    backend = ObjectBackendRegistry.getBackend(obj._backend)
-    return backend.loadAttrs(obj.uuid, keys)
+def loadAttrs(obj, keys, backend=None):
+    if not backend:
+        backend = obj._backend
+
+    backendI = ObjectBackendRegistry.getBackend(backend)
+    return backendI.loadAttrs(obj.uuid, keys)
