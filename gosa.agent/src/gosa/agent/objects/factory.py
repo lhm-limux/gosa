@@ -409,29 +409,27 @@ class GOsaObject(object):
         props = getattr(self, '__properties')
         for key in props:
 
+            # Initialize an empty array for each backend
             if props[key]['in_backend'] not in propsByBackend:
                 propsByBackend[props[key]['in_backend']] = []
 
+            # Append property
             propsByBackend[props[key]['in_backend']].append(key)
-            props[key]['value'] = {key: ["test"]}
-            props[key]['old'] = {key: ["test"]}
 
-        print propsByBackend
-        #    dst = None
+        # Load attributes for each backend.
+        # And then assign the values to the properties.
+        obj = self
+        for backend in propsByBackend:
+            attrs = loadAttrs(obj, propsByBackend[backend])
 
-        #    if props[key]['in_filter']:
-        #        #TODO: load all available filter in "filter.xxx" to
-        #        #      make them available inside of the exec
-        #        #TODO: load all available validators in "validator.xxx" to
-        #        #      make them available inside of the exec
-        #        print "Filter-processing is missing - break"
-        #        exit()
-        #    else:
-        #        dst = loadAttrs(obj, [key])[0] if 'MultiValue' in props[key] and \
-        #            not props[key]['MultiValue'] else loadAttrs(obj, [key])
+            # Assign fetched value to the properties.
+            for key in propsByBackend[backend]:
+                if 'MultiValue' in props[key] and props[key]['MultiValue']:
+                    props[key]['value'] = {key: attrs[key]}
+                else:
+                    props[key]['value'] = {key: attrs[key][0]}
 
-        #    props[key]['value'] = dst
-        #    props[key]['old'] = dst
+                props[key]['old'] = props[key]['value']
 
     def _setattr_(self, name, value):
         try:

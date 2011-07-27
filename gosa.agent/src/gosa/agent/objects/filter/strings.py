@@ -9,9 +9,16 @@ class ConcatString(ElementFilter):
 
     def process(self, obj, key, value, appstr, position):
 
-        new_val = {}
-        if position == "right":
-            new_val = map(lambda x: x + appstr, value[key])
-        else:
-            new_val = map(lambda x: appstr + x, value[key])
+        if type(value[key]) == str:
+            if position == "right":
+                new_val = value[key] + appstr
+            else:
+                new_val = appstr + value[key]
+
+        elif type(value[key]) == dict:
+            new_val = {}
+            if position == "right":
+                new_val = map(lambda x: x + appstr, value[key])
+            else:
+                new_val = map(lambda x: appstr + x, value[key])
         return key, {key: new_val}
