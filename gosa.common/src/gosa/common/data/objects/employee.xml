@@ -20,7 +20,7 @@
 					</ConditionChain>
 				</Validators>
 				<InFilter>
-					<Backend>LDAP2</Backend>
+					<Backend>LDAP</Backend>
 					<FilterChain>
 						<FilterEntry>
 							<Filter>
@@ -30,7 +30,7 @@
 					</FilterChain>
 				</InFilter>
 				<OutFilter>
-					<Backend>LDAP2</Backend>
+					<Backend>LDAP</Backend>
 					<FilterChain>
 						<FilterEntry>
 							<Filter>

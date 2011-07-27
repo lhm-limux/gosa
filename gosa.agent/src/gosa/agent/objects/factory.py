@@ -399,31 +399,39 @@ class GOsaObject(object):
             print "--> empty init"
 
     def _read(self, dn):
-        #TODO: look at all requrired backends and load the
-        #      required data
 
+        # Instantiate Backend-Registry
         self._reg = ObjectBackendRegistry.getInstance()
         self.uuid = self._reg.dn2uuid(self._backend, dn)
 
-        # Walk thru all properties and fill them accordingly
+        # Group attributes by Backend
+        propsByBackend = {}
         props = getattr(self, '__properties')
         for key in props:
-            obj = self
-            dst = None
 
-            if props[key]['in_filter']:
-                #TODO: load all available filter in "filter.xxx" to
-                #      make them available inside of the exec
-                #TODO: load all available validators in "validator.xxx" to
-                #      make them available inside of the exec
-                print "Filter-processing is missing - break"
-                exit()
-            else:
-                dst = loadAttrs(obj, [key])[0] if 'MultiValue' in props[key] and \
-                    not props[key]['MultiValue'] else loadAttrs(obj, [key])
+            if props[key]['in_backend'] not in propsByBackend:
+                propsByBackend[props[key]['in_backend']] = []
 
-            props[key]['value'] = dst
-            props[key]['old'] = dst
+            propsByBackend[props[key]['in_backend']].append(key)
+            props[key]['value'] = {key: ["test"]}
+            props[key]['old'] = {key: ["test"]}
+
+        print propsByBackend
+        #    dst = None
+
+        #    if props[key]['in_filter']:
+        #        #TODO: load all available filter in "filter.xxx" to
+        #        #      make them available inside of the exec
+        #        #TODO: load all available validators in "validator.xxx" to
+        #        #      make them available inside of the exec
+        #        print "Filter-processing is missing - break"
+        #        exit()
+        #    else:
+        #        dst = loadAttrs(obj, [key])[0] if 'MultiValue' in props[key] and \
+        #            not props[key]['MultiValue'] else loadAttrs(obj, [key])
+
+        #    props[key]['value'] = dst
+        #    props[key]['old'] = dst
 
     def _setattr_(self, name, value):
         try:
