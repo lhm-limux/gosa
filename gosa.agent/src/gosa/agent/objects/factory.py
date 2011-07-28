@@ -204,6 +204,8 @@ class GOsaObjectFactory(object):
                 out = self.__handleFilterChain(el, out)
             elif  el.tag == "{http://www.gonicus.de/Objects}Condition":
                 out = self.__handleCondition(el, out)
+            elif  el.tag == "{http://www.gonicus.de/Objects}ConditionOperator":
+                out = self.__handleConditionOperator(el, out)
 
         return out
 
@@ -389,12 +391,11 @@ class GOsaObjectFactory(object):
         out = self.__handleConditionChain(element.__dict__['RightConditionChain'], out)
 
         # Append operator
-        #TODO: use the registered values
         cnt = len(out)
         if element.__dict__['Operator'] == "or":
-            out[cnt + 1] = {'operator': Or(self)}
+            out[cnt + 1] = {'operator': get_operator('Or')(self)}
         else:
-            out[cnt + 1] = {'operator': And(self)}
+            out[cnt + 1] = {'operator': get_operator('And')(self)}
 
         return out
 
@@ -452,12 +453,6 @@ class GOsaObject(object):
 
             # Append property
             propsByBackend[props[key]['in_backend']].append(key)
-
-        #print "\n\n---- Loading ----"
-        #for store in propsByBackend:
-        #    print " |-> %s (Backend)" % store
-        #    for entry in propsByBackend[store]:
-        #        print "   |-> %s: " % entry
 
         # Load attributes for each backend.
         # And then assign the values to the properties.
@@ -590,7 +585,6 @@ class GOsaObject(object):
             for entry in toStore[store]:
                 print "   |-> %s: " % entry, toStore[store][entry]
 
-
     def delete(self):
         #TODO:
         print "--> built in delete method"
@@ -599,7 +593,6 @@ class GOsaObject(object):
         print "--> built in revert method"
         #TODO:
         # Alle CHANGED attribute wieder zurück auf "old" setzen
-
 
     def __processValidator(self, fltr, key, value):
         """
@@ -657,7 +650,6 @@ class GOsaObject(object):
             errormsgs.append(lasterrmsg)
 
         return res, errormsgs
-
 
     def __processFilter(self, fltr, prop):
         """
