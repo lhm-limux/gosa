@@ -10,7 +10,7 @@ class ConcatString(ElementFilter):
     def process(self, obj, key, value, appstr, position):
 
         new_val = value[key]
-        if type(value[key]) == str:
+        if type(value[key]) in [str, unicode]:
             if position == "right":
                 new_val = value[key] + appstr
             else:
@@ -22,5 +22,7 @@ class ConcatString(ElementFilter):
                 new_val = map(lambda x: x + appstr, value[key])
             else:
                 new_val = map(lambda x: appstr + x, value[key])
-
+        else:
+            raise ValueError("Unknown input type for filter %s. Type as '%s'!") % (
+                    self.__name__, type(value))
         return key, {key: new_val}

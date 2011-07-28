@@ -140,11 +140,18 @@ class GOsaObjectFactory(object):
             # check for multivalue definition 
             multivalue = bool(prop['MultiValue']) if "MultiValue" in prop.__dict__ else False
 
+            # Check for property dependencies
+            dependsOn = []
+            if "DependsOn" in prop.__dict__:
+                for d in prop.__dict__['DependsOn'].iterchildren():
+                    dependsOn.append(str(d))
+
             props[str(prop['Name'])] = {
                     'value': None,
                     'name': str(prop['Name']),
                     'orig': None,
                     'status': STATUS_OK,
+                    'dependsOn': dependsOn,
                     'type': TYPE_MAP[syntax],
                     'syntax': syntax,
                     'out_filter': out_f,
@@ -480,14 +487,16 @@ class GOsaObject(object):
                 props[key]['old'] = props[key]['value']
 
     def _setattr_(self, name, value):
+
+        # Store non property values
         try:
-            getattr(self, name)
+            object.__getattribute__(self, name)
             self.__dict__[name] = value
             return
-
         except:
             pass
 
+        # Try to save as property value
         props = getattr(self, '__properties')
         if name in props:
             current = props[name]['value']
@@ -498,12 +507,11 @@ class GOsaObject(object):
                     value, type(value).__name__,
                     name, props[name]['syntax']))
 
-            # Run validator
-                #TODO: load all available filter in "filter.xxx" to
-                #      make them available inside of the exec
-                #TODO: load all available validators in "validator.xxx" to
-                #      make them available inside of the exec
-            props[name]['value'] = value
+            # Validate value
+            print "Not validated: %s" % name
+
+            # Set the new value
+            props[name]['value'] = {name: value}
 
             # Update status if there's a change
             if current != props[name]['value'] and props[name]['status'] != STATUS_CHANGED:
@@ -542,10 +550,21 @@ class GOsaObject(object):
         # Collect value by store and process the property filters
         toStore = {}
         for key in props:
+
+            # Adapt status from dependent properties.
+            for propname in props[key]['dependsOn']:
+                props[key]['status'] |= props[propname]['status'] & STATUS_CHANGED
+
+            # Do not save untouched values
+            if props[key]['status'] != STATUS_CHANGED:
+                continue
+
+            # Get the new value for the property and execute the out-filter
             value = props[key]['value']
             if props[key]['out_filter']:
                 key, value = self.__processFilter(props[key]['out_filter'], props[key])
 
+            # Collect properties by backend
             if not props[key]['out_backend'] in toStore:
                 toStore[props[key]['out_backend']] = {}
             toStore[props[key]['out_backend']][key] = value
@@ -556,9 +575,6 @@ class GOsaObject(object):
             for entry in toStore[store]:
                 print "   |-> %s: " % entry, toStore[store][entry]
 
-        #TODO:
-        # Schauen was sich so alles verändert hat, dann nach backend getrennt
-        # in ein dict packen
 
     def delete(self):
         #TODO:
@@ -607,7 +623,11 @@ class GOsaObject(object):
                     args.append(entry)
 
                 # Process filter and keep results
-                key, value = (curline['filter']).process(*args)
+                try:
+                    key, value = (curline['filter']).process(*args)
+                except Exception as e:
+                    print "Abporting filter execution for:", curline
+                    break
 
             # A condition matches for something and returns a boolean value.
             # We'll put this value on the stack for later use.

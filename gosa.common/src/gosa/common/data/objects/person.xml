@@ -40,6 +40,10 @@
 
 			<Attribute>
 				<Name>cn</Name>
+				<DependsOn>
+					<Attribute>sn</Attribute>
+					<Attribute>givenName</Attribute>
+				</DependsOn>
 				<Description>Common name</Description>
 				<Syntax>String</Syntax>
 				<Validators>
