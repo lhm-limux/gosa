@@ -5,6 +5,7 @@ f = GOsaObjectFactory('.')
 p = f.getObjectInstance('Person', "cn=Cajus Pollmeier,ou=people,ou=Technik,dc=gonicus,dc=de")
 print "Object type:", type(p)
 print "sn:", p.sn
+print "cn:", p.cn
 p.sn = u"Dengler"
 print "sn:", p.sn
 p.commit()

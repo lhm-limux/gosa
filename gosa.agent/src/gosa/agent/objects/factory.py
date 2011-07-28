@@ -413,12 +413,10 @@ class GOsaObject(object):
     uuid = None
 
     def __init__(self, dn=None):
-        if dn:
-            print "--> init '%s'" % dn
-            self._read(dn)
 
-        else:
-            print "--> empty init"
+        # Initialize object using a dn
+        if dn:
+            self._read(dn)
 
     def _read(self, dn):
 
@@ -438,11 +436,11 @@ class GOsaObject(object):
             # Append property
             propsByBackend[props[key]['in_backend']].append(key)
 
-        print "\n\n---- Loading ----"
-        for store in propsByBackend:
-            print " |-> %s (Backend)" % store
-            for entry in propsByBackend[store]:
-                print "   |-> %s: " % entry
+        #print "\n\n---- Loading ----"
+        #for store in propsByBackend:
+        #    print " |-> %s (Backend)" % store
+        #    for entry in propsByBackend[store]:
+        #        print "   |-> %s: " % entry
 
         # Load attributes for each backend.
         # And then assign the values to the properties.
@@ -457,11 +455,28 @@ class GOsaObject(object):
 
             # Assign fetched value to the properties.
             for key in propsByBackend[backend]:
-                if 'MultiValue' in props[key] and props[key]['MultiValue']:
-                    props[key]['value'] = {key: attrs[key]}
-                else:
-                    props[key]['value'] = {key: attrs[key][0]}
 
+                # Assign property
+                if 'MultiValue' in props[key] and props[key]['MultiValue']:
+                    value = {key: attrs[key]}
+                else:
+                    value = {key: attrs[key][0]}
+                props[key]['value'] = value
+
+                # If we've got an in-filter defintion then process it now.
+                if props[key]['in_filter']:
+                    new_key, value = self.__processFilter(props[key]['in_filter'], props[key])
+
+                    # Update the key value if necessary
+                    if key != new_key:
+                        props[new_key] = props[key]
+                        del(props[key])
+                        key = new_key
+
+                    # Update the value
+                    props[key]['value'] = value
+
+                # Keep the initial value
                 props[key]['old'] = props[key]['value']
 
     def _setattr_(self, name, value):
@@ -522,9 +537,9 @@ class GOsaObject(object):
         raise AttributeError("no such property '%s'" % name)
 
     def commit(self):
-        print "--> built in commit method"
         props = getattr(self, '__properties')
 
+        # Collect value by store and process the property filters
         toStore = {}
         for key in props:
             value = props[key]['value']

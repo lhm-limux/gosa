@@ -54,7 +54,9 @@
 					<FilterChain>
 						<FilterEntry>
 							<Filter>
-								<Name>LoadAttr</Name>
+								<Name>ConcatString</Name>
+								<Param>test</Param>
+								<Param>left</Param>
 							</Filter>
 						</FilterEntry>
 					</FilterChain>
