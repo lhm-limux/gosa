@@ -29,57 +29,18 @@
 			<Attribute>
 				<Name>sn</Name>
 				<Description>Surname</Description>
-				<Backend>LDAP</Backend>
 				<Syntax>String</Syntax>
-				<Validators>
-					<ConditionChain>
-						<Condition>
-							<Name>isString</Name>
-						</Condition>
-					</ConditionChain>
-				</Validators>
-				<MultiValue>false</MultiValue>
 			</Attribute>
 
 			<Attribute>
 				<Name>givenName</Name>
 				<Description>Given name</Description>
-				<Backend>LDAP</Backend>
 				<Syntax>String</Syntax>
-				<Validators>
-					<ConditionChain>
-						<Condition>
-							<Name>isString</Name>
-						</Condition>
-					</ConditionChain>
-				</Validators>
-				<InFilter>
-					<Backend>LDAP</Backend>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>LoadAttr</Name>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</InFilter>
-				<OutFilter>
-					<Backend>LDAP</Backend>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>SaveAttr</Name>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</OutFilter>
-				<MultiValue>false</MultiValue>
 			</Attribute>
 
 			<Attribute>
 				<Name>cn</Name>
 				<Description>Common name</Description>
-				<Backend>LDAP</Backend>
 				<Syntax>String</Syntax>
 				<Validators>
 					<ConditionChain>

@@ -71,7 +71,7 @@
             >
             </element>
             <element name="MultiValue" type="boolean" maxOccurs="1"
-                minOccurs="1">
+                minOccurs="0">
             </element>
             <element name="Readonly" type="boolean" maxOccurs="1"
                 minOccurs="0">

@@ -136,6 +136,10 @@ class GOsaObjectFactory(object):
                         "attribute %s!") % (prop['Name'],))
 
             syntax = str(prop['Syntax'])
+
+            # check for multivalue definition 
+            multivalue = bool(prop['MultiValue']) if "MultiValue" in prop.__dict__ else False
+
             props[str(prop['Name'])] = {
                     'value': None,
                     'name': str(prop['Name']),
@@ -147,7 +151,7 @@ class GOsaObjectFactory(object):
                     'out_backend': out_b,
                     'in_filter': in_f,
                     'in_backend': in_b,
-                    'multivalue': bool(prop['MultiValue'])}
+                    'multivalue': multivalue}
 
             #-----------------
             #validators....
