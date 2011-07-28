@@ -7,11 +7,11 @@ class Equals(ElementComparator):
     def __init__(self, obj):
         super(Equals, self).__init__()
 
-    def process(self, a, b, case_ignore=False):
+    def process(self, key, value, match, case_ignore=False, errors=[]):
         if case_ignore:
-            return a.lower() == b.lower()
+            return value.lower() == match.lower()
 
-        return a == b
+        return value == match
 
 
 class Greater(ElementComparator):
@@ -19,8 +19,8 @@ class Greater(ElementComparator):
     def __init__(self, obj):
         super(Greater, self).__init__()
 
-    def process(self, a, b):
-        return a > b
+    def process(self, key, value, match, errors=[]):
+        return value > match
 
 
 class Smaller(ElementComparator):
@@ -28,5 +28,5 @@ class Smaller(ElementComparator):
     def __init__(self, obj):
         super(Smaller, self).__init__()
 
-    def process(self, a, b):
-        return a < b
+    def process(self, key, value, match, errors=[]):
+        return value < match

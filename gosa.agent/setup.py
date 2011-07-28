@@ -96,8 +96,10 @@ setup(
         [gosa.object.comparator]
         comparator.like = gosa.agent.objects.comparator.strings:Like
         comparator.regex = gosa.agent.objects.comparator.strings:RegEx
+        comparator.isstring = gosa.agent.objects.comparator.strings:isString
+        comparator.stringlength = gosa.agent.objects.comparator.strings:stringLength
         comparator.equals = gosa.agent.objects.comparator.basic:Equals
-        comparator.greater = gosa.agent.objects.comparator.greater:Greater
+        comparator.greater = gosa.agent.objects.comparator.basic:Greater
         comparator.smaller = gosa.agent.objects.comparator.basic:Smaller
 
         [gosa.object.filter]

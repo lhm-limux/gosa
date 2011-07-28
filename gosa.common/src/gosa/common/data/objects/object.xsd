@@ -213,9 +213,14 @@
     </complexType>
 
     <complexType name="Validator">
-    	<sequence>
-    		<element name="ConditionChain" type="gosa:ConditionChain" maxOccurs="unbounded" minOccurs="1"></element>
-    	</sequence>
+    	<choice>
+    		<element name="ConditionOperator"
+    			type="gosa:ConditionOperator" maxOccurs="1"
+    			minOccurs="0"
+    		>
+    		</element>
+    		<element name="Condition" type="gosa:Condition" maxOccurs="1" minOccurs="0"></element>
+    	</choice>
     </complexType>
 
     <complexType name="FilterEntry">

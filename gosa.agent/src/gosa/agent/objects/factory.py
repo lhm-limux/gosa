@@ -129,15 +129,21 @@ class GOsaObjectFactory(object):
 
             # We require at least one backend information tag
             if not in_b:
-                raise Exception("Cannot detect a valid iinput backend for "
+                raise Exception("Cannot detect a valid input backend for "
                         "attribute %s!" % (prop['Name'],))
             if not out_b:
                 raise Exception(_("Cannot detect a valid output backend for "
                         "attribute %s!") % (prop['Name'],))
 
+            # Read for a validator
+            validator =  None
+            if "Validators" in prop.__dict__:
+                validator = self.__build_filter(prop['Validators'])
+
+            # Read the properties syntax
             syntax = str(prop['Syntax'])
 
-            # check for multivalue definition 
+            # check for multivalue definition
             multivalue = bool(prop['MultiValue']) if "MultiValue" in prop.__dict__ else False
 
             # Check for property dependencies
@@ -154,6 +160,7 @@ class GOsaObjectFactory(object):
                     'dependsOn': dependsOn,
                     'type': TYPE_MAP[syntax],
                     'syntax': syntax,
+                    'validator': validator,
                     'out_filter': out_f,
                     'out_backend': out_b,
                     'in_filter': in_f,
@@ -193,7 +200,10 @@ class GOsaObjectFactory(object):
         # Parse each <FilterChain>
         out = {}
         for el in element.iterchildren():
-            out = self.__handleFilterChain(el, out)
+            if el.tag == "{http://www.gonicus.de/Objects}FilterChain":
+                out = self.__handleFilterChain(el, out)
+            elif  el.tag == "{http://www.gonicus.de/Objects}Condition":
+                out = self.__handleCondition(el, out)
 
         return out
 
@@ -508,7 +518,12 @@ class GOsaObject(object):
                     name, props[name]['syntax']))
 
             # Validate value
-            print "Not validated: %s" % name
+            if props[name]['validator']:
+                res, error = self.__processValidator(props[name]['validator'],
+                        name, value)
+                if not res:
+                    print "%s" % (error)
+                    return
 
             # Set the new value
             props[name]['value'] = {name: value}
@@ -585,6 +600,65 @@ class GOsaObject(object):
         #TODO:
         # Alle CHANGED attribute wieder zurück auf "old" setzen
 
+
+    def __processValidator(self, fltr, key, value):
+        """
+        This method processes a given process-list (fltr) for a given property (prop).
+        """
+
+        # This is our process-line pointer it points to the process-list line
+        #  we're executing at the moment
+        lptr = 0
+
+        # Our filter result stack
+        stack = list()
+
+        # Process the list till we reach the end..
+        lasterrmsg = ""
+        errormsgs = []
+        while (lptr + 1) in fltr:
+
+            # Get the current line and increase the process list pointer.
+            lptr = lptr + 1
+            curline = fltr[lptr]
+
+            # A condition matches for something and returns a boolean value.
+            # We'll put this value on the stack for later use.
+            if 'condition' in curline:
+
+                # Build up argument list
+                args = [key, value] + curline['params']
+
+                # Process condition and keep results
+                errors = []
+                named = {'errors': errors}
+                v = (curline['condition']).process(*args, **named)
+                stack.append(v)
+                if not v:
+                    if len(errors):
+                        lasterrmsg =  errors.pop()
+
+            # A comparator compares two values from the stack and then returns a single
+            #  boolean value.
+            elif 'operator' in curline:
+                v1 = stack.pop()
+                v2 = stack.pop()
+                res = (curline['operator']).process(v1, v2)
+                stack.append(res)
+
+                # Add last error message
+                if not res:
+                    errormsgs.append(lasterrmsg)
+                    lasterrmsg = ""
+
+        # Attach last error message
+        res = stack.pop()
+        if not res and lasterrmsg != "":
+            errormsgs.append(lasterrmsg)
+
+        return res, errormsgs
+
+
     def __processFilter(self, fltr, prop):
         """
         This method processes a given process-list (fltr) for a given property (prop).
@@ -634,7 +708,7 @@ class GOsaObject(object):
             elif 'condition' in curline:
 
                 # Build up argument list
-                args = curline['params']
+                args = [key] + curline['params']
 
                 # Process condition and keep results
                 stack.append((curline['condition']).process(*args))

@@ -30,6 +30,13 @@
 				<Name>sn</Name>
 				<Description>Surname</Description>
 				<Syntax>String</Syntax>
+				<Validators>
+					<Condition>
+						<Name>stringLength</Name>
+						<Param>4</Param>
+						<Param>12</Param>
+					</Condition>
+				</Validators>
 			</Attribute>
 
 			<Attribute>
@@ -46,13 +53,7 @@
 				</DependsOn>
 				<Description>Common name</Description>
 				<Syntax>String</Syntax>
-				<Validators>
-					<ConditionChain>
-						<Condition>
-							<Name>isString</Name>
-						</Condition>
-					</ConditionChain>
-				</Validators>
+
 				<InFilter>
 					<Backend>LDAP</Backend>
 					<FilterChain>
