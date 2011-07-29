@@ -69,6 +69,12 @@
 					<FilterChain>
 						<FilterEntry>
 							<Filter>
+								<Name>Target</Name>
+								<Param>cn</Param>
+							</Filter>
+						</FilterEntry>
+						<FilterEntry>
+							<Filter>
 								<Name>ConcatString</Name>
 								<Param>"</Param>
 								<Param>left</Param>
@@ -152,12 +158,7 @@
 								<Param>right</Param>
 							</Filter>
 						</FilterEntry>
-						<FilterEntry>
-							<Filter>
-								<Name>Target</Name>
-								<Param>cn</Param>
-							</Filter>
-						</FilterEntry>
+
 					</FilterChain>
 				</OutFilter>
 				<MultiValue>false</MultiValue>

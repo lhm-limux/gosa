@@ -580,20 +580,21 @@ class GOsaObject(object):
         toStore = {}
         for key in props:
 
-            print "--> Saving %s" % key
-
             # Adapt status from dependent properties.
             for propname in props[key]['dependsOn']:
                 props[key]['status'] |= props[propname]['status'] & STATUS_CHANGED
 
             # Do not save untouched values
             if not props[key]['status'] & STATUS_CHANGED:
+                print "--> Skipping %s it has not been changed!" % key
                 continue
+
+            print "--> Preparing %s to be saved" % key
 
             # Get the new value for the property and execute the out-filter
             value = props[key]['value']
+            new_key = key
             if props[key]['out_filter']:
-
                 try:
                     new_key, value = self.__processFilter(props[key]['out_filter'], props[key])
                 except Exception as e:
@@ -699,9 +700,6 @@ class GOsaObject(object):
         # Our filter result stack
         stack = list()
 
-        print "### > START"
-        print "### > ", lptr, key, value
-
         # Process the list till we reach the end..
         while (lptr + 1) in fltr:
 
@@ -746,9 +744,5 @@ class GOsaObject(object):
             #  boolean value.
             elif 'operator' in curline:
                 stack.append((curline['operator']).process(stack.pop(), stack.pop()))
-
-            print "### > ", lptr, key, value
-
-        print "### > END"
 
         return key, value
