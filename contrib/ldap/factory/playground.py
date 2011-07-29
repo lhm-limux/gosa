@@ -6,6 +6,7 @@ p = f.getObjectInstance('Person', "cn=Cajus Pollmeier,ou=people,ou=Technik,dc=go
 print "Object type:", type(p)
 print "sn:", p.sn
 print "commonName:", p.commonName
-p.sn = u"Dengler lengler"
+p.sn = u"Name"
+p.givenName = u"Neuer"
 print "sn:", p.sn
 p.commit()

@@ -479,12 +479,7 @@ class GOsaObject(object):
 
                 # If we've got an in-filter defintion then process it now.
                 if props[key]['in_filter']:
-                    try:
-                        new_key, value = self.__processFilter(props[key]['in_filter'], props[key])
-                    except Exception as e:
-                        print "Error while processing in-filter for '%s'!", key
-                        print e
-                        continue
+                    new_key, value = self.__processFilter(props[key]['in_filter'], props[key])
 
                     # Update the key value if necessary
                     if key != new_key:
@@ -595,11 +590,7 @@ class GOsaObject(object):
             value = props[key]['value']
             new_key = key
             if props[key]['out_filter']:
-                try:
-                    new_key, value = self.__processFilter(props[key]['out_filter'], props[key])
-                except Exception as e:
-                    print "FAILED to prepare '%s' to be saved!", key
-                    raise e
+                new_key, value = self.__processFilter(props[key]['out_filter'], props[key])
 
             # Collect properties by backend
             if not props[key]['out_backend'] in toStore:
@@ -690,6 +681,9 @@ class GOsaObject(object):
          key, value pair.
         """
 
+        # Search for replaceable patterns in the process-list.
+        fltr = self.fillInPlaceholders(fltr)
+
         # This is our process-line pointer it points to the process-list line
         #  we're executing at the moment
         lptr = 0
@@ -750,6 +744,28 @@ class GOsaObject(object):
                 stack.append((curline['operator']).process(stack.pop(), stack.pop()))
 
         return key, value
+
+    def fillInPlaceholders(self, fltr):
+
+        # Collect all property values
+        propList = {}
+        props = getattr(self, '__properties')
+        for key in props:
+            name = props[key]['name']
+            propList[name] =  props[name]['value'][name]
+
+        # An inline function which replaces format string tokens
+        def _placeHolder(x):
+            for name in propList:
+                x = x % propList
+            return (x)
+
+        # Walk trough each line of the process list an replace placeholders.
+        for line in fltr:
+            if 'params' in fltr[line]:
+                fltr[line]['params'] = map(lambda x: _placeHolder(x),
+                        fltr[line]['params'])
+        return fltr
 
     def delete(self):
         #TODO:

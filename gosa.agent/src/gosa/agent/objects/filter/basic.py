@@ -37,4 +37,12 @@ class Clear(ElementFilter):
         super(Clear, self).__init__(obj)
 
     def process(self, obj, key, value):
-        return key, {key: []}
+
+        if type(value[key]) in [str, unicode]:
+            return key, {key: ''}
+        elif type(value[key]) in [dict, list]:
+            return key, {key: ['']}
+        else:
+            raise ValueError("Unknown input type for filter %s. Type as '%s'!") % (
+                    self.__name__, type(value))
+
