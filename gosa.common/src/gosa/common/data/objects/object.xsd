@@ -232,7 +232,10 @@
 
     <complexType name="ConditionOperator">
     	<sequence>
-    		<element name="Operator" type="string" maxOccurs="1" minOccurs="1"></element>
+    		<element name="Operator" type="gosa:NewType" maxOccurs="1"
+    			minOccurs="1"
+    		>
+    		</element>
     		<element name="LeftConditionChain"
     			type="gosa:ConditionChain"
     		maxOccurs="1" minOccurs="1">
@@ -246,4 +249,11 @@
     		<element name="Attribute" type="string" maxOccurs="unbounded" minOccurs="1"></element>
     	</sequence>
     </complexType>
+
+    <simpleType name="NewType">
+    	<restriction base="string">
+    		<enumeration value="or"></enumeration>
+    		<enumeration value="and"></enumeration>
+    	</restriction>
+    </simpleType>
 </schema>
