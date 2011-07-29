@@ -31,24 +31,11 @@
 				<Description>Surname</Description>
 				<Syntax>String</Syntax>
 				<Validators>
-					<ConditionOperator>
-						<Operator>or</Operator>
-						<LeftConditionChain>
-							<Condition>
-								<Name>stringLength</Name>
-								<Param>10</Param>
-								<Param>20</Param>
-							</Condition>
-						</LeftConditionChain>
-						<RightConditionChain>
-							<Condition>
-								<Name>stringLength</Name>
-								<Param>3</Param>
-								<Param>4</Param>
-							</Condition>
-						</RightConditionChain>
-					</ConditionOperator>
-
+					<Condition>
+						<Name>stringLength</Name>
+						<Param>4</Param>
+						<Param>20</Param>
+					</Condition>
 				</Validators>
 			</Attribute>
 
@@ -72,9 +59,8 @@
 					<FilterChain>
 						<FilterEntry>
 							<Filter>
-								<Name>ConcatString</Name>
-								<Param>test</Param>
-								<Param>left</Param>
+								<Name>Target</Name>
+								<Param>commonName</Param>
 							</Filter>
 						</FilterEntry>
 					</FilterChain>
@@ -164,6 +150,12 @@
 								<Name>ConcatString</Name>
 								<Param>&gt;-</Param>
 								<Param>right</Param>
+							</Filter>
+						</FilterEntry>
+						<FilterEntry>
+							<Filter>
+								<Name>Target</Name>
+								<Param>cn</Param>
 							</Filter>
 						</FilterEntry>
 					</FilterChain>

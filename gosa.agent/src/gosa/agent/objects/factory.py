@@ -477,19 +477,38 @@ class GOsaObject(object):
 
                 # If we've got an in-filter defintion then process it now.
                 if props[key]['in_filter']:
-                    new_key, value = self.__processFilter(props[key]['in_filter'], props[key])
+                    try:
+                        new_key, value = self.__processFilter(props[key]['in_filter'], props[key])
+                    except Exception as e:
+                        print "FAILED to load '%s'!", key
+                        print e
+                        continue
 
                     # Update the key value if necessary
                     if key != new_key:
-                        props[new_key] = props[key]
-                        del(props[key])
-                        key = new_key
+                        props[key]['name'] = new_key
 
                     # Update the value
                     props[key]['value'] = value
 
                 # Keep the initial value
                 props[key]['old'] = props[key]['value']
+
+            # A filter may have changed a properties name, we now update the
+            # properties list to use correct indicies.
+            self.updatePropertyNames()
+
+    def updatePropertyNames(self):
+        """
+        Synchronizes property names and their indicies in the self.__properties
+        list.
+        """
+        new_props = {}
+        props = getattr(self, '__properties')
+        for entry in props:
+            new_props[props[entry]['name']] = props[entry]
+
+        self.__dict__['__properties'] = new_props
 
     def _setattr_(self, name, value):
 
@@ -561,23 +580,30 @@ class GOsaObject(object):
         toStore = {}
         for key in props:
 
+            print "--> Saving %s" % key
+
             # Adapt status from dependent properties.
             for propname in props[key]['dependsOn']:
                 props[key]['status'] |= props[propname]['status'] & STATUS_CHANGED
 
             # Do not save untouched values
-            if props[key]['status'] != STATUS_CHANGED:
+            if not props[key]['status'] & STATUS_CHANGED:
                 continue
 
             # Get the new value for the property and execute the out-filter
             value = props[key]['value']
             if props[key]['out_filter']:
-                key, value = self.__processFilter(props[key]['out_filter'], props[key])
+
+                try:
+                    new_key, value = self.__processFilter(props[key]['out_filter'], props[key])
+                except Exception as e:
+                    print "FAILED to prepare '%s' to be saved!", key
+                    raise e
 
             # Collect properties by backend
             if not props[key]['out_backend'] in toStore:
                 toStore[props[key]['out_backend']] = {}
-            toStore[props[key]['out_backend']][key] = value
+            toStore[props[key]['out_backend']][new_key] = value
 
         print "\n\n---- Saving ----"
         for store in toStore:
@@ -673,6 +699,9 @@ class GOsaObject(object):
         # Our filter result stack
         stack = list()
 
+        print "### > START"
+        print "### > ", lptr, key, value
+
         # Process the list till we reach the end..
         while (lptr + 1) in fltr:
 
@@ -689,11 +718,7 @@ class GOsaObject(object):
                     args.append(entry)
 
                 # Process filter and keep results
-                try:
-                    key, value = (curline['filter']).process(*args)
-                except Exception as e:
-                    print "Abporting filter execution for:", curline
-                    break
+                key, value = (curline['filter']).process(*args)
 
             # A condition matches for something and returns a boolean value.
             # We'll put this value on the stack for later use.
@@ -721,5 +746,9 @@ class GOsaObject(object):
             #  boolean value.
             elif 'operator' in curline:
                 stack.append((curline['operator']).process(stack.pop(), stack.pop()))
+
+            print "### > ", lptr, key, value
+
+        print "### > END"
 
         return key, value

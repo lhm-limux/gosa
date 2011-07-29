@@ -8,8 +8,9 @@ class Target(ElementFilter):
         super(Target, self).__init__(obj)
 
     def process(self, obj, key, value, new_key):
+        new_val = {new_key: value[key]}
         key = new_key
-        return key, value
+        return key, new_val
 
 
 class LoadAttr(ElementFilter):
