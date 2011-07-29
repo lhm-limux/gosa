@@ -9,4 +9,3 @@ print "commonName:", p.commonName
 p.sn = u"Dengler lengler"
 print "sn:", p.sn
 p.commit()
-#p.notify("Achtung!", "Hallo Karl-Gustav ;-)")

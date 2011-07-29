@@ -53,7 +53,6 @@ class GOsaObjectFactory(object):
             self.__parse_schema(os.path.join(path, f))
 
     def __parse_schema(self, path):
-        print "Loading %s..." % path
 
         # Load and validate objects
         try:
@@ -61,7 +60,7 @@ class GOsaObjectFactory(object):
             self.__xml_defs[str(xml.Object['Name'][0])] = xml
 
         except etree.XMLSyntaxError as e:
-            print "Error:", e
+            print "Error loading: %s, %s", path, e
             exit()
 
     #@Command()
@@ -155,6 +154,8 @@ class GOsaObjectFactory(object):
             props[str(prop['Name'])] = {
                     'value': None,
                     'name': str(prop['Name']),
+                    'in_value': None,
+                    'in_name': None,
                     'orig': None,
                     'status': STATUS_OK,
                     'dependsOn': dependsOn,
@@ -166,10 +167,6 @@ class GOsaObjectFactory(object):
                     'in_filter': in_f,
                     'in_backend': in_b,
                     'multivalue': multivalue}
-
-            #-----------------
-            #validators....
-            #-----------------
 
             #TODO: no exec plz
             #for method in classr['Methods']['Method']:
@@ -197,7 +194,7 @@ class GOsaObjectFactory(object):
         This list can then be easily executed line by line for each property.
         """
 
-        # Parse each <FilterChain>
+        # Parse each <FilterChain>, <Condition>, <ConditionChain>
         out = {}
         for el in element.iterchildren():
             if el.tag == "{http://www.gonicus.de/Objects}FilterChain":
@@ -462,7 +459,7 @@ class GOsaObject(object):
             try:
                 attrs = loadAttrs(obj, propsByBackend[backend], backend)
             except ValueError as e:
-                print "<<<<<<<<<<< Invalid Backend %s >>>>>>>>>>>>" % (backend,)
+                print "Error reading property: %s!" % (backend,)
                 continue
 
             # Assign fetched value to the properties.
@@ -473,14 +470,19 @@ class GOsaObject(object):
                     value = {key: attrs[key]}
                 else:
                     value = {key: attrs[key][0]}
+
                 props[key]['value'] = value
+
+                # Keep original values, they may be overwritten in the in-filters.
+                props[key]['in_value'] = value
+                props[key]['in_value'] = key
 
                 # If we've got an in-filter defintion then process it now.
                 if props[key]['in_filter']:
                     try:
                         new_key, value = self.__processFilter(props[key]['in_filter'], props[key])
                     except Exception as e:
-                        print "FAILED to load '%s'!", key
+                        print "Error while processing in-filter for '%s'!", key
                         print e
                         continue
 
@@ -500,8 +502,12 @@ class GOsaObject(object):
 
     def updatePropertyNames(self):
         """
-        Synchronizes property names and their indicies in the self.__properties
+        Synchronizes property names and their indices in the self.__properties
         list.
+
+        This makes sense after execution of an in-filter. The in-filter may has
+        changed a properties now, but did not change its index in the
+        self.__properties list.
         """
         new_props = {}
         props = getattr(self, '__properties')
@@ -563,9 +569,6 @@ class GOsaObject(object):
         else:
             raise AttributeError("no such property '%s'" % name)
 
-    def _del_(self):
-        print "--> cleanup"
-
     def getAttrType(self, name):
         props = getattr(self, '__properties')
         if name in props:
@@ -586,10 +589,7 @@ class GOsaObject(object):
 
             # Do not save untouched values
             if not props[key]['status'] & STATUS_CHANGED:
-                print "--> Skipping %s it has not been changed!" % key
                 continue
-
-            print "--> Preparing %s to be saved" % key
 
             # Get the new value for the property and execute the out-filter
             value = props[key]['value']
@@ -612,14 +612,18 @@ class GOsaObject(object):
             for entry in toStore[store]:
                 print "   |-> %s: " % entry, toStore[store][entry]
 
-    def delete(self):
-        #TODO:
-        print "--> built in delete method"
-
     def revert(self):
-        print "--> built in revert method"
-        #TODO:
-        # Alle CHANGED attribute wieder zurück auf "old" setzen
+        """
+        Reverts all property changes made in this object since it was loaded.
+        """
+        props = getattr(self, '__properties')
+        for key in props:
+            props[key]['value'] = props[key]['in_value']
+            props[key]['name'] = props[key]['in_name']
+
+        # A filter may have changed a properties name, we now update the
+        # properties list to use correct indicies.
+        self.updatePropertyNames()
 
     def __processValidator(self, fltr, key, value):
         """
@@ -746,3 +750,10 @@ class GOsaObject(object):
                 stack.append((curline['operator']).process(stack.pop(), stack.pop()))
 
         return key, value
+
+    def delete(self):
+        #TODO:
+        print "--> built in delete method"
+
+    def _del_(self):
+        print "--> cleanup"
