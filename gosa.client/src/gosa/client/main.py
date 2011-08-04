@@ -99,7 +99,7 @@ def main():
     env.log.info("GOsa client is starting up")
 
     # Configured in daemon mode?
-    if not env.config.getOption('foreground', section="client", default=env.config.getOption('foreground')):
+    if not env.config.get('client.foreground', default=env.config.get('core.foreground')):
         import grp
         import pwd
         import stat
@@ -116,9 +116,9 @@ def main():
             exit(1)
 
         try:
-            user = env.config.getOption("user", section="client")
-            group = env.config.getOption("group", section="client")
-            pidfile = env.config.getOption("pidfile", section="client",
+            user = env.config.get("client.user")
+            group = env.config.get("client.group")
+            pidfile = env.config.get("client.pidfile",
                     default="/var/run/gosa/gosa-client.pid")
 
             # Check if pid path if writable for us
@@ -143,10 +143,9 @@ def main():
                 env.log.warning("GOsa client should not be configured to run as root")
 
             context = daemon.DaemonContext(
-                working_directory=env.config.getOption("workdir",
-                    section="client",
-                    default=env.config.getOption("workdir")),
-                umask=int(env.config.getOption("umask", section="client", default="2")),
+                working_directory=env.config.get("client.workdir",
+                    default=env.config.get("core.workdir")),
+                umask=int(env.config.get("client.umask", default="2")),
                 pidfile=lockfile.FileLock(pidfile),
             )
 
@@ -180,14 +179,14 @@ def main():
                     env.log.debug("forked process with pid %s" % pid)
 
                     try:
-                        pid_file = open(env.config.getOption('pidfile', section="client", default="/var/run/gosa/gosa-client.pid"), 'w')
+                        pid_file = open(env.config.get('client.pidfile', default="/var/run/gosa/gosa-client.pid"), 'w')
                         try:
                             pid_file.write(str(pid))
                         finally:
                             pid_file.close()
                     except IOError:
                         env.log.error("cannot write pid file %s" %
-                                env.config.getOption('pidfile', section="client", default="/var/run/gosa/gosa-client.pid"))
+                                env.config.get('client.pidfile', default="/var/run/gosa/gosa-client.pid"))
                         exit(1)
 
                     mainLoop(env)

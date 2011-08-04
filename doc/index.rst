@@ -12,7 +12,7 @@ Contents:
    :maxdepth: 2
 
    intro
-   common
+   common/index
    agent
    client
    shell

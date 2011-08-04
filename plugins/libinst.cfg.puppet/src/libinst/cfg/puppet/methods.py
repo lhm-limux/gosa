@@ -67,7 +67,7 @@ class PuppetInstallMethod(InstallMethod):
         self.__work_path = os.path.join(self.__path, "work")
 
         # Purge path if wanted
-        db_purge = self.env.config.getOption('db_purge', section = 'repository')
+        db_purge = self.env.config.get('repository.db_purge',)
         if db_purge == "True":
             if os.path.exists(self.__repo_path):
                 shutil.rmtree(self.__repo_path)
@@ -96,7 +96,7 @@ class PuppetInstallMethod(InstallMethod):
             with open(os.path.join(tmp_path, "README"), "w") as f:
                 f.write("This is an automatically managed GOsa puppet repository. Please do not modify.")
 
-            logdir = self.env.config.getOption("report-dir", "puppet",
+            logdir = self.env.config.get("puppet.report-dir",
                 "/var/log/puppet")
             with open(os.path.join(tmp_path, "puppet.conf"), "w") as f:
                 f.write("""[main]
@@ -489,7 +489,7 @@ reportdir=$logdir
         default = os.path.join(os.path.expanduser('~'), ".ssh", "id_dsa.pub")
 
         try:
-            with open(self.env.config.getOption("public_key", "puppet", default)) as f:
+            with open(self.env.config.get("puppet.public_key", default)) as f:
                 content = f.read()
         except IOError:
                 return ""

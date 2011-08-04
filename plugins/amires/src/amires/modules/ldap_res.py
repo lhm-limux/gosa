@@ -13,8 +13,8 @@ class LDAPNumberResolver(PhoneNumberResolver):
         super(LDAPNumberResolver, self).__init__()
 
         try:
-            self.priority = float(self.env.config.getOption("priority",
-                "resolver-ldap", default=str(self.priority)))
+            self.priority = float(self.env.config.get("resolver-ldap.priority",
+                default=str(self.priority)))
         except:
             # leave default priority
             pass

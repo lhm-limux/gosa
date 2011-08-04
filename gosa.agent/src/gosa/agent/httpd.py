@@ -61,9 +61,9 @@ class HTTPService(object):
         # Start thread
         self.app = HTTPDispatcher()
         self.app.env = self.env
-        self.host = self.env.config.getOption('host', 'http', default="localhost")
-        self.port = self.env.config.getOption('port', 'http', default=8080)
-        self.ssl_pem = self.env.config.getOption('sslpemfile', 'http', default=None)
+        self.host = self.env.config.get('http.host', default="localhost")
+        self.port = self.env.config.get('http.port', default=8080)
+        self.ssl_pem = self.env.config.get('http.sslpemfile', default=None)
 
         if self.ssl_pem:
             self.scheme = "https"

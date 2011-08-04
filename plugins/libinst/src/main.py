@@ -8,7 +8,7 @@ def main():
     Environment.config="tests/test-libinst.conf"
     Environment.noargs=True
     env = Environment.getInstance()
-    repo_path = env.config.getOption('path', section = 'repository')
+    repo_path = env.config.get('repository.path')
     if os.path.exists(repo_path):
         print "Deleting path %s" % repo_path
         shutil.rmtree(repo_path)

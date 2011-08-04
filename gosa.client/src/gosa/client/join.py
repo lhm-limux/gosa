@@ -96,8 +96,8 @@ def main():
         joiner.join_dialog()
 
     # Fix configuration file permission
-    cfg = env.config.getOption("config")
-    group = env.config.getOption("group", "client", default="gosa-ng")
+    cfg = env.config.get("core.config")
+    group = env.config.get("client.group", default="gosa-ng")
     try:
         gid = grp.getgrnam(group).gr_gid
     except KeyError as e:

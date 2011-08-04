@@ -30,7 +30,7 @@ class DebianPreseed(BaseInstallMethod):
     def __init__(self):
         super(DebianPreseed, self).__init__()
         self.env = Environment.getInstance()
-        self.path = self.env.config.getOption('path', 'libinst', default="/preseed")
+        self.path = self.env.config.get('libinst.path', default="/preseed")
 
         try:
             # Get http service instance
@@ -86,8 +86,7 @@ class DebianPreseed(BaseInstallMethod):
         #      -> check if release_path debian/squeeze/1.0 is supported
         #         for the mirror
         #      -> if not available, automatically choose a mirror
-        url = urlparse(self.env.config.getOption(
-            'http_base_url', section='repository'))
+        url = urlparse(self.env.config.get('repository.http_base_url'))
 
         return {
             'mirror_protocol': url.scheme,

@@ -479,7 +479,7 @@ class CommandRegistry(object):
         in the configured interval.
         """
         nodes = {}
-        timeout = self.env.config.getOption('node-timeout', 'core', 60)
+        timeout = self.env.config.get('core.node-timeout', 60)
 
         for node, info in self.nodes.iteritems():
             t = datetime.datetime.utcnow()

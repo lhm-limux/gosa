@@ -48,12 +48,12 @@ class AMQPClientHandler(AMQPHandler):
         self.env = env
 
         # Enable debugging for qpid if we're in debug mode
-        #if self.env.config.getOption('loglevel') == 'DEBUG':
+        #if self.env.config.get('core.loglevel') == 'DEBUG':
         #    enable('qpid', DEBUG)
 
         # Load configuration
-        self.url = parseURL(self.env.config.getOption('url', 'amqp', None))
-        self.domain = self.env.config.getOption('domain', 'amqp', default="org.gosa")
+        self.url = parseURL(self.env.config.get('amqp.url', None))
+        self.domain = self.env.config.get('ampq.domain', default="org.gosa")
 
         # Use zeroconf if there's no URL
         if not self.url:
@@ -69,12 +69,12 @@ class AMQPClientHandler(AMQPHandler):
             self.__zclient.stop()
 
         # Set params and go for it
-        self.reconnect = self.env.config.getOption('reconnect', 'amqp', True)
-        self.reconnect_interval = self.env.config.getOption('reconnect-interval', 'amqp', 3)
-        self.reconnect_limit = self.env.config.getOption('reconnect-limit', 'amqp', 0)
+        self.reconnect = self.env.config.get('amqp.reconnect', True)
+        self.reconnect_interval = self.env.config.get('amqp.reconnect-interval', 3)
+        self.reconnect_limit = self.env.config.get('amqp.reconnect-limit', 0)
 
         # Check if credentials are supplied
-        if not self.env.config.getOption("key", "amqp"):
+        if not self.env.config.get("amqp.key"):
             raise Exception("no key supplied - please join the client")
 
         # Load defined event schema files
@@ -97,7 +97,7 @@ class AMQPClientHandler(AMQPHandler):
         self.env.log.debug("enabling AMQP queueing")
 
         # Evaluate username
-        user = self.env.config.getOption("id", "amqp", default=None)
+        user = self.env.config.get("amqp.id", default=None)
         if not user:
             user = self.env.uuid
 
@@ -105,13 +105,13 @@ class AMQPClientHandler(AMQPHandler):
         url = "%s:%s" % (self.url['host'], self.url['port'])
         self._conn = Connection.establish(url, reconnect=self.reconnect,
             username=user,
-            password=self.env.config.getOption("key", "amqp"),
+            password=self.env.config.get("amqp.key"),
             transport=self.url['transport'],
             reconnect_interval=self.reconnect_interval,
             reconnect_limit=self.reconnect_limit)
 
         # Do automatic broker failover if requested
-        if self.env.config.getOption('failover', 'amqp', False):
+        if self.env.config.get('amqp.failover', default=False):
             auto_fetch_reconnect_urls(self._conn)
 
         # Create event provider
@@ -132,10 +132,10 @@ class AMQPClientHandler(AMQPHandler):
             self.env.log.info("using service '%s'" % txtRecord)
 
             # Configure system
-            user = self.env.config.getOption('id', 'amqp', default=None)
+            user = self.env.config.get('amqp.id', default=None)
             if not user:
                 user = self.env.uuid
-            key = self.env.config.getOption('key', 'amqp')
+            key = self.env.config.get('amqp.key')
             if key:
                 # pylint: disable-msg=E1101
                 self.url = parseURL('%s://%s:%s@%s' % (o.scheme, user, key, o.netloc))

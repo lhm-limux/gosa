@@ -1,15 +1,24 @@
 # -*- coding: utf-8 -*-
 """
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
+The configuration module is the central place where the GOsa configuration
+can be querried. Using the configuration module requires the presence of the
+GOsa configuration file - commonly ``~/.gosa/config`` or ``/etc/gosa/config``,
+in order of presence.
 
- ID: $$Id: config.py 1065 2010-10-08 12:35:21Z cajus $$
+Additionally to reading the configuration file, it merges that information
+with potential command line parameters.
 
- This is the configuration handler of the GOsa AMQP agent. It stores
- information about the available command line options and merges them
- with the provided ini-style configuration file.
+Here is an example on how to use the common module::
 
- See LICENSE for more information about the licensing.
+    >>> from gosa.common.env import Environment
+    >>> cfg = Environment.getInstance().config
+    >>> cfg.get('core.loglevel')
+    DEBUG
+
+If no configuration is present, the system will raise a
+:class:`gosa.common.config.ConfigNoFile` exception.
+
+-----------
 """
 import ConfigParser
 import os
@@ -33,7 +42,15 @@ class ConfigNoFile(Exception):
 
 class Config(object):
     """
-    Configuration object storing and providing all property information.
+    Construct a new Config object using the provided configuration file
+    and parse the ``sys.argv`` information.
+
+    ========= ============
+    Parameter Description
+    ========= ============
+    config    Path to the configuration file.
+    noargs    Don't parse ``sys.argv`` information
+    ========= ============
     """
     __registry = {'core': {
                     'foreground': False,
@@ -48,10 +65,6 @@ class Config(object):
     __configKeys = None
 
     def __init__(self,  config="/etc/gosa/config",  noargs=False):
-        """
-        Construct a new Config object. A reference is normally passed to every
-        plugin instance.
-        """
         # Load default user name for config parsing
         self.__registry['core']['config'] = config
         self.__noargs = noargs
@@ -136,11 +149,10 @@ class Config(object):
 
     def getSections(self):
         """
-        Return the list of available sections in the ini file. There should be at
+        Return the list of available sections of the ini file. There should be at
         least 'core' available.
 
-        @rtype: list
-        @return: a list of section names
+        ``Return``: list of sections
         """
         return self.__registry.keys()
 
@@ -149,39 +161,46 @@ class Config(object):
         Return the list of provided option names in the specified section of the
         ini file.
 
-        @type section: str
-        @param section: section name in the ini file
+        ========= ============
+        Parameter Description
+        ========= ============
+        str       section name in the ini file
+        ========= ============
 
-        @rtype: list
-        @return: a list of section names
+        ``Return``: list of options
         """
         return self.__registry[section.lower()]
 
-    def getOption(self, name, section='core', default=None):
+    def get(self, path, default=None):
         """
-        Return the value of the option named 'name' in section 'section'. It
-        can use the default value if the option does not exist.
+        *get* allows dot-separated access to the configuration structure.
+        If the desired value is not defined, you can specify a default
+        value.
 
-        @type name: str
-        @param name: option name
+        For example, if you want to access the *loglevel* option located
+        in the section *[core]*, the path is:
 
-        @type section: str
-        @param section: section name in the ini file, defaults to 'core'
+            core.loglevel
 
-        @type default: str
-        @param section: default value to override a non existing option
+        ========= ============
+        Parameter Description
+        ========= ============
+        path      dot-separated path to the configuration option
+        default   default value if the desired option is not set
+        ========= ============
 
-        @rtype: str
-        @return: content or default
+        ``Return``: value or default
         """
+        tmp = self.__registry
+        try:
+            for pos in path.split("."):
+                tmp = tmp[pos.lower()]
+            return tmp
 
-        # Return default - eventually
-        if not section.lower() in self.__registry:
-            return default
-        if not name.lower() in self.__registry[section.lower()]:
-            return default
+        except:
+            pass
 
-        return self.__registry[section.lower()][name.lower()]
+        return default
 
     def __getCfgFiles(self, dir):
         conf = re.compile(r"^[a-z0-9_.-]+\.conf$", re.IGNORECASE)
@@ -194,7 +213,7 @@ class Config(object):
 
     def __parseCfgOptions(self):
         # Is there a configuration available?
-        configFile = self.getOption('config')
+        configFile = self.get('core.config')
         configFiles = self.__getCfgFiles(configFile + ".d")
         configFiles.insert(0, configFile)
 

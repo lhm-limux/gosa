@@ -57,11 +57,11 @@ class PuppetClient(Plugin):
         self.env = env
 
         # Read config values
-        self.__puppet_user = env.config.getOption("user", section="puppet",
-            default=env.config.getOption("user", section="client", default="gosa"))
-        self.__target_dir = env.config.getOption("target", section="puppet", default="/etc/puppet")
-        self.__puppet_command = env.config.getOption("command", section="puppet", default="/usr/bin/puppet")
-        self.__report_dir = env.config.getOption("report-dir", section="puppet", default="/var/log/puppet")
+        self.__puppet_user = env.config.get("puppet.user",
+            default=env.config.get("client.user", default="gosa"))
+        self.__target_dir = env.config.get("puppet.target", default="/etc/puppet")
+        self.__puppet_command = env.config.get("puppet.command", default="/usr/bin/puppet")
+        self.__report_dir = env.config.get("puppet.report-dir", default="/var/log/puppet")
 
         self.__base_dir = getpwnam(self.__puppet_user).pw_dir
 
@@ -219,7 +219,7 @@ class PuppetClient(Plugin):
     @Command()
     def puppetGetPushPath(self):
         """ Get path where the configuration has to be pushed to """
-        user = self.env.config.getOption('user', 'client', default="gosa")
+        user = self.env.config.get('client.user', default="gosa")
         fqdn = socket.gethostbyaddr(self.env.id)[0]
         return "%s@%s:%s" % (user, fqdn, self.__base_dir + "/data.git")
 

@@ -208,8 +208,8 @@ class BaseInstallMethod(object):
         res = None
         lh = LDAPHandler.get_instance()
         with lh.get_handle() as conn:
-            res = conn.search_s(",".join([self.env.config.getOption("template-rdn",
-                "libinst", "cn=templates,cn=libinst,cn=config"), lh.get_base()]),
+            res = conn.search_s(",".join([self.env.config.get("libinst.template-rdn",
+                "cn=templates,cn=libinst,cn=config"), lh.get_base()]),
                 ldap.SCOPE_SUBTREE, "(&(objectClass=installTemplate)(cn=%s))" % data['template'], ["cn"])
             if len(res) != 1:
                 raise ValueError("template '%s' not found" % data['template'])

@@ -28,9 +28,7 @@ class SampleModule(Plugin):
         env = Environment.getInstance()
         self.env = env
 
-        self.message =  self.env.config.getOption(
-                'message',
-                section='sample',
+        self.message =  self.env.config.get('sample.message',
                 default=_('No message configured!'))
 
     @Command(__doc__=N_("Return a pre-defined message to the caller"))

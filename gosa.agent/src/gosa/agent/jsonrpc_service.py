@@ -227,7 +227,7 @@ class JSONRPCService(object):
         env = Environment.getInstance()
         env.log.debug("initializing JSON RPC service provider")
         self.env = env
-        self.path = self.env.config.getOption('path', 'jsonrpc', default="/rpc")
+        self.path = self.env.config.get('jsonrpc.path', default="/rpc")
 
     def serve(self):
         # Get http service instance
@@ -237,8 +237,7 @@ class JSONRPCService(object):
         # Register ourselves
         app = JsonRpcApp(cr)
         self.__http.app.register(self.path, AuthCookieHandler(app,
-            timeout=self.env.config.getOption('cookie-lifetime',
-            'jsonrpc',
+            timeout=self.env.config.get('jsonrpc.cookie-lifetime',
             default=1800), cookie_name='GOsaRPC'))
 
         # Announce service

@@ -12,18 +12,18 @@ class SugarNumberResolver(PhoneNumberResolver):
     def __init__(self):
         super(SugarNumberResolver, self).__init__()
 
-        host = self.env.config.getOption("host", "resolver-sugar",
+        host = self.env.config.get("resolver-sugar.host",
              default="localhost")
-        user = self.env.config.getOption("user", "resolver-sugar",
+        user = self.env.config.get("resolver-sugar.user",
             default="root")
-        passwd = self.env.config.getOption("pass", "resolver-sugar",
+        passwd = self.env.config.get("resolver-sugar.pass",
             default="")
-        base = self.env.config.getOption("base", "resolver-sugar",
+        base = self.env.config.get("resolver-sugar.base",
             default="sugarcrm")
 
         try:
-            self.priority = float(self.env.config.getOption("priority",
-                "resolver-sugar", default=str(self.priority)))
+            self.priority = float(self.env.config.get("resolver-sugar.priority",
+                default=str(self.priority)))
         except:
             # leave default priority
             pass
@@ -33,7 +33,7 @@ class SugarNumberResolver(PhoneNumberResolver):
             user=user, passwd=passwd, db=base)
         self.sugar_db.set_character_set('utf8')
 
-        self.sugar_url = self.env.config.getOption("site_url", "resolver-sugar",
+        self.sugar_url = self.env.config.get("resolver-sugar.site_url",
             default="http://localhost/sugarcrm")
 
     def __del__(self):

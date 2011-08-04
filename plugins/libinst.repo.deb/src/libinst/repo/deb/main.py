@@ -394,7 +394,7 @@ class DebianHandler(DistributionHandler):
 
                     pool_path = os.sep.join((release.distribution.repository.path, "pool", release.distribution.type.name, package.component.name))
                     rollback_path = os.sep.join((release.distribution.repository.path, "rollback", release.distribution.type.name, package.component.name))
-                    if not self.env.config.getOption('rollback', section = 'repository')==False and not os.path.exists(rollback_path):
+                    if not self.env.config.get('repository.rollback')==False and not os.path.exists(rollback_path):
                         os.makedirs(rollback_path)
                     try:
                         # Move package to rollback pool, remove row if no release is linked
@@ -417,7 +417,7 @@ class DebianHandler(DistributionHandler):
                             for file in package.files:
                                 package_path = pool_path + os.sep + file.name
                                 if os.path.exists(package_path):
-                                    if not self.env.config.getOption('rollback', section = 'repository')==False:
+                                    if not self.env.config.get('repository.rollback')==False:
                                         shutil.move(package_path, rollback_path + os.sep + file.name)
                                     else:
                                         os.unlink(package_path)  # Remove package file
@@ -781,7 +781,7 @@ class DebianHandler(DistributionHandler):
     def _getGPGEnvironment(self, session):
         result = None
         work_dir = tempfile.mkdtemp()
-        repository = session.query(Repository).filter_by(path=self.env.config.getOption('path', section = 'repository')).one()
+        repository = session.query(Repository).filter_by(path=self.env.config.get('repository.path')).one()
         gpg = gnupg.GPG(gnupghome=work_dir)
         if not repository.keyring:
             self.env.log.debug("Generating GPG Key")

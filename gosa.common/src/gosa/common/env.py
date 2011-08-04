@@ -58,15 +58,15 @@ class Environment:
         # Load configuration
         self.config = config.Config(config=Environment.config,  noargs=Environment.noargs)
         self.log = gosa.common.log.getLogger(
-                logtype=self.config.getOption("log"),
-                logfile=self.config.getOption("logfile"),
-                loglevel=self.config.getOption("loglevel"))
+                logtype=self.config.get("core.log"),
+                logfile=self.config.get("core.logfile"),
+                loglevel=self.config.get("core.loglevel"))
 
         self.id = platform.node()
         self.log.info("server id %s" % self.id)
 
         # Dump configuration
-        if self.config.getOption("loglevel") == "DEBUG":
+        if self.config.get("core.loglevel") == "DEBUG":
             self.log.debug("configuration dump:")
 
             for section in self.config.getSections():
@@ -79,8 +79,8 @@ class Environment:
             self.log.debug("end of configuration dump")
 
         # Initialized
-        self.domain = self.config.getOption("domain", default="org.gosa")
-        self.uuid = self.config.getOption("id", default=None)
+        self.domain = self.config.get("core.domain", default="org.gosa")
+        self.uuid = self.config.get("core.id", default=None)
         if not self.uuid:
             self.log.warning("system has no id - falling back to configured hardware uuid")
             self.uuid = dmi_system("uuid")
@@ -104,10 +104,10 @@ class Environment:
         @rtype: Engine
         @return: sqlalchemy engine object
         """
-        index = "%s/%s" % (section, key)
+        index = "%s.%s" % (section, key)
 
         if not index in self.__db:
-            self.__db[index] = create_engine(self.config.getOption(key, section),
+            self.__db[index] = create_engine(self.config.get(index),
                     pool_size=40, pool_recycle=120)
 
         return self.__db[index]

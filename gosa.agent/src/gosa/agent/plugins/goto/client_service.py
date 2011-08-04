@@ -355,8 +355,8 @@ class ClientService(object):
             base = lh.get_base()
 
             # Add record
-            dn = ",".join(["cn=" + cn, self.env.config.getOption("machine-rdn",
-                "goto", "ou=systems"), base])
+            dn = ",".join(["cn=" + cn, self.env.config.get("goto.machine-rdn",
+                default="ou=systems"), base])
             conn.add_s(dn, record)
 
         self.env.log.info("UUID '%s' joined as %s" % (device_uuid, dn))

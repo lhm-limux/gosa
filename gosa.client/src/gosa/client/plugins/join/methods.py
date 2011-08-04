@@ -92,7 +92,7 @@ class join_method(object):
         # If key is present, write info back to file
         if key:
             self.env.log.debug("client '%s' joined with key '%s'" % (self.uuid, key))
-            config = self.env.config.getOption("config")
+            config = self.env.config.get("core.config")
             parser = ConfigParser.RawConfigParser()
             parser.read(config)
 
@@ -121,9 +121,9 @@ class join_method(object):
         return data[:-ord(data[-1])]
 
     def get_service_from_config(self):
-        url = self.env.config.getOption("url", "amqp", default=None)
-        sys_id = self.env.config.getOption("id", default=None)
-        key = self.env.config.getOption("key", "amqp", default=None)
+        url = self.env.config.get("amqp.url", default=None)
+        sys_id = self.env.config.get("core.id", default=None)
+        key = self.env.config.get("amqp.key", default=None)
         return (url, sys_id, key)
 
     def get_service(self):
@@ -174,7 +174,7 @@ class join_method(object):
         self.key = svc_key
 
         if self._need_config_refresh:
-            config = self.env.config.getOption("config")
+            config = self.env.config.get("core.config")
             parser = ConfigParser.RawConfigParser()
             parser.read(config)
 

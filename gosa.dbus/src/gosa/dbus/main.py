@@ -85,7 +85,7 @@ def main():
         exit(1)
 
     # Configured in daemon mode?
-    if not env.config.getOption('foreground', section="dbus", default=env.config.getOption('foreground')):
+    if not env.config.get('dbus.foreground', default=env.config.get('core.foreground')):
         import signal
         import daemon
         import lockfile
@@ -94,7 +94,7 @@ def main():
         pidfile = None
 
         try:
-            pidfile = env.config.getOption("pidfile", section="dbus",
+            pidfile = env.config.get("dbus.pidfile",
                 default="/var/run/gosa/gosa-dbus.pid")
 
             # Check if pid path if writable for us
@@ -102,10 +102,9 @@ def main():
             os.stat(piddir)
 
             context = daemon.DaemonContext(
-                working_directory=env.config.getOption("workdir",
-                    section="dbus",
-                    default=env.config.getOption("workdir")),
-                umask=int(env.config.getOption("umask", section="dbus", default="2")),
+                working_directory=env.config.get("dbus.workdir",
+                    default=env.config.get("core.workdir")),
+                umask=int(env.config.get("dbus.umask", default="2")),
                 pidfile=lockfile.FileLock(pidfile),
             )
 
@@ -134,14 +133,14 @@ def main():
                     env.log.debug("forked process with pid %s" % pid)
 
                     try:
-                        pid_file = open(env.config.getOption('pidfile', section="dbus", default="/var/run/gosa/gosa-dbus.pid"), 'w')
+                        pid_file = open(env.config.get('dbus.pidfile', default="/var/run/gosa/gosa-dbus.pid"), 'w')
                         try:
                             pid_file.write(str(pid))
                         finally:
                             pid_file.close()
                     except IOError:
                         env.log.error("cannot write pid file %s" %
-                                env.config.getOption('pidfile', section="dbus", default="/var/run/gosa/gosa-dbus.pid"))
+                                env.config.get('dbus.pidfile', default="/var/run/gosa/gosa-dbus.pid"))
                         exit(1)
 
                     mainLoop(env)
