@@ -51,9 +51,13 @@ class LDAPHandler(object):
 
         # Need to initialize?
         if not LDAPHandler.connection_handle[next_free]:
+            getOption = self.env.config.getOption
             self.env.log.debug("initializing LDAP connection to %s" %
                     str(self.__url))
-            conn = ldap.initialize("%s://%s" % (self.__url.urlscheme, self.__url.hostport))
+            conn = ldap.ldapobject.ReconnectLDAPObject("%s://%s" % (self.__url.urlscheme,
+                self.__url.hostport),
+                retry_max=int(getOption("retry_max", section='ldap', default=3)),
+                retry_delay=int(getOption("retry_delay", section='ldap', default=5)))
 
             # If no SSL scheme used, try TLS
             if ldap.TLS_AVAIL and self.__url.urlscheme != "ldaps":
