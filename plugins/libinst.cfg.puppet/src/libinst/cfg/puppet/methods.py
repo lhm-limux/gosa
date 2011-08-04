@@ -114,7 +114,7 @@ reportdir=$logdir
             # Add manifests and write initial size.pp
             os.mkdir(os.path.join(tmp_path, "manifests"))
             with open(os.path.join(tmp_path, "manifests", "site.pp"), "w") as f:
-                f.write('import "manifests/nodes.pp"\n')
+                f.write('\nimport "nodes.pp"\n')
 
             # Add manifests and write initial size.pp
             with open(os.path.join(tmp_path, "manifests", "nodes.pp"), "w") as f:
