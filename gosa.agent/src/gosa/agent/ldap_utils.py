@@ -24,7 +24,7 @@ class LDAPHandler(object):
         self.env = Environment.getInstance()
 
         # Initialize from configuration
-        getOption = self.env.config.get
+        get = self.env.config.get
         self.__url = ldapurl.LDAPUrl(get("ldap.url"))
         self.__bind_user = get('ldap.bind_user', default=None)
         self.__bind_dn = get('ldap.bind_dn', default=None)
@@ -51,7 +51,7 @@ class LDAPHandler(object):
 
         # Need to initialize?
         if not LDAPHandler.connection_handle[next_free]:
-            getOption = self.env.config.get
+            get = self.env.config.get
             self.env.log.debug("initializing LDAP connection to %s" %
                     str(self.__url))
             conn = ldap.ldapobject.ReconnectLDAPObject("%s://%s" % (self.__url.urlscheme,
