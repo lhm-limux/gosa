@@ -18,7 +18,7 @@ from qpid.connection import Connection as DirectConnection
 from lxml import etree, objectify
 
 from gosa.common.utils import parseURL, makeAuthURL, buildXMLSchema
-from gosa.common.env import Environment
+from gosa.common import Environment
 
 # Import pythoncom for win32com / threads
 if platform.system() == "Windows":

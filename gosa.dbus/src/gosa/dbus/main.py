@@ -18,7 +18,7 @@ import traceback
 import gobject
 import dbus.mainloop.glib
 
-from gosa.common.env import Environment
+from gosa.common import Environment
 from gosa.dbus import __version__ as VERSION
 from gosa.common.components.registry import PluginRegistry
 from gosa.dbus.utils import get_system_bus

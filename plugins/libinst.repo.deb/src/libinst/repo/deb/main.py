@@ -35,7 +35,7 @@ except:
     from debian_bundle import debfile, deb822
 
 
-from gosa.common.env import Environment
+from gosa.common import Environment
 from gosa.common.utils import N_
 
 from libinst.interface import DistributionHandler

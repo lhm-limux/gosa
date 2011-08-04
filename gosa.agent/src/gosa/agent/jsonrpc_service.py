@@ -21,7 +21,7 @@ from paste.auth.cookie import AuthCookieHandler, AuthCookieSigner
 
 from gosa.common.utils import N_, repr2json, f_print
 from gosa.common.handler import IInterfaceHandler
-from gosa.common.env import Environment
+from gosa.common import Environment
 from gosa.common.components.jsonrpc_proxy import JSONRPCException
 from gosa.common.components.registry import PluginRegistry
 from gosa.common.components.zeroconf import ZeroconfService

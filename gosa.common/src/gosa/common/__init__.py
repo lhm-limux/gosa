@@ -6,7 +6,7 @@ for over all schema checking.
 
 Here is an example on how to use the common module::
 
-    >>> from gosa.common.env import Environment
+    >>> from gosa.common import Environment
     >>> env = Environment.getInstance()
 
 This loads the GOsa environment information using the Environment singleton.
@@ -20,3 +20,5 @@ This loads the GOsa environment information using the Environment singleton.
 
 __version__ = __import__('pkg_resources').get_distribution('gosa.common').version
 __import__('pkg_resources').declare_namespace(__name__)
+
+from gosa.common.env import Environment

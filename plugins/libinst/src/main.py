@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os, shutil
-from gosa.common.env import Environment
+from gosa.common import Environment
 from libinst.manage import RepositoryManager
 
 def main():

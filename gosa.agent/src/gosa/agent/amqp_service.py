@@ -22,7 +22,7 @@ from gosa.common.components.registry import PluginRegistry
 from gosa.common.components.amqp import AMQPWorker
 from gosa.common.components.zeroconf import ZeroconfService
 from gosa.common.utils import parseURL, repr2json
-from gosa.common.env import Environment
+from gosa.common import Environment
 
 
 class AMQPService(object):

@@ -6,7 +6,7 @@ import re
 from lxml import etree
 from zope.interface import implements
 from gosa.common.handler import IInterfaceHandler
-from gosa.common.env import Environment
+from gosa.common import Environment
 from gosa.common.utils import parseURL, makeAuthURL
 from gosa.common.components.registry import PluginRegistry
 from gosa.common.components.amqp import EventConsumer

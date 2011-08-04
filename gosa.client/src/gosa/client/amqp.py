@@ -19,7 +19,7 @@ from lxml import etree, objectify
 from gosa.common.components.amqp import AMQPHandler, EventProvider
 from gosa.common.components.zeroconf_client import ZeroconfClient
 from gosa.common.utils import parseURL, buildXMLSchema
-from gosa.common.env import Environment
+from gosa.common import Environment
 
 
 class AMQPClientHandler(AMQPHandler):

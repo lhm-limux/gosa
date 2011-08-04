@@ -6,7 +6,7 @@
  See LICENSE for more information about the licensing.
 """
 from urlparse import urlparse
-from gosa.common.env import Environment
+from gosa.common import Environment
 from gosa.common.components.registry import PluginRegistry
 from libinst.methods import load_system
 from libinst.methods import BaseInstallMethod

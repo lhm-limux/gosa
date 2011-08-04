@@ -11,7 +11,7 @@ import ldapurl
 import ldap.sasl
 import types
 from contextlib import contextmanager
-from gosa.common.env import Environment
+from gosa.common import Environment
 
 
 class LDAPHandler(object):

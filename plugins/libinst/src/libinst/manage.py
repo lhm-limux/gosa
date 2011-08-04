@@ -43,7 +43,7 @@ from libinst.system_locale import locale_map
 from libinst.keyboard_models import KeyboardModels
 from libinst.methods import load_system
 
-from gosa.common.env import Environment
+from gosa.common import Environment
 from gosa.common.components.command import Command, NamedArgs
 from gosa.agent.ldap_utils import LDAPHandler
 from gosa.common.components.plugin import Plugin

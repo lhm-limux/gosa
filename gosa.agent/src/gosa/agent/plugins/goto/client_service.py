@@ -25,7 +25,7 @@ from qpid.messaging import *
 
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.event import EventMaker
-from gosa.common.env import Environment
+from gosa.common import Environment
 from gosa.common.utils import stripNs, N_
 from gosa.common.components.registry import PluginRegistry
 from gosa.common.components.amqp import EventConsumer

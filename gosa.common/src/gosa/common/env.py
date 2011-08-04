@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 """
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
+The environment module encapsulates the access of all
+central information like logging, configuration management
+and threads.
 
- ID: $$Id: env.py 1058 2010-10-08 10:04:53Z cajus $$
+You can import it to your own code like this::
 
- This is the environment container of the GOsa AMQP agent. This environment
- contains all stuff which may be relevant for plugins and the core. Its
- reference gets passed to all plugins.
+   >>> from gosa.common import Environment
+   >>> env = Environment.getInstance()
 
- See LICENSE for more information about the licensing.
+--------
 """
 import config
 import platform
@@ -20,23 +20,7 @@ import gosa.common.log
 
 class Environment:
     """
-    The Environment container keeps logging, configuration, locking, threads
-    and several informations that may be useful.
-
-    @type id: str
-    @ivar id: the node name
-
-    @type threads: dict
-    @ivar threads: list of running worker threads
-
-    @type locks: dict
-    @ivar locks: list of global thread locks
-
-    @type config: config
-    @ivar config: the L{Config} object
-
-    @type log: log
-    @ivar log: the L{Log} object
+    The global information container, used as a singleton.
     """
     threads = []
     locks = []
@@ -50,11 +34,6 @@ class Environment:
     __db = {}
 
     def __init__(self):
-        """
-        Construct a new Environment object. A reference is passed to every
-        plugin instance.
-        """
-
         # Load configuration
         self.config = config.Config(config=Environment.config,  noargs=Environment.noargs)
         self.log = gosa.common.log.getLogger(
@@ -93,16 +72,16 @@ class Environment:
 
     def getDatabaseEngine(self, section, key="database"):
         """
-        Return a database engine based on configuration section/key.
+        Return a database engine from the registry.
 
-        @type section: string
-        @param section: configuration section to look for database string
+        ========= ============
+        Parameter Description
+        ========= ============
+        section   name of the configuration section where the config is placed.
+        key       optional value for the key where the database information is stored, defaults to *database*.
+        ========= ============
 
-        @type key: string
-        @param key: key to look for in specified section, defaults to "database"
-
-        @rtype: Engine
-        @return: sqlalchemy engine object
+        ``Return``: database engine
         """
         index = "%s.%s" % (section, key)
 
@@ -113,6 +92,18 @@ class Environment:
         return self.__db[index]
 
     def getDatabaseSession(self, section, key="database"):
+        """
+        Return a database session from the pool.
+
+        ========= ============
+        Parameter Description
+        ========= ============
+        section   name of the configuration section where the config is placed.
+        key       optional value for the key where the database information is stored, defaults to *database*.
+        ========= ============
+
+        ``Return``: database session
+        """
         sql = self.getDatabaseEngine(section, key)
         session = scoped_session(sessionmaker(autoflush=True))
         session.configure(bind=sql)
@@ -120,6 +111,12 @@ class Environment:
 
     @staticmethod
     def getInstance():
+        """
+        Act like a singleton and return the
+        :class:`gosa.common.env.Environment` instance.
+
+        ``Return``: :class:`gosa.common.env.Environment`
+        """
         if not Environment.__instance:
             Environment.__instance = Environment()
         return Environment.__instance

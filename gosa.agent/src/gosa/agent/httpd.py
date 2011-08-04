@@ -14,7 +14,7 @@ from zope.interface import implements
 from webob import exc, Request, Response
 from paste import httpserver, wsgilib, request, response
 
-from gosa.common.env import Environment
+from gosa.common import Environment
 from gosa.common.handler import IInterfaceHandler
 
 

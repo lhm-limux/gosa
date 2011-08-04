@@ -19,7 +19,7 @@ import grp
 import pkg_resources
 from os.path import isdir, exists
 from pkg_resources import resource_filename
-from gosa.common.env import Environment
+from gosa.common import Environment
 from gosa.common.config import ConfigNoFile
 from operator import itemgetter
 

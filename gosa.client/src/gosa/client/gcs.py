@@ -6,7 +6,7 @@ import servicemanager
 import pythoncom
 import traceback
 
-from gosa.common.env import Environment
+from gosa.common import Environment
 from gosa.common.components.registry import PluginRegistry
 from gosa.common.event import EventMaker
 

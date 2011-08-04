@@ -26,7 +26,7 @@ from time import mktime, sleep
 from gosa.common.event import EventMaker
 from gosa.common.components.plugin import Plugin
 from gosa.common.components.command import Command
-from gosa.common.env import Environment
+from gosa.common import Environment
 from gosa.common.components.registry import PluginRegistry
 
 # Add constructor to parse ruby data type

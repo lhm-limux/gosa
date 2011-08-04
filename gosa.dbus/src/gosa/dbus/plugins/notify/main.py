@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import dbus.service
-from gosa.common.env import Environment
+from gosa.common import Environment
 from gosa.common.components.plugin import Plugin
 from gosa.dbus.utils import get_system_bus
 import sys

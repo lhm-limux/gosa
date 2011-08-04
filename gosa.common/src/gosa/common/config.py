@@ -10,7 +10,7 @@ with potential command line parameters.
 
 Here is an example on how to use the common module::
 
-    >>> from gosa.common.env import Environment
+    >>> from gosa.common import Environment
     >>> cfg = Environment.getInstance().config
     >>> cfg.get('core.loglevel')
     DEBUG

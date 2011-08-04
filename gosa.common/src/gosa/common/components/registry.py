@@ -12,7 +12,7 @@
 import pkg_resources
 
 from gosa.common.handler import IInterfaceHandler
-from gosa.common.env import Environment
+from gosa.common import Environment
 
 
 class PluginRegistry(object):

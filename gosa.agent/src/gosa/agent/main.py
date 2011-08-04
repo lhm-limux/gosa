@@ -22,7 +22,7 @@ import logging
 import pkg_resources
 import codecs
 
-from gosa.common.env import Environment
+from gosa.common import Environment
 from gosa.common.components.registry import PluginRegistry
 from gosa.common.event import EventMaker
 from gosa.agent import __version__ as VERSION
