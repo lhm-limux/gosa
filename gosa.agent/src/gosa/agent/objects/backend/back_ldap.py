@@ -1,14 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Configuration example::
-
-    [ldap]
-    url = ldap://ldap.example.net/dc=example,dc=net
-    bind_dn = cn=ldapadmin,dc=example,dc=net
-    bind_secret = secret
-    pool_size = 10
-
-"""
 import ldap
 import ldap.schema
 from backend import ObjectBackend
@@ -21,11 +11,6 @@ class LDAP(ObjectBackend):
         # Load LDAP handler class
         self.lh = LDAPHandler.get_instance()
         self.con = self.lh.get_connection()
-
-        #TODO: low prio, schema handling
-        #res = con.search_s('cn=subschema', ldap.SCOPE_BASE, 'objectClass=*',
-        #        ['*', '+'])[0][1]
-        #self.subschema = ldap.schema.SubSchema(res)
 
     def __del__(self):
         self.lh.free_connection(self.con)
