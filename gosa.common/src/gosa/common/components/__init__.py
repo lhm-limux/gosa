@@ -1,3 +1,7 @@
+"""
+The compoments module gathers a couple of common components that are of
+use for both agents and clients.
+"""
 __import__('pkg_resources').declare_namespace(__name__)
 from gosa.common.components.amqp_proxy import AMQPServiceProxy
 from gosa.common.components.amqp_proxy import AMQPEventConsumer
@@ -7,6 +11,7 @@ from gosa.common.components.amqp import AMQPWorker
 from gosa.common.components.amqp import AMQPProcessor
 from gosa.common.components.amqp import EventProvider
 from gosa.common.components.amqp import EventConsumer
+from gosa.common.components.command import Command
 from gosa.common.components.command import CommandInvalid
 from gosa.common.components.command import CommandNotAuthorized
 from gosa.common.components.dbus_runner import DBusRunner

@@ -293,12 +293,12 @@ def downloadFile(url, download_dir=None, use_filename=False):
     ============ ============
     Parameter    Description
     ============ ============
-    url
-    download_dir
-    use_filename
+    url          URL of file to be downloaded.
+    download_dir Directory where to place the downloaded file.
+    use_filename use the original filename or a temporary?
     ============ ============
 
-    ``Return``: Full path of the executable or None
+    ``Return``: local file name
     """
     result = None
     o = None

@@ -6,7 +6,7 @@ from datetime import datetime
 from subprocess import Popen, PIPE
 from gosa.common import Environment
 from gosa.common.utils import get_timezone_delta
-from gosa.common.components.plugin import Plugin
+from gosa.common.components import Plugin
 from gosa.dbus.utils import get_system_bus
 
 

@@ -25,8 +25,8 @@ from gosa.common import Environment
 from gosa.common.components.jsonrpc_proxy import JSONRPCException
 from gosa.common.components.registry import PluginRegistry
 from gosa.common.components.zeroconf import ZeroconfService
-from gosa.common.components.command import Command
-from gosa.common.components.amqp_proxy import AMQPServiceProxy
+from gosa.common.components import Command
+from gosa.common.components import AMQPServiceProxy
 
 
 class JsonRpcApp(object):

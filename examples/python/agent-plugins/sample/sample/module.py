@@ -10,8 +10,7 @@
 import gettext
 
 from gosa.common import Environment
-from gosa.common.components.command import Command
-from gosa.common.components.plugin import Plugin
+from gosa.common.components import Command, Plugin
 from gosa.common.utils import N_
 # pylint: disable-msg=E0611
 from pkg_resources import resource_filename

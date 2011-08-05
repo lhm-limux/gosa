@@ -20,7 +20,7 @@ from urlparse import urlparse
 from pkg_resources import resource_filename
 from urllib import quote_plus as quote
 from gosa.common.components.zeroconf_client import ZeroconfClient
-from gosa.common.components.amqp_proxy import AMQPServiceProxy
+from gosa.common.components import AMQPServiceProxy
 from gosa.common.components.jsonrpc_proxy import JSONRPCException
 from gosa.common import Environment
 from gosa.common.utils import dmi_system

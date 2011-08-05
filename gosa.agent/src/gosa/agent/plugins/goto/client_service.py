@@ -29,7 +29,7 @@ from gosa.common import Environment
 from gosa.common.utils import stripNs, N_
 from gosa.common.components.registry import PluginRegistry
 from gosa.common.components.amqp import EventConsumer
-from gosa.common.components.amqp_proxy import AMQPServiceProxy
+from gosa.common.components import AMQPServiceProxy
 from gosa.common.components.command import CUMULATIVE, FIRSTRESULT, Command
 from gosa.agent.ldap_utils import LDAPHandler
 from base64 import encodestring as encode

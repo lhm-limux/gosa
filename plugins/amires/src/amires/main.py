@@ -10,7 +10,7 @@ from gosa.common import Environment
 from gosa.common.utils import parseURL, makeAuthURL
 from gosa.common.components.registry import PluginRegistry
 from gosa.common.components.amqp import EventConsumer
-from gosa.common.components.amqp_proxy import AMQPServiceProxy
+from gosa.common.components import AMQPServiceProxy
 
 # Set locale domain
 t = gettext.translation('messages', pkg_resources.resource_filename("amires", "locale"),

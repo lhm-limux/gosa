@@ -46,7 +46,7 @@ from libinst.methods import load_system
 from gosa.common import Environment
 from gosa.common.components.command import Command, NamedArgs
 from gosa.agent.ldap_utils import LDAPHandler
-from gosa.common.components.plugin import Plugin
+from gosa.common.components import Plugin
 from gosa.common.utils import N_
 
 # Include locales
