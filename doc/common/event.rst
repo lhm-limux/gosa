@@ -113,21 +113,25 @@ provide new events. Here's a short overview:
 |ClientAnnounce       |GOto       |Sent when a client is coming up, contains information about |
 |                     |           |the client and it's methods.                                |
 +---------------------+-----------+------------------------------------------------------------+
-|ClientLeave          |GOto       |Description                                                 |
+|ClientLeave          |GOto       |Sent when a client is about to shut down.                   |
 +---------------------+-----------+------------------------------------------------------------+
-|ClientPoll           |Core       |Description                                                 |
+|ClientPoll           |Core       |Sent by the agent if it's "alone" and has no way to find    |
+|                     |           |it's assigned clients. All clients reply with a newly sent  |
+|                     |           |ClientAnnounce to this event.                               |
 +---------------------+-----------+------------------------------------------------------------+
-|CollectD             |CollectD   |Description                                                 |
+|CollectD             |CollectD   |Experimental collectd event.                                |
 +---------------------+-----------+------------------------------------------------------------+
-|NodeAnnounce         |Core       |ription                                                     |
+|NodeAnnounce         |Core       |Sent by an agent when starting up.                          |
 +---------------------+-----------+------------------------------------------------------------+
-|NodeCapabilities     |Core       |ription                                                     |
+|NodeCapabilities     |Core       |Sent by an agent when starting up, containing a brief       |
+|                     |           |list of information about the agent itself.                 |
 +---------------------+-----------+------------------------------------------------------------+
-|NodeLeave            |Core       |ription                                                     |
+|NodeLeave            |Core       |Sent by an agent when shutting down.                        |
 +---------------------+-----------+------------------------------------------------------------+
-|NodeStatus           |Core       |ription                                                     |
+|NodeStatus           |Core       |Sent regulary by an agent in order to do pseudo load        |
+|                     |           |balancing for HTTP connections.                             |
 +---------------------+-----------+------------------------------------------------------------+
-|UserSession          |GOto       |ription                                                     |
+|UserSession          |GOto       |Sent if a user logs onto the client.                        |
 +---------------------+-----------+------------------------------------------------------------+
-|PuppetReport         |libinst    |ription                                                     |
+|PuppetReport         |libinst    |Sent after a client puppet run.                             |
 +---------------------+-----------+------------------------------------------------------------+
