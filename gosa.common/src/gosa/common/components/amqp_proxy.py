@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-The amqp_proxy module hosts `AMQP <http://www.amqp.org>`_ related
-functionality.
-"""
 from qpid.messaging import *
 from types import DictType
 from gosa.common.components.jsonrpc_proxy import JSONRPCException
@@ -218,7 +214,6 @@ class AMQPEventConsumer(object):
     Example listening for an event called *AsteriskNotification*::
 
         >>> from gosa.common.components import AMQPEventConsumer
-        >>> from qpid.util import URL
         >>> from lxml import etree
         >>>
         >>> # Event callback

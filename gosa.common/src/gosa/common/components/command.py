@@ -1,13 +1,3 @@
-"""
-This code is part of GOsa (http://www.gosa-project.org)
-Copyright (C) 2009, 2010 GONICUS GmbH
-
-ID: $$Id: command.py 281 2010-07-02 07:43:23Z cajus $$
-
-This is the zeroconf provider module.
-
-See LICENSE for more information about the licensing.
-"""
 from inspect import getargspec
 
 # Global command types
@@ -19,29 +9,34 @@ CUMULATIVE = 4
 def Command(**d_kwargs):
     """
     This is the Command decorator. It adds properties based on its
-    parameters to the function attributes.
+    parameters to the function attributes::
 
-    Example: @Command(needsQueue= False, type= NORMAL)
+      >>> @Command(needsQueue= False, type= NORMAL)
+      >>> def hello():
+      ...
 
-    @type needsQueue: bool
-    @param needsQueue: indicates if the decorated function needs
-                       a queue parameter
-
-    @type type: int
-    @param type: describes the function type
+    ========== ============
+    Parameter  Description
+    ========== ============
+    needsQueue indicates if the decorated function needs a queue parameter
+    type       describes the function type
+    ========== ============
 
     Function types can be:
 
-    * NORMAL (default)
+    * **NORMAL** (default)
+
       The decorated function will be called as if it is local. Which
       node will answer this request is not important.
 
-    * FIRSTRESULT
+    * **FIRSTRESULT**
+
       Some functionality may be distributed on several nodes with
       several information. FIRSTRESULT iterates thru all nodes which
       provide the decorated function and return on first success.
 
-    * CUMULATIVE
+    * **CUMULATIVE**
+
       Some functionality may be distributed on several nodes with
       several information. CUMULATIVE iterates thru all nodes which
       provide the decorated function and returns the combined result.

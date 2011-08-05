@@ -1,14 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
-
- ID: $$Id: amqp.py 1360 2010-11-15 13:42:15Z cajus $$
-
- This modules hosts AMQP related classes.
-
- See LICENSE for more information about the licensing.
-"""
 import platform
 from threading import Thread
 from qpid.messaging import *
@@ -35,13 +25,6 @@ class AMQPHandler(object):
     _eventProvider = None
 
     def __init__(self):
-        """
-        Construct a new AMQPHandler instance based on the configuration
-        stored in the environment.
-
-        @type env: Environment
-        @param env: L{Environment} object
-        """
         env = Environment.getInstance()
         env.log.debug("initializing AMQP handler")
         self.env = env
@@ -127,8 +110,7 @@ class AMQPHandler(object):
         """
         Returns an AMQP connection handle for further usage.
 
-        @rtype: L{qpid.messaging.Connection}
-        @return: an AMQP connection
+        ``Return:`` :class:`qpid.messaging.Connection`
         """
         return self._conn
 
@@ -137,14 +119,14 @@ class AMQPHandler(object):
         This function checks a username / password combination using
         the AMQP service' SASL configuration.
 
-        @type user: str
-        @param user: username
+        =============== ============
+        Parameter       Description
+        =============== ============
+        user            Username
+        password        Password
+        =============== ============
 
-        @type password: str
-        @param password: password
-
-        @rtype: bool
-        @return: success or failure
+        ``Return:`` Bool, success or failure
         """
         # Strip username/password parts of url
         url = "%s:%s" % (self.url['host'], self.url['port'])
@@ -163,7 +145,17 @@ class AMQPHandler(object):
         return True
 
     def sendEvent(self, data):
-        # Validate event and let it pass if it matches the schema
+        """
+        Send and validate an event thru AMQP service.
+
+        =============== ============
+        Parameter       Description
+        =============== ============
+        data            XML string or etree object representing the event.
+        =============== ============
+
+        ``Return:`` Bool, success or failure
+        """
         try:
             event = "<?xml version='1.0' encoding='utf-8'?>\n"
             if isinstance(data, basestring):
@@ -171,7 +163,7 @@ class AMQPHandler(object):
             else:
                 event += etree.tostring(data, pretty_print=True)
             return self._eventProvider.send(event)
-        
+
         except etree.XMLSyntaxError as e:
             if not isinstance(data, basestring):
                 data = data.content
@@ -185,34 +177,24 @@ class AMQPWorker(object):
     AMQP worker container. This object creates a number of worker threads
     for the defined sender and receiver addresses. It registers receiver
     callbacks for incoming packets.
+
+    =============== ============
+    Parameter       Description
+    =============== ============
+    env             :class:`gosa.common.env.Environment` object
+    connection      :class:`qpid.messaging.Connection` object
+    s_address       address used to create a sender instance
+    r_address       address used to create a receiver instance
+    workers         number of worker threads
+    callback        method to be called on incoming messages
+    =============== ============
+
     """
     sender = None
     receiver = None
     callback = None
 
     def __init__(self, env, connection, s_address=None, r_address=None, workers=0, callback=None):
-        """
-        Construct new AMQP worker threads depending on the supplied
-        parameters.
-
-        @type env: Environment
-        @param env: L{Environment} object
-
-        @type connection: L{qpid.messaging.Connection}
-        @param connection: AMQP connection
-
-        @type s_address: string
-        @param s_address: address used to create a sender instance
-
-        @type r_address: string
-        @param r_address: address used to create a receiver instance
-
-        @type workers: int
-        @param workers: number of worker threads
-
-        @type callback: function
-        @param callback: function to be called on incoming messages
-        """
         self.env = env
         self.callback = callback
 
@@ -241,6 +223,13 @@ class AMQPProcessor(Thread):
     AMQP worker thread. This objects get instanciated by the AMQPWorker
     class. It is responsible for receiving the messages and calling the
     callback function.
+
+    =============== ============
+    Parameter       Description
+    =============== ============
+    ssn             AMQP session
+    callback        method to be called when receiving AMQP messages
+    =============== ============
     """
     __callback = None
     __ssn = None
@@ -285,8 +274,6 @@ class EventProvider(object):
 class EventConsumer(object):
 
     def __init__(self, env, conn, xquery=".", callback=None):
-        """
-        """
         self.env = env
 
         # Load defined event schema files
