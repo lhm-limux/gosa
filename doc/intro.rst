@@ -412,3 +412,5 @@ client inside the activated virtual environment::
 
 Concepts
 --------
+
+**TODO**: graphics, text, etc.

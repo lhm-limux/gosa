@@ -47,7 +47,7 @@ in the new core. And - finally - this documentation is growing on the way to 3.0
 
 ---------------------
 
-Contents:
+Topics:
 
 .. toctree::
    :maxdepth: 2

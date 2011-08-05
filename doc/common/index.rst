@@ -6,12 +6,7 @@ The GOsa *common* library
 
 ------------
 
-TODO:
-gosa.common.event
-
-
-
-Contents:
+Topics:
 
 .. toctree::
    :maxdepth: 2
