@@ -9,11 +9,3 @@ Contents:
    libinst
    samba
    goto
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-

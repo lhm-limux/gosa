@@ -16,11 +16,11 @@ gosa-si, which was able to handle requests and actions where class PHP applicati
 are not well suited for. This service had (has) many problems in design, scalebility
 and so on. For that reason we started to redo the whole thing using new
 technologies like `AMQP <http://www.amqp.org>`_, concentrating on the RedHat/Apache
-implementation `QPID <http://qpid.apache.org/>`.
+implementation `QPID <http://qpid.apache.org/>`_.
 
 This service handles the *authentication*, the *message queueing*, the *clustering* and
 *load balancing* for us. A client can subscribe to public events using
-`XQuery <http://en.wikipedia.org/wiki/XQuery>`, services (or third parties) can
+`XQuery <http://en.wikipedia.org/wiki/XQuery>`_, services (or third parties) can
 emit events in a simple manner. AMQP is used by the newly introduced *GOsa agent*
 to provide load balanced, clustered services and by several kind of *GOsa client*
 applications like a shell, an ordinary client (former GOto clients) and so on.
