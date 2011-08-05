@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 """
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
+The logger module provides a wrapper to :mod:`logging`. It is not
+intended to be used directly, it's a member of
+:class:`gosa.common.env.Environment` and the logger object is placed in the
+``log`` member::
 
- ID: $$Id: log.py 608 2010-08-16 08:12:35Z cajus $$
+    >>> from gosa.common import Environment
+    >>> env = Environment.getInstance()
+    >>> env.log.error("something went wrong")
 
- See LICENSE for more information about the licensing.
+--------
 """
 import os
 import sys
@@ -25,17 +29,16 @@ def getLogger(logtype='syslog', logfile=None, loglevel=None, logid='GOsa'):
     """
     Return a logger instance based on type, file, id and loglevel.
 
-    @type logtype: str
-    @param logtype: how logging takes place (file, syslog, unix, stderr)
+    ========= ============
+    Parameter Description
+    ========= ============
+    logtype   how logging takes place (file, syslog, unix, stderr)
+    logfile   filename to use if logtype is "file"
+    loglevel  how verbose to log (ALL/DEBUG, INFO, WARNING, ERROR, CRITICAL)
+    logid     mark messages with the 'logid'
+    ========= ============
 
-    @type logfile: str
-    @param logfile: filename to use if logtype is "file"
-
-    @type loglevel: str
-    @param loglevel: how verbose to log (ALL/DEBUG, INFO, WARNING, ERROR, CRITICAL)
-
-    @type logid: str
-    @param logid: mark messages with the 'logid'
+    ``Return``: :class:`logging.Logger`
     """
     logger = logging.getLogger(logid)
     logtype = logtype.lower()

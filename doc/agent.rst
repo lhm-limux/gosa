@@ -1,5 +1,5 @@
-The GOsa Agent
-==============
+Agent
+=====
 
 .. :autodoc:`gosa.agent`
    :members:

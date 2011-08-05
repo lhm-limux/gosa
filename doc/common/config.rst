@@ -1,5 +1,5 @@
-Configuration Module
-====================
+Configuration handling
+======================
 
 .. automodule:: gosa.common.config
    :members:

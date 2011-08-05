@@ -1,5 +1,5 @@
-GOsa Plugins
-============
+Plugins
+=======
 
 Contents:
 

@@ -1,5 +1,5 @@
-The GOsa Client
-===============
+Client
+======
 
 .. :autodoc:`gosa.client`
    :members:

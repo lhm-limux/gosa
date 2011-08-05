@@ -1,12 +1,6 @@
 """
-This code is part of GOsa (http://www.gosa-project.org)
-Copyright (C) 2009, 2010 GONICUS GmbH
-
-ID: $$Id: command.py 248 2010-06-22 14:06:48Z cajus $$
-
-This is a small collection of useful functions.
-
-See LICENSE for more information about the licensing.
+The utility module is a collection of smaller functions that
+make the life of plugin programming easier.
 """
 import re
 import os
@@ -26,14 +20,51 @@ from pkg_resources import *
 from datetime import datetime
 
 def stripNs(data):
+    """
+    **stripNS** removes the namespace from a plain XML string.
+
+    ========= ============
+    Parameter Description
+    ========= ============
+    data      XML string to be namespace stripped
+    ========= ============
+
+    ``Return``: string without namespace
+    """
     p = re.compile(r'^\{[^\}]+\}(.*)$')
     return p.match(data).group(1)
 
 def makeAuthURL(url, user, password):
+    """
+    **makeAuthURL** assembles a typical authentification url from
+    the plain URL and user/password strings::
+
+        http://user:secret@example.net:8080/somewhere
+
+    ========= ============
+    Parameter Description
+    ========= ============
+    data      XML string to be namespace stripped
+    ========= ============
+
+    ``Return``: string without namespace
+    """
     o = urlparse(url)
     return "%s://%s:%s@%s%s" % (o.scheme, user, password, o.netloc, o.path)
 
 def parseURL(url):
+    """
+    **parseURL** parses an URL string using :func:`urlparse.urlparse` and gathers
+    extra (partly default) settings regarding the AMQP transport.
+
+    ========= ============
+    Parameter Description
+    ========= ============
+    URL       URL string
+    ========= ============
+
+    ``Return``: dictionary
+    """
     if not url:
         return None
 
@@ -73,7 +104,20 @@ def parseURL(url):
         'url':url}
 
 def buildXMLSchema(resources, prefix, s_resource, stylesheet):
-    """ Assembles single schema files to a final schema using the stylesheet """
+    """
+    Assembles single schema files to a final schema using a stylesheet.
+
+    ========== ============
+    Parameter  Description
+    ========== ============
+    resources  List of setuptools resources to look for XSD fragments
+    prefix     Directory to load XSD fragments from
+    s_resource Stylesheet resource
+    stylesheet Name of the stylesheet
+    ========== ============
+
+    ``Return``: Target XML schema processed by stylesheet as string.
+    """
     res = ''
 
     try:
@@ -117,8 +161,13 @@ def N_(message):
     Function to be used for deferred translations. Mark strings that should
     exist as a translation, but not be translated in the moment as N_('text').
 
-    @type message: str
-    @ivar message: text to be marked as a translation
+    ========== ============
+    Parameter  Description
+    ========== ============
+    message    Text to be marked as a translation
+    ========== ============
+
+    ``Return``: Target XML schema processed by stylesheet as string.
     """
     return message
 
