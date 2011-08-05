@@ -1,28 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (c) 2007 Jan-Klaas Kollhof
- Copyright (C) 2010 GONICUS GmbH
-
- ID: $$Id: jsonrpc_proxy.py 1238 2010-10-21 15:31:46Z cajus $$
-
- This file is part of jsonrpc. We have modified it to be able to
- use session based authentication.
-
- jsonrpc is free software; you can redistribute it and/or modify
- it under the terms of the GNU Lesser General Public License as published by
- the Free Software Foundation; either version 2.1 of the License, or
- (at your option) any later version.
-
- This software is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU Lesser General Public License for more details.
-
- You should have received a copy of the GNU Lesser General Public License
- along with this software; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-"""
 import urllib2
 import cookielib
 from types import DictType
@@ -30,12 +6,17 @@ from jsonrpc.json import dumps, loads
 
 
 class JSONRPCException(Exception):
+    """
+    Exception raises if there's an error when processing JSONRPC related
+    tasks.
+    """
     def __init__(self, rpcError):
         super(JSONRPCException, self).__init__(rpcError)
         self.error = rpcError
 
 
 class ObjectFactory(object):
+
     def __init__(self, proxy, ref, oid, methods, properties, data):
         object.__setattr__(self, "proxy", proxy)
         object.__setattr__(self, "ref", ref)
@@ -86,24 +67,36 @@ class JSONServiceProxy(object):
     can directly call methods without the need to know where
     it actually gets executed.
 
-    Example:
+    Example::
 
-    proxy = JSONServiceProxy('https://localhost')
-    print(proxy.login("admin", "secret"))
-    print(proxy.getMethods())
-    print(proxy.logout())
+        >>> proxy = JSONServiceProxy('https://localhost')
+        >>> proxy.login("admin", "secret")
+        >>> proxy.getMethods()
+        ...
+        >>> proxy.logout()
 
-    This will list the available methods.
+    This will return a dictionary describing the available methods.
+
+    =============== ============
+    Parameter       Description
+    =============== ============
+    serviceURL      URL used to connect to the HTTP service
+    serviceName     *internal*
+    opener          *internal*
+    =============== ============
+
+    The URL format is::
+
+       (http|https)://user:password@host:port/rpc
+
+    .. note::
+       The HTTP service is operated by a gosa-agent instance. This means
+       that you don't have load balancing and failover out of the box.
+       If you need these features, you should use :class:`gosa.common.components.amqp_proxy.AMQPServiceProxy`
+       instead.
     """
 
     def __init__(self, serviceURL=None, serviceName=None, opener=None):
-        """
-        Instantiate the proxy object using the initializing parameters.
-
-        @type serviceURL: string
-        @param serviceURL: URL used to connect to the GOsa service
-           http(s)://host:port
-        """
         self.__serviceURL = serviceURL
         self.__serviceName = serviceName
 

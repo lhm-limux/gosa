@@ -1,17 +1,35 @@
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
 
- ID: $$Id: amqp_proxy.py 286 2010-07-05 07:54:11Z cajus $$
-
- This modules hosts AMQP service related classes.
-
- See LICENSE for more information about the licensing.
-"""
 
 class Plugin(object):
-    """ Plugin - just a marker in the moment, keep name, description, etc. """
+    """
+    The Plugin object is just a marker in the moment: it lacks special
+    code. While beeing a marker, there's a mandatory class member that must
+    be maintained by users: ``_target_``
+
+    The ``_target_`` class member determines what queue the plugin will be
+    registered on. The target queue is assembled by the GOsa *domain* and
+    the *_target_*. Plugins that do not offer common functionality should
+    register on something else than *core*.
+
+    In this example, we create a sample plugin which is listening on
+    ``<domain>.sample`` (domain is *org.gosa* if you didn't change the
+    configuration), which makes it possible that only agents having this
+    module installed get related messages::
+
+        >>> from gosa.common import Environment
+        >>> from gosa.common.components import Command, Plugin
+        >>>
+        >>> class SampleModule(Plugin):
+        ...     _target_ = 'sample'
+        ...
+        ...     @Command(__doc__=N_("Return a pre-defined message to the caller"))
+        ...     def hello(self, name="unknown"):
+        ...         return _("Hello %s!") % name
+
+    """
+    _target_ = None
+
     #TODO: More interface declarations
     pass
 

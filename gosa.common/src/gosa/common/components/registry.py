@@ -1,16 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
-
- ID: $$Id: registry.py 608 2010-08-16 08:12:35Z cajus $$
-
- This modules hosts plugin registry related classes.
-
- See LICENSE for more information about the licensing.
-"""
 import pkg_resources
-
 from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
 
@@ -19,23 +8,18 @@ class PluginRegistry(object):
     """
     Plugin registry class. The registry holds plugin instances and
     provides overall functionality like "serve" and "shutdown".
+
+    =============== ============
+    Parameter       Description
+    =============== ============
+    compoment       What setuptools entrypoint to use when looking for :class:`gosa.common.components.plugin.Plugin`.
+    =============== ============
     """
     modules = {}
     handlers = {}
     objects = {}
 
     def __init__(self, component="gosa.modules"):
-        """
-        Construct a new message with the supplied content. The
-        content-type of the message will be automatically inferred from
-        type of the content parameter.
-
-        @type env: Environment
-        @param env: L{Environment} object
-
-        @type component: string
-        @param component: Which entrypoints should be include
-        """
         env = Environment.getInstance()
         self.env = env
         self.env.log.debug("inizializing plugin registry")
@@ -84,6 +68,10 @@ class PluginRegistry(object):
 
     @staticmethod
     def registerObject(oid, obj):
+        """
+        **TODO**: this needs to be moved to a separate object
+        """
+        #TODO: move to separate class
         if oid in  PluginRegistry.objects:
             raise ValueError("OID '%s' is already registerd!" % oid)
 
@@ -94,10 +82,17 @@ class PluginRegistry(object):
     @staticmethod
     def getInstance(name):
         """
-        Return an instance of the named class.
+        Return an instance of a registered class.
 
-        @type name: str
-        @param name: name of the class to get instance of
+        =============== ============
+        Parameter       Description
+        =============== ============
+        name            name of the class to get instance of
+        =============== ============
+
+        >>> from gosa.common.components import PluginRegistry
+        >>> cr = PluginRegistry.getInstance("CommandRegistry")
+
         """
         if not name in PluginRegistry.modules:
             raise ValueError("no module '%s' available" % name)
