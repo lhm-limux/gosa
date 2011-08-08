@@ -288,7 +288,8 @@ def repr2json(string):
 
 def downloadFile(url, download_dir=None, use_filename=False):
     """
-    Function to emulate UNIX 'which' behaviour.
+    Download file to a local (temporary or preset) path and return the
+    resulting local path for further usage.
 
     ============ ============
     Parameter    Description
