@@ -266,8 +266,8 @@ Deploy a development agent
 To deploy the agent, please run these commands inside the activated
 virtual environment::
 
-  $ ./setup_common.py develop
-  $ ./setup_agent.py develop
+  $ pushd .; cd gosa.common && ./setup.py develop; popd
+  $ pushd .; cd gosa.agent && ./setup.py develop; popd
 
 Alternatively you can build the complete package using::
 
@@ -299,8 +299,8 @@ Installing
 
 To deploy the shell, use::
 
-  $ ./setup_common.py develop
-  $ ./setup_shell.py develop
+  $ pushd .; cd gosa.common && ./setup.py develop; popd
+  $ pushd .; cd gosa.shell && ./setup.py develop; popd
 
 inside your activated virtual env. You can skip this if you ran ./setup.py for
 a complete deployment.
@@ -347,9 +347,9 @@ Installing
 
 To deploy the client components, use::
 
-  $ ./setup_common.py develop
-  $ ./setup_client.py develop
-  $ ./setup_dbus.py develop
+  $ pushd .; cd gosa.common && ./setup.py develop; popd
+  $ pushd .; cd gosa.client && ./setup.py develop; popd
+  $ pushd .; cd gosa.dbus && ./setup.py develop; popd
 
 inside your activated virtual env. You can skip this if you ran ./setup.py for
 a complete deployment.
