@@ -47,6 +47,11 @@ Components
 
 -------
 
+.. automodule:: gosa.common.components.objects
+   :members:
+
+-------
+
 .. automodule:: gosa.common.components.zeroconf_client
    :members:
 

@@ -14,8 +14,7 @@ import datetime
 import re
 from inspect import getargspec, getmembers, ismethod
 from zope.interface import implements
-from gosa.common.components.registry import PluginRegistry
-from gosa.common.components import Command
+from gosa.common.components import PluginRegistry, ObjectRegistry, Command
 from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
 from gosa.common.event import EventMaker
@@ -395,7 +394,7 @@ class CommandRegistry(object):
                     e.QueueRequired('true' if info['needsQueue'] else 'false'),
                     e.Documentation(info['doc'])))
 
-        for obj, info in PluginRegistry.objects.iteritems():
+        for obj, info in ObjectRegistry.objects.iteritems():
             if info['signature']:
                 methods.append(
                     e.NodeObject(

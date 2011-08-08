@@ -18,15 +18,11 @@ from jsonrpc import loads, dumps
 from webob import exc, Request, Response
 from paste import httpserver, wsgilib, request, response
 from paste.auth.cookie import AuthCookieHandler, AuthCookieSigner
-
 from gosa.common.utils import N_, repr2json, f_print
 from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
-from gosa.common.components.jsonrpc_proxy import JSONRPCException
-from gosa.common.components.registry import PluginRegistry
-from gosa.common.components.zeroconf import ZeroconfService
-from gosa.common.components import Command
-from gosa.common.components import AMQPServiceProxy
+from gosa.common.components import Command, PluginRegistry, ObjectRegistry, \
+    ZeroconfService, AMQPServiceProxy, JSONRPCException
 
 
 class JsonRpcApp(object):
@@ -256,8 +252,8 @@ class JSONRPCService(object):
 class JSONRPCObjectMapper(object):
     _target_ = 'core'
 
-    #TODO: move store to memcache or DB in order to allow shared
-    #      objects accross agent instances
+    #TODO: move store to object registry using memcache, DB or whatever
+    #      to allow shared objects accross agent instances
     __store = {}
     __proxy = {}
 
@@ -343,10 +339,10 @@ class JSONRPCObjectMapper(object):
         return result
 
     def __get_object_type(self, oid):
-        if not oid in PluginRegistry.objects:
+        if not oid in ObjectRegistry.objects:
             raise ValueError("Unknown object OID %s" % oid)
 
-        return PluginRegistry.objects[oid]['object']
+        return ObjectRegistry.objects[oid]['object']
 
     def __inspect(self, clazz):
         methods = []
@@ -371,7 +367,7 @@ class JSONRPCObjectMapper(object):
         cr = PluginRegistry.getInstance('CommandRegistry')
         if not oid in cr.objects:
             raise ValueError("Unknown object OID %s" % oid)
-        return oid in PluginRegistry.objects
+        return oid in ObjectRegistry.objects
 
     def __get_proxy(self, ref):
         return self.__get_proxy_by_oid(

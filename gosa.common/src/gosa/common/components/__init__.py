@@ -6,6 +6,7 @@ __import__('pkg_resources').declare_namespace(__name__)
 from gosa.common.components.amqp_proxy import AMQPServiceProxy
 from gosa.common.components.amqp_proxy import AMQPEventConsumer
 from gosa.common.components.amqp_proxy import AMQPStandaloneWorker
+from gosa.common.components.objects import ObjectRegistry
 from gosa.common.components.amqp import AMQPHandler
 from gosa.common.components.amqp import AMQPWorker
 from gosa.common.components.amqp import AMQPProcessor

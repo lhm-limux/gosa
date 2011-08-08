@@ -23,7 +23,7 @@ import pkg_resources
 import codecs
 
 from gosa.common import Environment
-from gosa.common.components.registry import PluginRegistry
+from gosa.common.components import ObjectRegistry, PluginRegistry
 from gosa.common.event import EventMaker
 from gosa.agent import __version__ as VERSION
 from gosa.agent.load import SystemLoad
@@ -58,6 +58,7 @@ def mainLoop(env):
         # Load plugins
         pr = PluginRegistry()
         cr = PluginRegistry.getInstance("CommandRegistry")
+        oreg = ObjectRegistry.getInstance()
         amqp = PluginRegistry.getInstance("AMQPHandler")
 
         wait = 2

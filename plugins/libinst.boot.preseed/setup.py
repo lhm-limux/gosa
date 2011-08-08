@@ -44,5 +44,8 @@ for various systems in your setup.
     entry_points = """
         [libinst.base_methods]
         libinst.preseed = libinst.boot.preseed.methods:DebianPreseed
+
+        [gosa.objects]
+        libinst.preseed.diskdefinition = libinst.boot.preseed.disk:DebianDiskDefinition
     """
 )

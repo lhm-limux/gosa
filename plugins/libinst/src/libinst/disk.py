@@ -622,6 +622,3 @@ class DiskDefinition(object):
             info['vg'][vg['name']] = {"size": size, "usage": usage}
 
         return info
-
-
-PluginRegistry.registerObject("libinst.diskdefinition", DiskDefinition)

@@ -17,7 +17,6 @@ class PluginRegistry(object):
     """
     modules = {}
     handlers = {}
-    objects = {}
 
     def __init__(self, component="gosa.modules"):
         env = Environment.getInstance()
@@ -65,19 +64,6 @@ class PluginRegistry(object):
         for clazz  in PluginRegistry.handlers.values():
             if hasattr(clazz, 'stop'):
                 clazz.stop()
-
-    @staticmethod
-    def registerObject(oid, obj):
-        """
-        **TODO**: this needs to be moved to a separate object
-        """
-        #TODO: move to separate class
-        if oid in  PluginRegistry.objects:
-            raise ValueError("OID '%s' is already registerd!" % oid)
-
-        PluginRegistry.objects[oid] = {
-            'object': obj,
-            'signature': None}
 
     @staticmethod
     def getInstance(name):
