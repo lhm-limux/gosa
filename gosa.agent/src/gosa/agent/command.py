@@ -1,13 +1,4 @@
-"""
-This code is part of GOsa (http://www.gosa-project.org)
-Copyright (C) 2009, 2010 GONICUS GmbH
-
-ID: $$Id: command.py 1360 2010-11-15 13:42:15Z cajus $$
-
-This is the zeroconf provider module.
-
-See LICENSE for more information about the licensing.
-"""
+# -*- coding: utf-8 -*-
 import string
 import time
 import datetime

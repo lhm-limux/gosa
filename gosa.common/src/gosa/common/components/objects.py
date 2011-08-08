@@ -20,9 +20,6 @@ class ObjectRegistry(object):
 
     In this case, all objects are registered after the agent is fired
     up automatically.
-
-    **TODO**: store objects other than in dict and add expiry function via scheduler
-              move stuff from :class:`gosa.agent.jsonrpc_service.JSONRPCObjectMapper`
     """
     _objects = {}
     _instance = None

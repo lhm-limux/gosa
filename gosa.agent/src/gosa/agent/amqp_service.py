@@ -1,14 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
-
- ID: $$Id: amqp_service.py 1267 2010-10-22 12:37:59Z cajus $$
-
- This modules hosts AMQP service related classes.
-
- See LICENSE for more information about the licensing.
-"""
 import sys
 import re
 import traceback
@@ -37,9 +27,6 @@ class AMQPService(object):
         """
         Construct a new AMQPService instance based on the configuration
         stored in the environment.
-
-        @type env: Environment
-        @param env: L{Environment} object
         """
         env = Environment.getInstance()
         env.log.debug("initializing AMQP service provider")

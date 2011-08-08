@@ -253,7 +253,8 @@ class JSONRPCObjectMapper(object):
     _target_ = 'core'
 
     #TODO: move store to object registry using memcache, DB or whatever
-    #      to allow shared objects accross agent instances
+    #      to allow shared objects accross agent instances, maybe it's
+    #      better to move all the stuff to the ObjectRegistry.
     __store = {}
     __proxy = {}
 
