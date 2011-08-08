@@ -67,7 +67,7 @@ Obtaining the source
 For now, please use the tar or git::
 
    $ cd 'the place where you created the gosa-ng virtualenv'
-   $ git clone git://labs.intranet.gonicus.de/gosa-ng/gosa-ng.git src
+   $ git clone git://oss.gonicus.de/git/gosa.git src
 
 This will place all relevant files inside the 'src' directory.
 
