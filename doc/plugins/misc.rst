@@ -1,2 +1,2 @@
-GOto project
+Misc plugins
 ============

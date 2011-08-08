@@ -23,10 +23,10 @@ import pkg_resources
 import codecs
 
 from gosa.common import Environment
-from gosa.common.components import ObjectRegistry, PluginRegistry
+from gosa.common.utils import SystemLoad
 from gosa.common.event import EventMaker
+from gosa.common.components import ObjectRegistry, PluginRegistry
 from gosa.agent import __version__ as VERSION
-from gosa.agent.load import SystemLoad
 
 
 def shutdown(a=None, b=None):

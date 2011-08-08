@@ -349,3 +349,37 @@ def downloadFile(url, download_dir=None, use_filename=False):
         raise ValueError(N_("Unsupported URL scheme %s!"), o.scheme)
 
     return result
+
+
+class SystemLoad:
+    """
+    The *SystemLoad* class allows to measure the current system load
+    on Linux style systems.
+    """
+    __timeList1 = [1, 1, 1, 1, 1, 1, 1, 1, 1]
+
+    def getLoad(self):
+        """
+        Get current nodes CPU load.
+
+        ``Return:`` load level
+        """
+
+        def getTimeList():
+            with file("/proc/stat", "r") as f:
+                cpuStats = f.readline()
+            columns = cpuStats.replace("cpu", "").split(" ")
+            return map(int, filter(None, columns))
+
+        timeList2 = getTimeList()
+        dt = list([(t2 - t1) for t1, t2 in zip(self.__timeList1, timeList2)])
+
+        idle_time = float(dt[3])
+        total_time = sum(dt)
+        load = 0.0
+        if total_time != 0.0:
+            load = 1 - (idle_time / total_time)
+            # Set old time delta to current
+            self.__timeList1 = timeList2
+
+        return round(load, 2)

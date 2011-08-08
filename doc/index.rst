@@ -54,9 +54,9 @@ Topics:
 
    intro
    common/index
-   agent
-   client
-   shell
+   agent/index
+   client/index
+   shell/index
    plugins/index
 
 Indices and tables

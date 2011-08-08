@@ -2,8 +2,7 @@
 """
 The *agent* module bundles the agent daemon and a couple code modules
 needed to run it. The agent itself is meant to be extended by plugins
-using the :class:`gosa.common.components.Plugin` interface.
-
+using the :class:`gosa.common.components.plugin.Plugin` interface.
 When starting up the system, the agent looks for plugins in the setuptools
 system and registers them into to the :class:`gosa.common.components.registry.PluginRegistry`.
 The same happens for objects in :class:`gosa.common.components.objects.ObjectRegistry`.
@@ -26,17 +25,28 @@ AMQP ``NodeStatus`` events from time to time, joining threads and waiting
 to be stopped.
 
 To provide real services an ordinary agent will load a couple of modules
-exposing functionality to the outside world:
+exposing functionality to the outside world. Here are some of them:
 
  * :class:`gosa.agent.command.CommandRegistry` inspects all loaded modules
-   for the **@Command** decorator (:meth:`gosa.common.command.Command`)
+   for the :meth:`gosa.common.components.command.Command` decorator
    and registers all decorated methods to be available thru the CommandRegistry
    dispatcher.
 
  * :class:`gosa.agent.amqp_service.AMQPService` joins to the qpid broker
    federation and provides methods to *speak* with the bus.
 
- * :class:`gosa.agent.httpd.HTTPService` provides a registry for modules
+ * :class:`gosa.agent.httpd.HTTPService` provides a WSGI based HTTP service,
+   which is extended by :class:`gosa.agent.httpd.HTTPDispatcher` to let
+   interested modules hook into a HTTP path if desired.
+
+ * :class:`gosa.agent.jsonrpc_servce.JSONRPCService` uses the HTTPDispatcher
+   to provide the */rpc* URL with JSONRPC capabilities. It exposes all
+   methods decorated by @Command.
+
+.. note::
+
+   Take a look at the :ref:`quickstart <quickstart>` to see how the agent is started.
+
 """
 __version__ = __import__('pkg_resources').get_distribution('gosa.agent').version
 __import__('pkg_resources').declare_namespace(__name__)
