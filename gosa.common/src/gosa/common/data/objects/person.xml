@@ -11,12 +11,12 @@
 				<Name>notify</Name>
 				<MethodParameters>
 					<MethodParameter>
-						<Name>title</Name>
+						<Name>notify_title</Name>
 						<Type>String</Type>
 						<Default>title</Default>
 					</MethodParameter>	
 					<MethodParameter>
-						<Name>message</Name>
+						<Name>notify_message</Name>
 						<Type>String</Type>
 						<Required>true</Required>
 						<Default>message</Default>
@@ -25,16 +25,13 @@
 				<Command>notifyUser</Command>
 				<CommandParameters>
 					<CommandParameter>
-						<Name>uuid</Name>
-						<Value>%{uuid}</Value>
+						<Value>%(uid)s</Value>
 					</CommandParameter>		
 					<CommandParameter>
-						<Name>title</Name>
-						<Value>%[title]</Value>
+						<Value>%(notify_title)s</Value>
 					</CommandParameter>			
 					<CommandParameter>
-						<Name>message</Name>
-						<Value>%[message]</Value>
+						<Value>%(notify_message)s</Value>
 					</CommandParameter>		
 				</CommandParameters>
 			</Method>
@@ -57,6 +54,12 @@
 			<Attribute>
 				<Name>givenName</Name>
 				<Description>Given name</Description>
+				<Syntax>String</Syntax>
+			</Attribute>
+			
+			<Attribute>
+				<Name>uid</Name>
+				<Description>User ID</Description>
 				<Syntax>String</Syntax>
 			</Attribute>
 

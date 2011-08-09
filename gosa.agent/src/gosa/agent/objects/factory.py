@@ -168,38 +168,77 @@ class GOsaObjectFactory(object):
                     'in_backend': in_b,
                     'multivalue': multivalue}
 
+        # Build up a list of callable methods
         for method in classr['Methods']['Method']:
-            name = str(method['Name'])
-            cmd = str(method['Command'])
+
+            # Extract method information out of the xml tag
+            methodName = str(method['Name'])
+            command = str(method['Command'])
 
             # Get the list of method parameters
             mParams = []
             if 'MethodParameters' in method.__dict__:
-                for param in method['MethodParameters']['MethodParameter']:
-                    pname = param['Name']
-                    ptype = param['Type']
-                    prequired = bool(param['Required']) if 'Required' in param.__dict__ else False
-                    pdefault = bool(param['Default']) if 'Default' in param.__dict__ else ''
-                    mParams.append( (pname, ptype, prequired, pdefault), )
 
-            # Get the list of method parameters
+                # Todo: Check type of the property and handle the
+                # default value.
+                for param in method['MethodParameters']['MethodParameter']:
+                    pName = str(param['Name'])
+                    pType = str(param['Type'])
+                    pRequired = bool(param['Required']) if 'Required' in param.__dict__ else False
+                    pDefault = str(param['Default']) if 'Default' in param.__dict__ else ''
+                    mParams.append( (pName, pType, pRequired, pDefault), )
+
+            # Get the list of command parameters
             cParams = []
             if 'CommandParameters' in method.__dict__:
                 for param in method['CommandParameters']['CommandParameter']:
-                    pname = param['Name']
-                    pvalue = param['Value']
-                    cParams.append( (pname, pvalue), )
+                    cParams.append(str(param['Value']))
 
             # Now add the method to the object
             def funk(*args, **kwargs):
-                print  cParams
-                print  mParams
-                print "Called class method:", args, kwargs
-                #        variables = {'title': args[0], 'message': args[1]}
-                #        self.__exec(unicode(str(method['Code']).strip()), variables)
 
-            methods[name] = {'ref': funk}
+                # Build the parameter list.
+                # Collect all property values to be able to fill in
+                # placeholders later.
+                propList = {}
+                for key in props:
+                    aname = props[key]['name']
+                    propList[aname] = props[key]['value'][aname]
 
+                # Check if all expected parameters were given!
+                if len(mParams) != len(args):
+                    raise(Exception("Invalid parameter list for method '%s' expected %s "
+                            "parameter but %s received!" % (methodName,
+                                len(mParams), len(args))))
+
+                # Fill in parameters passed to this method.
+                cnt = 0
+                for entry in mParams:
+                    mname, mtype, mrequired, mdefault = entry
+                    mvalue = args[cnt]
+                    propList[mname] = mvalue
+                    cnt = cnt + 1
+
+                # Fill in placeholders
+                parameterList = []
+                for value in cParams:
+                    try:
+                        value = value % propList
+                    except:
+                        raise(Exception("Cannot call method '%s', error while filling "
+                            " in placeholders! Error processing: %s!" %
+                            (methodName, value)))
+
+                    parameterList.append(value)
+
+                # Execute real-stuff later
+                print "Called class method:", parameterList, command
+
+            # Append the method to the list of registered methods for this
+            # object
+            methods[methodName] = {'ref': funk}
+
+        # Set properties and methods for this object.
         setattr(klass, '__properties', props)
         setattr(klass, '__methods', methods)
 
@@ -495,6 +534,9 @@ class GOsaObject(object):
                 props[key]['in_value'] = value
                 props[key]['in_value'] = key
 
+            # Once we've loaded all properties from the backend, execute the
+            # in-filters.
+            for key in propsByBackend[backend]:
                 # If we've got an in-filter defintion then process it now.
                 if props[key]['in_filter']:
                     new_key, value = self.__processFilter(props[key]['in_filter'], props[key])
@@ -770,7 +812,7 @@ class GOsaObject(object):
         props = getattr(self, '__properties')
         for key in props:
             name = props[key]['name']
-            propList[name] =  props[name]['value'][name]
+            propList[name] =  props[key]['value'][name]
 
         # An inline function which replaces format string tokens
         def _placeHolder(x):
