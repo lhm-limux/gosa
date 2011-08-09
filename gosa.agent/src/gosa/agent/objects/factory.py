@@ -192,6 +192,8 @@ class GOsaObjectFactory(object):
 
             # Now add the method to the object
             def funk(*args, **kwargs):
+                print  cParams
+                print  mParams
                 print "Called class method:", args, kwargs
                 #        variables = {'title': args[0], 'message': args[1]}
                 #        self.__exec(unicode(str(method['Code']).strip()), variables)
