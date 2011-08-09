@@ -9,19 +9,31 @@
 		<Methods>
 			<Method>
 				<Name>notify</Name>
-				<Signature>
-					<Parameter>
-						<Name>title</Name>
+				<MethodParameters>
+					<MethodParameter>
+						<Name>notify_title</Name>
+						<Type>String</Type>
+						<Default>title</Default>
+					</MethodParameter>	
+					<MethodParameter>
+						<Name>notify_message</Name>
 						<Type>String</Type>
 						<Required>true</Required>
-					</Parameter>
-					<Parameter>
-						<Name>message</Name>
-						<Type>String</Type>
-						<Required>true</Required>
-					</Parameter>
-				</Signature>
-				<Code>notify(message, title)</Code>
+						<Default>message</Default>
+					</MethodParameter>			
+				</MethodParameters>
+				<Command>notifyUser</Command>
+				<CommandParameters>
+					<CommandParameter>
+						<Value>%(uid)s</Value>
+					</CommandParameter>		
+					<CommandParameter>
+						<Value>%(notify_title)s</Value>
+					</CommandParameter>			
+					<CommandParameter>
+						<Value>%(notify_message)s</Value>
+					</CommandParameter>		
+				</CommandParameters>
 			</Method>
 		</Methods>
 
@@ -42,6 +54,12 @@
 			<Attribute>
 				<Name>givenName</Name>
 				<Description>Given name</Description>
+				<Syntax>String</Syntax>
+			</Attribute>
+			
+			<Attribute>
+				<Name>uid</Name>
+				<Description>User ID</Description>
 				<Syntax>String</Syntax>
 			</Attribute>
 
@@ -75,18 +93,45 @@
 						</FilterEntry>
 						<FilterEntry>
 							<Filter>
+								<Name>Clear</Name>
+							</Filter>
+						</FilterEntry>
+						<FilterEntry>
+							<Filter>
 								<Name>ConcatString</Name>
-								<Param>"</Param>
+								<Param>%(givenName)s %(sn)s</Param>
 								<Param>left</Param>
 							</Filter>
 						</FilterEntry>
 						<FilterEntry>
 							<Filter>
 								<Name>ConcatString</Name>
-								<Param>"</Param>
+								<Param> (Ja es geht!)</Param>
 								<Param>right</Param>
 							</Filter>
 						</FilterEntry>
+
+
+					</FilterChain>
+				</OutFilter>
+				<MultiValue>false</MultiValue>
+			</Attribute>
+		</Attributes>
+
+		<Container>
+			<Type>Nothing</Type>
+		</Container>
+
+		<Mandatory>false</Mandatory>
+		<BaseObject>false</BaseObject>
+	</Object>
+</Objects>
+
+
+
+
+<!-- 
+
 						<FilterEntry>
 							<Choice>
 								<When>
@@ -158,18 +203,4 @@
 								<Param>right</Param>
 							</Filter>
 						</FilterEntry>
-
-					</FilterChain>
-				</OutFilter>
-				<MultiValue>false</MultiValue>
-			</Attribute>
-		</Attributes>
-
-		<Container>
-			<Type>Nothing</Type>
-		</Container>
-
-		<Mandatory>false</Mandatory>
-		<BaseObject>false</BaseObject>
-	</Object>
-</Objects>
+ -->

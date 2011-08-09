@@ -168,20 +168,77 @@ class GOsaObjectFactory(object):
                     'in_backend': in_b,
                     'multivalue': multivalue}
 
-            #TODO: no exec plz
-            #for method in classr['Methods']['Method']:
-            #    name = str(method['Name'])
+        # Build up a list of callable methods
+        for method in classr['Methods']['Method']:
 
-            #    def funk(*args, **kwargs):
-            #        variables = {'title': args[0], 'message': args[1]}
-            #        self.__exec(unicode(str(method['Code']).strip()), variables)
+            # Extract method information out of the xml tag
+            methodName = str(method['Name'])
+            command = str(method['Command'])
 
-            #    methods[name] = {
-            #            'ref': funk}
+            # Get the list of method parameters
+            mParams = []
+            if 'MethodParameters' in method.__dict__:
 
-        #except KeyError:
-        #    pass
+                # Todo: Check type of the property and handle the
+                # default value.
+                for param in method['MethodParameters']['MethodParameter']:
+                    pName = str(param['Name'])
+                    pType = str(param['Type'])
+                    pRequired = bool(param['Required']) if 'Required' in param.__dict__ else False
+                    pDefault = str(param['Default']) if 'Default' in param.__dict__ else ''
+                    mParams.append( (pName, pType, pRequired, pDefault), )
 
+            # Get the list of command parameters
+            cParams = []
+            if 'CommandParameters' in method.__dict__:
+                for param in method['CommandParameters']['CommandParameter']:
+                    cParams.append(str(param['Value']))
+
+            # Now add the method to the object
+            def funk(*args, **kwargs):
+
+                # Build the parameter list.
+                # Collect all property values to be able to fill in
+                # placeholders later.
+                propList = {}
+                for key in props:
+                    aname = props[key]['name']
+                    propList[aname] = props[key]['value'][aname]
+
+                # Check if all expected parameters were given!
+                if len(mParams) != len(args):
+                    raise(Exception("Invalid parameter list for method '%s' expected %s "
+                            "parameter but %s received!" % (methodName,
+                                len(mParams), len(args))))
+
+                # Fill in parameters passed to this method.
+                cnt = 0
+                for entry in mParams:
+                    mname, mtype, mrequired, mdefault = entry
+                    mvalue = args[cnt]
+                    propList[mname] = mvalue
+                    cnt = cnt + 1
+
+                # Fill in placeholders
+                parameterList = []
+                for value in cParams:
+                    try:
+                        value = value % propList
+                    except:
+                        raise(Exception("Cannot call method '%s', error while filling "
+                            " in placeholders! Error processing: %s!" %
+                            (methodName, value)))
+
+                    parameterList.append(value)
+
+                # Execute real-stuff later
+                print "Called class method:", parameterList, command
+
+            # Append the method to the list of registered methods for this
+            # object
+            methods[methodName] = {'ref': funk}
+
+        # Set properties and methods for this object.
         setattr(klass, '__properties', props)
         setattr(klass, '__methods', methods)
 
@@ -477,14 +534,12 @@ class GOsaObject(object):
                 props[key]['in_value'] = value
                 props[key]['in_value'] = key
 
+            # Once we've loaded all properties from the backend, execute the
+            # in-filters.
+            for key in propsByBackend[backend]:
                 # If we've got an in-filter defintion then process it now.
                 if props[key]['in_filter']:
-                    try:
-                        new_key, value = self.__processFilter(props[key]['in_filter'], props[key])
-                    except Exception as e:
-                        print "Error while processing in-filter for '%s'!", key
-                        print e
-                        continue
+                    new_key, value = self.__processFilter(props[key]['in_filter'], props[key])
 
                     # Update the key value if necessary
                     if key != new_key:
@@ -595,11 +650,7 @@ class GOsaObject(object):
             value = props[key]['value']
             new_key = key
             if props[key]['out_filter']:
-                try:
-                    new_key, value = self.__processFilter(props[key]['out_filter'], props[key])
-                except Exception as e:
-                    print "FAILED to prepare '%s' to be saved!", key
-                    raise e
+                new_key, value = self.__processFilter(props[key]['out_filter'], props[key])
 
             # Collect properties by backend
             if not props[key]['out_backend'] in toStore:
@@ -690,6 +741,9 @@ class GOsaObject(object):
          key, value pair.
         """
 
+        # Search for replaceable patterns in the process-list.
+        fltr = self.fillInPlaceholders(fltr)
+
         # This is our process-line pointer it points to the process-list line
         #  we're executing at the moment
         lptr = 0
@@ -750,6 +804,28 @@ class GOsaObject(object):
                 stack.append((curline['operator']).process(stack.pop(), stack.pop()))
 
         return key, value
+
+    def fillInPlaceholders(self, fltr):
+
+        # Collect all property values
+        propList = {}
+        props = getattr(self, '__properties')
+        for key in props:
+            name = props[key]['name']
+            propList[name] =  props[key]['value'][name]
+
+        # An inline function which replaces format string tokens
+        def _placeHolder(x):
+            for name in propList:
+                x = x % propList
+            return (x)
+
+        # Walk trough each line of the process list an replace placeholders.
+        for line in fltr:
+            if 'params' in fltr[line]:
+                fltr[line]['params'] = map(lambda x: _placeHolder(x),
+                        fltr[line]['params'])
+        return fltr
 
     def delete(self):
         #TODO:

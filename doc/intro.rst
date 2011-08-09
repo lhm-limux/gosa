@@ -50,7 +50,7 @@ the following packages in your system::
 
 .. note::
       On MS Windows systems, only the client is supposed to work. Please install the
-      ywin32 package: http://sourceforge.net/projects/pywin32/
+      pywin32 package: http://sourceforge.net/projects/pywin32/
 
 
 Setup a virtual environment for playing with GOsa 3.0 alpha
