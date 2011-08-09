@@ -9,19 +9,34 @@
 		<Methods>
 			<Method>
 				<Name>notify</Name>
-				<Signature>
-					<Parameter>
+				<MethodParameters>
+					<MethodParameter>
 						<Name>title</Name>
 						<Type>String</Type>
-						<Required>true</Required>
-					</Parameter>
-					<Parameter>
+						<Default>title</Default>
+					</MethodParameter>	
+					<MethodParameter>
 						<Name>message</Name>
 						<Type>String</Type>
 						<Required>true</Required>
-					</Parameter>
-				</Signature>
-				<Code>notify(message, title)</Code>
+						<Default>message</Default>
+					</MethodParameter>			
+				</MethodParameters>
+				<Command>notifyUser</Command>
+				<CommandParameters>
+					<CommandParameter>
+						<Name>uuid</Name>
+						<Value>%{uuid}</Value>
+					</CommandParameter>		
+					<CommandParameter>
+						<Name>title</Name>
+						<Value>%[title]</Value>
+					</CommandParameter>			
+					<CommandParameter>
+						<Name>message</Name>
+						<Value>%[message]</Value>
+					</CommandParameter>		
+				</CommandParameters>
 			</Method>
 		</Methods>
 
