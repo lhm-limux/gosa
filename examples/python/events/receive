@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from gosa.common.components.amqp_proxy import AMQPEventConsumer
-from qpid.util import URL
+from gosa.common.components import AMQPEventConsumer
 from lxml import etree
 
 # Event callback
@@ -22,6 +21,7 @@ consumer = AMQPEventConsumer("amqps://admin:secret@localhost/org.gosa",
 try:
     while True:
         consumer.join()
+
 except KeyboardInterrupt:
     del consumer
     exit(0)

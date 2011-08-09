@@ -9,9 +9,8 @@
 """
 import gettext
 
-from gosa.common.env import Environment
-from gosa.common.components.command import Command
-from gosa.common.components.plugin import Plugin
+from gosa.common import Environment
+from gosa.common.components import Command, Plugin
 from gosa.common.utils import N_
 # pylint: disable-msg=E0611
 from pkg_resources import resource_filename
@@ -28,9 +27,7 @@ class SampleModule(Plugin):
         env = Environment.getInstance()
         self.env = env
 
-        self.message =  self.env.config.getOption(
-                'message',
-                section='sample',
+        self.message =  self.env.config.get('sample.message',
                 default=_('No message configured!'))
 
     @Command(__doc__=N_("Return a pre-defined message to the caller"))

@@ -2,27 +2,21 @@
 import ldap
 import ldap.schema
 from backend import ObjectBackend
+from gosa.agent.ldap_utils import LDAPHandler
 
 
-class LDAPBackend(ObjectBackend):
+class LDAP(ObjectBackend):
 
     def __init__(self):
-        #TODO: config
-        self.url = "ldap://vm-ldap.intranet.gonicus.de"
-        self.base = "dc=gonicus,dc=de"
+        # Load LDAP handler class
+        self.lh = LDAPHandler.get_instance()
+        self.con = self.lh.get_connection()
 
-        # Load schema
-        con = ldap.initialize(self.url)
-        con.protocol = ldap.VERSION3
-        con.simple_bind_s()
-        #res = con.search_s('cn=subschema', ldap.SCOPE_BASE, 'objectClass=*',
-        #        ['*', '+'])[0][1]
-
-        self.con = con
-        #self.subschema = ldap.schema.SubSchema(res)
+    def __del__(self):
+        self.lh.free_connection(self.con)
 
     def loadAttrs(self, uuid, keys):
-        res = self.con.search_s(self.base, ldap.SCOPE_SUBTREE, 'entryUUID=%s' % uuid,
+        res = self.con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, 'entryUUID=%s' % uuid,
                 keys)[0][1]
         return dict((k,v) for k, v in res.iteritems() if k in keys)
 

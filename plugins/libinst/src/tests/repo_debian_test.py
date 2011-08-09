@@ -4,7 +4,7 @@ import unittest
 from sqlalchemy.orm import sessionmaker
 from libinst.manage import RepositoryManager
 from libinst.entities.type import Type
-from gosa.common.env import Environment
+from gosa.common import Environment
 import pprint
 
 class TestDebianRepository(unittest.TestCase):

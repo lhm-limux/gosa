@@ -1,9 +1,4 @@
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
-
-  See LICENSE for more information about the licensing.
-"""
+# -*- coding: utf-8 -*-
 import select
 import platform
 
@@ -22,47 +17,52 @@ class ZeroconfClient(object):
     creates a separate thread and needs the registrated service to look for
     as a parameter.
 
-    Usage example:
-        import time
-        import ZerconfClient
+    Usage example::
 
-        # This is the function called on changes
-        def callback(sdRef, flags, interfaceIndex, errorCode, fullname,
-                                 hosttarget, port, txtRecord):
-           print('Resolved service:')
-           print('  fullname   =', fullname)
-           print('  hosttarget =', hosttarget)
-           print('  TXT        =', txtRecord)
-           print('  port       =', port)
+        >>> import time
+        >>> import ZerconfClient
+        >>>
+        >>> # This is the function called on changes
+        >>> def callback(sdRef, flags, interfaceIndex, errorCode, fullname,
+        ...                         hosttarget, port, txtRecord):
+        ...   print('Resolved service:')
+        ...   print('  fullname   =', fullname)
+        ...   print('  hosttarget =', hosttarget)
+        ...   print('  TXT        =', txtRecord)
+        ...   print('  port       =', port)
+        >>>
+        >>> # Get instance and tell client to start
+        >>> z= ZeroconfClient('_gosa._tcp', callback=callback)
+        >>> z.start()
+        >>>
+        >>> # Do some sleep until someone presses Ctrl+C
+        >>> try:
+        >>>     while True:
+        >>>         time.sleep(1)
+        >>> except KeyboardInterrupt:
+        >>>     # Shutdown client
+        >>>     z.stop()
+        >>>     exit()
 
-        # Get instance and tell client to start
-        z= ZeroconfClient('_gosa._tcp', callback=callback)
-        z.start()
-
-        # Do some sleep until someone presses Ctrl+C
-        try:
-            while True:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            # Shutdown client
-            z.stop()
-            exit()
+    =============== ============
+    Parameter       Description
+    =============== ============
+    regtype         The service to watch out for - i.e. _gosa._tcp
+    timeout         The timeout in seconds
+    callback        Method to call when we've received something
+    =============== ============
     """
     __resolved = []
 
     def __init__(self, regtype, timeout=2.0, callback=None):
-        """
-        Create a new instance of the ZeroconfClient using the
-        provided parameters.
-
-        @type regtype: string
-        @param regtype: The service to watch out for - i.e. _gosa._tcp
-        """
         self.__timeout = timeout
         self.__callback = callback
         self.__regtype = regtype
 
     def start(self):
+        """
+        Start zeroconf event processing.
+        """
 
         if platform.system() == "Linux":
             self.__runner = DBusRunner.get_instance()
@@ -100,7 +100,7 @@ class ZeroconfClient(object):
 
     def stop(self):
         """
-        Stop the bonjour event processing.
+        Stop the zeroconf event processing.
         """
         if platform.system() == "Linux":
             self.__runner.stop()

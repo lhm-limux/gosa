@@ -43,10 +43,10 @@ from libinst.system_locale import locale_map
 from libinst.keyboard_models import KeyboardModels
 from libinst.methods import load_system
 
-from gosa.common.env import Environment
+from gosa.common import Environment
 from gosa.common.components.command import Command, NamedArgs
 from gosa.agent.ldap_utils import LDAPHandler
-from gosa.common.components.plugin import Plugin
+from gosa.common.components import Plugin
 from gosa.common.utils import N_
 
 # Include locales
@@ -88,7 +88,7 @@ class RepositoryManager(Plugin):
         self.env = env
         engine = env.getDatabaseEngine("repository")
         Session = scoped_session(sessionmaker(autoflush=True, bind=engine))
-        self.path = env.config.getOption('path', section='repository')
+        self.path = env.config.get('repository.path')
         if not os.path.exists(self.path):
             try:
                 os.makedirs(self.path)
@@ -121,7 +121,7 @@ class RepositoryManager(Plugin):
             self.base_install_method_reg[module.getInfo()['name'].lower()] = module()
 
         # Purge DB if wanted
-        db_purge = env.config.getOption('db_purge', section='repository')
+        db_purge = env.config.get('repository.db_purge')
         if db_purge == "True":
             self.initializeDatabase(engine)
 
@@ -204,7 +204,7 @@ class RepositoryManager(Plugin):
 
         try:
             session = self.getSession()
-            if not self.env.config.getOption('http_base_url', section='repository'):
+            if not self.env.config.get('repository.http_base_url'):
                 raise ValueError(N_("Option 'http_base_url' in section 'repository' is not configured!"))
             distribution = self._getDistribution(release.split('/')[0])
             if distribution:
@@ -215,7 +215,7 @@ class RepositoryManager(Plugin):
             else:
                 release = self._getRelease(release)
                 release = session.merge(release)
-            result = self.env.config.getOption('http_base_url', section='repository')
+            result = self.env.config.get('repository.http_base_url')
             if not result.endswith('/'):
                 result += '/'
             if distribution is not None:
@@ -1740,7 +1740,7 @@ class RepositoryManager(Plugin):
                 #TODO: unique check
                 mods.append(('objectClass', ['gosaConfigItem', 'installTemplate']))
                 dn = ",".join(["cn=" + name,
-                    self.env.config.getOption("template-rdn", "libinst", "cn=templates,cn=libinst,cn=config"),
+                    self.env.config.get("libinst.template-rdn", "cn=templates,cn=libinst,cn=config"),
                     lh.get_base()])
                 res = {}
             else:

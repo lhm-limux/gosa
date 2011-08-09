@@ -15,7 +15,7 @@ import ldap
 import sys
 from copy import copy
 from types import StringTypes
-from gosa.common.env import Environment
+from gosa.common import Environment
 from gosa.agent.ldap_utils import LDAPHandler, unicode2utf8, normalize_ldap
 from libinst.entities.config_item import ConfigItem
 from sqlalchemy import func
@@ -208,8 +208,8 @@ class BaseInstallMethod(object):
         res = None
         lh = LDAPHandler.get_instance()
         with lh.get_handle() as conn:
-            res = conn.search_s(",".join([self.env.config.getOption("template-rdn",
-                "libinst", "cn=templates,cn=libinst,cn=config"), lh.get_base()]),
+            res = conn.search_s(",".join([self.env.config.get("libinst.template-rdn",
+                "cn=templates,cn=libinst,cn=config"), lh.get_base()]),
                 ldap.SCOPE_SUBTREE, "(&(objectClass=installTemplate)(cn=%s))" % data['template'], ["cn"])
             if len(res) != 1:
                 raise ValueError("template '%s' not found" % data['template'])

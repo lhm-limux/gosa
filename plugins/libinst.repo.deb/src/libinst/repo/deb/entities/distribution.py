@@ -19,7 +19,7 @@ from sqlalchemy.orm import relationship, backref
 from libinst.entities import Base, UseInnoDB
 from libinst.entities.distribution import Distribution
 
-from gosa.common.env import Environment
+from gosa.common import Environment
 from gosa.common.utils import N_, locate
 
 # pylint: disable-msg=E0611

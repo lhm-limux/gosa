@@ -2,6 +2,25 @@ import time
 import functools
 
 class cache(object):
+    """
+    Caching decorator basically taken from the
+    `Python Wiki <http://wiki.python.org/moin/PythonDecoratorLibrary>`_.
+
+    >>> @cache(ttl=60)
+    >>> def fibonacci(n):
+    ...    "Return the nth fibonacci number."
+    ...    if n in (0, 1):
+    ...       return n
+    ...    return fibonacci(n-1) + fibonacci(n-2)
+    >>>
+    >>> fibonacci(12)
+
+    ========= ============
+    Parameter Description
+    ========= ============
+    ttl       time to cache results in seconds
+    ========= ============
+    """
 
     def __init__(self,  ttl=None):
         self.ttl = ttl

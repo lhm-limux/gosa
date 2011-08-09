@@ -4,9 +4,9 @@ import dbus.service
 import ConfigParser
 from datetime import datetime
 from subprocess import Popen, PIPE
-from gosa.common.env import Environment
+from gosa.common import Environment
 from gosa.common.utils import get_timezone_delta
-from gosa.common.components.plugin import Plugin
+from gosa.common.components import Plugin
 from gosa.dbus.utils import get_system_bus
 
 
@@ -21,7 +21,7 @@ class PuppetDBusHandler(dbus.service.Object, Plugin):
         conn = get_system_bus()
         dbus.service.Object.__init__(self, conn, '/com/gonicus/gosa/puppet')
         self.env = Environment.getInstance()
-        self.logdir = self.env.config.getOption("report-dir", "puppet",
+        self.logdir = self.env.config.get("puppet.report-dir",
                 "/var/log/puppet")
 
         # Check puppet configuration
@@ -33,7 +33,8 @@ class PuppetDBusHandler(dbus.service.Object, Plugin):
                 raise OptionMissing("puppet has no reporting enabled")
 
             if config.get("main", "reportdir", "") != self.logdir:
-                raise OptionMissing("reportdir configured in /etc/puppet/puppet.conf and %s do not match" % self.env.config.getOption('config'))
+                raise OptionMissing("reportdir configured in
+                        /etc/puppet/puppet.conf and %s do not match" % self.env.config.get('core.config'))
 
             if config.get("main", "reports", "") != "store_gosa":
                 raise OptionMissing("storage module probably not compatible")
@@ -62,8 +63,8 @@ reports=store_gosa
         self.env.log.info("executing puppet")
 
         command = "%s -d %s" % (
-            self.env.config.getOption("command", "puppet", default="/usr/bin/puppet"),
-            self.env.config.getOption("manifest", "puppet", default="/etc/puppet/manifests/site.pp"),
+            self.env.config.get("puppet.command", default="/usr/bin/puppet"),
+            self.env.config.get("puppet.manifest", default="/etc/puppet/manifests/site.pp"),
             )
         self.env.log.debug("running puppet: %s" % command)
 

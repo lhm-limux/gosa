@@ -48,5 +48,8 @@ for various systems in your setup.
     entry_points = """
         [gosa.modules]
         gosa-agent.libinst = libinst.manage:RepositoryManager
+
+        [gosa.objects]
+        libinst.diskdefinition = libinst.disk:DiskDefinition
     """
 )

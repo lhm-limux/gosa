@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import ldap
 import pytz
-from gosa.common.env import Environment
+from gosa.common import Environment
 from gosa.agent.ldap_utils import LDAPHandler
 from system_locale import locale_map
 from keyboard_models import KeyboardModels

@@ -19,7 +19,7 @@ import grp
 import pkg_resources
 from os.path import isdir, exists
 from pkg_resources import resource_filename
-from gosa.common.env import Environment
+from gosa.common import Environment
 from gosa.common.config import ConfigNoFile
 from operator import itemgetter
 
@@ -96,8 +96,8 @@ def main():
         joiner.join_dialog()
 
     # Fix configuration file permission
-    cfg = env.config.getOption("config")
-    group = env.config.getOption("group", "client", default="gosa-ng")
+    cfg = env.config.get("core.config")
+    group = env.config.get("client.group", default="gosa-ng")
     try:
         gid = grp.getgrnam(group).gr_gid
     except KeyError as e:

@@ -47,8 +47,8 @@ from types import ListType
 from urllib2 import HTTPError
 from pkg_resources import resource_filename
 
-from gosa.common.components.amqp_proxy import AMQPServiceProxy
-from gosa.common.components.jsonrpc_proxy import JSONServiceProxy, JSONRPCException
+from gosa.common.components import AMQPServiceProxy
+from gosa.common.components import JSONServiceProxy, JSONRPCException
 from gosa.common.components.zeroconf_client import ZeroconfClient
 from gosa.common.utils import parseURL
 

@@ -4,7 +4,7 @@ import MySQLdb
 import pkg_resources
 import gettext
 from amires.render import BaseRenderer
-from gosa.common.env import Environment
+from gosa.common import Environment
 
 # Set locale domain
 t = gettext.translation('messages', pkg_resources.resource_filename("amires", "locale"), fallback=False)
@@ -17,20 +17,20 @@ class GOForgeRenderer(BaseRenderer):
 
     def __init__(self):
         self.env = env = Environment.getInstance()
-        host = env.config.getOption("host", "fetcher-goforge",
+        host = env.config.get("fetcher-goforge.host",
             default="localhost")
-        user = env.config.getOption("user", "fetcher-goforge",
+        user = env.config.get("fetcher-goforge.user",
             default="root")
-        passwd = env.config.getOption("pass", "fetcher-goforge",
+        passwd = env.config.get("fetcher-goforge.pass",
             default="")
-        db = env.config.getOption("base", "fetcher-goforge",
+        db = env.config.get("fetcher-goforge.base",
             default="goforge")
 
         # connect to GOforge db
         self.forge_db = MySQLdb.connect(host=host,
             user=user, passwd=passwd, db=db)
 
-        self.forge_url = self.env.config.getOption("site_url", "fetcher-goforge",
+        self.forge_url = self.env.config.get("fetcher-goforge.site_url",
             default="http://localhost/")
 
     def getHTML(self, particiantInfo, event):

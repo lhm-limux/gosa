@@ -1,26 +1,16 @@
-"""
-This code is part of GOsa (http://www.gosa-project.org)
-Copyright (C) 2009, 2010 GONICUS GmbH
-
-ID: $$Id: command.py 1360 2010-11-15 13:42:15Z cajus $$
-
-This is the zeroconf provider module.
-
-See LICENSE for more information about the licensing.
-"""
+# -*- coding: utf-8 -*-
 import string
 import time
 import datetime
 import re
 from inspect import getargspec, getmembers, ismethod
 from zope.interface import implements
-from gosa.common.components.registry import PluginRegistry
-from gosa.common.components.command import Command
+from gosa.common.components import PluginRegistry, ObjectRegistry, Command
 from gosa.common.handler import IInterfaceHandler
-from gosa.common.env import Environment
+from gosa.common import Environment
 from gosa.common.event import EventMaker
 from gosa.common.utils import stripNs, N_
-from gosa.common.components.amqp_proxy import AMQPServiceProxy
+from gosa.common.components import AMQPServiceProxy
 from gosa.common.components.amqp import EventConsumer
 
 
@@ -395,7 +385,7 @@ class CommandRegistry(object):
                     e.QueueRequired('true' if info['needsQueue'] else 'false'),
                     e.Documentation(info['doc'])))
 
-        for obj, info in PluginRegistry.objects.iteritems():
+        for obj, info in ObjectRegistry.objects.iteritems():
             if info['signature']:
                 methods.append(
                     e.NodeObject(
@@ -479,7 +469,7 @@ class CommandRegistry(object):
         in the configured interval.
         """
         nodes = {}
-        timeout = self.env.config.getOption('node-timeout', 'core', 60)
+        timeout = self.env.config.get('core.node-timeout', 60)
 
         for node, info in self.nodes.iteritems():
             t = datetime.datetime.utcnow()

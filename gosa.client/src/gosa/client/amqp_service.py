@@ -21,7 +21,7 @@ from gosa.common.handler import IInterfaceHandler
 from gosa.common.components.registry import PluginRegistry
 from gosa.common.components.amqp import AMQPWorker, EventConsumer
 from gosa.common.event import EventMaker
-from gosa.common.env import Environment
+from gosa.common import Environment
 
 
 class AMQPClientService(object):
@@ -62,7 +62,7 @@ class AMQPClientService(object):
                                 queue:"%s.client.%s" } ]
                         }
                     }""" % (self.env.domain, self.env.uuid, self.env.domain, self.env.uuid),
-            workers=self.env.config.getOption('command-worker', 'amqp', default=1),
+            workers=self.env.config.get('amqp.command-worker', default=1),
             callback=self.commandReceived)
 
         # Add event processor

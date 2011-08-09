@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import pkg_resources
 
 
 class ObjectBackendRegistry(object):
@@ -8,10 +9,9 @@ class ObjectBackendRegistry(object):
 
     def __init__(self):
         # Load available backends
-        #TODO: this is hard coded LDAP stuff in the moment,
-        #      load from configuration later on
-        from back_ldap import LDAPBackend
-        ObjectBackendRegistry.backends['LDAP'] = LDAPBackend()
+        for entry in pkg_resources.iter_entry_points("gosa.object.backend"):
+            clazz = entry.load()
+            ObjectBackendRegistry.backends[clazz.__name__] = clazz()
 
     def dn2uuid(self, backend, dn):
         return ObjectBackendRegistry.backends[backend].dn2uuid(dn)

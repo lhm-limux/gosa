@@ -22,11 +22,11 @@ import logging
 import pkg_resources
 import codecs
 
-from gosa.common.env import Environment
-from gosa.common.components.registry import PluginRegistry
+from gosa.common import Environment
+from gosa.common.utils import SystemLoad
 from gosa.common.event import EventMaker
+from gosa.common.components import ObjectRegistry, PluginRegistry
 from gosa.agent import __version__ as VERSION
-from gosa.agent.load import SystemLoad
 
 
 def shutdown(a=None, b=None):
@@ -58,6 +58,7 @@ def mainLoop(env):
         # Load plugins
         pr = PluginRegistry()
         cr = PluginRegistry.getInstance("CommandRegistry")
+        oreg = ObjectRegistry.getInstance()
         amqp = PluginRegistry.getInstance("AMQPHandler")
 
         wait = 2
@@ -125,7 +126,7 @@ def main():
     env.log.info("GOsa is starting up")
 
     # Configured in daemon mode?
-    if not env.config.getOption('foreground'):
+    if not env.config.get('core.foreground'):
         import grp
         import pwd
         import stat
@@ -142,10 +143,10 @@ def main():
             exit(1)
 
         try:
-            user = env.config.getOption("user")
-            group = env.config.getOption("group")
+            user = env.config.get("core.user")
+            group = env.config.get("core.group")
 
-            pidfile = env.config.getOption("pidfile", default="/var/run/gosa/gosa-agent.pid")
+            pidfile = env.config.get("core.pidfile", default="/var/run/gosa/gosa-agent.pid")
 
             # Check if pid path if writable for us
             piddir = os.path.dirname(pidfile)
@@ -169,8 +170,8 @@ def main():
                 env.log.warning("GOsa agent should not be configured to run as root")
 
             context = daemon.DaemonContext(
-                working_directory=env.config.getOption("workdir"),
-                umask=int(env.config.getOption("umask")),
+                working_directory=env.config.get("core.workdir"),
+                umask=int(env.config.get("core.umask")),
                 pidfile=lockfile.FileLock(pidfile),
             )
 
@@ -204,14 +205,14 @@ def main():
                     env.log.debug("forked process with pid %s" % pid)
 
                     try:
-                        pid_file = open(env.config.getOption('pidfile'), 'w')
+                        pid_file = open(env.config.get('core.pidfile'), 'w')
                         try:
                             pid_file.write(str(pid))
                         finally:
                             pid_file.close()
                     except IOError:
                         env.log.error("cannot write pid file %s" %
-                                env.config.getOption('pidfile'))
+                                env.config.get('core.pidfile'))
                         exit(1)
 
                     mainLoop(env)
@@ -221,7 +222,7 @@ def main():
                 exit(1)
 
     else:
-        if env.config.getOption('profile'):
+        if env.config.get('core.profile'):
             import cProfile
             import gosa.common.lsprofcalltree
             p = cProfile.Profile()

@@ -1,14 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
-
- ID: $$Id: amqp_service.py 1267 2010-10-22 12:37:59Z cajus $$
-
- This modules hosts AMQP service related classes.
-
- See LICENSE for more information about the licensing.
-"""
 import sys
 import re
 import traceback
@@ -22,7 +12,7 @@ from gosa.common.components.registry import PluginRegistry
 from gosa.common.components.amqp import AMQPWorker
 from gosa.common.components.zeroconf import ZeroconfService
 from gosa.common.utils import parseURL, repr2json
-from gosa.common.env import Environment
+from gosa.common import Environment
 
 
 class AMQPService(object):
@@ -37,9 +27,6 @@ class AMQPService(object):
         """
         Construct a new AMQPService instance based on the configuration
         stored in the environment.
-
-        @type env: Environment
-        @param env: L{Environment} object
         """
         env = Environment.getInstance()
         env.log.debug("initializing AMQP service provider")
@@ -61,17 +48,17 @@ class AMQPService(object):
             # Add round robin processor for queue
             self.__cmdWorker = AMQPWorker(self.env, connection=amqp.getConnection(),
                 r_address='%s.command.%s; { create:always, node:{ type:queue, x-bindings:[ { exchange:"amq.direct", queue:"%s.command.%s" } ] } }' % (self.env.domain, queue, self.env.domain, queue),
-                workers=self.env.config.getOption('command-worker', 'amqp', default=1),
+                workers=self.env.config.get('amqp.command-worker', default=1),
                 callback=self.commandReceived)
 
             # Add private processor for queue
             self.__cmdWorker = AMQPWorker(self.env, connection=amqp.getConnection(),
                     r_address='%s.command.%s.%s; { create:always, delete:receiver, node:{ type:queue, x-bindings:[ { exchange:"amq.direct", queue:"%s.command.%s.%s" } ] } }' % (self.env.domain, queue, self.env.id, self.env.domain, queue, self.env.id),
-                workers=self.env.config.getOption('command-worker', 'amqp', default=1),
+                workers=self.env.config.get('amqp.command-worker', default=1),
                 callback=self.commandReceived)
 
         # Announce service
-        url = parseURL(self.env.config.getOption("url", "amqp"))
+        url = parseURL(self.env.config.get("amqp.url"))
         self.__zeroconf = ZeroconfService(name="GOsa AMQP command service",
                 port=url['port'],
                 stype="_gosa._tcp",

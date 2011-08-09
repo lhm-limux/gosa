@@ -91,7 +91,7 @@ setup(
         gosa-agent.plugins.goto.client_service = gosa.agent.plugins.goto.client_service:ClientService
 
         [gosa.object.backend]
-        backend.ldap = gosa.agent.objects.backend.back_ldap:LDAPBackend
+        backend.ldap = gosa.agent.objects.backend.back_ldap:LDAP
 
         [gosa.object.comparator]
         comparator.like = gosa.agent.objects.comparator.strings:Like

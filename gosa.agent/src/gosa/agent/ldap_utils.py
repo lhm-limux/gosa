@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 This code is part of GOsa (http://www.gosa-project.org)
@@ -12,7 +11,7 @@ import ldapurl
 import ldap.sasl
 import types
 from contextlib import contextmanager
-from gosa.common.env import Environment
+from gosa.common import Environment
 
 
 class LDAPHandler(object):
@@ -25,12 +24,12 @@ class LDAPHandler(object):
         self.env = Environment.getInstance()
 
         # Initialize from configuration
-        getOption = self.env.config.getOption
-        self.__url = ldapurl.LDAPUrl(getOption("url", section='ldap'))
-        self.__bind_user = getOption('bind_user', section='ldap', default=None)
-        self.__bind_dn = getOption('bind_dn', section='ldap', default=None)
-        self.__bind_secret = getOption('bind_secret', section='ldap', default=None)
-        self.__pool = int(getOption('pool_size', section='ldap', default=10))
+        get = self.env.config.get
+        self.__url = ldapurl.LDAPUrl(get("ldap.url"))
+        self.__bind_user = get('ldap.bind_user', default=None)
+        self.__bind_dn = get('ldap.bind_dn', default=None)
+        self.__bind_secret = get('ldap.bind_secret', default=None)
+        self.__pool = int(get('ldap.pool_size', default=10))
 
         # Sanity check
         if self.__bind_user and not ldap.SASL_AVAIL:
@@ -52,9 +51,13 @@ class LDAPHandler(object):
 
         # Need to initialize?
         if not LDAPHandler.connection_handle[next_free]:
+            get = self.env.config.get
             self.env.log.debug("initializing LDAP connection to %s" %
                     str(self.__url))
-            conn = ldap.initialize("%s://%s" % (self.__url.urlscheme, self.__url.hostport))
+            conn = ldap.ldapobject.ReconnectLDAPObject("%s://%s" % (self.__url.urlscheme,
+                self.__url.hostport),
+                retry_max=int(get("ldap.retry_max", default=3)),
+                retry_delay=int(get("ldap.retry_delay", default=5)))
 
             # If no SSL scheme used, try TLS
             if ldap.TLS_AVAIL and self.__url.urlscheme != "ldaps":

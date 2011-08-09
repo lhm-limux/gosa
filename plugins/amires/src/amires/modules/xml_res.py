@@ -12,12 +12,12 @@ class XMLNumberResolver (PhoneNumberResolver):
         super(XMLNumberResolver, self).__init__()
 
         # read config
-        filename = self.env.config.getOption("filename", "resolver-xml",
+        filename = self.env.config.get("resolver-xml.filename",
              default="./numbers.xml")
 
         try:
-            self.priority = float(self.env.config.getOption("priority",
-                "resolver-xml", default=str(self.priority)))
+            self.priority = float(self.env.config.get("resolver-xml.priority",
+                default=str(self.priority)))
         except:
             # leave default priority
             pass

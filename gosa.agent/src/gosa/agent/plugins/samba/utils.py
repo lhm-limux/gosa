@@ -11,10 +11,10 @@
 """
 import smbpasswd
 
-from gosa.common.components.command import Command
-from gosa.common.components.plugin import Plugin
+from gosa.common.components import Command
+from gosa.common.components import Plugin
 from gosa.common.utils import N_
-from gosa.common.env import Environment
+from gosa.common import Environment
 
 class SambaUtils(Plugin):
     """

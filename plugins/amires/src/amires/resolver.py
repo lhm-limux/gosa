@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
-from gosa.common.env import Environment
+from gosa.common import Environment
 
 
 class PhoneNumberResolver(object):
@@ -13,7 +13,7 @@ class PhoneNumberResolver(object):
         # read replacement configuration
         if not PhoneNumberResolver.replace:
             for opt in env.config.getOptions("resolver-replace"):
-                itm = env.config.getOption(opt, "resolver-replace")
+                itm = env.config.get("resolver-replace.%s" % opt)
                 res = re.search("^\"(.*)\",\"(.*)\"$", itm)
                 res = re.search("^\"(.*)\"[\s]*,[\s]*\"(.*)\"$", itm)
 

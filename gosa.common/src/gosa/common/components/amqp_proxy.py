@@ -1,14 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
-
- ID: $$Id: amqp_proxy.py 1212 2010-10-21 12:35:03Z cajus $$
-
- This modules hosts AMQP service related classes.
-
- See LICENSE for more information about the licensing.
-"""
 from qpid.messaging import *
 from types import DictType
 from gosa.common.components.jsonrpc_proxy import JSONRPCException
@@ -24,33 +14,29 @@ class AMQPServiceProxy(object):
     The AMQPServiceProxy provides a simple way to use GOsa RPC
     services from various clients. Using the proxy object, you
     can directly call methods without the need to know where
-    it actually gets executed.
+    it actually gets executed::
 
-    Example:
+        >>> from gosa.common.components import AMQPServiceProxy
+        >>> proxy = AMQPServiceProxy('amqp://admin:secret@localhost/org.gosa')
+        >>> proxy.getMethods()
 
-    proxy = AMQPServiceProxy('amqp://admin:secret@localhost/org.gosa)
-    print(proxy.getMethods())
+    This will return a dictionary describing the available methods.
 
-    This will list the available methods.
+    =============== ============
+    Parameter       Description
+    =============== ============
+    serviceURL      URL used to connect to the AMQP service broker
+    serviceAddress  Address string describing the target queue to bind to, must be skipped if no special queue is needed
+    serviceName     *internal*
+    conn            *internal*
+    workers         Number of workers to allocate for processing
+    =============== ============
+
     """
     worker = {}
 
     def __init__(self, serviceURL, serviceAddress=None, serviceName=None,
                  conn=None, workers=3):
-        """
-        Instantiate the proxy object using the initializing parameters.
-
-        @type serviceURL: string
-        @param serviceURL: URL used to connect to the AMQP service broker
-           user/password@host:port
-
-        @type serviceAddress: string
-        @param serviceAddress: Address string describing the target queue
-           to bind to, must be skipped if no special queue is needed
-
-        @type workers: int
-        @param workers: Number of workers to allocate for processing
-        """
         self.__URL = url = parseURL(serviceURL)
         self.__serviceURL = serviceURL
         self.__serviceName = serviceName
@@ -124,7 +110,9 @@ class AMQPServiceProxy(object):
 
 
     def close(self):
-        """ Close the AMQP connection """
+        """
+        Close the AMQP connection established by the proxy.
+        """
 
         # Close all senders/receivers
         for value in AMQPServiceProxy.worker.values():
@@ -135,11 +123,9 @@ class AMQPServiceProxy(object):
         self.__conn.close()
 
     def login(self, user, password):
-        """ Dummy login """
         return True
 
     def logout(self):
-        """ Dummy logout """
         return True
 
     def __getattr__(self, name):
@@ -220,6 +206,45 @@ class AMQPServiceProxy(object):
 
 
 class AMQPEventConsumer(object):
+    """
+    The AMQPEventConsumer can be used to subscribe for events
+    and process them thru a callback. The subscription is done
+    thru *XQuery*, the callback can be a python method.
+
+    Example listening for an event called *AsteriskNotification*::
+
+        >>> from gosa.common.components import AMQPEventConsumer
+        >>> from lxml import etree
+        >>>
+        >>> # Event callback
+        >>> def process(data):
+        ...     print(etree.tostring(data, pretty_print=True))
+        >>>
+        >>> # Create event consumer
+        >>> consumer = AMQPEventConsumer("amqps://admin:secret@localhost/org.gosa",
+        ...             xquery=\"\"\"
+        ...                 declare namespace f='http://www.gonicus.de/Events';
+        ...                 let $e := ./f:Event
+        ...                 return $e/f:AsteriskNotification
+        ...             \"\"\",
+        ...             callback=process)
+
+    The consumer will start right away, listening for your events.
+
+    =============== ============
+    Parameter       Description
+    =============== ============
+    url             URL used to connect to the AMQP service broker
+    domain          If the domain is not already encoded in the URL, it can be specified here.
+    xquery          `XQuery <http://en.wikipedia.org/wiki/XQuery>`_ string to query for events.
+    callback        Python method to be called if the event happened.
+    =============== ============
+
+    .. note::
+       The AMQP URL consists of these parts::
+
+         (amqp|amqps)://user:password@host:port/domain
+    """
 
     def __init__(self, url, domain="org.gosa", xquery=".", callback=None):
 
@@ -279,6 +304,16 @@ class AMQPStandaloneWorker(object):
     AMQP standalone worker container. This object creates a number of worker threads
     for the defined sender and receiver addresses. It registers receiver
     callbacks for incoming packets.
+
+    =============== ============
+    Parameter       Description
+    =============== ============
+    connection      :class:`qpid.messaging.Connection`
+    s_address       Address used to create a sender instance
+    r_address       Address used to create a receiver instance
+    workers         Number of worker threads
+    callback        method to be called on incoming messages
+    =============== ============
     """
     sender = None
     receiver = None
@@ -286,25 +321,6 @@ class AMQPStandaloneWorker(object):
     threads = []
 
     def __init__(self, connection, s_address=None, r_address=None, workers=0, callback=None):
-        """
-        Construct new AMQP worker threads depending on the supplied
-        parameters.
-
-        @type connection: L{qpid.messaging.Connection}
-        @param connection: AMQP connection
-
-        @type s_address: string
-        @param s_address: address used to create a sender instance
-
-        @type r_address: string
-        @param r_address: address used to create a receiver instance
-
-        @type workers: int
-        @param workers: number of worker threads
-
-        @type callback: function
-        @param callback: function to be called on incoming messages
-        """
         self.callback = callback
 
         # Get reader handle
@@ -325,5 +341,8 @@ class AMQPStandaloneWorker(object):
                 self.threads.append(proc)
 
     def join(self):
+        """
+        Join the worker threads.
+        """
         for p in self.threads:
             p.join(1)

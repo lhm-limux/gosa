@@ -10,9 +10,9 @@
  See LICENSE for more information about the licensing.
 """
 import dbus
-from gosa.common.components.plugin import Plugin
-from gosa.common.components.command import Command
-from gosa.common.env import Environment
+from gosa.common.components import Plugin
+from gosa.common.components import Command
+from gosa.common import Environment
 
 
 class WakeOnLan(Plugin):

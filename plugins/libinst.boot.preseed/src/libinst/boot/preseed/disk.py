@@ -5,7 +5,7 @@
 
  See LICENSE for more information about the licensing.
 """
-from gosa.common.components.registry import PluginRegistry
+from gosa.common.components import PluginRegistry
 from libinst.disk import DiskDefinition
 
 
@@ -180,5 +180,3 @@ d-i partman/confirm_nooverwrite boolean true
                 return nr
 
         return None
-
-PluginRegistry.registerObject("libinst.preseed.diskdefinition", DebianDiskDefinition)

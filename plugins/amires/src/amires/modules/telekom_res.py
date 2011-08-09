@@ -15,8 +15,8 @@ class TelekomNumberResolver(PhoneNumberResolver):
         #super(TelekomNumberResolver, self).__init__()
 
         try:
-            self.priority = float(self.env.config.getOption("priority",
-                "resolver-telekom", default=str(self.priority)))
+            self.priority = float(self.env.config.get("resolver-telekom.priority",
+                default=str(self.priority)))
         except:
             # leave default priority
             pass

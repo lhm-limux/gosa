@@ -15,10 +15,10 @@ import dbus.glib
 import dbus.mainloop.glib
 from threading import Thread
 from dateutil.parser import parse
-from gosa.common.components.plugin import Plugin
-from gosa.common.components.command import Command
+from gosa.common.components import Plugin
+from gosa.common.components import Command
 from gosa.common.components.registry import PluginRegistry
-from gosa.common.env import Environment
+from gosa.common import Environment
 from gosa.common.event import EventMaker
 from zope.interface import implements
 from gosa.common.handler import IInterfaceHandler

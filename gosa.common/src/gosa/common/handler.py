@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
 """
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
-
- ID: $$Id: handler.py 608 2010-08-16 08:12:35Z cajus $$
-
- See LICENSE for more information about the licensing.
+The usage of the zope interface is in progress. Currently, it is just used as a
+marker.
 """
 import zope.interface
 
