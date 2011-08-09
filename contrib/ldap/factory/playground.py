@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from gosa.agent.objects.factory import GOsaObjectFactory
+from gosa.agent.objects import GOsaObjectFactory
 
 f = GOsaObjectFactory('.')
 p = f.getObjectInstance('Person', "cn=Cajus Pollmeier,ou=people,ou=Technik,dc=gonicus,dc=de")
