@@ -168,19 +168,35 @@ class GOsaObjectFactory(object):
                     'in_backend': in_b,
                     'multivalue': multivalue}
 
-            #TODO: no exec plz
-            #for method in classr['Methods']['Method']:
-            #    name = str(method['Name'])
+        for method in classr['Methods']['Method']:
+            name = str(method['Name'])
+            cmd = str(method['Command'])
 
-            #    def funk(*args, **kwargs):
-            #        variables = {'title': args[0], 'message': args[1]}
-            #        self.__exec(unicode(str(method['Code']).strip()), variables)
+            # Get the list of method parameters
+            mParams = []
+            if 'MethodParameters' in method.__dict__:
+                for param in method['MethodParameters']['MethodParameter']:
+                    pname = param['Name']
+                    ptype = param['Type']
+                    prequired = bool(param['Required']) if 'Required' in param.__dict__ else False
+                    pdefault = bool(param['Default']) if 'Default' in param.__dict__ else ''
+                    mParams.append( (pname, ptype, prequired, pdefault), )
 
-            #    methods[name] = {
-            #            'ref': funk}
+            # Get the list of method parameters
+            cParams = []
+            if 'CommandParameters' in method.__dict__:
+                for param in method['CommandParameters']['CommandParameter']:
+                    pname = param['Name']
+                    pvalue = param['Value']
+                    cParams.append( (pname, pvalue), )
 
-        #except KeyError:
-        #    pass
+            # Now add the method to the object
+            def funk(*args, **kwargs):
+                print "Called class method:", args, kwargs
+                #        variables = {'title': args[0], 'message': args[1]}
+                #        self.__exec(unicode(str(method['Code']).strip()), variables)
+
+            methods[name] = {'ref': funk}
 
         setattr(klass, '__properties', props)
         setattr(klass, '__methods', methods)

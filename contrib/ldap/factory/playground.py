@@ -8,5 +8,8 @@ print "sn:", p.sn
 print "commonName:", p.commonName
 p.sn = u"Name"
 p.givenName = u"Neuer"
+p.notify("This is my title", "To my amazing message!")
+
+
 print "sn:", p.sn
 p.commit()
