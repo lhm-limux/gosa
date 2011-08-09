@@ -385,7 +385,7 @@ class CommandRegistry(object):
                     e.QueueRequired('true' if info['needsQueue'] else 'false'),
                     e.Documentation(info['doc'])))
 
-        for obj, info in ObjectRegistry.objects.iteritems():
+        for obj, info in ObjectRegistry._objects.iteritems():
             if info['signature']:
                 methods.append(
                     e.NodeObject(
