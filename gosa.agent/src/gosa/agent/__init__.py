@@ -43,10 +43,16 @@ exposing functionality to the outside world. Here are some of them:
    to provide the */rpc* URL with JSONRPC capabilities. It exposes all
    methods decorated by @Command.
 
+This happens automatically depending on what's registered on the
+``[gosa.modules]`` setuptools entrypoint.
+
 .. note::
 
-   Take a look at the :ref:`quickstart <quickstart>` to see how the agent is started.
+   Take a look at the :ref:`quickstart <quickstart>` to see how the agent is
+   controlled.
 
+If you're looking for documentation on how to write plugins, please take a look
+at the :ref:`Plugin section<plugins>`.
 """
 __version__ = __import__('pkg_resources').get_distribution('gosa.agent').version
 __import__('pkg_resources').declare_namespace(__name__)

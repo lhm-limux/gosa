@@ -3,6 +3,8 @@ Plugins
 
 Contents:
 
+.. _plugins:
+
 .. toctree::
    :maxdepth: 2
 
