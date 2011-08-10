@@ -1,6 +1,2 @@
-Object abstraction
-==================
-
-.. automodule:: gosa.agent.objects
+.. automodule:: gosa.agent.objects.factory
    :members:
-
