@@ -212,6 +212,13 @@ class GOsaObjectFactory(object):
                         arguments[mName] = mDefault
                     else:
                         raise(Exception("Missing parameter '%s'!" % mName))
+
+                    if TYPE_MAP[mType] != type(arguments[mName]):
+                        raise(Exception("Invalid parameter type given for '%s', expected "
+                            "'%s' but received '%s'!" % (mName,
+                                TYPE_MAP[mType],type(arguments[mName]))))
+
+
                     cnt = cnt + 1
 
                 # Check if all expected parameters were given!
