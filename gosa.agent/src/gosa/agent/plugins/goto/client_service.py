@@ -125,14 +125,14 @@ class ClientService(object):
     def stop(self):
         pass
 
-    @Command(__doc__=N_("List available clients."))
+    @Command(__help__=N_("List available clients."))
     def getClients(self):
         res = {}
         for uuid, info in self.__client.iteritems():
             res[uuid] = {'name':info['name'], 'received':info['received']}
         return res
 
-    @Command(__doc__=N_("Call method exposed by client."))
+    @Command(__help__=N_("Call method exposed by client."))
     def clientDispatch(self, client, method, *arg, **larg):
 
         # Bail out if the client is not available
@@ -155,7 +155,7 @@ class ClientService(object):
         res = methodCall(*arg, **larg)
         return res
 
-    @Command(__doc__=N_("Get the client Interface/IP/Netmask/Broadcast/MAC list."))
+    @Command(__help__=N_("Get the client Interface/IP/Netmask/Broadcast/MAC list."))
     def getClientNetInfo(self, client):
         if not client in self.__client:
             return []
@@ -163,25 +163,25 @@ class ClientService(object):
         res = self.__client[client]['network']
         return res
 
-    @Command(__doc__=N_("List available client methods for specified client."))
+    @Command(__help__=N_("List available client methods for specified client."))
     def getClientMethods(self, client):
         if not client in self.__client:
             return []
 
         return self.__client[client]['caps']
 
-    @Command(__doc__=N_("List user sessions per client"))
+    @Command(__help__=N_("List user sessions per client"))
     def getUserSessions(self, client=None):
         if client:
             return self.__user_session[client] if client in self.__user_session else []
 
         return self.__user_session
 
-    @Command(__doc__=N_("List clients a user is logged in"))
+    @Command(__help__=N_("List clients a user is logged in"))
     def getUserClients(self, user):
         return [client for client, users in self.__user_session.items() if user in users]
 
-    @Command(__doc__=N_("Send synchronous notification message to user"))
+    @Command(__help__=N_("Send synchronous notification message to user"))
     def notifyUser(self, users, title, message, timeout=10, level='normal', icon='dialog-information'):
         if users:
             # Notify a single / group of users
@@ -205,7 +205,7 @@ class ClientService(object):
                 except:
                     pass
 
-    @Command(__doc__=N_("Set system status"))
+    @Command(__help__=N_("Set system status"))
     def systemGetStatus(self, device_uuid):
         lh = LDAPHandler.get_instance()
         fltr = "deviceUUID=%s" % device_uuid
@@ -221,7 +221,7 @@ class ClientService(object):
 
         return ""
 
-    @Command(__doc__=N_("Set system status"))
+    @Command(__help__=N_("Set system status"))
     def systemSetStatus(self, device_uuid, status):
         # Check params
         valid = [STATUS_SYSTEM_ON, STATUS_LOCKED, STATUS_UPDATABLE,
@@ -263,7 +263,7 @@ class ClientService(object):
             else:
                 conn.modify(res[0][0], [(ldap.MOD_REPLACE, "deviceStatus", [devstat])])
 
-    @Command(needsUser=True,__doc__=N_("Join a client to the GOsa system."))
+    @Command(needsUser=True,__help__=N_("Join a client to the GOsa system."))
     def joinClient(self, user, device_uuid, mac, info=None):
         uuid_check = re.compile(r"^[0-9a-f]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$", re.IGNORECASE)
         if not uuid_check.match(device_uuid):

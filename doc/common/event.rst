@@ -1,6 +1,8 @@
 Event handling
 ==============
 
+.. _events:
+
 GOsa utilizes the XML queue of *QPID*, which enables us to send and
 filter XML encoded events. Using *XQuery*, we can filter for special
 properties inside of the event description.
@@ -65,7 +67,7 @@ that::
 
 This one will connect to the AMQP service and call the ``process`` callback
 if there's something interesting. Just start that one on one shell and
-open another one to send a signal::
+open another one to send a signal using :meth:`gosa.agent.command.CommandRegistry.sendEvent`::
 
 	from gosa.common.components import AMQPServiceProxy
 	from gosa.common.event import EventMaker

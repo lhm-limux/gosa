@@ -30,10 +30,10 @@ class SampleModule(Plugin):
         self.message =  self.env.config.get('sample.message',
                 default=_('No message configured!'))
 
-    @Command(__doc__=N_("Return a pre-defined message to the caller"))
+    @Command(__help__=N_("Return a pre-defined message to the caller"))
     def hello(self, name="unknown"):
         return _("Hello %s!") % name
 
-    @Command(__doc__=N_("Return a configured message to the caller"))
+    @Command(__help__=N_("Return a configured message to the caller"))
     def hello2(self):
         return self.message

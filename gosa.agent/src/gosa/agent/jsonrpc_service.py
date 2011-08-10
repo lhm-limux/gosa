@@ -258,14 +258,14 @@ class JSONRPCObjectMapper(object):
     __store = {}
     __proxy = {}
 
-    @Command(__doc__=N_("Close object and remove it from stack"))
+    @Command(__help__=N_("Close object and remove it from stack"))
     def closeObject(self, ref):
         if not ref in JSONRPCObjectMapper.__store:
             raise ValueError("reference %s not found" % ref)
 
         del JSONRPCObjectMapper.__store[ref]
 
-    @Command(__doc__=N_("Set property for object on stack"))
+    @Command(__help__=N_("Set property for object on stack"))
     def setObjectProperty(self, ref, name, value):
         if not ref in JSONRPCObjectMapper.__store:
             raise ValueError("reference %s not found" % ref)
@@ -278,7 +278,7 @@ class JSONRPCObjectMapper(object):
 
         return setattr(JSONRPCObjectMapper.__store[ref]['object'], name, value)
 
-    @Command(__doc__=N_("Get property from object on stack"))
+    @Command(__help__=N_("Get property from object on stack"))
     def getObjectProperty(self, ref, name):
         if not ref in JSONRPCObjectMapper.__store:
             raise ValueError("reference %s not found" % ref)
@@ -291,7 +291,7 @@ class JSONRPCObjectMapper(object):
 
         return getattr(JSONRPCObjectMapper.__store[ref]['object'], name)
 
-    @Command(__doc__=N_("Call method from object on stack"))
+    @Command(__help__=N_("Call method from object on stack"))
     def dispatchObjectMethod(self, ref, method, *args):
         if not ref in JSONRPCObjectMapper.__store:
             raise ValueError("reference %s not found" % ref)
@@ -304,7 +304,7 @@ class JSONRPCObjectMapper(object):
 
         return getattr(JSONRPCObjectMapper.__store[ref]['object'], method)(*args)
 
-    @Command(__doc__=N_("Instantiate object and place it on stack"))
+    @Command(__help__=N_("Instantiate object and place it on stack"))
     def openObject(self, oid, *args, **kwargs):
         if not self.__can_oid_be_handled_locally(oid):
             proxy = self.__get_proxy_by_oid(oid)

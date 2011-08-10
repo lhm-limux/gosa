@@ -27,7 +27,7 @@ class SambaUtils(Plugin):
         env = Environment.getInstance()
         self.env = env
 
-    @Command(__doc__=N_("Generate samba lm:nt hash combination "+
+    @Command(__help__=N_("Generate samba lm:nt hash combination "+
         "from the supplied password."))
     def mksmbhash(self, password):
         return '%s:%s' % smbpasswd.hash(password)

@@ -18,7 +18,7 @@ from gosa.common.utils import N_
 class MiscUtils(Plugin):
     _target_ = 'misc'
 
-    @Command(__doc__=N_("Transliterate a given string"))
+    @Command(__help__=N_("Transliterate a given string"))
     def transliterate(self, string):
         table = {
             ord(u'ä'): u'ae',

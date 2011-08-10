@@ -23,7 +23,7 @@ class Plugin(object):
         >>> class SampleModule(Plugin):
         ...     _target_ = 'sample'
         ...
-        ...     @Command(__doc__=N_("Return a pre-defined message to the caller"))
+        ...     @Command(__help__=N_("Return a pre-defined message to the caller"))
         ...     def hello(self, name="unknown"):
         ...         return _("Hello %s!") % name
 

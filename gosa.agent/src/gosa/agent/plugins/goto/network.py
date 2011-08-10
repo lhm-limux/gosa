@@ -28,7 +28,7 @@ class NetworkUtils(Plugin):
     _target_ = 'goto'
     oui = None
 
-    @Command(type=FIRSTRESULT, __doc__=N_("Resolve network address to a mac / dns name tupel."))
+    @Command(type=FIRSTRESULT, __help__=N_("Resolve network address to a mac / dns name tupel."))
     def networkCompletion(self, name):
         protocolAddress = socket.gethostbyname(name)
         networkAddress = self.getMacFromIP(protocolAddress)
@@ -54,7 +54,7 @@ class NetworkUtils(Plugin):
 
     """ This function uses the ieee file provided at
         http://standards.ieee.org/regauth/oui/oui.txt """
-    @Command(__doc__=N_("Resolve mac address to the producer of the"+
+    @Command(__help__=N_("Resolve mac address to the producer of the"+
         " network card if possible."))
     def getMacManufacturer(self, mac):
         try:

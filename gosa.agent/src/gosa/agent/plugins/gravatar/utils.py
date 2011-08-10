@@ -28,7 +28,7 @@ class GravatarUtils(Plugin):
         env = Environment.getInstance()
         self.env = env
 
-    @Command(__doc__=N_("Generate samba lm:nt hash combination "+
+    @Command(__help__=N_("Generate samba lm:nt hash combination "+
         "from the supplied password."))
     def getGravatarURL(self, mail, size=40, url="http://www.gonicus.de"):
         gravatar_url = "http://www.gravatar.com/avatar.php?"

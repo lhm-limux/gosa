@@ -142,7 +142,7 @@ class RepositoryManager(Plugin):
         # pylint: disable=E1101
         a.metadata.create_all(engine)
 
-    @Command(__doc__=N_("List the available base install methods"))
+    @Command(__help__=N_("List the available base install methods"))
     def getSupportedBaseInstallMethods(self):
         res = {}
         for name, method in self.base_install_method_reg.items():
@@ -150,7 +150,7 @@ class RepositoryManager(Plugin):
 
         return res
 
-    @Command(__doc__=N_("List the available installation methods"))
+    @Command(__help__=N_("List the available installation methods"))
     def getSupportedInstallMethods(self):
         methods = {}
         for method, obj in self.install_method_reg.iteritems():
@@ -170,11 +170,11 @@ class RepositoryManager(Plugin):
 
         return methods
 
-    @Command(__doc__=N_("List the available repository types for this host"))
+    @Command(__help__=N_("List the available repository types for this host"))
     def getSupportedRepositoryTypes(self):
         return self.type_reg.keys()
 
-    @Command(__doc__=N_("List used repository types"))
+    @Command(__help__=N_("List used repository types"))
     def getRepositoryTypes(self):
         """
         getRepositoryTypes lists all available repository types like
@@ -197,7 +197,7 @@ class RepositoryManager(Plugin):
             session.close()
         return result
 
-    @Command(__doc__=N_("Get the external Repository URL for the given Release"))
+    @Command(__help__=N_("Get the external Repository URL for the given Release"))
     def getMirrorURL(self, release):
         result = None
         session = None
@@ -231,7 +231,7 @@ class RepositoryManager(Plugin):
             session.close()
         return result
 
-    @Command(__doc__=N_("List available distributions"))
+    @Command(__help__=N_("List available distributions"))
     def getDistributions(self):
         """
         getDistributions lists all registered distributions.
@@ -259,7 +259,7 @@ class RepositoryManager(Plugin):
 
         return result
     
-    @Command(__doc__=N_("Return available information for the given distribution"))
+    @Command(__help__=N_("Return available information for the given distribution"))
     @NamedArgs("m_hash")
     def getDistribution(self, m_hash=None, distribution=None):
         """
@@ -291,7 +291,7 @@ class RepositoryManager(Plugin):
 
         return result
 
-    @Command(__doc__=N_("List available releases for the given distribution"))
+    @Command(__help__=N_("List available releases for the given distribution"))
     @NamedArgs("m_hash")
     def getReleases(self, m_hash=None, distribution=None):
         """
@@ -330,7 +330,7 @@ class RepositoryManager(Plugin):
 
         return result
     
-    @Command(__doc__=N_("Return available information for the given release"))
+    @Command(__help__=N_("Return available information for the given release"))
     @NamedArgs("m_hash")
     def getRelease(self, m_hash=None, release=None):
         """
@@ -364,7 +364,7 @@ class RepositoryManager(Plugin):
 
         return result
 
-    @Command(__doc__=N_("List available architectures for the given distribution"))
+    @Command(__help__=N_("List available architectures for the given distribution"))
     @NamedArgs("m_hash")
     def getArchitectures(self, m_hash=None, distribution=None, release=None):
         """
@@ -410,7 +410,7 @@ class RepositoryManager(Plugin):
 
         return result
 
-    @Command(__doc__=N_("List available sections for the given distribution"))
+    @Command(__help__=N_("List available sections for the given distribution"))
     @NamedArgs("m_hash")
     def getSections(self, m_hash=None, distribution=None, release=None):
         """
@@ -451,7 +451,7 @@ class RepositoryManager(Plugin):
             session.close()
         return result
 
-    @Command(__doc__=N_("Create a new distribution based on type, mirror and installation method"))
+    @Command(__help__=N_("Create a new distribution based on type, mirror and installation method"))
     @NamedArgs("m_hash")
     def createDistribution(self, name, type, m_hash=None, install_method=None, mirror=None):
         """
@@ -519,7 +519,7 @@ class RepositoryManager(Plugin):
 
         return result != None
 
-    @Command(__doc__=N_("Remove selected distribution from the repository"))
+    @Command(__help__=N_("Remove selected distribution from the repository"))
     @NamedArgs("m_hash")
     def removeDistribution(self, distribution, m_hash=None, recursive=False):
         """
@@ -572,7 +572,7 @@ class RepositoryManager(Plugin):
 
         return result != None
 
-    @Command(__doc__=N_("Create a new release belonging to distribution"))
+    @Command(__help__=N_("Create a new release belonging to distribution"))
     def createRelease(self, distribution, name):
         """
         createRelease creates a new release belonging to a distribution. It
@@ -631,7 +631,7 @@ class RepositoryManager(Plugin):
             session.close()
         return result != None
 
-    @Command(__doc__=N_("Remove a release"))
+    @Command(__help__=N_("Remove a release"))
     @NamedArgs("m_hash")
     def removeRelease(self, release, m_hash=None, recursive=False):
         """
@@ -696,7 +696,7 @@ class RepositoryManager(Plugin):
 
         return result != None
 
-    @Command(__doc__=N_("Rename a release"))
+    @Command(__help__=N_("Rename a release"))
     def renameRelease(self, source, target):
         """
         renameRelease changes the name from source to target.
@@ -735,7 +735,7 @@ class RepositoryManager(Plugin):
             session.close()
         return result
 
-    @Command(__doc__=N_("Replace distribution properties"))
+    @Command(__help__=N_("Replace distribution properties"))
     @NamedArgs("m_hash")
     def setDistribution(self, m_hash=None, distribution=None, arch=None, component=None, mirror_sources=None):
         result = None
@@ -807,7 +807,7 @@ class RepositoryManager(Plugin):
             session.close()
         return result
 
-    @Command(__doc__=N_("Add new properties to a mirrored distribution"))
+    @Command(__help__=N_("Add new properties to a mirrored distribution"))
     @NamedArgs("m_hash")
     def addMirrorProperty(self, m_hash=None, distribution=None, arch=None, component=None, mirror_sources=None, origin=None):
         result = None
@@ -859,7 +859,7 @@ class RepositoryManager(Plugin):
             session.close()
         return result
 
-    @Command(__doc__=N_("Remove existing properties from a mirrored distribution"))
+    @Command(__help__=N_("Remove existing properties from a mirrored distribution"))
     @NamedArgs("m_hash")
     def removeMirrorProperty(self, m_hash=None, distribution=None, arch=None, component=None):
         result = None
@@ -907,7 +907,7 @@ class RepositoryManager(Plugin):
             session.close()
         return result
 
-    @Command(__doc__=N_("Update a local mirror"))
+    @Command(__help__=N_("Update a local mirror"))
     @NamedArgs("m_hash")
     def updateMirror(self, m_hash=None, distribution=None, releases=None, components=None, architectures=None, sections=None):
         result = None
@@ -962,7 +962,7 @@ class RepositoryManager(Plugin):
 
     #TODO: list channels/mirrors
 
-    @Command(__doc__=N_("List packages by various criteria"))
+    @Command(__help__=N_("List packages by various criteria"))
     @NamedArgs("m_hash")
     def getPackages(self, m_hash=None, release=None, arch=None, component=None, section=None, custom_filter=None,
         offset=None, limit=None):
@@ -1048,7 +1048,7 @@ class RepositoryManager(Plugin):
             session.close()
         return result
 
-    @Command(__doc__=N_("Get complete package information based on various criteria"))
+    @Command(__help__=N_("Get complete package information based on various criteria"))
     @NamedArgs("m_hash")
     def getPackagesInformation(self, m_hash=None, release=None, arch=None, section=None, custom_filter=None,
         offset=None, limit=None):
@@ -1078,7 +1078,7 @@ class RepositoryManager(Plugin):
         """
         pass
 
-    @Command(__doc__=N_("Get single package information"))
+    @Command(__help__=N_("Get single package information"))
     def getPackageInformation(self, release, arch, package):
         """
         getPackageInformation returns a dictionary containing package information.
@@ -1097,7 +1097,7 @@ class RepositoryManager(Plugin):
         """
         pass
 
-    @Command(__doc__=N_("Add a package to the selected distribution/release"))
+    @Command(__help__=N_("Add a package to the selected distribution/release"))
     @NamedArgs("m_hash")
     def addPackage(self, url, m_hash=None, release=None, distribution=None, component=None, updateInventory=True):
         """
@@ -1211,7 +1211,7 @@ class RepositoryManager(Plugin):
 
         return result != None
 
-    @Command(__doc__=N_("Remove a package from the selected release"))
+    @Command(__help__=N_("Remove a package from the selected release"))
     @NamedArgs("m_hash")
     def removePackage(self, package, m_hash=None, arch=None, release=None, distribution=None):
         """
@@ -1345,7 +1345,7 @@ class RepositoryManager(Plugin):
             session.close()
         return result
 
-    @Command(__doc__=N_("Returns a list of items of item_type (if given) for the specified release - or all."))
+    @Command(__help__=N_("Returns a list of items of item_type (if given) for the specified release - or all."))
     @NamedArgs("m_hash")
     def listConfigItems(self, release, m_hash=None, item_type=None, path=None, children=None):
         result = None
@@ -1377,7 +1377,7 @@ class RepositoryManager(Plugin):
             session.close()
         return result
 
-    @Command(__doc__=N_("Returns a list of all asignable elements for a release"))
+    @Command(__help__=N_("Returns a list of all asignable elements for a release"))
     def listAssignableElements(self, release):
         result = None
         session = None
@@ -1408,7 +1408,7 @@ class RepositoryManager(Plugin):
             session.close()
         return result
 
-    @Command(__doc__=N_("Set the data for the specified item"))
+    @Command(__help__=N_("Set the data for the specified item"))
     def setConfigItem(self, release, path, item_type, data):
         result = None
         session = None
@@ -1435,7 +1435,7 @@ class RepositoryManager(Plugin):
             session.close()
         return result != None
 
-    @Command(__doc__=N_("Remove the specified item and it's children"))
+    @Command(__help__=N_("Remove the specified item and it's children"))
     def removeConfigItem(self, release, path, children=None):
         result = None
         session = None
@@ -1463,7 +1463,7 @@ class RepositoryManager(Plugin):
             session.close()
         return result != None
 
-    @Command(__doc__=N_("Return the data of specified item"))
+    @Command(__help__=N_("Return the data of specified item"))
     def getConfigItem(self, release, path):
         result = None
         session = None
@@ -1491,19 +1491,19 @@ class RepositoryManager(Plugin):
             session.close()
         return result
 
-    @Command(__doc__=N_("Get supported system locales"))
+    @Command(__help__=N_("Get supported system locales"))
     def getSystemLocales(self):
         return locale_map
 
-    @Command(__doc__=N_("Get supported keyboard models"))
+    @Command(__help__=N_("Get supported keyboard models"))
     def getKeyboardModels(self):
         return self.keyboardModels
 
-    @Command(__doc__=N_("Get supported time zones"))
+    @Command(__help__=N_("Get supported time zones"))
     def getTimezones(self):
         return pytz.all_timezones
 
-    @Command(__doc__=N_("Get kernel packages for the specified release"))
+    @Command(__help__=N_("Get kernel packages for the specified release"))
     def getKernelPackages(self, release):
         result = None
         session = None
@@ -1529,14 +1529,14 @@ class RepositoryManager(Plugin):
 
         return result
 
-    @Command(__doc__=N_("Completely remove device's installation parameters"))
+    @Command(__help__=N_("Completely remove device's installation parameters"))
     def removeBaseInstallParameters(self, device_uuid):
         data = load_system(device_uuid)
         method = self.systemGetBaseInstallMethod(device_uuid, data)
         inst_m = self.base_install_method_reg[method]
         return inst_m.removeBaseInstallParameters(device_uuid, data)
 
-    @Command(__doc__=N_("Get device's installation method"))
+    @Command(__help__=N_("Get device's installation method"))
     def systemGetBaseInstallMethod(self, device_uuid, data=None):
         # Load system
         if not data:
@@ -1554,7 +1554,7 @@ class RepositoryManager(Plugin):
 
         return res[0][1]["installMethod"][0].lower()
 
-    @Command(__doc__=N_("Get device's filled install template"))
+    @Command(__help__=N_("Get device's filled install template"))
     def systemGetTemplate(self, device_uuid):
         """ Evaulate template for system with device_uuid 'device_uuid' """
         data = load_system(device_uuid)
@@ -1567,7 +1567,7 @@ class RepositoryManager(Plugin):
         inst_m = self.base_install_method_reg[method]
         return inst_m.getTemplate(data)
 
-    @Command(__doc__=N_("Get device's configuration method"))
+    @Command(__help__=N_("Get device's configuration method"))
     def systemGetConfigMethod(self, device_uuid, data=None):
         if not data:
             data = load_system(device_uuid)
@@ -1577,7 +1577,7 @@ class RepositoryManager(Plugin):
 
         return data["configMethod"][0].lower()
 
-    @Command(__doc__=N_("Get device's boot string"))
+    @Command(__help__=N_("Get device's boot string"))
     def systemGetBootParams(self, device_uuid, mac=None):
         params = []
         data = load_system(device_uuid, mac)
@@ -1611,7 +1611,7 @@ class RepositoryManager(Plugin):
 
         return " ".join(params)
 
-    @Command(__doc__=N_("Get device's boot string"))
+    @Command(__help__=N_("Get device's boot string"))
     def systemGetBootConfiguration(self, device_uuid, mac=None):
         data = load_system(device_uuid, mac)
         device_uuid = data['deviceUUID'][0]
@@ -1625,14 +1625,14 @@ class RepositoryManager(Plugin):
         inst_m = self.base_install_method_reg[method]
         return inst_m.getBootConfiguration(device_uuid)
 
-    @Command(__doc__=N_("Get device's base install parameters"))
+    @Command(__help__=N_("Get device's base install parameters"))
     def systemGetBaseInstallParameters(self, device_uuid):
         data = load_system(device_uuid, None, False)
         method = self.systemGetBaseInstallMethod(device_uuid, data)
         inst_m = self.base_install_method_reg[method]
         return inst_m.getBaseInstallParameters(device_uuid, data)
 
-    @Command(__doc__=N_("Set device's base install parameters"))
+    @Command(__help__=N_("Set device's base install parameters"))
     def systemSetBaseInstallParameters(self, device_uuid, data):
         sys_data = load_system(device_uuid, None, False)
         method = self.systemGetBaseInstallMethod(device_uuid, data)
@@ -1646,7 +1646,7 @@ class RepositoryManager(Plugin):
         inst_m = self.base_install_method_reg[method]
         return inst_m.setBaseInstallParameters(device_uuid, data, sys_data)
 
-    @Command(__doc__=N_("Get device's config parameters"))
+    @Command(__help__=N_("Get device's config parameters"))
     def systemGetConfigParameters(self, device_uuid):
         sys_data = load_system(device_uuid, None, False)
         method = self.systemGetConfigMethod(device_uuid)
@@ -1657,7 +1657,7 @@ class RepositoryManager(Plugin):
         config_m = self.install_method_reg[method]
         return config_m.getConfigParameters(device_uuid, sys_data)
 
-    @Command(__doc__=N_("Set device's config parameters"))
+    @Command(__help__=N_("Set device's config parameters"))
     def systemSetConfigParameters(self, device_uuid, data):
         sys_data = load_system(device_uuid, None, False)
         method = data['method']
@@ -1668,7 +1668,7 @@ class RepositoryManager(Plugin):
         config_m = self.install_method_reg[method]
         config_m.setConfigParameters(device_uuid, data, sys_data)
 
-    @Command(__doc__=N_("Completely remove device's config parameters"))
+    @Command(__help__=N_("Completely remove device's config parameters"))
     def removeConfigParameters(self, device_uuid):
         sys_data = load_system(device_uuid, None, False)
         method = self.systemGetConfigMethod(device_uuid)
@@ -1680,7 +1680,7 @@ class RepositoryManager(Plugin):
         return config_m.removeConfigParameters(device_uuid, sys_data)
 
 
-    @Command(__doc__=N_("Get list of templates, filter by method"))
+    @Command(__help__=N_("Get list of templates, filter by method"))
     def installListTemplates(self, method=None):
         result = {}
         lh = LDAPHandler.get_instance()
@@ -1697,7 +1697,7 @@ class RepositoryManager(Plugin):
 
         return result
 
-    @Command(__doc__=N_("Get template by name"))
+    @Command(__help__=N_("Get template by name"))
     def installGetTemplate(self, name):
         lh = LDAPHandler.get_instance()
         fltr = "cn=%s" % name
@@ -1715,7 +1715,7 @@ class RepositoryManager(Plugin):
             entry['data'] = unicode(entry['data'], "utf-8")
         return entry
 
-    @Command(__doc__=N_("Set template by name"))
+    @Command(__help__=N_("Set template by name"))
     def installSetTemplate(self, name, data):
         lh = LDAPHandler.get_instance()
         fltr = "cn=%s" % name
@@ -1767,7 +1767,7 @@ class RepositoryManager(Plugin):
             else:
                 conn.modify_s(dn, mods)
 
-    @Command(__doc__=N_("Remove template by name"))
+    @Command(__help__=N_("Remove template by name"))
     def installRemoveTemplate(self, name):
         lh = LDAPHandler.get_instance()
         fltr = "cn=%s" % name
@@ -1782,10 +1782,10 @@ class RepositoryManager(Plugin):
 
             conn.delete(res[0][0])
 
-    @Command(__doc__=N_("Perpare system for config methods"))
+    @Command(__help__=N_("Perpare system for config methods"))
     def prepareSystem(self, device_uuid):
-        #TODO: look for install recipe tasks 
-        
+        #TODO: look for install recipe tasks
+
         # Check for config recipe tasks
         method = self.systemGetConfigMethod(device_uuid)
         if method in self.install_method_reg:

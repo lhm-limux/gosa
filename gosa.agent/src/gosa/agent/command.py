@@ -1,4 +1,35 @@
 # -*- coding: utf-8 -*-
+"""
+The *CommandRegistry* is responsible for knowing what kind of commands
+are available for users. It works together with the
+:class:`gosa.common.components.registry.PluginRegistry` and inspects
+all loaded plugins for methods marked with the
+:meth:`gosa.common.components.command.Command` decorator. All available
+information like *method path*, *command name*, *target queue*,
+*documentation* and *signature* are recorded and are available for users
+via the :meth:`gosa.agent.command.CommandRegistry.dispatch` method
+(or better with the several proxies) and the CLI.
+
+Next to registering commands, the *CommandRegistry* is also responsible
+for sending and receiving a couple of important bus events:
+
+================= ==========================
+Name              Direction
+================= ==========================
+NodeCapabilities  send/receive
+NodeAnnounce      send/receive
+NodeLeave         receive
+NodeStatus        receive
+================= ==========================
+
+All mentioned signals maintain an internal list of available nodes,
+their status and their capabilities - aka collection of supported
+methods and their signatures. This information is used to locate a
+willing node for methods that the receiving node is not able to
+process.
+
+-------
+"""
 import string
 import time
 import datetime
@@ -33,20 +64,7 @@ class CommandNotAuthorized(Exception):
 class CommandRegistry(object):
     """
     This class covers the registration and invocation of methods
-    imported thru plugins. All methods marked with the @Command()
-    decorator will be available.
-
-    @type capabilites: dict
-    @ivar capabilites: cluster capabilities
-
-    @type commands: dict
-    @ivar commands: local capabilities
-
-    @type nodes: dict
-    @ivar nodes: available nodes
-
-    @type proxy: dict
-    @ivar proxy: command proxies for queues
+    imported thru plugins.
     """
     implements(IInterfaceHandler)
     _priority_ = 0
@@ -61,24 +79,27 @@ class CommandRegistry(object):
     proxy = {}
 
     def __init__(self):
-        """
-        Construct a new CommandRegistry instance based on the configuration
-        stored in the environment.
-
-        @type env: Environment
-        @param env: L{Environment} object
-        """
         env = Environment.getInstance()
         env.log.debug("initializing command registry")
         self.env = env
 
-    @Command(__doc__=N_("List available service nodes on the bus."))
+    @Command(__help__=N_("List available service nodes on the bus."))
     def getNodes(self):
+        """
+        Returns a list of available nodes.
+
+        ``Return``: list of nodes
+        """
         return self.nodes
 
-    @Command(needsQueue=False, __doc__=N_("List available methods "+
+    @Command(needsQueue=False, __help__=N_("List available methods "+
         "that are registered on the bus."))
     def getMethods(self, queue=None, locale=None):
+        """
+        Lists the all methods that are available in the domain.
+
+        ``Return``: dict describing all methods
+        """
         res = {}
         if queue == None:
             queue = self.env.domain + ".command.core"
@@ -88,7 +109,7 @@ class CommandRegistry(object):
         else:
             node = queue.split('.')[-1]
 
-        #TODO: handle locale for __doc__
+        #TODO: handle locale for __help__
         for name, info in self.capabilities.iteritems():
 
             # Only list local methods
@@ -104,26 +125,42 @@ class CommandRegistry(object):
 
         return res
 
-    @Command(needsQueue=True, __doc__=N_("Shut down the service belonging to "+
+    @Command(needsQueue=True, __help__=N_("Shut down the service belonging to "+
         "the supplied queue. In case of HTTP connections, this command will shut"+
         " down the node you're currently logged in."))
     def shutdown(self, queue, force=False):
+        """
+        Shut down the service belonging to the supplied queue. In case of HTTP
+        connections, this command will shut down the node you're currently
+        logged in.
+
+        ================= ==========================
+        Name              Direction
+        ================= ==========================
+        force             force global shut down
+        ================= ==========================
+
+        ``Return``: True when shutting down
+        """
         if not force and queue == self.env.domain + '.command.core':
             return False
 
         self.env.log.debug("received shutdown signal - waiting for threads to terminate")
         self.env.active = False
+        return True
 
     def isAvailable(self, providers):
         """
         Check if the list of providers contain at least one
         node which is available.
 
-        @type providers: list
-        @param providers: list of providers to be checked against current nodes
+        ========== ============
+        Parameter  Description
+        ========== ============
+        providers  list of providers
+        ========== ============
 
-        @rtype: bool
-        @return: flag if available or not
+        ``Return:`` bool flag if at least one available or not
         """
         for provider in providers:
             if provider in self.nodes:
@@ -134,15 +171,31 @@ class CommandRegistry(object):
         """
         Check if the desired method is available.
 
-        @type func: str
-        @param func: method to check for
+        ========== ============
+        Parameter  Description
+        ========== ============
+        func       method to check for
+        ========== ============
 
-        @rtype: bool
-        @return: flag if available or not
+        ``Return:`` flag if available or not
         """
         return func in self.commands
 
     def call(self, func, *arg, **larg):
+        """
+        *call* can be used to internally call a registered method
+        directly. There's no access control happening with this
+        method.
+
+        ========== ============
+        Parameter  Description
+        ========== ============
+        func       method to call
+        args       ordinary argument list/dict
+        ========== ============
+
+        ``Return:`` return value from the method call
+        """
         return self.dispatch('internal', None, func, arg, larg)
 
     def dispatch(self, user, queue, func, *arg, **larg):
@@ -155,23 +208,24 @@ class CommandRegistry(object):
         Handlers like JSONRPC or AMQP should use this function to
         dispatch the real calls.
 
-        @type user: str
-        @param user: the calling users name
+        ========== ============
+        Parameter  Description
+        ========== ============
+        user       the calling users name
+        queue      the queue address where the call originated from
+        func       method to call
+        args       ordinary argument list/dict
+        ========== ============
 
-        @type queue: str
-        @param queue: the queue address where the call originated from
+        Dispatch will...
 
-        @type func: str
-        @param func: the method name
+          * ... forward *unknown* commands to nodes that
+            are capable of processing them - ordered by load.
 
-        @type arg: var
-        @param arg: list of function parameters
+          * ... will take care about the modes *NORMAL*, *FIRSTRESULT*,
+            *CUMULATIVE* like defined in the *Command* decorator.
 
-        @type larg: var
-        @param larg: dict of named function parameters
-
-        @rtype: var
-        @return: the real methods result
+        ``Return:`` the real methods result
         """
 
         #TODO: check for permission
@@ -286,11 +340,13 @@ class CommandRegistry(object):
         """
         Converts the call path (class.method) to the method itself
 
-        @type path: str
-        @param path: method path including the class
+        ========== ============
+        Parameter  Description
+        ========== ============
+        path       method path including the class
+        ========== ============
 
-        @rtype: str
-        @result: the method name
+        ``Return:`` the method name
         """
         return string.rsplit(path, '.')
 
@@ -298,11 +354,13 @@ class CommandRegistry(object):
         """
         Checks if the provided method requires a user parameter.
 
-        @type func: str
-        @param func: method name
+        ========== ============
+        Parameter  Description
+        ========== ============
+        func       method name
+        ========== ============
 
-        @rtype: bool
-        @result: success or failure
+        ``Return:`` success or failure
         """
         if not func in self.commands:
             raise CommandInvalid("no function '%s' defined" % func)
@@ -316,11 +374,13 @@ class CommandRegistry(object):
         """
         Checks if the provided method requires a queue parameter.
 
-        @type func: str
-        @param func: method name
+        ========== ============
+        Parameter  Description
+        ========== ============
+        func       method name
+        ========== ============
 
-        @rtype: bool
-        @result: success or failure
+        ``Return:`` success or failure
         """
         if not func in self.commands:
             raise CommandInvalid("no function '%s' defined" % func)
@@ -334,14 +394,14 @@ class CommandRegistry(object):
         """
         Checks if the provided method was sent to the correct queue.
 
-        @type func: str
-        @param func: method name
+        ========== ============
+        Parameter  Description
+        ========== ============
+        func       method name
+        queue      queue to compare to
+        ========== ============
 
-        @type queue: str
-        @param queue: queue to compare to
-
-        @rtype: bool
-        @result: success or failure
+        ``Return:`` success or failure
         """
         if not func in self.commands:
             raise CommandInvalid("no function '%s' defined" % func)
@@ -352,6 +412,11 @@ class CommandRegistry(object):
         return self.env.domain + '.command.%s' % PluginRegistry.modules[clazz].__getattribute__('_target_') == p.sub('', queue)
 
     def get_load_sorted_nodes(self):
+        """
+        Return a node list sorted by node *load*.
+
+        ``Return:`` list
+        """
         return sorted(self.nodes.items(), lambda x, y: cmp(x[1]['load'], y[1]['load']))
 
     def __del__(self):
@@ -490,10 +555,10 @@ class CommandRegistry(object):
                 if ismethod(method) and hasattr(method, "isCommand"):
 
                     func = mname
-                    if not method.__doc__:
+                    if not method.__help__:
                         raise Exception("method '%s' has no documentation" % func)
 
-                    doc = re.sub("(\s|\n)+", " ", method.__doc__).strip()
+                    doc = re.sub("(\s|\n)+", " ", method.__help__).strip()
 
                     self.env.log.debug("registering %s" % func)
                     info = {
@@ -526,8 +591,20 @@ class CommandRegistry(object):
         announce = e.Event(e.NodeAnnounce(e.Id(self.env.id)))
         amqp.sendEvent(announce)
 
-    @Command(__doc__=N_("Send event to the bus."))
+    @Command(__help__=N_("Send event to the bus."))
     def sendEvent(self, data):
+        """
+        Sends an event to the AMQP bus. Data must be in XML format,
+        see :ref:`Events handling <events>` for details.
+
+        ========== ============
+        Parameter  Description
+        ========== ============
+        data       valid event
+        ========== ============
+
+        *sendEvent* will indirectly validate the event against the bundeled "XSD".
+        """
         #TODO: check for permission
         amqp = PluginRegistry.getInstance("AMQPHandler")
         amqp.sendEvent(data)
