@@ -209,37 +209,31 @@ class GOsaObjectFactory(object):
                     elif cnt < len(args):
                         arguments[mName] = args[cnt]
                     elif mDefault:
-                        arguments[mName] = mDefault
+                        arguments[mName] = TYPE_MAP[mType](mDefault)
                     else:
                         raise(Exception("Missing parameter '%s'!" % mName))
 
+                    # Ensure that the correct parameter type was given.
                     if TYPE_MAP[mType] != type(arguments[mName]):
                         raise(Exception("Invalid parameter type given for '%s', expected "
                             "'%s' but received '%s'!" % (mName,
                                 TYPE_MAP[mType],type(arguments[mName]))))
 
-
                     cnt = cnt + 1
 
-                # Check if all expected parameters were given!
-                if len(mParams) != len(arguments):
-                    raise(Exception("Invalid parameter list for method '%s' expected %s "
-                            "parameter but %s received!" % (methodName,
-                                len(mParams), len(args))))
-
-                # Build the parameter list.
+                # Build the command-parameter list.
                 # Collect all property values of this GOsa-object to be able to fill in
-                # placeholders later.
+                # placeholders in command-parameters later.
                 propList = {}
                 for key in props:
                     pName = props[key]['name']
                     propList[pName] = props[key]['value'][pName]
 
-                # Add parameters passed to this method.
+                # Add method-parameters passed to this method.
                 for entry in arguments:
                     propList[entry] = arguments[entry]
 
-                # Fill in the placeholders now.
+                # Fill in the placeholders of the command-parameters now.
                 parameterList = []
                 for value in cParams:
                     try:
@@ -252,7 +246,7 @@ class GOsaObjectFactory(object):
                     parameterList.append(value)
 
                 # Execute real-stuff later
-                print "Called class method:", parameterList, command
+                print "Calling class method:", parameterList, command
 
             # Append the method to the list of registered methods for this
             # object
