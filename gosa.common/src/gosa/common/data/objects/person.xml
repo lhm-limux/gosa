@@ -19,7 +19,6 @@
 						<Name>notify_message</Name>
 						<Type>String</Type>
 						<Required>true</Required>
-						<Default>message</Default>
 					</MethodParameter>			
 				</MethodParameters>
 				<Command>notifyUser</Command>
@@ -28,7 +27,7 @@
 						<Value>%(uid)s</Value>
 					</CommandParameter>		
 					<CommandParameter>
-						<Value>%(notify_title)s</Value>
+						<Value>Der angegebene Titel war: %(notify_title)s</Value>
 					</CommandParameter>			
 					<CommandParameter>
 						<Value>%(notify_message)s</Value>

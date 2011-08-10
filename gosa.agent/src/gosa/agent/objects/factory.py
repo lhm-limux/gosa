@@ -181,11 +181,12 @@ class GOsaObjectFactory(object):
 
                 # Todo: Check type of the property and handle the
                 # default value.
+
                 for param in method['MethodParameters']['MethodParameter']:
                     pName = str(param['Name'])
                     pType = str(param['Type'])
                     pRequired = bool(param['Required']) if 'Required' in param.__dict__ else False
-                    pDefault = str(param['Default']) if 'Default' in param.__dict__ else ''
+                    pDefault = str(param['Default']) if 'Default' in param.__dict__ else None
                     mParams.append( (pName, pType, pRequired, pDefault), )
 
             # Get the list of command parameters
@@ -197,29 +198,41 @@ class GOsaObjectFactory(object):
             # Now add the method to the object
             def funk(*args, **kwargs):
 
-                # Build the parameter list.
-                # Collect all property values to be able to fill in
-                # placeholders later.
-                propList = {}
-                for key in props:
-                    aname = props[key]['name']
-                    propList[aname] = props[key]['value'][aname]
+                # Convert all given parameters into named arguments
+                # The eases up things a lot.
+                cnt = 0
+                arguments = {}
+                for mParam in mParams:
+                    mName, mType, mRequired, mDefault = mParam
+                    if mName in kwargs:
+                        arguments[mName] = kwargs[mName]
+                    elif cnt < len(args):
+                        arguments[mName] = args[cnt]
+                    elif mDefault:
+                        arguments[mName] = mDefault
+                    else:
+                        raise(Exception("Missing parameter '%s'!" % mName))
+                    cnt = cnt + 1
 
                 # Check if all expected parameters were given!
-                if len(mParams) != len(args):
+                if len(mParams) != len(arguments):
                     raise(Exception("Invalid parameter list for method '%s' expected %s "
                             "parameter but %s received!" % (methodName,
                                 len(mParams), len(args))))
 
-                # Fill in parameters passed to this method.
-                cnt = 0
-                for entry in mParams:
-                    mname, mtype, mrequired, mdefault = entry
-                    mvalue = args[cnt]
-                    propList[mname] = mvalue
-                    cnt = cnt + 1
+                # Build the parameter list.
+                # Collect all property values of this GOsa-object to be able to fill in
+                # placeholders later.
+                propList = {}
+                for key in props:
+                    pName = props[key]['name']
+                    propList[pName] = props[key]['value'][pName]
 
-                # Fill in placeholders
+                # Add parameters passed to this method.
+                for entry in arguments:
+                    propList[entry] = arguments[entry]
+
+                # Fill in the placeholders now.
                 parameterList = []
                 for value in cParams:
                     try:

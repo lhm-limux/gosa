@@ -9,6 +9,8 @@ print "commonName:", p.commonName
 p.sn = u"Name"
 p.givenName = u"Neuer"
 p.notify("This is my title", "To my amazing message!")
+p.notify(notify_title = "This is my title", notify_message = "To my amazing message!")
+p.notify(notify_message = "To my amazing message!")
 
 
 print "sn:", p.sn
