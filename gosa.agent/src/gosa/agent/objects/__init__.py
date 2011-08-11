@@ -353,9 +353,44 @@ And you can even stack ``<ConditionOperator>`` as deep as you want:
             </ConditionOperator>
 
 
-
 Creating in and out filters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Normally attributes are stored and loaded from the defined backend directly without any modification.
+If you want to manipulate the value before it gets saved or loaded, then you've to use in- and out-filters.
+
+This is usefull for values like passwords or other value that have to be converted before they get saved.
+With the out-filter you can generate a hash out of a password instead of storing the password in clear-text.
+
+Or you could generate the cn (common name) for a user out of his sn and givenName, automatically.
+
+The in-filters are executed when the objects gets loaded and the out-filters when the object is to be saved.
+
+Here is an example which combines ``sn`` and ``givenName`` in the attribute cn:
+
+.. code-block:: xml
+
+    <Attribute>
+        <Name>cn</Name>
+        ...
+        <OutFilter>
+            <FilterChain>
+                <FilterEntry>
+                    <Filter>
+                        <Name>Clear</Name>
+                    </Filter>
+                </FilterEntry>
+                <FilterEntry>
+                    <Filter>
+                        <Name>ConcatString</Name>
+                        <Param>%(givenName)s %(sn)s</Param>
+                        <Param>left</Param>
+                    </Filter>
+                </FilterEntry>
+            </FilterChain>
+        </OutFilter>
+
+
 
 
 Introduction of methods
