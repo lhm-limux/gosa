@@ -68,7 +68,7 @@ BaseObject      Defines this object as root object. E.g. Person is base object
 
 
 XML definition of GOsa-objects in detail
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. warning::
     We try to keep this documentation up to date, but at the moment the
