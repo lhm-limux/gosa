@@ -48,7 +48,7 @@ How does it work - XML definition for GOsa objects
 --------------------------------------------------
 
 What properties are managed and how they are managed is defined in a set of XML files.
-Each of these XML files can contain one or more object definition, you can find the them here ``./gosa.common/src/gosa/common/data/objects/``.
+Each of these XML files can contain one or more object definition, you can find them here ``./gosa.common/src/gosa/common/data/objects/``.
 
 An object definition consist of the following information:
 
@@ -59,11 +59,11 @@ Name            The Name of the object
 Description     A description
 DefaultBackend  A default backend which defines which storage backend is used to persist the data
 BaseRDN         A base RDN which specifies a storage container for these objects
-Attributes      Properties that are provided by this object
+Attributes      Attributes that are provided by this object
 Methods         Methods that can be called on object instances
 Container       A list of potential sub-objects this object can contain
 Extends         Another objects name that we can extend. E.g. POSIX can extend a Person object
-BaseObject      Defines this object as root object. E.g. Person is base object
+BaseObject      Defines this object as root object. E.g. Person is a base object
 =============== ===========================
 
 
@@ -79,17 +79,17 @@ XML definition of GOsa-objects in detail
 A minimum example
 ~~~~~~~~~~~~~~~~~
 
-All starts with an ``<Object>`` which introduces a new GOsa-object, this
+All starts with an ``<Object>`` tag which introduces a new GOsa-object, this
 ``<Object>`` tag must contain at least a ``<Name>``, a ``<Description>`` and a
 ``<DefaultBackend>`` tag. The name and the description are self-explaining.
 The default-backend specifies which backend has to be used as default, for example
-a LDAP or a MySQL backend. - There may be more depending on your setup.
+a LDAP or a MySQL backend - There may be more depending on your setup.
 
-Backends are storage points for GOsa-object information, they take care of caching, 
-loading and saving of objects and their properties from different stores e.g. MySQL 
+Backends are storage points for GOsa-objects, they take care of caching,
+loading and saving of objects and their attributes from different stores e.g. MySQL
 or LDAP.
 
-Here is a minimum configuration for an GOsa-object. It does not have any
+Here is a minimum configuration for a GOsa-object. It does not have any
 methods nor attributes:
 
 .. code-block:: xml
@@ -110,7 +110,7 @@ Some optional properties added
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Here is a more complete example which include some optional values, but still
-lacks attribute and method definition: 
+lacks attribute and method definitions:
 
 .. code-block:: xml
 
@@ -145,7 +145,7 @@ To be able to identify those addable extension we have the ``<Extends>`` tag, it
 which objects could be added to our object as extension.
 
 The ``<BaseObject>`` tag, defines our object as root object, (if set to true) it cannot be attached
-to some other objects, like describes above in the ``<Extends>`` tag.
+to some other objects, like described above in the ``<Extends>`` tag.
 
 
 With the above example we can now instantiate a ``Person`` object, it has no attributes
@@ -232,8 +232,8 @@ Syntax          No          A simple string which defines the attributes syntax,
 Validators      Yes         A validation rule
 InFilter        Yes         A filter which is used to read the attribute from the backend
 OutFilter       Yes         A filter which is used to store the attribute in the backend
-MultiValue      Yes         A boolean flag, which marks this value as multi value
-Readonly        Yes         Marks the attribute as readonly
+MultiValue      Yes         A boolean flag, which marks this value as multiple value
+Readonly        Yes         Marks the attribute as read only
 Mandatory       Yes         Marks the attribute as mandatory
 =============== =========== ===========================
 
@@ -246,7 +246,7 @@ For example, the attribute 'cn' (common name) for a user is a combination of ``g
 If you now add ``cn`` to the ``<Depends>`` tag of the ``sn`` and ``givenName`` attributes, then
 each modification of sn and givenName will mark the attribute cn as modified and thus forces it
 to be saved again. (How sn and givenName are combined into the cn attribute will be described later
-when the in- and outfilters are described).
+when the in- and out-filters are described).
 
 With ``<Backend>`` you can specifiy another backend then defined in the ``<Object>s
 <DefaultBackend>`` tag.
@@ -265,9 +265,9 @@ The ``<Syntax>`` specifies which syntax this attribute has, here is a list of al
 An attribute may have multiple values, for example you can have multiple phone numbers or mail addresses.
 If you want an attribute to be multi value then just add the ``<MultiValue>`` tag and set it to true.
 
-To create a readonly attribute add the tag ``<Readonly>`` and set it to true.
+To create a read only attribute add the tag ``<Readonly>`` and set it to true.
 
-If the attribute is required to store the object then you should add the ``<Mandatory>`` flag and set it
+If the attribute is required then you should add the ``<Mandatory>`` flag and set it
 to true.
 
 
@@ -319,9 +319,9 @@ You can also define more complex validators like this (This example does not mak
         </Validators>
 
 
-In the above example is valid, when the value has a length of 5-10 characters OR a the value of sn is 'Heh?'.
+The above example is valid, when the value has a length of 5-10 characters OR the value of sn is 'Heh?'.
 
-Instead of ``or`` can  ``and`` be used.
+Instead of ``or`` can also ``and`` be used.
 
 And you can even stack ``<ConditionOperator>`` as deep as you want: 
 
@@ -365,7 +365,7 @@ This is usefull for values like passwords or value that have to be converted bef
 For example you can generate a hash out of a text-password instead of storing the password in clear-text.
 Or you could generate the cn (common name) for a user out of his sn and givenName, automatically.
 
-The in-filters are executed when the objects gets loaded and the out-filters when the object is to be saved.
+The in-filters are executed when the objects gets loaded and the out-filters when the object is saved.
 
 Here is an example out-filter which combines ``sn`` and ``givenName`` in the attribute cn:
 
@@ -484,7 +484,7 @@ If the value is smaller then 6 chars it will be cleared, if it is greater then 6
     Once we've more operatros, filters and so on, we should generate better examples.
     The following example does not work at the moment due to missing comperators.
 
-Another exmample could be to convert a list of flags into different boolean values, like this.
+Another example could be to convert a list of flags into different boolean values, like this.
 
 Lets say we've a given flag list which looks like this: 
 
@@ -492,7 +492,8 @@ Lets say we've a given flag list which looks like this:
 
 Where L stands for Lookup ...
 
-While loading the gosaFlagList we can convert this string flag list into real boolean value like this.
+While loading the gosaFlagList we can convert this string flag list into real
+boolean value like this:
 
 .. code-block:: xml
 
@@ -588,7 +589,7 @@ And then we could define an out filter which looks like this, to store the boole
                     </Filter>
                 </FilterEntry>
 
-When saving the gosaFlagList again, it will be put create out of the flag states.
+When saving the gosaFlagList again, it will be created out of the flag states.
 
 
 Introduction of methods
