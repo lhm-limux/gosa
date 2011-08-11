@@ -23,7 +23,7 @@ class HTTPDispatcher(object):
     and decides which registered application it gets.
 
     Analyzing the path can be configured to detect a *subtree* match
-    or an *exact* match. If you need subree matches, just add the
+    or an *exact* match. If you need subtree matches, just add the
     class variable ``http_subtree`` to the WSGI class and set it to
     *True*.
     """

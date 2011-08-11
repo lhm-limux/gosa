@@ -209,7 +209,7 @@ class CommandRegistry(object):
         """
         The dispatch method will try to call the specified function and
         checks for user and queue. Additionally, it carries the call to
-        it's really destination (function types, cummulative results) and
+        it's really destination (function types, cumulative results) and
         does some sanity checks.
 
         Handlers like JSONRPC or AMQP should use this function to
@@ -252,8 +252,8 @@ class CommandRegistry(object):
         # Convert to list
         arg = list(arg)
 
-        # Check if the command needs a special queue for beeing executed,
-        # shutdown i.e. may not be very handy if globally executed.
+        # Check if the command needs a special queue for being executed,
+        # shutdown i.e. may not be very handy if globaly executed.
         if self.callNeedsQueue(func):
             if not self.checkQueue(func, queue):
                 raise CommandInvalid("invalid queue '%s' for function '%s'" % (queue, func))
@@ -610,7 +610,7 @@ class CommandRegistry(object):
         data       valid event
         ========== ============
 
-        *sendEvent* will indirectly validate the event against the bundeled "XSD".
+        *sendEvent* will indirectly validate the event against the bundled "XSD".
         """
         #TODO: check for permission
         amqp = PluginRegistry.getInstance("AMQPHandler")

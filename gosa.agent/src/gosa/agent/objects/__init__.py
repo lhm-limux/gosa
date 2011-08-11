@@ -34,7 +34,7 @@ or call object methods:
 or add and remove extension:
 
 >>> person->addExtension('Mail')
->>> person->removeExtension('Posix')
+>>> person->removeExtension('POSIX')
 
 .. warning::
     The following is not implemented yet!
@@ -44,11 +44,11 @@ can then be caught later to perform different tasks, e.g. remove the mail-accoun
 a Mail extension is removed.
  
 
-How does it work - XML defintions for GOsa objects
+How does it work - XML definition for GOsa objects
 --------------------------------------------------
 
 What properties are managed and how they are managed is defined in a set of XML files.
-Each of these XML files can contain one or more object defintions, you can find the them here ``./gosa.common/src/gosa/common/data/objects/``.
+Each of these XML files can contain one or more object definition, you can find the them here ``./gosa.common/src/gosa/common/data/objects/``.
 
 An object definition consist of the following information:
 
@@ -62,17 +62,18 @@ BaseRDN         A base RDN which specifies a storage container for these objects
 Attributes      Properties that are provided by this object
 Methods         Methods that can be called on object instances
 Container       A list of potential sub-objects this object can contain
-Extends         Another objects name that we can extend. E.g. Posix can extend a Person object
+Extends         Another objects name that we can extend. E.g. POSIX can extend a Person object
 BaseObject      Defines this object as root object. E.g. Person is base object
 =============== ===========================
 
 
-XML defintion of GOsa-objects in detail
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+XML definition of GOsa-objects in detail
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. warning::
-    We try to keep this documentation up to date, but at the moment the defintion
-    changes fequently.
+    We try to keep this documentation up to date, but at the moment the
+    definition
+    changes frequently.
 
 
 A minimum example
@@ -109,7 +110,7 @@ Some optional properties added
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Here is a more complete example which include some optional values, but still
-lacks attribute and method defintions: 
+lacks attribute and method definition: 
 
 .. code-block:: xml
 
@@ -148,7 +149,7 @@ to some other objects, like describes above in the ``<Extends>`` tag.
 
 
 With the above example we can now instantiate a ``Person`` object, it has no attributes
-nor methods, but we could add a ``Posix`` and a ``Mail`` extension to it. And the backend
+nor methods, but we could add a ``POSIX`` and a ``Mail`` extension to it. And the backend
 is told to store Person objects in 'ou=people'.
 
 .. warning::
@@ -218,7 +219,7 @@ you can specify it explicitly like this:
     </Objects>
 
 
-Attribute definition can contain the follwoing tags, including optional:
+Attribute definition can contain the following tags, including optional:
 
 =============== =========== ===========================
 Name            Optional    Description
@@ -593,7 +594,7 @@ When saving the gosaFlagList again, it will be put create out of the flag states
 Introduction of methods
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-We can also define methods for GOsa-objects within the XML defintion, these methods can
+We can also define methods for GOsa-objects within the XML definition, these methods can
 then be called directly on an instance of these object:
 
 >>> person->notify(u"Shutdown of your client", u"Please prepare yourselves for a system reboot!")
@@ -652,7 +653,7 @@ Methods consist of four tags:
     * The ``<CommandParameters>`` tag, defines a list parameters we want to pass to the
       GOsa-agent command call.
 
-The above defintion creates a method named notify which looks like this:
+The above definition creates a method named notify which looks like this:
 
 >>> def notify(notify_message, notify_title = u"Notification"):
 
