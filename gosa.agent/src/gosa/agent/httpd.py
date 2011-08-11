@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 """
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
+The *HTTPService* and the *HTTPDispatcher* are responsible for exposing
+registered `WSGI <http://wsgi.org>`_ components to the world. While the
+*HTTPService* is just providing the raw HTTP service, the *HTTPDispatcher*
+is redirecting a path to a module.
 
- ID: $$Id: httpd.py 609 2010-08-16 08:19:05Z cajus $$
-
- This modules provides a simple HTTP service.
-
- See LICENSE for more information about the licensing.
+-------
 """
 import thread
 from zope.interface import implements
@@ -19,6 +17,16 @@ from gosa.common.handler import IInterfaceHandler
 
 
 class HTTPDispatcher(object):
+    """
+    The *HTTPDispatcher* can be used to register WSGI applications
+    to a given path. It will inspect the path of an incoming request
+    and decides which registered application it gets.
+
+    Analyzing the path can be configured to detect a *subtree* match
+    or an *exact* match. If you need subree matches, just add the
+    class variable ``http_subtree`` to the WSGI class and set it to
+    *True*.
+    """
 
     def __init__(self):
         self.__app = {}
@@ -47,6 +55,47 @@ class HTTPDispatcher(object):
 
 
 class HTTPService(object):
+    """
+    Class to serve HTTP fragments to the interested client. It makes
+    makes use of a couple of configuration flags provided by the gosa
+    configuration files ``[http]`` section:
+
+    ============== =============
+    Key            Description
+    ============== =============
+    url            AMQP URL to connect to the broker
+    id             User name to connect with
+    key            Password to connect with
+    command-worker Number of worker processes
+    ============== =============
+
+    Example::
+
+        [http]
+        host = node1.intranet.gonicus.de
+        port = 8080
+        sslpemfile = /etc/gosa/host.pem
+
+    If you want to create a gosa agent module that is going to export
+    functionality (i.e. static content or some RPC functionality) you
+    can register such a component like this::
+
+        >>> from gosa.common.components import PluginRegistry
+        >>> class SomeTest(object):
+        ...    http_subtree = True
+        ...    path = '/test'
+        ...
+        ...    def __init__(self):
+        ...        # Get http service instance
+        ...        self.__http = PluginRegistry.getInstance('HTTPService')
+        ...
+        ...        # Register ourselves
+        ...        self.__http.register(self.path, self)
+        ...
+
+    When *SomeTest* is instanciated, it will register itself to the *HTTPService* -
+    and will be served when the *HTTPService* starts up.
+    """
     implements(IInterfaceHandler)
     _priority_ = 10
 
@@ -58,7 +107,9 @@ class HTTPService(object):
         self.env = env
 
     def serve(self):
-        # Start thread
+        """
+        Start HTTP service thread.
+        """
         self.app = HTTPDispatcher()
         self.app.env = self.env
         self.host = self.env.config.get('http.host', default="localhost")
@@ -81,8 +132,21 @@ class HTTPService(object):
             self.app.register(path, obj)
 
     def stop(self):
+        """
+        Stop HTTP service thread.
+        """
         self.env.log.debug("shutting down HTTP service provider")
         self.srv.server_close()
 
     def register(self, path, obj):
+        """
+        Register the application *app* on path *path*.
+
+        ================= ==========================
+        Parameter         Description
+        ================= ==========================
+        path              Path part of an URL - i.e. '/rpc'
+        app               WSGI application
+        ================= ==========================
+        """
         self.__register[path] = obj
