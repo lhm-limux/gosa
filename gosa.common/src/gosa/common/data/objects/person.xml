@@ -42,11 +42,24 @@
 				<Description>Surname</Description>
 				<Syntax>String</Syntax>
 				<Validators>
-					<Condition>
-						<Name>stringLength</Name>
-						<Param>4</Param>
-						<Param>20</Param>
-					</Condition>
+					<ConditionOperator>
+						<Operator>or</Operator>
+						<LeftConditionChain>
+							<Condition>
+								<Name>stringLength</Name>
+								<Param>5</Param>
+								<Param>10</Param>
+							</Condition>
+						</LeftConditionChain>
+						<RightConditionChain>
+							<Condition>
+								<Name>Equals</Name>
+								<Param>Harry</Param>
+								<Param>%{sn}s</Param>
+							</Condition>
+						</RightConditionChain>
+					</ConditionOperator>
+
 				</Validators>
 			</Attribute>
 

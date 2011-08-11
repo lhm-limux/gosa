@@ -273,6 +273,29 @@ to true.
 Writing attribute validators
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+You can use validators to check the value of an attribute.
+
+Here is a simple example:
+
+..code-block:: xml
+
+        <Validators>
+            <Condition>
+                <Name>stringLength</Name>
+                <Param>4</Param>
+                <Param>20</Param>
+            </Condition>
+        </Validators>
+
+
+This example uses the stringLength condition with a set of parameters to check the values length.
+Right now there are a very limited set of conditions available - but there will be more.
+
+You can also define more complex validators like this:
+
+
+
+
 
 Creating in and out filters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
