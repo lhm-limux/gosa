@@ -354,9 +354,93 @@ And you can even stack ``<ConditionOperator>`` as deep as you want:
             </ConditionOperator>
 
 
-
 Creating in and out filters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Normally attributes are stored and read from the defined backend directly without any modification.
+If you want to manipulate the value before it gets saved or read, then you've to use in- and out-filters.
+
+This is usefull for values like passwords or value that have to be converted before they get saved.
+
+For example you can generate a hash out of a text-password instead of storing the password in clear-text.
+Or you could generate the cn (common name) for a user out of his sn and givenName, automatically.
+
+The in-filters are executed when the objects gets loaded and the out-filters when the object is to be saved.
+
+Here is an example out-filter which combines ``sn`` and ``givenName`` in the attribute cn:
+
+.. code-block:: xml
+
+    <Attribute>
+        <Name>cn</Name>
+        ...
+        <OutFilter>
+            <FilterChain>
+                <FilterEntry>
+                    <Filter>
+                        <Name>Clear</Name>
+                    </Filter>
+                </FilterEntry>
+                <FilterEntry>
+                    <Filter>
+                        <Name>ConcatString</Name>
+                        <Param>%(givenName)s %(sn)s</Param>
+                        <Param>left</Param>
+                    </Filter>
+                </FilterEntry>
+            </FilterChain>
+        </OutFilter>
+
+Out-filters are defined in the <OutFilter> tag and in-filters in the <InFilter> tag of the <Attribute>,
+the filter definition is then placed inside a <FilterChain> tag.
+Both definitions, for in- and out filter, are created in the same way.
+
+The <FilterChain> tag inside of the <In/OutFilter> tag contains various <FilterEntry> tags, which will be executed
+sequentially, when the filter is executed.
+
+The example above will do the following when the property cn gets saved: 
+
+ * Clear the contents of the attribute cn
+ * Add the value "%(givenName)s %(sn)s" to the left of the current value of cn
+
+Another filter action could be, to change an attributes name during the filter execution:
+
+.. code-block:: xml
+
+    <Attribute>
+        <Name>cn</Name>
+        ...
+        <InFilter>
+            <FilterChain>
+                <FilterEntry>
+                    <Filter>
+                        <Name>Target</Name>
+                        <Param>commonName</Param>
+                    </Filter>
+                </FilterEntry>
+            </FilterChain>
+        </InFilter>
+
+        <OutFilter>
+            <FilterChain>
+                <FilterEntry>
+                    <Filter>
+                        <Name>Target</Name>
+                        <Param>cn</Param>
+                    </Filter>
+                </FilterEntry>
+            </FilterChain>
+        </OutFilter>
+
+In the above example we change the attributes name from ``cn`` to
+``commonName`` in the in-filter and back to ``cn`` in the out-filter.
+This enables us to access the value like this: 
+
+>>> print person->commonName
+
+while the attribute is still stored as ``cn``.
+
+
 
 
 Introduction of methods
