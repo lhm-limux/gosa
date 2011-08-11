@@ -34,7 +34,7 @@ or call object methods:
 or add and remove extension:
 
 >>> person->addExtension('Mail')
->>> person->removeExtension('Posix')
+>>> person->removeExtension('POSIX')
 
 .. warning::
     The following is not implemented yet!
@@ -62,7 +62,7 @@ BaseRDN         A base RDN which specifies a storage container for these objects
 Attributes      Properties that are provided by this object
 Methods         Methods that can be called on object instances
 Container       A list of potential sub-objects this object can contain
-Extends         Another objects name that we can extend. E.g. Posix can extend a Person object
+Extends         Another objects name that we can extend. E.g. POSIX can extend a Person object
 BaseObject      Defines this object as root object. E.g. Person is base object
 =============== ===========================
 
@@ -149,7 +149,7 @@ to some other objects, like describes above in the ``<Extends>`` tag.
 
 
 With the above example we can now instantiate a ``Person`` object, it has no attributes
-nor methods, but we could add a ``Posix`` and a ``Mail`` extension to it. And the backend
+nor methods, but we could add a ``POSIX`` and a ``Mail`` extension to it. And the backend
 is told to store Person objects in 'ou=people'.
 
 .. warning::
