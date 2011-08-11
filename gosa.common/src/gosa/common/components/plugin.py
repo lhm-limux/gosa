@@ -4,7 +4,7 @@
 class Plugin(object):
     """
     The Plugin object is just a marker in the moment: it lacks special
-    code. While beeing a marker, there's a mandatory class member that must
+    code. While being a marker, there's a mandatory class member that must
     be maintained by users: ``_target_``
 
     The ``_target_`` class member determines what queue the plugin will be

@@ -44,11 +44,11 @@ can then be caught later to perform different tasks, e.g. remove the mail-accoun
 a Mail extension is removed.
  
 
-How does it work - XML defintions for GOsa objects
+How does it work - XML definition for GOsa objects
 --------------------------------------------------
 
 What properties are managed and how they are managed is defined in a set of XML files.
-Each of these XML files can contain one or more object defintions, you can find the them here ``./gosa.common/src/gosa/common/data/objects/``.
+Each of these XML files can contain one or more object definition, you can find the them here ``./gosa.common/src/gosa/common/data/objects/``.
 
 An object definition consist of the following information:
 
@@ -67,12 +67,13 @@ BaseObject      Defines this object as root object. E.g. Person is base object
 =============== ===========================
 
 
-XML defintion of GOsa-objects in detail
+XML definition of GOsa-objects in detail
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. warning::
-    We try to keep this documentation up to date, but at the moment the defintion
-    changes fequently.
+    We try to keep this documentation up to date, but at the moment the
+    definition
+    changes frequently.
 
 
 A minimum example
@@ -109,7 +110,7 @@ Some optional properties added
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Here is a more complete example which include some optional values, but still
-lacks attribute and method defintions: 
+lacks attribute and method definition: 
 
 .. code-block:: xml
 
@@ -218,7 +219,7 @@ you can specify it explicitly like this:
     </Objects>
 
 
-Attribute definition can contain the follwoing tags, including optional:
+Attribute definition can contain the following tags, including optional:
 
 =============== =========== ===========================
 Name            Optional    Description
@@ -361,7 +362,7 @@ Creating in and out filters
 Introduction of methods
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-We can also define methods for GOsa-objects within the XML defintion, these methods can
+We can also define methods for GOsa-objects within the XML definition, these methods can
 then be called directly on an instance of these object:
 
 >>> person->notify(u"Shutdown of your client", u"Please prepare yourselves for a system reboot!")
@@ -420,7 +421,7 @@ Methods consist of four tags:
     * The ``<CommandParameters>`` tag, defines a list parameters we want to pass to the
       GOsa-agent command call.
 
-The above defintion creates a method named notify which looks like this:
+The above definition creates a method named notify which looks like this:
 
 >>> def notify(notify_message, notify_title = u"Notification"):
 

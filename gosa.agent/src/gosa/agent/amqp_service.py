@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 The *AMQPService* is responsible for connecting the *agent* to the AMQP
-bus, registeres the required queues, listenes for commands on that queues
+bus, registers the required queues, listens for commands on that queues
 and dispatches incoming commands to the
 :class:`gosa.agent.command.CommandRegistry`.
 
@@ -138,7 +138,7 @@ class AMQPService(object):
 
     def commandReceived(self, ssn, message):
         """
-        Process incomming commands, comming in with session and message
+        Process incoming commands, coming in with session and message
         information.
 
         ================= ==========================

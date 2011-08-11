@@ -80,7 +80,7 @@ class AMQPClientService(object):
         self.__announce(True)
 
     def commandReceived(self, ssn, message):
-        """ Process incomming commands """
+        """ Process incoming commands """
         err = None
         res = None
         id_ = ''
