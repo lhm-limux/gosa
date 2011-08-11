@@ -232,8 +232,8 @@ Syntax          No          A simple string which defines the attributes syntax,
 Validators      Yes         A validation rule
 InFilter        Yes         A filter which is used to read the attribute from the backend
 OutFilter       Yes         A filter which is used to store the attribute in the backend
-MultiValue      Yes         A boolean flag, which marks this value as multi value
-Readonly        Yes         Marks the attribute as readonly
+MultiValue      Yes         A boolean flag, which marks this value as multiple value
+Readonly        Yes         Marks the attribute as read only
 Mandatory       Yes         Marks the attribute as mandatory
 =============== =========== ===========================
 
@@ -246,7 +246,7 @@ For example, the attribute 'cn' (common name) for a user is a combination of ``g
 If you now add ``cn`` to the ``<Depends>`` tag of the ``sn`` and ``givenName`` attributes, then
 each modification of sn and givenName will mark the attribute cn as modified and thus forces it
 to be saved again. (How sn and givenName are combined into the cn attribute will be described later
-when the in- and outfilters are described).
+when the in- and out-filters are described).
 
 With ``<Backend>`` you can specifiy another backend then defined in the ``<Object>s
 <DefaultBackend>`` tag.
@@ -265,7 +265,7 @@ The ``<Syntax>`` specifies which syntax this attribute has, here is a list of al
 An attribute may have multiple values, for example you can have multiple phone numbers or mail addresses.
 If you want an attribute to be multi value then just add the ``<MultiValue>`` tag and set it to true.
 
-To create a readonly attribute add the tag ``<Readonly>`` and set it to true.
+To create a read only attribute add the tag ``<Readonly>`` and set it to true.
 
 If the attribute is required to store the object then you should add the ``<Mandatory>`` flag and set it
 to true.
@@ -484,7 +484,7 @@ If the value is smaller then 6 chars it will be cleared, if it is greater then 6
     Once we've more operatros, filters and so on, we should generate better examples.
     The following example does not work at the moment due to missing comperators.
 
-Another exmample could be to convert a list of flags into different boolean values, like this.
+Another example could be to convert a list of flags into different boolean values, like this.
 
 Lets say we've a given flag list which looks like this: 
 
