@@ -58,6 +58,7 @@ Topics:
    client/index
    shell/index
    plugins/index
+   license
 
 Indices and tables
 ==================
