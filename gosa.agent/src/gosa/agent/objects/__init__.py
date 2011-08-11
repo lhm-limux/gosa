@@ -273,6 +273,86 @@ to true.
 Writing attribute validators
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+You can use validators to check the value of an attribute.
+
+Validators are defined in an ``<Validators>`` tag using either the ``<Condition>`` or the ``<ConditionOperator>`` tag. 
+The ``<Condition>`` tag is a single check like shown below, where ``<ConditionOperator>`` are combined conditions:
+
+A simple single condition:
+
+.. code-block:: xml
+
+    <Validators>
+        <Condition>
+            <Name>stringLength</Name>
+            <Param>4</Param>
+            <Param>20</Param>
+        </Condition>
+    </Validators>
+
+This example uses the stringLength condition with a set of parameters to check the values length.
+Right now there is a very limited set of conditions available - but there will be more.
+
+You can also define more complex validators like this (This example does not make much sense!):
+
+.. code-block:: xml
+
+        <Validators>
+            <ConditionOperator>
+                <Operator>or</Operator>
+                <LeftConditionChain>
+                    <Condition>
+                        <Name>stringLength</Name>
+                        <Param>5</Param>
+                        <Param>10</Param>
+                    </Condition>
+                </LeftConditionChain>
+                <RightConditionChain>
+                    <Condition>
+                        <Name>Equals</Name>
+                        <Param>Heh?</Param>
+                        <Param>%{sn}s</Param>
+                    </Condition>
+                </RightConditionChain>
+            </ConditionOperator>
+        </Validators>
+
+
+In the above example is valid, when the value has a length of 5-10 characters OR a the value of sn is 'Heh?'.
+
+Instead of ``or`` can  ``and`` be used.
+
+And you can even stack ``<ConditionOperator>`` as deep as you want: 
+
+.. code-block:: xml
+
+            <ConditionOperator>
+                <Operator>or</Operator>
+                <LeftConditionChain>
+                    <ConditionOperator>
+                        <Operator>and</Operator>
+                        <LeftConditionChain>
+                            <ConditionOperator>...</ConditionOperator>
+                        </LeftConditionChain>
+                        <RightConditionChain>
+                            <ConditionOperator>...</ConditionOperator>
+                        </RightConditionChain>
+                    </ConditionOperator>
+                </LeftConditionChain>
+                <RightConditionChain>
+                    <ConditionOperator>
+                        <Operator>and</Operator>
+                        <LeftConditionChain>
+                            <Condition>...</Condition>
+                        </LeftConditionChain>
+                        <RightConditionChain>
+                            <Condition>...</Condition>
+                        </RightConditionChain>
+                    </ConditionOperator>
+                </RightConditionChain>
+            </ConditionOperator>
+
+
 
 Creating in and out filters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
