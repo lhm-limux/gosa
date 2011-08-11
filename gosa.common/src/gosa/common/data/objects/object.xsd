@@ -27,11 +27,8 @@
         	<element name="Extends" type="string" maxOccurs="1"
         		minOccurs="0">
         	</element>
-        	<element name="Mandatory" type="boolean" maxOccurs="1"
-        		minOccurs="1">
-        	</element>
         	<element name="BaseObject" type="boolean" maxOccurs="1"
-        		minOccurs="1">
+        		minOccurs="0">
         	</element>
         	<element name="Methods" type="gosa:Methods"
         		maxOccurs="1" minOccurs="0">
@@ -87,6 +84,7 @@
         		minOccurs="0"
         	>
         	</element>
+        	<element name="Mandatory" type="boolean" maxOccurs="1" minOccurs="0"></element>
         </all>
     </complexType>
 

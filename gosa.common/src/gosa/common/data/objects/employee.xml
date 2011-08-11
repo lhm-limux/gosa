@@ -19,7 +19,6 @@
 		</Container>
 
 		<Extends>Person</Extends>
-		<Mandatory>false</Mandatory>
 		<BaseObject>false</BaseObject>
 	</Object>
 </Objects>

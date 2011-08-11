@@ -19,7 +19,6 @@
 			<Type>Nothing</Type>
 		</Container>
 
-		<Mandatory>false</Mandatory>
 		<BaseObject>false</BaseObject>
 
 	</Object>
