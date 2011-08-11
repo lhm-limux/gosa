@@ -98,6 +98,13 @@ class CommandRegistry(object):
         """
         Lists the all methods that are available in the domain.
 
+        ================= ==========================
+        Name              Description
+        ================= ==========================
+        queue             Ask for methods on special queue, None for all
+        locale            Translate __help__ strings to the desired language
+        ================= ==========================
+
         ``Return``: dict describing all methods
         """
         res = {}
@@ -135,7 +142,7 @@ class CommandRegistry(object):
         logged in.
 
         ================= ==========================
-        Name              Direction
+        Name              Description
         ================= ==========================
         force             force global shut down
         ================= ==========================
@@ -553,11 +560,11 @@ class CommandRegistry(object):
         for clazz in PluginRegistry.modules.values():
             for mname, method in getmembers(clazz):
                 if ismethod(method) and hasattr(method, "isCommand"):
-
                     func = mname
+
+                    # Adjust documentation
                     if not method.__help__:
                         raise Exception("method '%s' has no documentation" % func)
-
                     doc = re.sub("(\s|\n)+", " ", method.__help__).strip()
 
                     self.env.log.debug("registering %s" % func)

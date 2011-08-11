@@ -45,12 +45,42 @@ def Command(**d_kwargs):
         setattr(f, 'isCommand', True)
         for k in d_kwargs:
             setattr(f, k, d_kwargs[k])
+
+        # Tweak docstrings
+        doc = getattr(f, '__doc__')
+        if doc:
+            lines = map(lambda x: x.lstrip(' '), doc.split('\n'))
+            setattr(f, '__doc__', ".. note::\n   **This method will be exported by the CommandRegistry.**\n\n%s" % "\n".join(lines))
+
         return f
 
     return decorate
 
 
 def NamedArgs(d_collector=None, **d_kwargs):
+    """
+    The *NamedArgs* decorator is used to transfer a dictionary parameter named
+    by *d_collector* to the ordinary *kwargs* following this keyword.
+
+    =========== ============
+    Parameter   Description
+    =========== ============
+    d_collector Name of the dict container
+    =========== ============
+
+    Example::
+
+        >>> @NamedArgs('m_hash')
+        ... def getArchitectures(self, m_hash=None, distribution=None, release=None):
+
+    This will transfer a JSON call like::
+
+        >>> getArchitectures({'release': 'squeeze/1.0'})
+
+    to be::
+
+        >>> getArchitectures(release='squeeze/1.0')
+    """
     def decorate(f):
         d_args = getargspec(f).args
         d_index = d_args.index(d_collector)

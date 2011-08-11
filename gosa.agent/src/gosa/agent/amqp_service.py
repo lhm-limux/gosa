@@ -5,8 +5,7 @@ bus, registeres the required queues, listenes for commands on that queues
 and dispatches incoming commands to the
 :class:`gosa.agent.command.CommandRegistry`.
 
-Queues
-^^^^^^
+**Queues**
 
 In order to use features like round robin and automatic routing of commands
 to agents that are capable of handling them, the AMQPService creates a
