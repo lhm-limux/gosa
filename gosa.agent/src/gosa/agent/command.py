@@ -99,7 +99,7 @@ class CommandRegistry(object):
         Lists the all methods that are available in the domain.
 
         ================= ==========================
-        Name              Description
+        Parameter         Description
         ================= ==========================
         queue             Ask for methods on special queue, None for all
         locale            Translate __help__ strings to the desired language
@@ -142,7 +142,7 @@ class CommandRegistry(object):
         logged in.
 
         ================= ==========================
-        Name              Description
+        Parameter         Description
         ================= ==========================
         force             force global shut down
         ================= ==========================
