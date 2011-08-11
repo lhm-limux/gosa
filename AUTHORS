@@ -1,10 +1,14 @@
-Here's a list of 'core' authors in alphabetical order:
+Here's a list of the 'core' authors in alphabetical order:
 
 * Fabian Hickert
 * Cajus Pollmeier
 * Jan Wenzel
 
 
-The GOsa core uses code of:
+GOsa uses code done by:
 
 * Jan-Klaas Kollhof (jsonrpc)
+
+
+---
+Please send a note if we're missing someone to pollmeier@gonicus.de.

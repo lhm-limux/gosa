@@ -1,0 +1,35 @@
+Building the documentation
+==========================
+
+For the following steps, please make sure that you've either entered the
+virtual environment where the gosa classes are available or that you've
+installed the gosa python packages globally.
+
+Make sure that you have python-sphinx and python-pygments installed. If
+you want to generate PDF documentation, you also need tetex and tetex-extra
+in order to get a proper build out.
+
+-----------------------------------------------------------------------------
+
+For HTML based doumentaion, run:
+
+$ make html
+$ cd _build/html
+$ python -m SimpleHTTPServer 8080
+
+inside of the virutal python environment. The documentation is then ready
+to serve for you on port 8080 of your current machine.
+
+
+For LaTeX based (PDF) documentation, run:
+
+$ make latex
+$ cd _build/latex
+$ make allpdf
+
+The resulting PDF file will be placed in the current directory.
+
+-----------------------------------------------------------------------------
+
+If you find errors or want to complete the documentation, feel free to
+contact the GOsa team.
