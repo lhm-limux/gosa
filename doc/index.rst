@@ -13,7 +13,7 @@ above, this document is more about the future. This is why:
 
 Starting with GOsa 2.6, we had introduced a simple perl based service called
 gosa-si, which was able to handle requests and actions where class PHP applications
-are not well suited for. This service had (has) many problems in design, scalebility
+are not well suited for. This service had (has) many problems in design, scalability
 and so on. For that reason we started to redo the whole thing using new
 technologies like `AMQP <http://www.amqp.org>`_, concentrating on the RedHat/Apache
 implementation `QPID <http://qpid.apache.org/>`_.
@@ -36,7 +36,7 @@ Starting with PHP GOsa 2.7, there is built in support for the new GOsa core. 2.7
 series will be some kind of migration series where more and more functionality will
 be moved into the new core while keeping the original functionality inside. That
 allows *bleeding edge* users to try selected new functionality thru the new core and
-more *conservative* users can contine to use the current PHP core.
+more *conservative* users can continue to use the current PHP core.
 
 The 3.0 release will be a PHP-GOsa with nearly no functionality residing in PHP, but
 in the new core. And - finally - this documentation is growing on the way to 3.0.

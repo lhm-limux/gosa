@@ -12,7 +12,7 @@ class PluginRegistry(object):
     =============== ============
     Parameter       Description
     =============== ============
-    compoment       What setuptools entrypoint to use when looking for :class:`gosa.common.components.plugin.Plugin`.
+    component       What setuptools entrypoint to use when looking for :class:`gosa.common.components.plugin.Plugin`.
     =============== ============
     """
     modules = {}

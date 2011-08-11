@@ -220,7 +220,7 @@ class AMQPWorker(object):
 
 class AMQPProcessor(Thread):
     """
-    AMQP worker thread. This objects get instanciated by the AMQPWorker
+    AMQP worker thread. This objects get instantiated by the AMQPWorker
     class. It is responsible for receiving the messages and calling the
     callback function.
 

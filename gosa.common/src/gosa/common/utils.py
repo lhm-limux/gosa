@@ -38,7 +38,7 @@ def stripNs(data):
 
 def makeAuthURL(url, user, password):
     """
-    **makeAuthURL** assembles a typical authentification url from
+    **makeAuthURL** assembles a typical authentication URL from
     the plain URL and user/password strings::
 
         http://user:secret@example.net:8080/somewhere
@@ -191,7 +191,7 @@ def get_timezone_delta():
 
 def locate(program):
     """
-    Function to emulate UNIX 'which' behaviour.
+    Function to emulate UNIX 'which' behavior.
 
     ========== ============
     Parameter  Description

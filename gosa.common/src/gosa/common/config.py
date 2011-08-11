@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 The configuration module is the central place where the GOsa configuration
-can be querried. Using the configuration module requires the presence of the
+can be queried. Using the configuration module requires the presence of the
 GOsa configuration file - commonly ``/etc/gosa/config`` and the subdirectory
 ``/etc/gosa/config.d``. All these configurations will be merged into one
 'virtual' configuration so that certain packages can provide their own config
