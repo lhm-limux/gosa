@@ -1,4 +1,60 @@
 # -*- coding: utf-8 -*-
+"""
+The *AMQPService* is responsible for connecting the *agent* to the AMQP
+bus, registeres the required queues, listenes for commands on that queues
+and dispatches incoming commands to the
+:class:`gosa.agent.command.CommandRegistry`.
+
+Queues
+^^^^^^
+
+In order to use features like round robin and automatic routing of commands
+to agents that are capable of handling them, the AMQPService creates a
+queue structure that addresses these facts.
+
+Queues are named after the configured *domain* - i.e. if you use the
+configured default domain, you'll get ``org.gosa`` as the base dot
+separated string for the queues. The agent registers two **core** queues:
+
+ * **{domain}.command.core** *(i.e. org.gosa.command.core)*
+
+   This is a round robin queue that is shared by all agents joining
+   the domain. The core queue must only handle commands that are provided
+   by all agents.
+
+ * **{domain}.command.core.{nodename}** *(i.e. org.gosa.command.core.node1 if your node is named node1)*
+
+   This queue is a private queue that is only used by a specific
+   agent. It is possible to direct a command to exactly the agent identified
+   by *nodename*.
+
+The same thing which is established for the **command.core** queues is done
+for queues registered by certain plugins. This ensures that commands are only
+delivered to nodes which provide that functionality by listening to these
+queues:
+
+ * **{domain}.command.{plugin}** *(i.e. org.gosa.command.goto)*
+
+   This is a round robin queue that is shared by all agents joining
+   the domain. In the example above, all agents providing the *goto* plugin
+   will share this queue.
+
+ * **{domain}.command.{plugin}.nodename** *(i.e. org.gosa.command.goto.node1 if your node is named node1)*
+
+   Like for the *command.core* queues, this queue is private for the current
+   agent and makes it possible to direct a command to exactly the agent identified
+   by *nodename*.
+
+.. note::
+
+    To learn how to specify the plugin's target queue, please read `Plugins <plugins>`_ 
+    for more information.
+
+Last but not least, the *AMQPService* binds to the queues mentioned above
+and dispatches command calls to the *CommandRegistry*.
+
+--------
+"""
 import sys
 import re
 import traceback
@@ -8,26 +64,38 @@ from jsonrpc.serviceHandler import ServiceRequestNotTranslatable, BadServiceRequ
 from qpid.messaging import *
 
 from gosa.common.handler import IInterfaceHandler
-from gosa.common.components.registry import PluginRegistry
-from gosa.common.components.amqp import AMQPWorker
-from gosa.common.components.zeroconf import ZeroconfService
+from gosa.common.components import PluginRegistry, AMQPWorker, ZeroconfService
 from gosa.common.utils import parseURL, repr2json
 from gosa.common import Environment
 
 
 class AMQPService(object):
     """
-    Internal class to serve all available queues and commands to
-    the AMQP broker.
+    Class to serve all available queues and commands to the AMQP broker. It
+    makes use of a couple of configuration flags provided by the gosa
+    configurations file ``[amqp]`` section:
+
+    ============== =============
+    Key            Description
+    ============== =============
+    url            AMQP URL to connect to the broker
+    id             User name to connect with
+    key            Password to connect with
+    command-worker Number of worker processes
+    ============== =============
+
+    Example::
+
+        [amqp]
+        url = amqps://amqp.intranet.gonicus.de:5671
+        id = node1
+        key = secret
+
     """
     implements(IInterfaceHandler)
     _priority_ = 1
 
     def __init__(self):
-        """
-        Construct a new AMQPService instance based on the configuration
-        stored in the environment.
-        """
         env = Environment.getInstance()
         env.log.debug("initializing AMQP service provider")
         self.env = env
@@ -70,7 +138,22 @@ class AMQPService(object):
         self.__zeroconf.unpublish()
 
     def commandReceived(self, ssn, message):
-        """ Process incomming commands """
+        """
+        Process incomming commands, comming in with session and message
+        information.
+
+        ================= ==========================
+        Name              Direction
+        ================= ==========================
+        ssn               AMQP session object
+        message           Received AMQP message
+        ================= ==========================
+
+        Incoming messages are coming from an
+        :class:`gosa.common.components.amqp_proxy.AMQPServiceProxy` which
+        is providing a *reply to* queue as a return channel. The command
+        result is written to that queue.
+        """
 
         # Check for id
         if not message.user_id:
