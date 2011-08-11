@@ -59,7 +59,27 @@ def Command(**d_kwargs):
 
 def NamedArgs(d_collector=None, **d_kwargs):
     """
-    TODO: namedargs
+    The *NamedArgs* decorator is used to transfer a dictionary parameter named
+    by *d_collector* to the ordinary *kwargs* following this keyword.
+
+    =========== ============
+    Parameter   Description
+    =========== ============
+    d_collector Name of the dict container
+    =========== ============
+
+    Example::
+
+        >>> @NamedArgs('m_hash')
+        ... def getArchitectures(self, m_hash=None, distribution=None, release=None):
+
+    This will transfer a JSON call like::
+
+        >>> getArchitectures({'release': 'squeeze/1.0'})
+
+    to be::
+
+        >>> getArchitectures(release='squeeze/1.0')
     """
     def decorate(f):
         d_args = getargspec(f).args
