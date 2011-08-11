@@ -553,11 +553,11 @@ class CommandRegistry(object):
         for clazz in PluginRegistry.modules.values():
             for mname, method in getmembers(clazz):
                 if ismethod(method) and hasattr(method, "isCommand"):
-
                     func = mname
+
+                    # Adjust documentation
                     if not method.__help__:
                         raise Exception("method '%s' has no documentation" % func)
-
                     doc = re.sub("(\s|\n)+", " ", method.__help__).strip()
 
                     self.env.log.debug("registering %s" % func)

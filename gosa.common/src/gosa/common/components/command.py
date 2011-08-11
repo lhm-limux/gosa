@@ -45,12 +45,22 @@ def Command(**d_kwargs):
         setattr(f, 'isCommand', True)
         for k in d_kwargs:
             setattr(f, k, d_kwargs[k])
+
+        # Tweak docstrings
+        doc = getattr(f, '__doc__')
+        if doc:
+            lines = map(lambda x: x.lstrip(' '), doc.split('\n'))
+            setattr(f, '__doc__', ".. note::\n   **This method will be exported by the CommandRegistry.**\n\n%s" % "\n".join(lines))
+
         return f
 
     return decorate
 
 
 def NamedArgs(d_collector=None, **d_kwargs):
+    """
+    TODO: namedargs
+    """
     def decorate(f):
         d_args = getargspec(f).args
         d_index = d_args.index(d_collector)
