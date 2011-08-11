@@ -157,6 +157,127 @@ is told to store Person objects in 'ou=people'.
     ``BaseRDN``, ``Container``, ``BaseObject``, ``Extends``
 
 
+Adding attributes and their in- and out-filters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To be able to store a users name or its postal address we need to define object-attributes.
+
+Attributes can be access easily like this:
+
+>>> print person->givenName
+
+or can be set this way.
+
+>>> person->postalAddress = "Herr Musterman\\n11111 Musterhausen\\nMusterstr. 55"
+
+Here is a minimum example of an attribute:
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <Objects xmlns="http://www.gonicus.de/Objects">
+        ...
+        <Object>
+            <Name>Person</Name>
+            <DefaultBackend>LDAP</DefaultBackend>
+            ...
+            <Attributes>
+                <Attribute>
+                    <Name>sn</Name>
+                    <Description>Surname</Description>
+                    <Syntax>String</Syntax>
+                </Attribute>
+            </Attributes>
+            ...
+        </Object>
+    </Objects>
+
+The above definition creates an attribute named ``sn`` which is
+stored in the LDAP backend. If you want to store this attribute in another Backend, then
+you can specify it explicitly like this:
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <Objects xmlns="http://www.gonicus.de/Objects">
+        ...
+        <Object>
+            <Name>Person</Name>
+            <DefaultBackend>LDAP</DefaultBackend>
+            ...
+            <Attributes>
+                <Attribute>
+                    <Name>sn</Name>
+                    <Description>Surname</Description>
+                    <Backend>LDAP</Backend>
+                    <Syntax>String</Syntax>
+                </Attribute>
+            </Attributes>
+            ...
+        </Object>
+    </Objects>
+
+
+Attribute definition can contain the follwoing tags, including optional:
+
+=============== =========== ===========================
+Name            Optional    Description
+=============== =========== ===========================
+Name            No          The attributes name
+Description     No          A short description for the attribute
+DependsOn       Yes         A list of attributes that depends on this attribute
+Backend         Yes         The backend to store this attribute
+Syntax          No          A simple string which defines the attributes syntax, e.g. String
+Validators      Yes         A validation rule
+InFilter        Yes         A filter which is used to read the attribute from the backend
+OutFilter       Yes         A filter which is used to store the attribute in the backend
+MultiValue      Yes         A boolean flag, which marks this value as multi value
+Readonly        Yes         Marks the attribute as readonly
+Mandatory       Yes         Marks the attribute as mandatory
+=============== =========== ===========================
+
+Here is an explanation of the simple properties above, the complex properties like ``Validators``,
+``InFilter`` and ``OutFilter`` are described separately, later.
+
+The tag ``<DependsOn>`` specifies a list of attributes that are related to the current attribute.
+For example, the attribute 'cn' (common name) for a user is a combination of ``givenName`` and
+``sn``, whenever you modify the users sn, you've to update the value of the ``cn`` attribute too.
+If you now add ``cn`` to the ``<Depends>`` tag of the ``sn`` and ``givenName`` attributes, then
+each modification of sn and givenName will mark the attribute cn as modified and thus forces it
+to be saved again. (How sn and givenName are combined into the cn attribute will be described later
+when the in- and outfilters are described).
+
+With ``<Backend>`` you can specifiy another backend then defined in the ``<Object>s
+<DefaultBackend>`` tag.
+
+The ``<Syntax>`` specifies which syntax this attribute has, here is a list of all available values:
+
+   * Boolean: bool
+   * String: unicode
+   * Integer: int
+   * Timestamp: time.time
+   * Date: datetime.date
+   * Dictionary: dict
+   * List: list
+   * Binary
+
+An attribute may have multiple values, for example you can have multiple phone numbers or mail addresses.
+If you want an attribute to be multi value then just add the ``<MultiValue>`` tag and set it to true.
+
+To create a readonly attribute add the tag ``<Readonly>`` and set it to true.
+
+If the attribute is required to store the object then you should add the ``<Mandatory>`` flag and set it
+to true.
+
+
+Writing attribute validators
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Creating in and out filters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Introduction of methods
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -215,7 +336,7 @@ Methods consist of four tags:
 
     * The ``<Name>`` tag which specifies the name of the method.
     * A ``<MethodParameters>`` tag, which contains a list of parameters to this method.
-    * A ``<Command>`` tag, which represents to GOsa-agent method we want to call.
+    * A ``<Command>`` tag, which represents to GOsa-agent command we want to call.
     * The ``<CommandParameters>`` tag, defines a list parameters we want to pass to the
       GOsa-agent command call.
 
@@ -227,17 +348,33 @@ If you call this method like this:
 
 >>> person->notifyUser("Warning", "Restart imminent!")
 
-it will invoke a GOsa-agent command named notifyUser like this:
+it will invoke a GOsa-agent command named notifyUser with this parameters:
 
->>> notifyUser(u"user1", u"Der angegebene Titel war: Warning", u"Restart imminent!") 
+>>> notifyUser(u"user1", u"Der angegebene Titel war: Warning", u"Restart imminent!")
 
-As you can see, you cannot freely create whatever method you want, you can just call 
+As you can see, you cannot freely create whatever method you want, you can just call
 existing GOsa-agent commands and adjust their arguments.
 
+You can use placeholders using ``%(property_name)s``, to dynamically fill in
+command parameters, like done for the first ``<CommandParameter>``.
 
+.. code-block:: xml
 
-Adding properites and their in- and out-filters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    <CommandParameter>
+        <Value>%(uid)s</Value>
+    </CommandParameter>
+
+or you can use it to refer to the method-parameters like this:
+
+.. code-block:: xml
+
+    <CommandParameter>
+        <Value>Placeholder: %(notify_message)s</Value>
+    </CommandParameter>
+
+You can use all the attribute names you have defined and additionally all the
+parameters of the method as placeholders.
+
 
 """
 __import__('pkg_resources').declare_namespace(__name__)
