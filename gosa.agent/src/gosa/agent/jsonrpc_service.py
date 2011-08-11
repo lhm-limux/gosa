@@ -1,13 +1,6 @@
 # -*- coding: utf-8 -*-
 """
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
-
- ID: $$Id: jsonrpc_service.py 1267 2010-10-22 12:37:59Z cajus $$
-
- This modules hosts JSON related classes.
-
- See LICENSE for more information about the licensing.
+...
 """
 import sys
 import traceback
