@@ -390,17 +390,19 @@ Here is an example out-filter which combines ``sn`` and ``givenName`` in the att
             </FilterChain>
         </OutFilter>
 
-Out-filters are defined in the <OutFilter> tag and in-filters in the <InFilter> tag of the <Attribute>,
-the filter definition is then placed inside a <FilterChain> tag.
+Out-filters are defined in the ``<OutFilter>`` tag and in-filters in
+the ``<InFilter>`` tag of the ``<Attribute>``,
+the filter definition is then placed inside a ``<FilterChain>`` tag.
 Both definitions, for in- and out filter, are created in the same way.
 
-The <FilterChain> tag inside of the <In/OutFilter> tag contains various <FilterEntry> tags, which will be executed
+The ``<FilterChain>`` tag inside of the ``<In/OutFilter>`` tag contains
+various ``<FilterEntry>`` tags, which will be executed
 sequentially, when the filter is executed.
 
-The example above will do the following when the property cn gets saved: 
+The example above will do the following when the property cn gets saved:
 
  * Clear the contents of the attribute cn
- * Add the value "%(givenName)s %(sn)s" to the left of the current value of cn
+ * Add the value ``"%(givenName)s %(sn)s"`` to the left of the current value of cn while the ``%(..)s`` are replaced by real values.
 
 Another filter action could be, to change an attributes name during the filter execution:
 
@@ -433,13 +435,159 @@ Another filter action could be, to change an attributes name during the filter e
 
 In the above example we change the attributes name from ``cn`` to
 ``commonName`` in the in-filter and back to ``cn`` in the out-filter.
-This enables us to access the value like this: 
+This enables us to access the value like this:
 
 >>> print person->commonName
 
-while the attribute is still stored as ``cn``.
+while the attribute is still stored as ``cn`` due to the out-filter definition.
 
+You can also add conditions to your filters like shown below:
 
+.. code-block:: xml
+
+    <FilterChain>
+        <FilterEntry>
+            <Choice>
+                <When>
+                    <ConditionChain>
+                        <Condition>
+                            <Name>stringLength</Name>
+                            <Param>0</Param>
+                            <Param>5</Param>
+                        </Condition>
+                    </ConditionChain>
+                    <FilterChain>
+                        <FilterEntry>
+                            <Filter>
+                                <Name>Clear</Name>
+                            </Filter>
+                        </FilterEntry>
+                    </FilterChain>
+                    <Else>
+                        <FilterChain>
+                            <FilterEntry>
+                                <Filter>
+                                    <Name>ConcatString</Name>
+                                    <Param>Value is longer than 5 chars: </Param>
+                                    <Param>left</Param>
+                                </Filter>
+                            </FilterEntry>
+                        </FilterChain>
+                    </Else>
+                </When>
+            </Choice>
+
+If the value is smaller then 6 chars it will be cleared, if it is greater then 6 chars a string will be appended to the left.
+
+.. warning::
+    Once we've more operatros, filters and so on, we should generate better examples.
+    The following example does not work at the moment due to missing comperators.
+
+Another exmample could be to convert a list of flags into different boolean values, like this.
+
+Lets say we've a given flag list which looks like this: 
+
+>>>  gosaFlagList = [LVM]
+
+Where L stands for Lookup ...
+
+While loading the gosaFlagList we can convert this string flag list into real boolean value like this.
+
+.. code-block:: xml
+
+    <Attribute>
+        <Name>Flag_Lookup</Name>
+        ...
+        <InFilter>
+
+            <FilterChain>
+                <FilterEntry>
+                    <Choice>
+                        <When>
+                            <ConditionChain>
+                                <Condition>
+                                    <Name>RegEx</Name>
+                                    <Param>%(gosaFlagList)s</Param>
+                                    <Param>/[L]/i</Param>
+                                </Condition>
+                            </ConditionChain>
+                            <FilterChain>
+                                <FilterEntry>
+                                    <Filter>
+                                        <Name>SetValue</Name>
+                                        <Param>true</Param>
+                                        <Param>Boolean</Param>
+                                    </Filter>
+                                </FilterEntry>
+                            </FilterChain>
+                            <Else>
+                                <FilterChain>
+                                    <FilterEntry>
+                                        <Filter>
+                                            <Name>SetValue</Name>
+                                            <Param>false</Param>
+                                            <Param>Boolean</Param>
+                                        </Filter>
+                                    </FilterEntry>
+                                </FilterChain>
+                            </Else>
+                        </When>
+                    </Choice>
+
+And then we could define an out filter which looks like this, to store the boolean values as string again:
+
+.. code-block:: xml
+
+    <Attribute>
+        <Name>gosaFlagList</Name>
+        ...
+        <OutFilter>
+            <FilterChain>
+                <FilterEntry>
+                    <Filter>
+                        <Name>Clear</Name>
+                    </Filter>
+                </FilterEntry>
+                <FilterEntry>
+                    <Choice>
+                        <When>
+                            <ConditionChain>
+                                <Condition>
+                                    <Name>Equals</Name>
+                                    <Param>%(Flag_Lookup)s</Param>
+                                    <Param>true</Param>
+                                    <Param>Boolean</Param>
+                                </Condition>
+                            </ConditionChain>
+                            <FilterChain>
+                                <FilterEntry>
+                                    <Filter>
+                                        <Name>ConcatString</Name>
+                                        <Param>L</Param>
+                                        <Param>left</Param>
+                                    </Filter>
+                                </FilterEntry>
+                            </FilterChain>
+                        </When>
+                    </Choice>
+                </FilterEntry>
+                ... add here the other flag checks...
+                <FilterEntry>
+                    <Filter>
+                        <Name>ConcatString</Name>
+                        <Param>[</Param>
+                        <Param>left</Param>
+                    </Filter>
+                </FilterEntry>
+                <FilterEntry>
+                    <Filter>
+                        <Name>ConcatString</Name>
+                        <Param>]</Param>
+                        <Param>right</Param>
+                    </Filter>
+                </FilterEntry>
+
+When saving the gosaFlagList again, it will be put create out of the flag states.
 
 
 Introduction of methods
