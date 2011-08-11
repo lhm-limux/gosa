@@ -17,14 +17,14 @@ It works starting with squeeze or later.
     Lenny does not work, so you just don't have to try...
 
 Depending on which parts of gosa-ng you want to deploy, there are
-different prequisites to fulfill. Please read the relevant sections.
+different prerequisites to fulfill. Please read the relevant sections.
 
 
 Common setup
 ^^^^^^^^^^^^
 
-System prequisites
-""""""""""""""""""
+System prerequisites
+""""""""""""""""""""
 
 To run the services in the designed way later on, you need a special user
 and a couple of directories::
@@ -35,12 +35,12 @@ If you're going to run the service in daemon mode, please take care that
 there's a */var/run/gosa* for placing the PID files.
 
 
-Python prequisites
-""""""""""""""""""
+Python prerequisites
+""""""""""""""""""""
 
 While we try to keep everything inside a virtual python environment for
 development, some of the python modules need compilation - which rises the
-number of required packages drastically. For the time beeing, please install
+number of required packages drastically. For the time being, please install
 the following packages in your system::
 
   $ sudo apt-get install python2.6-dev python-dumbnet python-avahi python-virtualenv \

@@ -93,7 +93,7 @@ class HTTPService(object):
         ...        self.__http.register(self.path, self)
         ...
 
-    When *SomeTest* is instanciated, it will register itself to the *HTTPService* -
+    When *SomeTest* is instantiated, it will register itself to the *HTTPService* -
     and will be served when the *HTTPService* starts up.
     """
     implements(IInterfaceHandler)
