@@ -86,8 +86,8 @@ To run the agent, you most likely need a working AMQP broker and
 a working LDAP setup.
 
 
-Prequisites
-"""""""""""
+Prerequisites
+"""""""""""""
 
 We use qpidc as the AMQP broker. Other implementations like rabbitmq,
 etc. are not supported. They lack some functionality we're making use
@@ -279,8 +279,9 @@ Alternatively you can build the complete package using::
 Starting the service
 """"""""""""""""""""
 
-Take a look at the agent.conf present in the src/gosa/agent/data directory and adapt it
-to your needs. Fire up the daemon in foreground mode::
+In a productive environment, everything should be defined in the configuration
+file, so take a look at the agent.conf present in the src/gosa/agent/data directory
+and adapt it to your needs. Fire up the daemon in foreground mode::
 
   $ gosa-agent -f --config=src/gosa/agent/data/agent.conf
 

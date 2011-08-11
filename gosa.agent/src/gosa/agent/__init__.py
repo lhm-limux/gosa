@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 """
+Overview
+========
+
 The *agent* module bundles the agent daemon and a couple code modules
 needed to run it. The agent itself is meant to be extended by plugins
 using the :class:`gosa.common.components.plugin.Plugin` interface.
@@ -46,13 +49,28 @@ exposing functionality to the outside world. Here are some of them:
 This happens automatically depending on what's registered on the
 ``[gosa.modules]`` setuptools entrypoint.
 
+If you're looking for documentation on how to write plugins, please take a look
+at the :ref:`Plugin section<plugins>`.
+
+Using the binary
+================
+
+The gosa-agent binary gets installed when you run the setup process. It
+has a couple of command line arguments:
+
+    .. program-output::  gosa-agent --help
+       :prompt:
+
 .. note::
 
    Take a look at the :ref:`quickstart <quickstart>` to see how the agent is
    controlled.
 
-If you're looking for documentation on how to write plugins, please take a look
-at the :ref:`Plugin section<plugins>`.
+.. requirement::
+   :status: todo
+
+   Describe the init script / default usage
+
 """
 __version__ = __import__('pkg_resources').get_distribution('gosa.agent').version
 __import__('pkg_resources').declare_namespace(__name__)

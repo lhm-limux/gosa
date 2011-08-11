@@ -47,7 +47,11 @@ in the new core. And - finally - this documentation is growing on the way to 3.0
 
 ---------------------
 
-Topics:
+**Documentation TODO list:**
+
+.. reqlist::
+
+**Topics:**
 
 .. toctree::
    :maxdepth: 2

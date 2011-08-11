@@ -9,6 +9,13 @@ Make sure that you have python-sphinx and python-pygments installed. If
 you want to generate PDF documentation, you also need tetex and tetex-extra
 in order to get a proper build out.
 
+There are additional modules to be installed that are not part of
+distributions - usually. Please install them via 'pip' into your virtual
+environment:
+
+$ pip install sphinxcontrib.spelling sphinxcontrib.email \
+      sphinxcontrib.programoutput sphinxcontrib.requirements
+
 -----------------------------------------------------------------------------
 
 For HTML based doumentaion, run:
@@ -28,6 +35,17 @@ $ cd _build/latex
 $ make allpdf
 
 The resulting PDF file will be placed in the current directory.
+
+-----------------------------------------------------------------------------
+
+Spell checking:
+
+In order to let sphinx scheck your wording after adding new documentation,
+please run
+
+$ sphinx-build -b spelling . _spell; less _spell/output.txt
+
+and inspect the output in order to find usual spelling errors.
 
 -----------------------------------------------------------------------------
 
