@@ -57,6 +57,7 @@ in the new core. And - finally - this documentation is growing on the way to 3.0
    :maxdepth: 2
 
    intro
+   production
    common/index
    agent/index
    client/index

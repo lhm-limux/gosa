@@ -38,6 +38,20 @@ The resulting PDF file will be placed in the current directory.
 
 -----------------------------------------------------------------------------
 
+Marking TODO's:
+
+If you need to add documentation or remember about something during the
+process of writing, please mark the 'problem' like
+
+  .. requirement::
+     :status: todo
+ 
+        Short text describing the task
+
+so we can quickly locate these issues.
+
+-----------------------------------------------------------------------------
+
 Spell checking:
 
 In order to let sphinx scheck your wording after adding new documentation,

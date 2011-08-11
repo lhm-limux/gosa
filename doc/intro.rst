@@ -144,7 +144,10 @@ http://rajith.2rlabs.com/2010/03/01/apache-qpid-securing-connections-with-ssl/
 Install LDAP service
 """"""""""""""""""""
 
-**TODO**
+.. requirement::
+   :status: todo
+
+   Describe the basic LDAP setup.
 
 
 AMQP LDAP-Authentication
