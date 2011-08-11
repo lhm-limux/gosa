@@ -2,8 +2,10 @@
 """
 The configuration module is the central place where the GOsa configuration
 can be querried. Using the configuration module requires the presence of the
-GOsa configuration file - commonly ``~/.gosa/config`` or ``/etc/gosa/config``,
-in order of presence.
+GOsa configuration file - commonly ``/etc/gosa/config`` and the subdirectory
+``/etc/gosa/config.d``. All these configurations will be merged into one
+'virtual' configuration so that certain packages can provide their own config
+file without knowing how to read it.
 
 Additionally to reading the configuration file, it merges that information
 with potential command line parameters.
