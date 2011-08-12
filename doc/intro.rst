@@ -416,7 +416,7 @@ client inside the activated virtual environment::
   $ gosa-client -f
 
 Integration with PHP GOsa
-"""""""""""""""""""""""""
+-------------------------
 
 The *GOsa agent* and *GOsa client* setup may be ok for playing around, but
 as of GOsa 2.7 you can configure an active communication between the ordinary
