@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import win32serviceutil
 import win32service
 import win32event
@@ -25,7 +26,6 @@ class GOsaClientService(win32serviceutil.ServiceFramework):
     def SvcStop(self):
         # Before we do anything, tell the SCM we are starting the stop process.
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
-        
         self.env.active = False
 
         # Set stop event
@@ -37,62 +37,62 @@ class GOsaClientService(win32serviceutil.ServiceFramework):
             servicemanager.EVENTLOG_INFORMATION_TYPE,
             servicemanager.PYS_SERVICE_STARTED,
             (self._svc_name_, ''))
-            
+
         # Start main loop thread here
         Environment.config = "C:/gosa-client.conf"
         Environment.noargs = True
         self.env = Environment.getInstance()
         self.env.log.info("GOsa client is starting up")
         env = self.env
-        
+
         try:
             # Load plugins
             pr = PluginRegistry(component='gosa_client.modules')
             amqp = PluginRegistry.getInstance("AMQPClientHandler")
-    
+
             #TODO:
             # Check if we're a client
             # -> no: shutdown, client should be joined by administrator before
             #        calling the client
-    
+
             # Sleep and slice
             wait = 2
             while True:
                 # Threading doesn't seem to work well with python...
                 for p in env.threads:
-    
+
                     # Bail out if we're active in the meanwhile
                     if not env.active:
                         break
-    
+
                     p.join(wait)
-    
+
                 # No break, go to main loop
                 else:
                     continue
-    
+
                 # Break, leave main loop
                 break
-    
+
         except Exception as detail:
             env.log.critical("unexpected error in mainLoop")
             env.log.exception(detail)
             env.log.debug(traceback.format_exc())
         finally:
             pythoncom.CoUninitialize()
-        
+
         # Signalize main thread to shut down
         win32api.Sleep(500)
 
         # Pull down system
         amqp = PluginRegistry.getInstance("AMQPClientHandler")
         amqp_service = PluginRegistry.getInstance("AMQPClientService")
-    
+
         # Tell others that we're away now
         e = EventMaker()
         goodbye = e.Event(e.ClientLeave(e.Id(amqp_service.id)))
         amqp.sendEvent(goodbye)
-    
+
         # Shutdown plugins
         PluginRegistry.shutdown()
 

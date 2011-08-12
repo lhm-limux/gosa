@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 """
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
+The *ClientCommandRegistry* is responsible for knowing what kind of commands
+are available for the client. It works together with the
+:class:`gosa.common.components.registry.PluginRegistry` and inspects
+all loaded plugins for methods marked with the
+:meth:`gosa.common.components.command.Command` decorator. All available
+information like *method path*, *command name*, *documentation* and
+*signature* are recorded and are available for users
+via the :meth:`gosa.agent.plugins.goto.client_service.ClientService.clientDispatch` method
+(or better with the several proxies) and the CLI.
 
- ID: $$Id: command.py 612 2010-08-16 09:21:44Z cajus $$
-
- This is the zeroconf provider module.
-
- See LICENSE for more information about the licensing.
+-------
 """
 import re
 import string
@@ -21,6 +24,10 @@ from gosa.common import Environment
 
 
 class ClientCommandRegistry(object):
+    """
+    This class covers the registration and invocation of methods
+    imported thru plugins.
+    """
     implements(IInterfaceHandler)
     _priority_ = 2
     commands = {}
@@ -28,13 +35,6 @@ class ClientCommandRegistry(object):
     proxy = {}
 
     def __init__(self):
-        """
-        Construct a new ClientCommandRegistry instance based on the configuration
-        stored in the environment.
-
-        @type env: Environment
-        @param env: L{Environment} object
-        """
         env = Environment.getInstance()
         env.log.debug("initializing command registry")
         self.env = env
@@ -60,23 +60,20 @@ class ClientCommandRegistry(object):
         """
         The dispatch method will try to call the specified function and
         checks for user and queue. Additionally, it carries the call to
-        it's really destination (function types, cummulative results) and
+        it's really destination (function types, cumulative results) and
         does some sanity checks.
 
         Handlers like JSONRPC or AMQP should use this function to
         dispatch the real calls.
 
-        @type func: str
-        @param func: the method name
+        ========== ============
+        Parameter  Description
+        ========== ============
+        func       method to call
+        args       ordinary argument list/dict
+        ========== ============
 
-        @type arg: var
-        @param arg: list of function parameters
-
-        @type larg: var
-        @param larg: dict of named function parameters
-
-        @rtype: var
-        @return: the real methods result
+        ``Return:`` the real methods result
         """
 
         # Do we have this method?
@@ -100,10 +97,12 @@ class ClientCommandRegistry(object):
         """
         Converts the call path (class.method) to the method itself
 
-        @type path: str
-        @param path: method path including the class
+        ========== ============
+        Parameter  Description
+        ========== ============
+        path       method path including the class
+        ========== ============
 
-        @rtype: str
-        @result: the method name
+        ``Return:`` the method name
         """
         return string.rsplit(path, '.')
