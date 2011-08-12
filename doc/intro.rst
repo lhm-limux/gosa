@@ -434,7 +434,7 @@ PHP GOsa and the agent - which acts as a replacement for *gosa-si*.
    Describe what needs to be done for PHP GOsa <-> GOsa agent communication
 
 
-Concepts
---------
+Design overview
+---------------
 
 **TODO**: graphics, text, etc.
