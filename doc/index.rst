@@ -51,7 +51,7 @@ in the new core. And - finally - this documentation is growing on the way to 3.0
 
 .. reqlist::
 
-**Topics:**
+**Contents:**
 
 .. toctree::
    :maxdepth: 3

@@ -7,7 +7,7 @@ this will be the right place to go.
 
 ---------------------
 
-**Topics:**
+**Contents:**
 
 .. toctree::
    :maxdepth: 2

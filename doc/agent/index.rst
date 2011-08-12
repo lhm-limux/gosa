@@ -6,7 +6,7 @@ Agent
 
 -------------------------
 
-Topics:
+**Contents:**
 
 .. toctree::
    :maxdepth: 2

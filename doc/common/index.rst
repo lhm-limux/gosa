@@ -6,7 +6,7 @@ The GOsa *common* library
 
 ------------
 
-Topics:
+**Contents:**
 
 .. toctree::
    :maxdepth: 2

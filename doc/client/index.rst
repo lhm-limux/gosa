@@ -6,7 +6,7 @@ Client
 
 -------------------------
 
-Topics:
+**Contents:**
 
 .. toctree::
    :maxdepth: 2
