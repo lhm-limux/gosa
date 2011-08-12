@@ -32,7 +32,7 @@ class AMQPServiceProxy(object):
     workers         Number of workers to allocate for processing
     =============== ============
 
-    The AMQPService proxy creates an AMQP *reply to* queue, which
+    The AMQPService proxy creates a temporary AMQP *reply to* queue, which
     is used for command results.
     """
     worker = {}

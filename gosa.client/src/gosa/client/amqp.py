@@ -1,14 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
 
- ID: $$Id: amqp.py 1057 2010-10-08 10:03:03Z cajus $$
-
- This modules hosts AMQP related classes.
-
- See LICENSE for more information about the licensing.
-"""
 import re
 import time
 from urlparse import urlparse

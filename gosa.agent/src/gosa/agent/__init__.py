@@ -49,6 +49,8 @@ exposing functionality to the outside world. Here are some of them:
 This happens automatically depending on what's registered on the
 ``[gosa.modules]`` setuptools entrypoint.
 
+The agent will send a **NodeLeave** event when shutting down.
+
 If you're looking for documentation on how to write plugins, please take a look
 at the :ref:`Plugin section<plugins>`.
 

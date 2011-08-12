@@ -30,6 +30,8 @@ exposing functionality to the outside world. Here are some of them:
 This happens automatically depending on what's registered on the
 ``[gosa_client.modules]`` setuptools entrypoint.
 
+The client will send a **ClientLeave** event when shutting down.
+
 If you're looking for documentation on how to write plugins, please take a look
 at the :ref:`Plugin section<plugins>`.
 
@@ -65,6 +67,10 @@ has a couple of command line arguments:
    :status: todo
 
    Describe the init script / default usage
+
+.. note::
+
+   On windows the binary is called *gcs*.
 
 """
 __version__ = __import__('pkg_resources').get_distribution('gosa.client').version
