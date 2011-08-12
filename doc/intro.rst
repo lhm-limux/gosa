@@ -415,6 +415,24 @@ client inside the activated virtual environment::
 
   $ gosa-client -f
 
+Integration with PHP GOsa
+"""""""""""""""""""""""""
+
+The *GOsa agent* and *GOsa client* setup may be ok for playing around, but
+as of GOsa 2.7 you can configure an active communication between the ordinary
+PHP GOsa and the agent - which acts as a replacement for *gosa-si*.
+
+.. warning::
+
+   While the GOsa agent series are under heavy development, it is recommended
+   to try with GOsa 2.7 trunk. You should be aware of not beeing able to replace
+   all gosa-si functionality in the moment.
+
+.. requirement::
+   :status: todo
+
+   Describe what needs to be done for PHP GOsa <-> GOsa agent communication
+
 
 Concepts
 --------
