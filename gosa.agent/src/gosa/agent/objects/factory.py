@@ -13,19 +13,18 @@ oriented way. You can create, read, update and delete objects easily.
 What object-types are avaialable is configured using XML files, these files
 are located here: ``./gosa.common/src/gosa/common/data/objects/``.
 
-Each XML file can contain multiple object definitions. They contain all
-object related information, like attributes, methods, how to store and read
+Each XML file can contain multiple object definitions, with object related
+information, like attributes, methods, how to store and read
 objects.
 
 (For a detailed documentation of the of XML files, please have a look at the
 ./doc directory)
 
-A python meta-class will be created for each of these definition, whenever
-an object is requested using the object-factory. Those meta-classes will then
-be used to instantiate a new python object, which will then provide the defined
-attributes, methods, aso.
+A python meta-class will be created for each object-definition.
+Those meta-classes will then be used to instantiate a new python object,
+which will then provide the defined attributes, methods, aso.
 
-Here are some exmples on how to instatiate on new object:
+Here are some examples on how to instatiate on new object:
 
 >>> from gosa.agent.objects import GOsaObjectFactory
 >>> person = f.getObjectInstance('Person', "410ad9f0-c4c0-11e0-962b-0800200c9a66")
@@ -33,8 +32,6 @@ Here are some exmples on how to instatiate on new object:
 >>> person->sn = "Surname"
 >>> person->commit()
 
-The object factory takes care of caching, forwarding changes to the right
-backend and input validation.
 
 """
 
@@ -85,9 +82,9 @@ class GOsaObjectFactory(object):
         self.__parser = objectify.makeparser(schema=schema)
 
         # Load and parse schema
-        self.load_schema(path)
+        self.loadSchema(path)
 
-    def load_schema(self, path):
+    def loadSchema(self, path):
         """
         This method reads all gosa-object defintion files and then calls
         :meth:`gosa.agent.objects.factory.GOsaObjectFactory.getObjectInstance`
@@ -121,8 +118,10 @@ class GOsaObjectFactory(object):
         """
         Returns a GOsa-object instance.
 
-        e.g.
+        e.g.:
+
         >>> person = f.getObjectInstance('Person', "410ad9f0-c4c0-11e0-962b-0800200c9a66")
+
         """
         if not name in self.__classes:
             self.__classes[name] = self.__build_class(name)
@@ -665,9 +664,9 @@ class GOsaObject(object):
 
             # A filter may have changed a properties name, we now update the
             # properties list to use correct indicies.
-            self.updatePropertyNames()
+            self.__updatePropertyNames()
 
-    def updatePropertyNames(self):
+    def __updatePropertyNames(self):
         """
         Synchronizes property names and their indices in the self.__properties
         list.
@@ -807,7 +806,7 @@ class GOsaObject(object):
 
         # A filter may have changed a properties name, we now update the
         # properties list to use correct indicies.
-        self.updatePropertyNames()
+        self.__updatePropertyNames()
 
     def __processValidator(self, fltr, key, value):
         """
@@ -877,7 +876,7 @@ class GOsaObject(object):
         """
 
         # Search for replaceable patterns in the process-list.
-        fltr = self.fillInPlaceholders(fltr)
+        fltr = self.__fillInPlaceholders(fltr)
 
         # This is our process-line pointer it points to the process-list line
         #  we're executing at the moment
@@ -940,7 +939,7 @@ class GOsaObject(object):
 
         return key, value
 
-    def fillInPlaceholders(self, fltr):
+    def __fillInPlaceholders(self, fltr):
         """
         This method fill in placeholder into in- and out-filters.
         """
