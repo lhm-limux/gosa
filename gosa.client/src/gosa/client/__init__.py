@@ -4,30 +4,18 @@ Overview
 ========
 
 The *client* module bundles the client daemon and a couple code modules
-needed to run it. The agent itself is meant to be extended by plugins
+needed to run it. The client itself is meant to be extended by plugins
 using the :class:`gosa.common.components.plugin.Plugin` interface.
-When starting up the system, the agent looks for plugins in the setuptools
+When starting up the system, the client looks for plugins in the setuptools
 system and registers them into to the :class:`gosa.common.components.registry.PluginRegistry`.
-The same happens for objects in :class:`gosa.common.components.objects.ObjectRegistry`.
 
 After the *PluginRegistry* is ready with loading the modules, it orders
-them by priority and tries to determine whether it is
+them by priority and loads them in sorted order.
 
- * an ordinary plugin
- * a dbus plugin
+The client is now in a state where it enters the main loop by sending
+an AMQP ``ClientAnnounce`` event to be recognized by agents.
 
-Modules marked with the *IInterfaceHandler* interface provide a *serve*
-method which is instantly called in this case. Modules like i.e. a
-AMQP handler or an HTTP service can start their own threads and
-start processing what ever they need to process. When the service
-shuts down, the method *stop* is called and the module has the chance
-to cleanly shut down the process.
-
-The agent is now in a state where it enters the main loop by sending
-AMQP ``NodeStatus`` events from time to time, joining threads and waiting
-to be stopped.
-
-To provide real services an ordinary agent will load a couple of modules
+To provide services an ordinary client will load a couple of modules
 exposing functionality to the outside world. Here are some of them:
 
  * :class:`gosa.client.command.CommandRegistry` inspects all loaded modules
@@ -40,23 +28,37 @@ exposing functionality to the outside world. Here are some of them:
 
 
 This happens automatically depending on what's registered on the
-``[gosa.modules]`` setuptools entrypoint.
+``[gosa_client.modules]`` setuptools entrypoint.
 
 If you're looking for documentation on how to write plugins, please take a look
 at the :ref:`Plugin section<plugins>`.
 
-Using the binary
-================
+Joining clients
+===============
 
-The gosa-agent binary gets installed when you run the setup process. It
+Before a GOsa client can connect to the AMQP bus, it needs to be known to
+the infrastructure - which is done by *joining* the client. The process
+of joining is like joining a windows client to a domain: you need someone
+with adequate permission to do that.
+
+While the *gosa-join* binary will do this for you, it is possible to extend
+it to use i.e. a graphical join dialog. At present, we provide a ncurses
+and a readline based join mechanism. More can be added using the setuptools
+``gosa_join.modules`` entrypoint. For more information, take a look at the
+:mod:`gosa.client.join` and :class:`gosa.client.plugins.join.join_method` documentation.
+
+Using the binaries
+==================
+
+The gosa-client binary gets installed when you run the setup process. It
 has a couple of command line arguments:
 
-    .. program-output::  gosa-agent --help
+    .. program-output::  gosa-client --help
        :prompt:
 
 .. note::
 
-   Take a look at the :ref:`quickstart <quickstart>` to see how the agent is
+   Take a look at the :ref:`quickstart <quickstart>` to see how the client is
    controlled.
 
 .. requirement::
