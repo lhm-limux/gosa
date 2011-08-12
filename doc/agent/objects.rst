@@ -1,3 +1,5 @@
+.. _objects:
+
 .. automodule:: gosa.agent.objects
    :members:
 

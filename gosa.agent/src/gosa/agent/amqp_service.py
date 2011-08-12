@@ -142,7 +142,7 @@ class AMQPService(object):
         information.
 
         ================= ==========================
-        Name              Direction
+        Parameter         Description
         ================= ==========================
         ssn               AMQP session object
         message           Received AMQP message

@@ -83,7 +83,7 @@ setup(
         gosa-agent.amqp_service = gosa.agent.amqp_service:AMQPService
         gosa-agent.httpd = gosa.agent.httpd:HTTPService
         gosa-agent.jsonrpc_service = gosa.agent.jsonrpc_service:JSONRPCService
-        gosa-agent.jsonrpc_om = gosa.agent.jsonrpc_service:JSONRPCObjectMapper
+        gosa-agent.jsonrpc_om = gosa.agent.jsonrpc_objects:JSONRPCObjectMapper
         gosa-agent.plugins.samba.utils = gosa.agent.plugins.samba.utils:SambaUtils
         gosa-agent.plugins.misc.utils = gosa.agent.plugins.misc.utils:MiscUtils
         gosa-agent.plugins.gravatar.utils = gosa.agent.plugins.gravatar.utils:GravatarUtils

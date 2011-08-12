@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-This code is part of GOsa (http://www.gosa-project.org)
-Copyright (C) 2009, 2010 GONICUS GmbH
+The GOsa agent includes a *LDAPHandler* class and a couple of utilities
+make LDAP connections a little bit easier to use.
 
-ID: $$Id: ldap_utils.py 997 2010-09-28 15:09:46Z cajus $$
-
-See LICENSE for more information about the licensing.
+------
 """
 import ldapurl
 import ldap.sasl
@@ -15,7 +13,57 @@ from gosa.common import Environment
 
 
 class LDAPHandler(object):
+    """
+    The LDAPHandler provides a connection pool with automatically reconnecting
+    LDAP connections and is accessible thru the
+    :meth:`gosa.agent.ldap_utils.LDAPHandler.get_instance` method.
 
+    Example::
+
+        >>> from gosa.agent.ldap_utils import LDAPHandler
+        >>> from ldap.filter import filter_format
+        >>> lh = LDAPHandler.get_instance()
+        >>> uuid = 'you-will-not-find-anything'
+        >>> with lh.get_handle() as con:
+        ...     res = con.search_s(lh.get_base(),
+        ...         ldap.SCOPE_SUBTREE,
+        ...         filter_format("(&(objectClass=device)(uuid=%s))", uuid),
+        ...         ['deviceStatus'])
+        ...
+
+    This example uses the connection manager *get_handle* to retrieve and free
+    a LDAP connection. **Please note that you've to release a LDAP connection
+    after you've used it.**
+
+    The *LDAPHandler* creates connections based on what's configured in the
+    ``[ldap]`` section of the GOsa configuration files. Here's a list of valid
+    keywords:
+
+    ============== =============
+    Key            Description
+    ============== =============
+    url            LDAP URL to connect to
+    bind_dn        DN to connect with
+    bind_secret    Password to connect with
+    pool_size      Number of parallel connections in the pool
+    retry_max      How often a connection should be tried after the service is considered dead
+    retry_delay    Time delta on which to try a reconnection
+    ============== =============
+
+    Example::
+
+        [ldap]
+        url = ldap://ldap.example.net/dc=example,dc=net
+        bind_dn = cn=manager,dc=example,dc=net
+        bind_secret = secret
+        pool_size = 10
+
+    .. warning::
+
+        The *LDAPHandler* should not be used for ordinary object handling, because there's
+        an object abstraction layer which does related things automatically.
+        See `Object abstraction <objects>`_.
+    """
     connection_handle = []
     connection_usage  = []
     instance = None
@@ -40,9 +88,19 @@ class LDAPHandler(object):
         LDAPHandler.connection_usage = [False] * self.__pool
 
     def get_base(self):
+        """
+        Return the configured base DN.
+
+        ``Return``: base DN
+        """
         return self.__url.dn
 
     def get_connection(self):
+        """
+        Get a new connection from the pool.
+
+        ``Return``: LDAP connection
+        """
         # Are there free connections in the pool?
         try:
             next_free = LDAPHandler.connection_usage.index(False)
@@ -90,11 +148,26 @@ class LDAPHandler(object):
         return LDAPHandler.connection_handle[next_free]
 
     def free_connection(self, conn):
+        """
+        Free an allocated pool connection to make it available for others.
+
+        ================= ==========================
+        Parameter         Description
+        ================= ==========================
+        conn              Allocated LDAP connection
+        ================= ==========================
+        """
         index = LDAPHandler.connection_handle.index(conn)
         LDAPHandler.connection_usage[index] = False
 
     @contextmanager
     def get_handle(self):
+        """
+        Context manager which is meant to be used with the :meth:`with` statement.
+        For an example see above.
+
+        ``Return``: LDAP connection
+        """
         conn = self.get_connection()
         try:
             yield conn
@@ -103,11 +176,29 @@ class LDAPHandler(object):
 
     @staticmethod
     def get_instance():
+        """
+        Singleton for *LDAPHandler* objects. Return the instance.
+
+        ``Return``: LDAPHandler instance
+        """
         if not LDAPHandler.instance:
             LDAPHandler.instance = LDAPHandler()
         return LDAPHandler.instance
 
+
 def map_ldap_value(value):
+    """
+    Method to map various data into LDAP compatible values. Maps
+    bool values to TRUE/FALSE and unicode values to be 'utf-8' encoded.
+
+    ================= ==========================
+    Parameter         Description
+    ================= ==========================
+    value             data to be prepared for LDAP
+    ================= ==========================
+
+    ``Return``: adapted dict
+    """
     if type(value) == types.BooleanType:
         return "TRUE" if value else "FALSE"
     if type(value) == types.UnicodeType:
@@ -116,10 +207,34 @@ def map_ldap_value(value):
         return map(lambda x: map_ldap_value(x), value)
     return value
 
+
 def unicode2utf8(data):
+    """
+    Method to map unicode strings to utf-8.
+
+    ================= ==========================
+    Parameter         Description
+    ================= ==========================
+    data              string or list to convert
+    ================= ==========================
+
+    ``Return``: adapted data
+    """
     return map_ldap_value(data)
 
+
 def normalize_ldap(data):
+    """
+    Convert *single values* to lists.
+
+    ================= ==========================
+    Parameter         Description
+    ================= ==========================
+    data              input string or list
+    ================= ==========================
+
+    ``Return``: adapted data
+    """
     if type(data) != types.ListType:
         return [data]
 

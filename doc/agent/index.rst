@@ -14,6 +14,6 @@ Topics:
    command
    amqp
    http
-   jsonrpc
    ldap
+   jsonrpc
    objects
