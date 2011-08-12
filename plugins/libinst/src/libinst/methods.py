@@ -684,7 +684,7 @@ class InstallMethod(object):
         """
         return None
 
-    def getBootParams(self):
+    def getBootParams(self, device_uuid, mac=None):
         """
         Return boot parameters needed for that install method.
 

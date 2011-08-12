@@ -24,6 +24,7 @@ import ldap
 import platform
 import datetime
 
+from base64 import encodestring as encode
 from types import StringTypes, DictType, ListType
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -1595,7 +1596,7 @@ class RepositoryManager(Plugin):
 
         # Load config parameters
         if c_method:
-            conf_m = self.install_method_reg[c_method]()
+            conf_m = self.install_method_reg[c_method]
             params += conf_m.getBootParams(device_uuid)
 
         # Check device status before returning anything
@@ -1604,10 +1605,11 @@ class RepositoryManager(Plugin):
 
         # Append device key if available
         if "deviceKey" in data:
-            params.append("svc_key=%s" % data["deviceKey"][0])
+            params.append("svc_key=%s" % encode(data["deviceKey"][0]))
 
         #TODO: for non DNS/zeroconf setups, it might be a good idea to
         #      send a connection URI, too
+        print params
 
         return " ".join(params)
 
