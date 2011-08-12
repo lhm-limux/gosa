@@ -13,8 +13,8 @@ There are additional modules to be installed that are not part of
 distributions - usually. Please install them via 'pip' into your virtual
 environment:
 
-$ pip install sphinxcontrib.spelling sphinxcontrib.email \
-      sphinxcontrib.programoutput sphinxcontrib.requirements
+$ pip install sphinxcontrib-spelling sphinxcontrib-email \
+      sphinxcontrib-programoutput sphinxcontrib-requirements
 
 -----------------------------------------------------------------------------
 
@@ -32,7 +32,7 @@ For LaTeX based (PDF) documentation, run:
 
 $ make latex
 $ cd _build/latex
-$ make allpdf
+$ make all-pdf
 
 The resulting PDF file will be placed in the current directory.
 
@@ -54,7 +54,7 @@ so we can quickly locate these issues.
 
 Spell checking:
 
-In order to let sphinx scheck your wording after adding new documentation,
+In order to let sphinx check your wording after adding new documentation,
 please run
 
 $ sphinx-build -b spelling . _spell; less _spell/output.txt
