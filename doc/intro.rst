@@ -428,11 +428,39 @@ PHP GOsa and the agent - which acts as a replacement for *gosa-si*.
    to try with GOsa 2.7 trunk. You should be aware of not beeing able to replace
    all gosa-si functionality in the moment.
 
-.. requirement::
-   :status: todo
+Connect GOsa 2.7 with the GOsa-agent
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-   Describe what needs to be done for PHP GOsa <-> GOsa agent communication
+To connection the web-based GOsa with the GOsa-agent you have to adjust the configuration slightly.
 
+There are two ways to do so, the first is to update the GOsa 2.7 configuration file directly 
+``/etc/gosa/gosa.conf`` to include the following lines:
+
+.. code-block:: xml
+
+    <main
+    ...
+        <location 
+            ...
+            gosaRpcPassword="secret"
+            gosaRpcServer="https://gosa-agent-server:8080/rpc"
+            gosaRpcUser="amqp"
+
+
+The other way would be to configure these properties inside of GOsa using the ``preferences`` plugin.
+
+Select the ``preferences`` plugin from the menu and then read and accept the warning message.
+
+.. image:: images/gosa_setup_rpc_1.png
+
+Then click on the filter rules and select "All properties" to show all properties, even unused.
+Then enter ``rpc`` in the search-filter input box, to only show rpc related options, only three options should 
+be left in the list below. 
+Now adjust the values of these properties to match your setup and click ``apply`` on the bottom of the page.
+
+.. image:: images/gosa_setup_rpc_2.png
+
+That is all, you may only need to relog into the GOsa gui.
 
 Design overview
 ---------------
