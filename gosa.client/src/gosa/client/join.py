@@ -1,15 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
-
- ID: $$Id: amqp_service.py 1006 2010-09-30 12:43:58Z cajus $$
-
- This modules hosts AMQP service related classes.
-
- See LICENSE for more information about the licensing.
-"""
 import signal
 import sys
 import re

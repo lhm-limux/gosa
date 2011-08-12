@@ -1,15 +1,4 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
-
- ID: $$Id: amqp_service.py 1006 2010-09-30 12:43:58Z cajus $$
-
- This modules hosts AMQP service related classes.
-
- See LICENSE for more information about the licensing.
-"""
 import sys
 import time
 import re
@@ -33,7 +22,20 @@ from base64 import b64decode
 t = gettext.translation('messages', resource_filename("gosa.client", "locale"), fallback=True)
 _ = t.ugettext
 
+
 class join_method(object):
+    """
+    There are several ways to present the join process, that are
+
+     * CLI
+     * Curses
+
+    in the moment. By implementing the :class:`gosa.client.plugins.join.methods.join_method` interface,
+    new ones (i.e. graphical) can simply be added. The resulting modules have to be
+    registerd in the setuptools ``[gosa_join.modules]`` section.
+
+    The **priority** class member is used to order the join methods.
+    """
     _url = None
     _need_config_refresh = False
     priority = None
@@ -220,15 +222,35 @@ class join_method(object):
             self.env.log.info("using service '%s'" % txtRecord)
             self._url = txtRecord
 
-    def start_gui(self):
-        pass
-
-    def end_gui(self):
-        pass
-
     def show_error(self, error):
-        pass
+        """
+        *show_error* is the function used to show messages to the user. It
+        needs to be implemented.
+
+        ========== ============
+        Parameter  Description
+        ========== ============
+        error      The error string
+        ========== ============
+        """
+        raise NotImplemented("show_error not implemented")
+
+    def join_dialog(self):
+        """
+        This dialog presents the join dialog aquiring the username
+        and the password of a person capable to join the client. It
+        must call the :meth:`gosa.client.plugins.join.methods.join_method.join`
+        method and loop until success or abort itself.
+        """
+        raise NotImplemented("join_dialog not implemented")
 
     @staticmethod
     def available():
+        """
+        This method can check if the current method is available
+        on the system. It is used to avoid that i.e. a framebuffer
+        dialog will show up when there's no framebuffer.
+
+        ``Returns``: True if available
+        """
         return False
