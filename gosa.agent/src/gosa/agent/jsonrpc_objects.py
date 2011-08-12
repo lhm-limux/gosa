@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-...
-"""
 import uuid
 from types import MethodType
 from gosa.common import Environment
@@ -11,7 +8,24 @@ from gosa.common.utils import N_
 
 class JSONRPCObjectMapper(object):
     """
-    Plugin to map jsonrpc object manager
+    The *JSONRPCObjectMapper* is a GOsa agent plugin that implements a stack
+    which can handle object instances. These can be passed via JSONRPC using
+    the *__jsonclass__* helper attribute and allows remote proxies to emulate
+    the object on the stack. The stack can hold objects that have been
+    retrieved by their *OID* using the :class:`gosa.common.components.objects.ObjectRegistry`.
+
+    Example::
+
+        >>> from gosa.common.components import AMQPServiceProxy
+        >>> # Create connection to service
+        >>> proxy = AMQPServiceProxy('amqps://admin:secret@amqp.example.net/org.gosa')
+        >>> pm = proxy.openObject('libinst.diskdefinition')
+        >>> pm.getDisks()
+        []
+        >>> proxy.closeObject(str(pm))
+        >>>
+
+    This will indirectly use the object mapper on the agent side.
     """
     _target_ = 'core'
 
@@ -23,6 +37,16 @@ class JSONRPCObjectMapper(object):
 
     @Command(__help__=N_("Close object and remove it from stack"))
     def closeObject(self, ref):
+        """
+        Close an object by its reference. This will free the object on
+        the agent side.
+
+        ================= ==========================
+        Parameter         Description
+        ================= ==========================
+        ref               UUID / object reference
+        ================= ==========================
+        """
         if not ref in JSONRPCObjectMapper.__store:
             raise ValueError("reference %s not found" % ref)
 
@@ -30,6 +54,17 @@ class JSONRPCObjectMapper(object):
 
     @Command(__help__=N_("Set property for object on stack"))
     def setObjectProperty(self, ref, name, value):
+        """
+        Set a property on an existing stack object.
+
+        ================= ==========================
+        Parameter         Description
+        ================= ==========================
+        ref               UUID / object reference
+        name              Property name
+        value             Property value
+        ================= ==========================
+        """
         if not ref in JSONRPCObjectMapper.__store:
             raise ValueError("reference %s not found" % ref)
         if not name in JSONRPCObjectMapper.__store[ref]['properties']:
@@ -43,6 +78,18 @@ class JSONRPCObjectMapper(object):
 
     @Command(__help__=N_("Get property from object on stack"))
     def getObjectProperty(self, ref, name):
+        """
+        Get a property of an existing stack object.
+
+        ================= ==========================
+        Parameter         Description
+        ================= ==========================
+        ref               UUID / object reference
+        name              Property name
+        ================= ==========================
+
+        ``Return``: mixed
+        """
         if not ref in JSONRPCObjectMapper.__store:
             raise ValueError("reference %s not found" % ref)
         if not name in JSONRPCObjectMapper.__store[ref]['properties']:
@@ -56,6 +103,19 @@ class JSONRPCObjectMapper(object):
 
     @Command(__help__=N_("Call method from object on stack"))
     def dispatchObjectMethod(self, ref, method, *args):
+        """
+        Call a member method of the referenced object.
+
+        ================= ==========================
+        Parameter         Description
+        ================= ==========================
+        ref               UUID / object reference
+        method            Method name
+        args              Arguments to pass to the method
+        ================= ==========================
+
+        ``Return``: mixed
+        """
         if not ref in JSONRPCObjectMapper.__store:
             raise ValueError("reference %s not found" % ref)
         if not method in JSONRPCObjectMapper.__store[ref]['methods']:
@@ -69,6 +129,20 @@ class JSONRPCObjectMapper(object):
 
     @Command(__help__=N_("Instantiate object and place it on stack"))
     def openObject(self, oid, *args, **kwargs):
+        """
+        Open object on the agent side. This creates an instance on the
+        stack and returns an a JSON description of the object and it's
+        values.
+
+        ================= ==========================
+        Parameter         Description
+        ================= ==========================
+        oid               OID of the object to create
+        args/kwargs       Arguments to be used when getting an object instance
+        ================= ==========================
+
+        ``Return``: JSON encoded object description
+        """
         if not self.__can_oid_be_handled_locally(oid):
             proxy = self.__get_proxy_by_oid(oid)
             return proxy.openObject(oid, *args)
@@ -103,10 +177,10 @@ class JSONRPCObjectMapper(object):
         return result
 
     def __get_object_type(self, oid):
-        if not oid in ObjectRegistry.objects:
+        if not oid in ObjectRegistry._objects:
             raise ValueError("Unknown object OID %s" % oid)
 
-        return ObjectRegistry.objects[oid]['object']
+        return ObjectRegistry._objects[oid]['object']
 
     def __inspect(self, clazz):
         methods = []
@@ -128,10 +202,9 @@ class JSONRPCObjectMapper(object):
                 JSONRPCObjectMapper.__store[ref]['oid'])
 
     def __can_oid_be_handled_locally(self, oid):
-        cr = PluginRegistry.getInstance('CommandRegistry')
-        if not oid in cr.objects:
+        if not oid in ObjectRegistry._objects:
             raise ValueError("Unknown object OID %s" % oid)
-        return oid in ObjectRegistry.objects
+        return oid in ObjectRegistry._objects
 
     def __get_proxy(self, ref):
         return self.__get_proxy_by_oid(
@@ -144,7 +217,7 @@ class JSONRPCObjectMapper(object):
 
         # Get first match that is a provider for this object
         for provider in nodes.keys():
-            if provider in cr.objects[oid]:
+            if provider in ObjectRegistry._objects[oid]:
                 break
 
         if not provider in self.__proxy:
