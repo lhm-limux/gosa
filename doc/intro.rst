@@ -451,14 +451,14 @@ The other way would be to configure these properties inside of GOsa using the ``
 
 Select the ``preferences`` plugin from the menu and then read and accept the warning message.
 
-.. image:: images/gosa_setup_rpc_1.png
+.. image:: _static/images/gosa_setup_rpc_1.png
 
 Then click on the filter rules and select "All properties" to show all properties, even unused.
 Then enter ``rpc`` in the search-filter input box, to only show rpc related options, only three options should 
 be left in the list below. 
 Now adjust the values of these properties to match your setup and click ``apply`` on the bottom of the page.
 
-.. image:: images/gosa_setup_rpc_2.png
+.. image:: _static/images/gosa_setup_rpc_2.png
 
 That is all, you may only need to relog into the GOsa gui.
 
