@@ -1,4 +1,43 @@
 # -*- coding: utf-8 -*-
+"""
+
+GOsa Object Factory
+===================
+
+Short description
+^^^^^^^^^^^^^^^^^
+
+The object factory provides access to backend-data in an object
+oriented way. You can create, read, update and delete objects easily.
+
+What object-types are avaialable is configured using XML files, these files
+are located here: ``./gosa.common/src/gosa/common/data/objects/``.
+
+Each XML file can contain multiple object definitions. They contain all
+object related information, like attributes, methods, how to store and read
+objects.
+
+(For a detailed documentation of the of XML files, please have a look at the
+./doc directory)
+
+A python meta-class will be created for each of these definition, whenever
+an object is requested using the object-factory. Those meta-classes will then
+be used to instantiate a new python object, which will then provide the defined
+attributes, methods, aso.
+
+Here are some exmples on how to instatiate on new object:
+
+>>> from gosa.agent.objects import GOsaObjectFactory
+>>> person = f.getObjectInstance('Person', "410ad9f0-c4c0-11e0-962b-0800200c9a66")
+>>> print person->sn
+>>> person->sn = "Surname"
+>>> person->commit()
+
+The object factory takes care of caching, forwarding changes to the right
+backend and input validation.
+
+"""
+
 import pkg_resources
 import os
 import time
@@ -9,7 +48,6 @@ from gosa.agent.objects.backend.registry import ObjectBackendRegistry, loadAttrs
 from gosa.agent.objects.filter import get_filter
 from gosa.agent.objects.comparator import get_comparator
 from gosa.agent.objects.operator import get_operator
-
 
 # Map XML base types to python values
 TYPE_MAP = {
@@ -30,7 +68,9 @@ STATUS_CHANGED = 1
 
 class GOsaObjectFactory(object):
     """
-    TESTER!"§
+    This class reads GOsa-object defintions and generates python-meta classes
+    for each object, which can then be instantiated using
+    :meth:`gosa.agent.objects.factory.GOsaObjectFactory.getObjectInstance`.
     """
     __xml_defs = {}
     __classes = {}
@@ -49,7 +89,12 @@ class GOsaObjectFactory(object):
 
     def load_schema(self, path):
         """
-        This is a test
+        This method reads all gosa-object defintion files and then calls
+        :meth:`gosa.agent.objects.factory.GOsaObjectFactory.getObjectInstance`
+        to initiate the parsing into meta-classes for each file.
+
+        These meta-classes are used for object instantiation later.
+
         """
         path = pkg_resources.resource_filename('gosa.common', 'data/objects')
 
@@ -58,8 +103,11 @@ class GOsaObjectFactory(object):
             self.__parse_schema(os.path.join(path, f))
 
     def __parse_schema(self, path):
-
-        # Load and validate objects
+        """
+        Parses a schema file using the 
+        :meth:`gosa.agent.objects.factory.GOsaObjectFactory.__parser`
+        method.
+        """
         try:
             xml = objectify.fromstring(open(path).read(), self.__parser)
             self.__xml_defs[str(xml.Object['Name'][0])] = xml
@@ -70,12 +118,28 @@ class GOsaObjectFactory(object):
 
     #@Command()
     def getObjectInstance(self, name, *args, **kwargs):
+        """
+        Returns a GOsa-object instance.
+
+        e.g.
+        >>> person = f.getObjectInstance('Person', "410ad9f0-c4c0-11e0-962b-0800200c9a66")
+        """
         if not name in self.__classes:
             self.__classes[name] = self.__build_class(name)
 
         return self.__classes[name](*args, **kwargs)
 
     def __build_class(self, name):
+        """
+        This method builds a meta-class for each object defintion read from the
+        xml defintion files.
+
+        It uses a base-meta-class which will be extended by the define
+        attributes and mehtods of the object.
+
+        The final meta-class will be stored and can then be requested using:
+        :meth:`gosa.agent.objects.factory.GOsaObjectFactory.getObjectInstance`
+        """
         class klass(GOsaObject):
 
             def __init__(me, *args, **kwargs):
@@ -266,8 +330,17 @@ class GOsaObjectFactory(object):
 
     def __build_filter(self, element, out=None):
         """
-        Converts an XML etree element into a process list.
-        This list can then be easily executed line by line for each property.
+        Attributes of GOsa objects can be filtered using in- and out-filters.
+        These filters can manipulate the raw-values while they are read form
+        the backend or they can manipulate values that have to be written to
+        the backend.
+
+        This method converts the read XML filter-elements of the defintion into
+        a process lists. This list can then be easily executed line by line for
+        each property, using the method:
+
+        :meth:`gosa.agent.objects.factory.GOsaObject.__processFilter`
+
         """
 
         # Parse each <FilterChain>, <Condition>, <ConditionChain>
@@ -498,7 +571,19 @@ class GOsaObjectFactory(object):
 
 
 class GOsaObject(object):
-    # This may contain some useful stuff later on
+    """
+    This class is the base class for all GOsa-objects.
+
+    It contains a getter and setter methods for the objects
+    attributes and it is able to initialize itself by reading data from
+    backends.
+
+    It also contains the ability to execute the in- and out-filters for the
+    object properties.
+
+    All meta-classes for GOsa-objects, created by the XML defintions, will inherit this class.
+
+    """
     _reg = None
     _backend = None
     uuid = None
@@ -510,6 +595,14 @@ class GOsaObject(object):
             self._read(dn)
 
     def _read(self, dn):
+        """
+        This method tries to initialize a GOsa-object instance by reading data
+        from the defined backend.
+
+        Attributes will be grouped by their backend to ensure that only one
+        request per backend will be performed.
+
+        """
 
         # Instantiate Backend-Registry
         self._reg = ObjectBackendRegistry.getInstance()
@@ -580,7 +673,7 @@ class GOsaObject(object):
         list.
 
         This makes sense after execution of an in-filter. The in-filter may has
-        changed a properties now, but did not change its index in the
+        changed a properties name, but did not change its index in the
         self.__properties list.
         """
         new_props = {}
@@ -591,6 +684,14 @@ class GOsaObject(object):
         self.__dict__['__properties'] = new_props
 
     def _setattr_(self, name, value):
+
+        """
+        This is the setter method for GOsa-object attributes.
+        Each given attribute value is validated with the given set of
+        validators.
+
+
+        """
 
         # Store non property values
         try:
@@ -631,6 +732,11 @@ class GOsaObject(object):
             raise AttributeError("no such property '%s'" % name)
 
     def _getattr_(self, name):
+        """
+        The getter method GOsa-object attributes.
+
+        (It differentiates between GOsa-object attributes and class-members)
+        """
         props = getattr(self, '__properties')
         methods = getattr(self, '__methods')
 
@@ -644,6 +750,10 @@ class GOsaObject(object):
             raise AttributeError("no such property '%s'" % name)
 
     def getAttrType(self, name):
+        """
+        Return the type of a given GOsa-object attribute.
+        """
+
         props = getattr(self, '__properties')
         if name in props:
             return props[name]['type']
@@ -651,6 +761,10 @@ class GOsaObject(object):
         raise AttributeError("no such property '%s'" % name)
 
     def commit(self):
+        """
+        Commits changes of an GOsa-object to the corresponding backends.
+        """
+
         props = getattr(self, '__properties')
 
         # Collect value by store and process the property filters
@@ -684,7 +798,7 @@ class GOsaObject(object):
 
     def revert(self):
         """
-        Reverts all property changes made in this object since it was loaded.
+        Reverts all changes made to this object since it was loaded.
         """
         props = getattr(self, '__properties')
         for key in props:
@@ -698,6 +812,8 @@ class GOsaObject(object):
     def __processValidator(self, fltr, key, value):
         """
         This method processes a given process-list (fltr) for a given property (prop).
+        And return TRUE if the value matches the validator set and FALSE if
+        not.
         """
 
         # This is our process-line pointer it points to the process-list line
@@ -756,7 +872,7 @@ class GOsaObject(object):
         """
         This method processes a given process-list (fltr) for a given property (prop).
         For example: When a property has to be stored in the backend, it will
-         run through the process list and thus will be transformed into a storable
+         run through the out-filter-process-list and thus will be transformed into a storable
          key, value pair.
         """
 
@@ -825,6 +941,9 @@ class GOsaObject(object):
         return key, value
 
     def fillInPlaceholders(self, fltr):
+        """
+        This method fill in placeholder into in- and out-filters.
+        """
 
         # Collect all property values
         propList = {}
@@ -847,8 +966,14 @@ class GOsaObject(object):
         return fltr
 
     def delete(self):
+        """
+        Removes this object.
+        """
         #TODO:
         print "--> built in delete method"
 
     def _del_(self):
+        """
+        Internal cleanup method ...
+        """
         print "--> cleanup"
