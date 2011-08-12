@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-...
+The JSONRPC implementation consists of a GOsa agent plugin (*JSONRPCService*)
+and a WSGI application (*JsonRpcApp*). The first is implemented as a handler
+plugin, so it is going to be invoked on agent startup. It takes care of
+registering the WSGI application to the
+:class:`gosa.agent.httpd.HTTPService`.
+
+------
 """
 import sys
 import traceback
@@ -19,7 +25,27 @@ from gosa.common.components import Command, PluginRegistry, ObjectRegistry, \
 
 
 class JSONRPCService(object):
-    """ GOsa JSON-RPC provider, registriert die jsonrpc app """
+    """
+    This is the JSONRPC GOsa agent plugin which is registering an
+    instance of :class:`gosa.agent.jsonrpc_service.JsonRpcApp` into the
+    :class:`gosa.agent.httpd.HTTPService`.
+
+    It is configured thru the ``[jsonrpc]`` section of your GOsa
+    configuration:
+
+    =============== ============
+    Key             Description
+    =============== ============
+    path            Path to register the service in HTTP
+    cookie-lifetime Seconds of authentication cookie lifetime
+    =============== ============
+
+    Example::
+
+        [jsonrpc]
+        path = /rpc
+        cookie-lifetime = 3600
+    """
     implements(IInterfaceHandler)
     _priority_ = 11
 
@@ -32,6 +58,8 @@ class JSONRPCService(object):
         self.path = self.env.config.get('jsonrpc.path', default="/rpc")
 
     def serve(self):
+        """ Start JSONRPC service for this GOsa service provider. """
+
         # Get http service instance
         self.__http = PluginRegistry.getInstance('HTTPService')
         cr = PluginRegistry.getInstance('CommandRegistry')
@@ -51,12 +79,16 @@ class JSONRPCService(object):
         self.__zeroconf.publish()
 
     def stop(self):
+        """ Stop serving the JSONRPC service for this GOsa service provider. """
         self.env.log.debug("shutting down JSON RPC service provider")
         self.__http.app.unregister(self.path)
 
 
 class JsonRpcApp(object):
-    """ WSGI JSON service """
+    """
+    This is the WSGI application wich is responsible for serving the
+    :class:`gosa.agent.command.CommandRegistry` via HTTP/JSONRPC.
+    """
 
     # Simple authentication saver
     __session = {}
@@ -76,6 +108,19 @@ class JsonRpcApp(object):
         return resp(environ, start_response)
 
     def process(self, req, environ):
+        """
+        Process an incoming JSONRPC request and dispatch it thru the
+        *CommandRegistry*.
+
+        ================= ==========================
+        Parameter         Description
+        ================= ==========================
+        req               Incoming Request
+        environ           WSGI environment
+        ================= ==========================
+
+        ``Return``: varries
+        """
         if not req.method == 'POST':
             raise exc.HTTPMethodNotAllowed(
                 "Only POST allowed",
@@ -238,5 +283,17 @@ class JsonRpcApp(object):
                             id=id)))
 
     def authenticate(self, user=None, password=None):
+        """
+        Use the AMQP connection to authenticate the incoming HTTP request.
+
+        ================= ==========================
+        Parameter         Description
+        ================= ==========================
+        user              User name to authenticate with
+        password          Password
+        ================= ==========================
+
+        ``Return``: True on success
+        """
         amqp = PluginRegistry.getInstance('AMQPHandler')
         return amqp.checkAuth(user, password)
