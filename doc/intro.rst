@@ -428,23 +428,21 @@ PHP GOsa and the agent - which acts as a replacement for *gosa-si*.
    to try with GOsa 2.7 trunk. You should be aware of not beeing able to replace
    all gosa-si functionality in the moment.
 
-Connect GOsa 2.7 with the GOsa-agent
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------
 
 To connection the web-based GOsa with the GOsa-agent you have to adjust the configuration slightly.
-
 There are two ways to do so, the first is to update the GOsa 2.7 configuration file directly 
 ``/etc/gosa/gosa.conf`` to include the following lines:
 
 .. code-block:: xml
 
-    <main
-    ...
+    <main>
+    	...
         <location 
-            ...
             gosaRpcPassword="secret"
             gosaRpcServer="https://gosa-agent-server:8080/rpc"
-            gosaRpcUser="amqp"
+            gosaRpcUser="amqp"/>
+    </main>
 
 
 The other way would be to configure these properties inside of GOsa using the ``preferences`` plugin.
