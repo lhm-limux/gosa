@@ -61,8 +61,10 @@ in the new core. And - finally - this documentation is growing on the way to 3.0
    common/index
    agent/index
    client/index
+   dbus/index
    shell/index
    plugins/index
+   packaging
    license
 
 Indices and tables
