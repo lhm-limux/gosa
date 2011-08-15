@@ -99,6 +99,8 @@ preseed/url=https://amqp.intranet.gonicus.de:8080/preseed/de-ad-d9-57-56-d5 debi
         result = FileStat()
         if path == self.root:
             pass
+        elif os.path.exists(os.sep.join((static, path))):
+            result = os.stat(os.sep.join((static, path)))
         else:
             result.st_mode = stat.S_IFREG | 0666
             result.st_nlink = 1
@@ -115,39 +117,27 @@ preseed/url=https://amqp.intranet.gonicus.de:8080/preseed/de-ad-d9-57-56-d5 debi
         direntries=[ '.', '..' ]
         if os.path.exists(os.sep.join((static, path))):
             direntries.extend(os.listdir(os.sep.join((static, path))))
-        if self.filesystem[path].keys():
+        elif self.filesystem[path].keys():
             direntries.extend(self.filesystem[path].keys())
-        #else:
-        #    # Note use of path[1:] to strip the leading '/'
-        #    # from the path, so we just get the printer name
-        #    dirents.extend(self.printers[path[1:]])
         for directory in direntries:
             yield fuse.Direntry(directory)
 
     def getContent(self, path, size, offset):
         result = ""
-        if getDepth(path) > 1:
-            print "Depth for path %s: %i " % (path, getDepth(path))
-            pass
-        else:
-            if os.path.exists(os.sep.join((static, path))):
-                with open(os.sep.join((static, path))) as f:
-                    f.seek(offset)
-                    result = f.read(size)
-            elif path.lstrip(os.sep) in self.filesystem[self.root].keys():
-                result = str(self.filesystem[self.root][path.lstrip(os.sep)]["content"])[offset:offset+size]
+        if os.path.exists(os.sep.join((static, path))):
+            with open(os.sep.join((static, path))) as f:
+                f.seek(offset)
+                result = f.read(size)
+        elif path.lstrip(os.sep) in self.filesystem[self.root].keys():
+            result = str(self.filesystem[self.root][path.lstrip(os.sep)]["content"])[offset:offset+size]
         return result
 
     def getSize(self, path):
         result = 0
-        if getDepth(path) > 1:
-            print "Depth for path %s: %i " % (path, getDepth(path))
-            pass
-        else:
-            if os.path.exists(os.sep.join((static, path))):
-                result = os.path.getsize(os.sep.join((static, path)))
-            elif path.lstrip(os.sep) in self.filesystem[self.root].keys():
-                result = len(str(self.filesystem[self.root][path.lstrip(os.sep)]["content"]))
+        if os.path.exists(os.sep.join((static, path))):
+            result = os.path.getsize(os.sep.join((static, path)))
+        elif path.lstrip(os.sep) in self.filesystem[self.root].keys():
+            result = len(str(self.filesystem[self.root][path.lstrip(os.sep)]["content"]))
         return result
 
 
