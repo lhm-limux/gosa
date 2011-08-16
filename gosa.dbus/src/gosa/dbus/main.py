@@ -1,14 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
-
- ID: $$Id: main.py 869 2010-09-07 08:04:08Z cajus $$
-
- See LICENSE for more information about the licensing.
-"""
-
 import os
 import sys
 import logging
@@ -21,7 +12,7 @@ import dbus.mainloop.glib
 from gosa.common import Environment
 from gosa.dbus import __version__ as VERSION
 from gosa.common.components.registry import PluginRegistry
-from gosa.dbus.utils import get_system_bus
+from gosa.dbus import get_system_bus
 
 loop = None
 
