@@ -1,13 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
-
- ID: $$Id: main.py 1050 2010-10-08 06:55:44Z cajus $$
-
- See LICENSE for more information about the licensing.
-"""
 import os
 import sys
 import logging

@@ -1,14 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
-
- ID: $$Id: utils.py 1208 2010-10-21 11:40:16Z cajus $$
-
- This is part of the samba module and provides some utilities.
-
- See LICENSE for more information about the licensing.
-"""
 import smbpasswd
 
 from gosa.common.components import Command
@@ -30,4 +20,15 @@ class SambaUtils(Plugin):
     @Command(__help__=N_("Generate samba lm:nt hash combination "+
         "from the supplied password."))
     def mksmbhash(self, password):
+        """
+        Generate samba lm:nt hash combination.
+
+        ========== ============
+        Parameter  Description
+        ========== ============
+        password   Password to hash
+        ========== ============
+
+        ``Return:`` lm:nt hash combination
+        """
         return '%s:%s' % smbpasswd.hash(password)

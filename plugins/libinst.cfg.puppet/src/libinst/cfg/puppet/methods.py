@@ -1,14 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
-
- ID: $$Id: methods.py 1264 2010-10-22 12:28:49Z janw $$
-
- This is the groupware interface class.
-
- See LICENSE for more information about the licensing.
-"""
 import os.path
 import pwd
 import shutil

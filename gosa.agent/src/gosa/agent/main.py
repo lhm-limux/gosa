@@ -1,21 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
-
- This is the main file of the GOsa AMQP agent. This agent (aka node)
- presents one instance inside of the GOsa networking bus. It provides
- these features:
-
- - Provides the basic environment to work with logging and configs
- - AMQP bindings to org.gosa.command.core queues
- - AMQP bindings to the org.gosa.event topics
- - a HTTP JSON RPC to AMQP proxy
- - Forking and threading of workers
-
- See LICENSE for more information about the licensing.
-"""
 import os
 import sys
 import logging

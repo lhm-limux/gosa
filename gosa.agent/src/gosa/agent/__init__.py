@@ -42,7 +42,7 @@ exposing functionality to the outside world. Here are some of them:
    which is extended by :class:`gosa.agent.httpd.HTTPDispatcher` to let
    interested modules hook into a HTTP path if desired.
 
- * :class:`gosa.agent.jsonrpc_servce.JSONRPCService` uses the HTTPDispatcher
+ * :class:`gosa.agent.jsonrpc_service.JSONRPCService` uses the HTTPDispatcher
    to provide the */rpc* URL with JSONRPC capabilities. It exposes all
    methods decorated by @Command.
 

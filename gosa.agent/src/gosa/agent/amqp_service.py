@@ -5,6 +5,8 @@ bus, registers the required queues, listens for commands on that queues
 and dispatches incoming commands to the
 :class:`gosa.agent.command.CommandRegistry`.
 
+.. _agent-queues:
+
 **Queues**
 
 In order to use features like round robin and automatic routing of commands

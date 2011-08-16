@@ -1,12 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
 
- ID: $$Id: manage.py 486 2010-08-10 07:21:33Z cajus $$
-
- See LICENSE for more information about the licensing.
-"""
 
 class DistributionHandler(object):
     def createDistribution(self, session, name, mirror=None):

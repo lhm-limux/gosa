@@ -1,14 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010, 2011 GONICUS GmbH
-
- ID: $$Id: fts.py 487 2011-08-10 07:34:06Z cajus $$
-
- See LICENSE for more information about the licensing.
-"""
-
 from gosa.common import Environment
 from gosa.common.components import AMQPServiceProxy
 

@@ -1,12 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
-
- ID: $$Id: main.py 1242 2010-10-22 06:58:29Z janw $$
-
- See LICENSE for more information about the licensing.
-"""
 import string
 import os
 import sys

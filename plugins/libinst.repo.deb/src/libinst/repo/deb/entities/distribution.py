@@ -1,12 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
-
- ID: $$Id: repository.py 1264 2010-10-22 12:28:49Z janw $$
-
- See LICENSE for more information about the licensing.
-"""
 import gettext
 import os
 import select

@@ -2,7 +2,7 @@ import dbus.service
 import subprocess
 from gosa.common import Environment
 from gosa.common.components import Plugin
-from gosa.dbus.utils import get_system_bus
+from gosa.dbus import get_system_bus
 
 
 class DBusWakeOnLanHandler(dbus.service.Object, Plugin):
@@ -17,6 +17,6 @@ class DBusWakeOnLanHandler(dbus.service.Object, Plugin):
     def wakeOnLan(self, mac):
         p = subprocess.Popen([r"wakeonlan", mac])
         p.wait()
-        # return exit code, unfortunately wakeonlan returns 0 
+        # return exit code, unfortunately wakeonlan returns 0
         # even when an error occurs :(
         return p.returncode

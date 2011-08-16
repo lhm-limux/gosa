@@ -1,7 +1,7 @@
 import dbus.service
 from gosa.common import Environment
 from gosa.common.components import Plugin
-from gosa.dbus.utils import get_system_bus
+from gosa.dbus import get_system_bus
 
 
 class DBusShellHandler(dbus.service.Object, Plugin):

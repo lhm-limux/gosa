@@ -200,6 +200,10 @@ latex_documents = [
 spelling_word_list_filename = 'words.txt'
 spelling_show_suggestions = True
 
+man_pages = [
+        ('index', 'GOsa', 'Test manual page for complete documentation', 'Cajus Pollmeier <pollmeier@gonicus.de>', '8')
+        ]
+
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'python': ('http://docs.python.org/3.2', None),
         'libinst': ('http://amqp.intranet.gonicus.de:8082/', None)}
