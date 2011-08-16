@@ -1,12 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
-
- ID: $$Id: manage.py 1277 2010-10-22 14:31:42Z janw $$
-
- See LICENSE for more information about the licensing.
-"""
 # pylint: disable=E0611
 from pkg_resources import resource_filename
 

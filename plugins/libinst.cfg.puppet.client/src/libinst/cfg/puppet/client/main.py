@@ -1,15 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
-
- ID: $$Id: client.py 976 2010-09-27 12:48:05Z cajus $$
-
- This is the Event object. It constructs events to be sent thru the
- org.gosa.event topics.
-
- See LICENSE for more information about the licensing.
-"""
 import re
 import os
 import dbus

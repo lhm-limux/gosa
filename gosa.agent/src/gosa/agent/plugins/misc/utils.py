@@ -1,14 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
-
- ID: $$Id: utils.py 1208 2010-10-21 11:40:16Z cajus $$
-
- This is part of the samba module and provides some utilities.
-
- See LICENSE for more information about the licensing.
-"""
 from unidecode import unidecode
 from gosa.common.components import Command
 from gosa.common.components import Plugin

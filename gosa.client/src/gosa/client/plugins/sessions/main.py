@@ -1,14 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
-
- ID: $$Id: utils.py 612 2010-08-16 09:21:44Z cajus $$
-
- This is part of the samba module and provides some utilities.
-
- See LICENSE for more information about the licensing.
-"""
 import gobject
 import pwd
 import dbus.glib

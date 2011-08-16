@@ -1,14 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
-
- ID: $$Id: utils.py 313 2010-07-06 16:37:18Z sommer $$
-
- This is part of the samba module and provides some utilities.
-
- See LICENSE for more information about the licensing.
-"""
 import dbus
 from gosa.common.components import Plugin
 from gosa.common.components import Command
@@ -17,7 +7,7 @@ from gosa.common import Environment
 
 class PowerManagement(Plugin):
     """
-    Utility class that contains methods needed to handle shutdown 
+    Utility class that contains methods needed to handle shutdown
     functionality.
     """
     _target_ = 'powermanagement'

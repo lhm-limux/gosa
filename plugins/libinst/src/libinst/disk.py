@@ -1,10 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2010, 2011 GONICUS GmbH
-
- See LICENSE for more information about the licensing.
-"""
 import re
 import itertools
 from gosa.common.components.registry import PluginRegistry

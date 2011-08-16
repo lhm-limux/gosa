@@ -1,15 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
-
- ID: $$Id: network.py 1208 2010-10-21 11:40:16Z cajus $$
-
- This plugin is part of the GOto functionality. It provides
- helper to handle machines.
-
- See LICENSE for more information about the licensing.
-"""
 import socket
 import dumbnet
 from telnetlib import Telnet

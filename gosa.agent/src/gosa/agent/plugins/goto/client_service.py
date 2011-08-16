@@ -1,14 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
- This code is part of GOsa (http://www.gosa-project.org)
- Copyright (C) 2009, 2010 GONICUS GmbH
-
- ID: $$Id: client_service.py 1179 2010-10-19 13:14:07Z cajus $$
-
- This modules hosts GOto client related classes.
-
- See LICENSE for more information about the licensing.
-"""
 import re
 import os
 import string
