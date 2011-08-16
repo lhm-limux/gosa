@@ -172,4 +172,6 @@ $ ./setup.py develop
 
 ---
 {p_name} <{p_email}>
-""".format(p_clazz=p_clazz, line="-"*len(p_clazz + " README"), p_email=p_email, p_name=p_name))
+""".format(p_clazz=p_clazz, line="-"*len(p_clazz + " README"), p_email=a_email, p_name=a_name, p_type=p_type))
+
+print("Done. Please check out the '%s' directory." % name)
