@@ -47,22 +47,44 @@ Here's the resulting directory structure::
 .. toctree::
    :maxdepth: 2
 
-   agent
-   client
-   dbus
+   agent/index
+   client/index
+   dbus/index
 
 Plugins
 =======
 
-This section contains documentation to available GOsa plugins. These may
+This section contains documentation for available GOsa plugins. These may
 come as standalone plugins or may be included in the core GOsa modules.
 If you find missing plugins, please send patches to these documentation files.
+
+Agent plugins
+-------------
 
 .. toctree::
    :maxdepth: 2
 
-   goto
-   gravatar
-   libinst
-   misc
-   samba
+   agent/goto
+   agent/gravatar
+   agent/libinst
+   agent/misc
+   agent/samba
+
+Client plugins
+--------------
+
+.. toctree::
+   :maxdepth: 2
+
+   agent/goto
+   agent/libinst
+
+
+DBUS plugins
+------------
+
+.. toctree::
+   :maxdepth: 2
+
+   agent/goto
+   agent/libinst

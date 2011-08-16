@@ -6,7 +6,7 @@ This is a quick hack. Make me pretty.
 import re
 import os
 
-
+#TODO: proper input validation
 print("Generate plugin skeleton. Please provide some information:\n")
 name = raw_input("Plugin name (must be [a-z][a-z0-9]+): ")
 p_type = raw_input("Plugin type (agent, client, dbus): ")
@@ -26,6 +26,9 @@ os.makedirs(os.path.join(base_path, "tests"))
 mod = "gosa.modules" if p_type == "agent" else "gosa_%s.modules" % p_type
 req = "gosa.%s" % p_type
 p_clazz = "%sPlugin" % name.lower().capitalize()
+
+#TODO: dbus plugins are different
+#TODO: gosa agent handler plugins are different
 
 # Write setup.py
 with open(os.path.join(name, "setup.py"), "w") as f:

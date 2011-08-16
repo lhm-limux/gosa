@@ -20,4 +20,15 @@ class SambaUtils(Plugin):
     @Command(__help__=N_("Generate samba lm:nt hash combination "+
         "from the supplied password."))
     def mksmbhash(self, password):
+        """
+        Generate samba lm:nt hash combination.
+
+        ========== ============
+        Parameter  Description
+        ========== ============
+        password   Password to hash
+        ========== ============
+
+        ``Return:`` lm:nt hash combination
+        """
         return '%s:%s' % smbpasswd.hash(password)
