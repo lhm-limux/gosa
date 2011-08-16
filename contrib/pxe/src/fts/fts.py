@@ -41,7 +41,7 @@ static=os.getcwd()+'/pxelinux.static'
 
 # Create connection to service
 #try:
-#    proxy = AMQPServiceProxy('amqps://ldapadmin:secret@amqp.intranet.gonicus.de/org.gosa')
+#    proxy = AMQPServiceProxy('amqps://cajus:tester@amqp.intranet.gonicus.de/org.gosa')
 #    print proxy.systemGetBootParams(None, 'de:ad:d9:57:56:d5')
 #except:
 #    raise
@@ -78,6 +78,8 @@ class FileStat(fuse.Stat):
         self.st_ctime = self.st_atime
 
 class PxeFS(Fuse):
+    _target_ = 'fts'
+
     def __init__(self, *args, **kw):
         Fuse.__init__(self, *args, **kw)
         self.root = os.sep
@@ -86,6 +88,9 @@ class PxeFS(Fuse):
                 "content": "",
             }
         }
+        Environment.config="fts.conf"
+        Environment.noargs=True
+        env = Environment.getInstance()
 
         for testclient in testclients.keys():
             self.filesystem[self.root]= { testclient : { "content" : r'''vga=normal initrd=debian-installer/i386/initrd.gz
@@ -109,9 +114,6 @@ preseed/url=https://amqp.intranet.gonicus.de:8080/preseed/de-ad-d9-57-56-d5 debi
 
     def read(self, path, size, offset):
         return self.getContent(path, size, offset)
-
-    def flush(self, filehandle=None):
-        return 0
 
     def readdir(self, path, offset):
         direntries=[ '.', '..' ]
@@ -154,7 +156,7 @@ Userspace tftp supplicant: create pxelinux configuration files based on external
     # Disable multithreading: if you want to use it, protect all method of
     # XmlFile class with locks, in order to prevent race conditions
     server.multithreaded = False
-    server.parser.add_option(mountopt="root", metavar="PATH", default='/', help="mirror filesystem from under PATH [default: %default]")
+    server.parser.add_option(mountopt="root", metavar="PATH", default=os.sep, help="mirror filesystem from under PATH [default: %default]")
     server.parse(values=server, errex=1)
 
     try:
