@@ -17,3 +17,4 @@ POSIX
 PHP
 zeroconf
 QPID
+qpid
