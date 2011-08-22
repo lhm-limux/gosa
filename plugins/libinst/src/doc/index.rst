@@ -1,6 +1,8 @@
 Welcome to the libinst documentation!
 =====================================
 
+.. _libinst:
+
 text
 
 ---------------------
