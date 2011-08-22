@@ -1,5 +1,5 @@
-Concept: Puppet Integration in GOsa-NG
-======================================
+Puppet
+======
 
 This chapter explains the way `Puppet <http://www.puppetlabs.com/>`_ is integrated
 in the libinst GOsa plugin.
@@ -48,7 +48,10 @@ This command would result in a push of the recent source of the distinct client 
 
 In case of mirroring of repositories, there are several possibilities, for example writing a post-commit hook to execute automated push actions for selected repositories or groups of repositories.
 
-**TODO list** as of 2010/08/30: wie wird sowas angelegt, was macht die agent-Komponente, etc.
+.. requirement::
+   :status: todo
+
+   Describe what the components do
 
 When creating branches of the repository, the server takes care of managing different releases by evaluating a release.info file which is residing in the root of each branch.
 
@@ -81,11 +84,3 @@ Handling of puppet recipes within the release management
 
 Implementation for InstallationItems
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-     .. toctree::
-        :glob:
-
-        report=true
-        reportdir=/var/log/puppet
-        reports=store
-
