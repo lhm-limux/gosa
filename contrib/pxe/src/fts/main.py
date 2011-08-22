@@ -24,18 +24,11 @@ if not hasattr(fuse, '__version__'):
         "your fuse-py doesn't know of fuse.__version__, probably it's too old."
 
 fuse.feature_assert('stateful_files', 'has_init')
-
 macaddress = re.compile("^[0-9a-f]{1,2}-[0-9a-f]{1,2}-[0-9a-f]{1,2}-[0-9a-f]{1,2}-[0-9a-f]{1,2}-[0-9a-f]{1,2}$")
-
-testclients = {
-    "de:ad:d9:57:56:d5": "install"
-}
-
 static=os.getcwd()+'/pxelinux.static'
 
 # Create connection to service
 proxy = AMQPServiceProxy('amqps://cajus:tester@amqp.intranet.gonicus.de/org.gosa')
-#print proxy.systemGetBootParams(None, 'de:ad:d9:57:56:d5')
 
 def getDepth(path):
     """
@@ -82,6 +75,7 @@ class PxeFS(Fuse):
         Environment.config="fts.conf"
         Environment.noargs=True
         env = Environment.getInstance()
+        self.positive_cache_timeout = 10
 
     def getattr(self, path):
         result = FileStat()
@@ -90,8 +84,6 @@ class PxeFS(Fuse):
         elif os.path.exists(os.sep.join((static, path))):
             result = os.stat(os.sep.join((static, path)))
         else:
-            if macaddress.match(path[4:]):
-                address = path[4:].replace('-', ':')
             result.st_mode = stat.S_IFREG | 0666
             result.st_nlink = 1
             result.st_size = self.getSize(path)
@@ -116,21 +108,28 @@ class PxeFS(Fuse):
                 f.seek(offset)
                 result = f.read(size)
         elif macaddress.match(path[4:]):
-            # Need to transform /01-00-00-00-00-00-00 into 00:00:00:00:00:00
-            result = str(proxy.systemGetBootParams(None, path[4:].replace('-', ':')))[offset:offset+size]
-            print result
+            result = self.getBootParams(path)[offset:offset+size]
         elif path.lstrip(os.sep) in self.filesystem[self.root].keys():
-            result = str(self.filesystem[self.root][path.lstrip(os.sep)]["content"])[offset:offset+size]
+            result = str(self.filesystem[self.root][path.lstrip(os.sep)]['content'])[offset:offset+size]
         return result
 
     def getSize(self, path):
         result = 0
         if os.path.exists(os.sep.join((static, path))):
             result = os.path.getsize(os.sep.join((static, path)))
+        elif macaddress.match(path[4:]):
+            result = len(self.getBootParams(path))
         elif path.lstrip(os.sep) in self.filesystem[self.root].keys():
-            result = len(str(self.filesystem[self.root][path.lstrip(os.sep)]["content"]))
+            result = len(str(self.filesystem[self.root][path.lstrip(os.sep)]['content']))
         return result
 
+    def getBootParams(self, path):
+        # Need to transform /01-00-00-00-00-00-00 into 00:00:00:00:00:00
+        if not path in self.filesystem[self.root].keys() or self.filesystem[self.root][path]['timestamp'] < int(time()) - int(self.positive_cache_timeout):
+            self.filesystem[self.root][path] = {}
+            self.filesystem[self.root][path]['content'] = str(proxy.systemGetBootParams(None, path[4:].replace('-', ':')))
+            self.filesystem[self.root][path]['timestamp'] = time()
+        return self.filesystem[self.root][path]['content']
 
 def main():
     usage = """
