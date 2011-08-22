@@ -1,0 +1,155 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Samba &mdash; GOsa v3.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/requirements.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="GOsa v3.0 documentation" href="../../index.html" />
+    <link rel="up" title="Plugin development" href="../index.html" />
+    <link rel="next" title="GOto" href="goto.html" />
+    <link rel="prev" title="Misc plugins" href="misc.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="goto.html" title="GOto"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="misc.html" title="Misc plugins"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="../../development.html" >Development documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Plugin development</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="samba">
+<h1>Samba<a class="headerlink" href="#samba" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="gosa.agent.plugins.samba.utils.SambaUtils">
+<em class="property">class </em><tt class="descclassname">gosa.agent.plugins.samba.utils.</tt><tt class="descname">SambaUtils</tt><a class="headerlink" href="#gosa.agent.plugins.samba.utils.SambaUtils" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility class that contains methods needed to handle samba
+functionality.</p>
+<dl class="method">
+<dt id="gosa.agent.plugins.samba.utils.SambaUtils.mksmbhash">
+<tt class="descname">mksmbhash</tt><big>(</big><em>password</em><big>)</big><a class="headerlink" href="#gosa.agent.plugins.samba.utils.SambaUtils.mksmbhash" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Generate samba lm:nt hash combination.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="38%" />
+<col width="62%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>password</td>
+<td>Password to hash</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> lm:nt hash combination</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="misc.html"
+                        title="previous chapter">Misc plugins</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="goto.html"
+                        title="next chapter">GOto</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/plugins/agent/samba.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="goto.html" title="GOto"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="misc.html" title="Misc plugins"
+             >previous</a> |</li>
+        <li><a href="../../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="../../development.html" >Development documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Plugin development</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Cajus Pollmeier.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,202 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Command registry &mdash; GOsa v3.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/requirements.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="GOsa v3.0 documentation" href="../index.html" />
+    <link rel="up" title="Client" href="index.html" />
+    <link rel="next" title="AMQP service" href="amqp.html" />
+    <link rel="prev" title="Client" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="amqp.html" title="AMQP service"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Client"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="../development.html" >Development documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Client</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-gosa.client.command">
+<span id="command-registry"></span><h1>Command registry<a class="headerlink" href="#module-gosa.client.command" title="Permalink to this headline">¶</a></h1>
+<p>The <em>ClientCommandRegistry</em> is responsible for knowing what kind of commands
+are available for the client. It works together with the
+<a class="reference internal" href="../common/components.html#gosa.common.components.registry.PluginRegistry" title="gosa.common.components.registry.PluginRegistry"><tt class="xref py py-class docutils literal"><span class="pre">gosa.common.components.registry.PluginRegistry</span></tt></a> and inspects
+all loaded plugins for methods marked with the
+<a class="reference internal" href="../common/components.html#gosa.common.components.command.Command" title="gosa.common.components.command.Command"><tt class="xref py py-meth docutils literal"><span class="pre">gosa.common.components.command.Command()</span></tt></a> decorator. All available
+information like <em>method path</em>, <em>command name</em>, <em>documentation</em> and
+<em>signature</em> are recorded and are available for users
+via the <tt class="xref py py-meth docutils literal"><span class="pre">gosa.agent.plugins.goto.client_service.ClientService.clientDispatch()</span></tt> method
+(or better with the several proxies) and the CLI.</p>
+<hr class="docutils" />
+<dl class="class">
+<dt id="gosa.client.command.ClientCommandRegistry">
+<em class="property">class </em><tt class="descclassname">gosa.client.command.</tt><tt class="descname">ClientCommandRegistry</tt><a class="headerlink" href="#gosa.client.command.ClientCommandRegistry" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class covers the registration and invocation of methods
+imported thru plugins.</p>
+<dl class="method">
+<dt id="gosa.client.command.ClientCommandRegistry.dispatch">
+<tt class="descname">dispatch</tt><big>(</big><em>func</em>, <em>*arg</em>, <em>**larg</em><big>)</big><a class="headerlink" href="#gosa.client.command.ClientCommandRegistry.dispatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>The dispatch method will try to call the specified function and
+checks for user and queue. Additionally, it carries the call to
+it&#8217;s really destination (function types, cumulative results) and
+does some sanity checks.</p>
+<p>Handlers like JSONRPC or AMQP should use this function to
+dispatch the real calls.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="27%" />
+<col width="73%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>func</td>
+<td>method to call</td>
+</tr>
+<tr><td>args</td>
+<td>ordinary argument list/dict</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> the real methods result</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.client.command.ClientCommandRegistry.getMethods">
+<tt class="descname">getMethods</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.client.command.ClientCommandRegistry.getMethods" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>List all available client commands</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.client.command.ClientCommandRegistry.path2method">
+<tt class="descname">path2method</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#gosa.client.command.ClientCommandRegistry.path2method" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the call path (class.method) to the method itself</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="76%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>path</td>
+<td>method path including the class</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> the method name</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Client</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="amqp.html"
+                        title="next chapter">AMQP service</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/client/command.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="amqp.html" title="AMQP service"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Client"
+             >previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="../development.html" >Development documentation</a> &raquo;</li>
+          <li><a href="index.html" >Client</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Cajus Pollmeier.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,219 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Shell and scripting &mdash; GOsa v3.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/requirements.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="GOsa v3.0 documentation" href="../index.html" />
+    <link rel="up" title="Development documentation" href="../development.html" />
+    <link rel="next" title="Plugins" href="../plugins/index.html" />
+    <link rel="prev" title="DBUS integration" href="../dbus/index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../plugins/index.html" title="Plugins"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../dbus/index.html" title="DBUS integration"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="../development.html" accesskey="U">Development documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="shell-and-scripting">
+<h1>Shell and scripting<a class="headerlink" href="#shell-and-scripting" title="Permalink to this headline">¶</a></h1>
+<p>While the GOsa core is all python and you can simply script complex tasks
+directly in python, there&#8217;s sometimes the need to trigger calls from
+within the ordinary shell - maybe inside a <em>bash</em> script. For that reason,
+there&#8217;s the <em>gosa-shell</em> binary, which can assist you in this case.</p>
+<div class="section" id="module-gosa.shell">
+<span id="using-the-shell"></span><h2>Using the shell<a class="headerlink" href="#module-gosa.shell" title="Permalink to this headline">¶</a></h2>
+<p>The GOsa shell can be called in different ways.</p>
+<blockquote>
+<div><ul>
+<li><p class="first">Interactive mode:</p>
+<div class="highlight-python"><pre>$ gosa-shell
+Searching service provider...
+Connected to amqps://amqp.example.net:5671/org.gosa
+Username [cajus]:
+Password:
+GOsa service shell. Use Ctrl+D to exit.
+&gt;&gt;&gt;</pre>
+</div>
+<p>The shell will automatically try to find the service by DNS
+or zeroconf and will ask for your credentials. Sometimes, you
+may need to connect a special system or even provide your
+credentials in the URI like</p>
+<div class="highlight-python"><pre>$ gosa-shell amqps://user:password@amqp.example.net/org.gosa</pre>
+</div>
+<p>but keep in mind that this will expose your credentials in the
+history, and maybe in the history or the process list.</p>
+<p>Nevertheless you&#8217;re presented a python prompt which can be used
+to get the list of commands using the <em>gosa</em> object:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">gosa</span><span class="o">.</span><span class="n">help</span><span class="p">()</span>
+<span class="go">createDistribution()</span>
+<span class="go">    Create a new distribution based on type, mirror and installation</span>
+<span class="go">    method</span>
+
+<span class="go">getTimezones(self)</span>
+<span class="go">    Get supported time zones</span>
+<span class="gp">...</span>
+</pre></div>
+</div>
+<p>The <em>gosa</em> object acts as a proxy for the commands, so you can i.e. start
+asking for the registered GOsa clients</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">gosa</span><span class="o">.</span><span class="n">getClients</span><span class="p">()</span>
+<span class="go">{u&#39;2daf7cbf-75c2-4ea3-bfec-606fe9f07051&#39;: {</span>
+<span class="go">    u&#39;received&#39;: 1313159425.0,</span>
+<span class="go">    u&#39;name&#39;: u&#39;dyn-10&#39;},</span>
+<span class="go"> u&#39;eb5e72d4-c53f-4612-81a3-602b14a8da69&#39;: {</span>
+<span class="go">     u&#39;received&#39;: 1313467229.0,</span>
+<span class="go">     u&#39;name&#39;: u&#39;ws-2&#39;},</span>
+<span class="go"> u&#39;4f0dbdaa-05de-4632-bcba-b6fe8a9e2e09&#39;: {</span>
+<span class="go">     u&#39;received&#39;: 1313463859.0,</span>
+<span class="go">     u&#39;name&#39;: u&#39;dyn-85&#39;}}</span>
+</pre></div>
+</div>
+<p>or just do simple multi-liners:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">client</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">gosa</span><span class="o">.</span><span class="n">getClients</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<span class="gp">... </span>  <span class="k">print</span> <span class="n">info</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span>
+<span class="gp">...</span>
+<span class="go">dyn-10</span>
+<span class="go">ws-2</span>
+<span class="go">dyn-85</span>
+</pre></div>
+</div>
+<p>You can leave the interactive mode by pressing &#8220;Ctrl+D&#8221;.</p>
+</li>
+<li><p class="first">CLI mode</p>
+<div class="admonition-requirement admonition " id="req-0">
+<p class="first admonition-title">Requirement</p>
+<p class="last"><em class="status todo">todo</em> Fix shell CLI mode and provide docs</p>
+</div>
+</li>
+<li><p class="first">Here document mode</p>
+<div class="admonition-requirement admonition " id="req-1">
+<p class="first admonition-title">Requirement</p>
+<p class="last"><em class="status todo">todo</em> Fix shell here document mode and provide docs</p>
+</div>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="using-the-api">
+<h2>Using the API<a class="headerlink" href="#using-the-api" title="Permalink to this headline">¶</a></h2>
+<p>Almost all parts of the API are accessible thru the command proxies or
+the event methods. Please take a look at</p>
+<blockquote>
+<div><ul class="simple">
+<li>the AMQP service proxy: <a class="reference internal" href="../common/components.html#gosa.common.components.amqp_proxy.AMQPServiceProxy" title="gosa.common.components.amqp_proxy.AMQPServiceProxy"><tt class="xref py py-class docutils literal"><span class="pre">gosa.common.components.amqp_proxy.AMQPServiceProxy</span></tt></a></li>
+<li>the HTTP/JSONRPC proxy: <a class="reference internal" href="../common/components.html#gosa.common.components.jsonrpc_proxy.JSONServiceProxy" title="gosa.common.components.jsonrpc_proxy.JSONServiceProxy"><tt class="xref py py-class docutils literal"><span class="pre">gosa.common.components.jsonrpc_proxy.JSONServiceProxy</span></tt></a></li>
+<li><a class="reference internal" href="../common/event.html#events"><em>using events</em></a></li>
+</ul>
+</div></blockquote>
+<p>for more information.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Shell and scripting</a><ul>
+<li><a class="reference internal" href="#module-gosa.shell">Using the shell</a></li>
+<li><a class="reference internal" href="#using-the-api">Using the API</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../dbus/index.html"
+                        title="previous chapter">DBUS integration</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../plugins/index.html"
+                        title="next chapter">Plugins</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/shell/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../plugins/index.html" title="Plugins"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../dbus/index.html" title="DBUS integration"
+             >previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="../development.html" >Development documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Cajus Pollmeier.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

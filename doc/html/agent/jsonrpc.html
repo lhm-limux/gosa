@@ -1,0 +1,416 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>JSON RPC service &mdash; GOsa v3.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/requirements.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="GOsa v3.0 documentation" href="../index.html" />
+    <link rel="up" title="Agent" href="index.html" />
+    <link rel="next" title="Object abstraction" href="objects.html" />
+    <link rel="prev" title="LDAP Handler" href="ldap.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="objects.html" title="Object abstraction"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ldap.html" title="LDAP Handler"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Agent</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-gosa.agent.jsonrpc_service">
+<span id="json-rpc-service"></span><h1>JSON RPC service<a class="headerlink" href="#module-gosa.agent.jsonrpc_service" title="Permalink to this headline">¶</a></h1>
+<p>The JSONRPC implementation consists of a GOsa agent plugin (<em>JSONRPCService</em>)
+and a WSGI application (<em>JsonRpcApp</em>). The first is implemented as a handler
+plugin, so it is going to be invoked on agent startup. It takes care of
+registering the WSGI application to the
+<a class="reference internal" href="http.html#gosa.agent.httpd.HTTPService" title="gosa.agent.httpd.HTTPService"><tt class="xref py py-class docutils literal"><span class="pre">gosa.agent.httpd.HTTPService</span></tt></a>.</p>
+<hr class="docutils" />
+<dl class="class">
+<dt id="gosa.agent.jsonrpc_service.JSONRPCService">
+<em class="property">class </em><tt class="descclassname">gosa.agent.jsonrpc_service.</tt><tt class="descname">JSONRPCService</tt><a class="headerlink" href="#gosa.agent.jsonrpc_service.JSONRPCService" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the JSONRPC GOsa agent plugin which is registering an
+instance of <a class="reference internal" href="#gosa.agent.jsonrpc_service.JsonRpcApp" title="gosa.agent.jsonrpc_service.JsonRpcApp"><tt class="xref py py-class docutils literal"><span class="pre">gosa.agent.jsonrpc_service.JsonRpcApp</span></tt></a> into the
+<a class="reference internal" href="http.html#gosa.agent.httpd.HTTPService" title="gosa.agent.httpd.HTTPService"><tt class="xref py py-class docutils literal"><span class="pre">gosa.agent.httpd.HTTPService</span></tt></a>.</p>
+<p>It is configured thru the <tt class="docutils literal"><span class="pre">[jsonrpc]</span></tt> section of your GOsa
+configuration:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="27%" />
+<col width="73%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>path</td>
+<td>Path to register the service in HTTP</td>
+</tr>
+<tr><td>cookie-lifetime</td>
+<td>Seconds of authentication cookie lifetime</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><pre>[jsonrpc]
+path = /rpc
+cookie-lifetime = 3600</pre>
+</div>
+<dl class="method">
+<dt id="gosa.agent.jsonrpc_service.JSONRPCService.serve">
+<tt class="descname">serve</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.agent.jsonrpc_service.JSONRPCService.serve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start JSONRPC service for this GOsa service provider.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.jsonrpc_service.JSONRPCService.stop">
+<tt class="descname">stop</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.agent.jsonrpc_service.JSONRPCService.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop serving the JSONRPC service for this GOsa service provider.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gosa.agent.jsonrpc_service.JsonRpcApp">
+<em class="property">class </em><tt class="descclassname">gosa.agent.jsonrpc_service.</tt><tt class="descname">JsonRpcApp</tt><big>(</big><em>dispatcher</em><big>)</big><a class="headerlink" href="#gosa.agent.jsonrpc_service.JsonRpcApp" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the WSGI application wich is responsible for serving the
+<a class="reference internal" href="command.html#gosa.agent.command.CommandRegistry" title="gosa.agent.command.CommandRegistry"><tt class="xref py py-class docutils literal"><span class="pre">gosa.agent.command.CommandRegistry</span></tt></a> via HTTP/JSONRPC.</p>
+<dl class="method">
+<dt id="gosa.agent.jsonrpc_service.JsonRpcApp.authenticate">
+<tt class="descname">authenticate</tt><big>(</big><em>user=None</em>, <em>password=None</em><big>)</big><a class="headerlink" href="#gosa.agent.jsonrpc_service.JsonRpcApp.authenticate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use the AMQP connection to authenticate the incoming HTTP request.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="36%" />
+<col width="64%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>user</td>
+<td>User name to authenticate with</td>
+</tr>
+<tr><td>password</td>
+<td>Password</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return</span></tt>: True on success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.jsonrpc_service.JsonRpcApp.process">
+<tt class="descname">process</tt><big>(</big><em>req</em>, <em>environ</em><big>)</big><a class="headerlink" href="#gosa.agent.jsonrpc_service.JsonRpcApp.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process an incoming JSONRPC request and dispatch it thru the
+<em>CommandRegistry</em>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="40%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>req</td>
+<td>Incoming Request</td>
+</tr>
+<tr><td>environ</td>
+<td>WSGI environment</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return</span></tt>: varries</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-gosa.agent.jsonrpc_objects">
+<span id="json-rpc-objects"></span><h1>JSON RPC objects<a class="headerlink" href="#module-gosa.agent.jsonrpc_objects" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="gosa.agent.jsonrpc_objects.JSONRPCObjectMapper">
+<em class="property">class </em><tt class="descclassname">gosa.agent.jsonrpc_objects.</tt><tt class="descname">JSONRPCObjectMapper</tt><a class="headerlink" href="#gosa.agent.jsonrpc_objects.JSONRPCObjectMapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <em>JSONRPCObjectMapper</em> is a GOsa agent plugin that implements a stack
+which can handle object instances. These can be passed via JSONRPC using
+the <em>__jsonclass__</em> helper attribute and allows remote proxies to emulate
+the object on the stack. The stack can hold objects that have been
+retrieved by their <em>OID</em> using the <a class="reference internal" href="../common/components.html#gosa.common.components.objects.ObjectRegistry" title="gosa.common.components.objects.ObjectRegistry"><tt class="xref py py-class docutils literal"><span class="pre">gosa.common.components.objects.ObjectRegistry</span></tt></a>.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">gosa.common.components</span> <span class="kn">import</span> <span class="n">AMQPServiceProxy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Create connection to service</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span> <span class="o">=</span> <span class="n">AMQPServiceProxy</span><span class="p">(</span><span class="s">&#39;amqps://admin:secret@amqp.example.net/org.gosa&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pm</span> <span class="o">=</span> <span class="n">proxy</span><span class="o">.</span><span class="n">openObject</span><span class="p">(</span><span class="s">&#39;libinst.diskdefinition&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pm</span><span class="o">.</span><span class="n">getDisks</span><span class="p">()</span>
+<span class="go">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">closeObject</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">pm</span><span class="p">))</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>This will indirectly use the object mapper on the agent side.</p>
+<dl class="method">
+<dt id="gosa.agent.jsonrpc_objects.JSONRPCObjectMapper.closeObject">
+<tt class="descname">closeObject</tt><big>(</big><em>ref</em><big>)</big><a class="headerlink" href="#gosa.agent.jsonrpc_objects.JSONRPCObjectMapper.closeObject" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Close an object by its reference. This will free the object on
+the agent side.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="40%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>ref</td>
+<td>UUID / object reference</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.jsonrpc_objects.JSONRPCObjectMapper.dispatchObjectMethod">
+<tt class="descname">dispatchObjectMethod</tt><big>(</big><em>ref</em>, <em>method</em>, <em>*args</em><big>)</big><a class="headerlink" href="#gosa.agent.jsonrpc_objects.JSONRPCObjectMapper.dispatchObjectMethod" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Call a member method of the referenced object.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="35%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>ref</td>
+<td>UUID / object reference</td>
+</tr>
+<tr><td>method</td>
+<td>Method name</td>
+</tr>
+<tr><td>args</td>
+<td>Arguments to pass to the method</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return</span></tt>: mixed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.jsonrpc_objects.JSONRPCObjectMapper.getObjectProperty">
+<tt class="descname">getObjectProperty</tt><big>(</big><em>ref</em>, <em>name</em><big>)</big><a class="headerlink" href="#gosa.agent.jsonrpc_objects.JSONRPCObjectMapper.getObjectProperty" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Get a property of an existing stack object.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="40%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>ref</td>
+<td>UUID / object reference</td>
+</tr>
+<tr><td>name</td>
+<td>Property name</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return</span></tt>: mixed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.jsonrpc_objects.JSONRPCObjectMapper.openObject">
+<tt class="descname">openObject</tt><big>(</big><em>oid</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#gosa.agent.jsonrpc_objects.JSONRPCObjectMapper.openObject" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Open object on the agent side. This creates an instance on the
+stack and returns an a JSON description of the object and it&#8217;s
+values.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>oid</td>
+<td>OID of the object to create</td>
+</tr>
+<tr><td>args/kwargs</td>
+<td>Arguments to be used when getting an object instance</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return</span></tt>: JSON encoded object description</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.jsonrpc_objects.JSONRPCObjectMapper.setObjectProperty">
+<tt class="descname">setObjectProperty</tt><big>(</big><em>ref</em>, <em>name</em>, <em>value</em><big>)</big><a class="headerlink" href="#gosa.agent.jsonrpc_objects.JSONRPCObjectMapper.setObjectProperty" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Set a property on an existing stack object.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="40%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>ref</td>
+<td>UUID / object reference</td>
+</tr>
+<tr><td>name</td>
+<td>Property name</td>
+</tr>
+<tr><td>value</td>
+<td>Property value</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">JSON RPC service</a></li>
+<li><a class="reference internal" href="#module-gosa.agent.jsonrpc_objects">JSON RPC objects</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ldap.html"
+                        title="previous chapter">LDAP Handler</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="objects.html"
+                        title="next chapter">Object abstraction</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/agent/jsonrpc.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="objects.html" title="Object abstraction"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ldap.html" title="LDAP Handler"
+             >previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Agent</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Cajus Pollmeier.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

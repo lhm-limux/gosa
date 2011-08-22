@@ -1,0 +1,222 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Plugin development &mdash; GOsa v3.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/requirements.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="GOsa v3.0 documentation" href="../index.html" />
+    <link rel="up" title="Development documentation" href="../development.html" />
+    <link rel="next" title="Agent plugins" href="agent/index.html" />
+    <link rel="prev" title="Shell and scripting" href="../shell/index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="agent/index.html" title="Agent plugins"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../shell/index.html" title="Shell and scripting"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="../development.html" accesskey="U">Development documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="plugin-development">
+<h1>Plugin development<a class="headerlink" href="#plugin-development" title="Permalink to this headline">¶</a></h1>
+<p>Basically there are four plugin types that are used inside of GOsa. Two of
+them are <em>agent</em> plugins - namely handlers and ordinary plugins, one flavor
+of <em>client</em> plugins and one flavor of <em>dbus</em> plugins.</p>
+<p id="plugins">In order to help with quick plugin templating, there&#8217;s a helper script <strong>tools/gosa-plugin-skel</strong>
+which asks a couple of questions and generates a quickstart for you:</p>
+<div class="highlight-python"><pre>$ tools/gosa-plugin-skel
+Generate plugin skeleton. Please provide some information:
+
+Plugin name (must be [a-z][a-z0-9]+): sample
+Plugin type (agent, client, dbus): agent
+Version: 1.0
+Authors name: Cajus Pollmeier
+Authors email: pollmeier@gonicus.de
+
+Done. Please check out the 'sample' directory.
+$</pre>
+</div>
+<p>Here&#8217;s the resulting directory structure:</p>
+<div class="highlight-python"><pre>$ find sample
+sample
+sample/README
+sample/setup.cfg
+sample/setup.py
+sample/src
+sample/src/gosa
+sample/src/gosa/__init__.py
+sample/src/gosa/agent
+sample/src/gosa/agent/__init__.py
+sample/src/gosa/agent/plugins
+sample/src/gosa/agent/plugins/__init__.py
+sample/src/gosa/agent/plugins/sample
+sample/src/gosa/agent/plugins/sample/locale
+sample/src/gosa/agent/plugins/sample/__init__.py
+sample/src/gosa/agent/plugins/sample/tests
+sample/src/gosa/agent/plugins/sample/main.py</pre>
+</div>
+<p><strong>Topics:</strong></p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="agent/index.html">Agent plugins</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="agent/index.html#plain-plugins">Plain plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agent/index.html#handler-plugins">Handler plugins</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="client/index.html">Client plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dbus/index.html">DBUS plugins</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="id1">
+<h1>Plugins<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>This section contains documentation for available GOsa plugins. These may
+come as standalone plugins or may be included in the core GOsa modules.
+If you find missing plugins, please send patches to these documentation files.</p>
+<div class="section" id="agent-plugins">
+<h2>Agent plugins<a class="headerlink" href="#agent-plugins" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="agent/goto.html">GOto</a></li>
+<li class="toctree-l1"><a class="reference internal" href="agent/gravatar.html">Gravatar</a></li>
+<li class="toctree-l1"><a class="reference internal" href="agent/libinst.html">libinst</a></li>
+<li class="toctree-l1"><a class="reference internal" href="agent/misc.html">Misc plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="agent/samba.html">Samba</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="client-plugins">
+<h2>Client plugins<a class="headerlink" href="#client-plugins" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="agent/goto.html">GOto</a></li>
+<li class="toctree-l1"><a class="reference internal" href="agent/libinst.html">libinst</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="dbus-plugins">
+<h2>DBUS plugins<a class="headerlink" href="#dbus-plugins" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="agent/goto.html">GOto</a></li>
+<li class="toctree-l1"><a class="reference internal" href="agent/libinst.html">libinst</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Plugin development</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#id1">Plugins</a><ul>
+<li><a class="reference internal" href="#agent-plugins">Agent plugins</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#client-plugins">Client plugins</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#dbus-plugins">DBUS plugins</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../shell/index.html"
+                        title="previous chapter">Shell and scripting</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="agent/index.html"
+                        title="next chapter">Agent plugins</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/plugins/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="agent/index.html" title="Agent plugins"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../shell/index.html" title="Shell and scripting"
+             >previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="../development.html" >Development documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Cajus Pollmeier.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

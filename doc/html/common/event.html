@@ -1,0 +1,287 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Event handling &mdash; GOsa v3.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/requirements.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="GOsa v3.0 documentation" href="../index.html" />
+    <link rel="up" title="The GOsa common library" href="index.html" />
+    <link rel="next" title="Utilities" href="utils.html" />
+    <link rel="prev" title="Logging" href="log.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="utils.html" title="Utilities"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="log.html" title="Logging"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">The GOsa <em>common</em> library</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="event-handling">
+<h1>Event handling<a class="headerlink" href="#event-handling" title="Permalink to this headline">¶</a></h1>
+<p id="events">GOsa utilizes the XML queue of <em>QPID</em>, which enables us to send and
+filter XML encoded events. Using <em>XQuery</em>, we can filter for special
+properties inside of the event description.</p>
+<p>The following two examples show how to create a standalone sender
+and receiver for a simple phone status notification - that may be used
+for whatever you can imagine.</p>
+<p>First, you need to define an event description in XML-schema style and
+place it in <tt class="docutils literal"><span class="pre">gosa/common/data/events</span></tt>:</p>
+<div class="highlight-python"><pre>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;schema targetNamespace="http://www.gonicus.de/Events" elementFormDefault="qualified"
+        xmlns="http://www.w3.org/2001/XMLSchema" xmlns:gosa="http://www.gonicus.de/Events"&gt;
+  &lt;complexType name="PhoneStatus"&gt;
+    &lt;annotation&gt;
+      &lt;documentation&gt;
+        The PhoneStatus event is emitted when the asterisk AMI
+        listener detects a status change.
+      &lt;/documentation&gt;
+    &lt;/annotation&gt;
+    &lt;all&gt;
+      &lt;element name="CallerId" type="string"&gt;&lt;/element&gt;
+      &lt;element name="ReceiverId" type="string"&gt;&lt;/element&gt;
+      &lt;element name="Status" type="string"&gt;&lt;/element&gt;
+    &lt;/all&gt;
+  &lt;/complexType&gt;
+  &lt;element name="PhoneStatus" type="gosa:PhoneStatus"&gt;&lt;/element&gt;
+&lt;/schema&gt;</pre>
+</div>
+<p>After this has been done, the GOsa agent needs to be restarted in the
+moment to reload the XSD information. Now we&#8217;ll write a receiver for
+that:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">from</span> <span class="nn">gosa.common.components</span> <span class="kn">import</span> <span class="n">AMQPEventConsumer</span>
+<span class="kn">from</span> <span class="nn">lxml</span> <span class="kn">import</span> <span class="n">etree</span>
+
+<span class="c"># Event callback</span>
+<span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pretty_print</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+
+<span class="c"># Create event consumer</span>
+<span class="n">consumer</span> <span class="o">=</span> <span class="n">AMQPEventConsumer</span><span class="p">(</span><span class="s">&quot;amqps://admin:secret@localhost/org.gosa&quot;</span><span class="p">,</span>
+            <span class="n">xquery</span><span class="o">=</span><span class="s">&quot;&quot;&quot;</span>
+<span class="s">                declare namespace f=&#39;http://www.gonicus.de/Events&#39;;</span>
+<span class="s">                let $e := ./f:Event</span>
+<span class="s">                return $e/f:PhoneStatus</span>
+<span class="s">            &quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">callback</span><span class="o">=</span><span class="n">process</span><span class="p">)</span>
+
+<span class="c"># Main loop, process threads</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">consumer</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+<span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+    <span class="k">del</span> <span class="n">consumer</span>
+    <span class="nb">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This one will connect to the AMQP service and call the <tt class="docutils literal"><span class="pre">process</span></tt> callback
+if there&#8217;s something interesting. Just start that one on one shell and
+open another one to send a signal using <a class="reference internal" href="../agent/command.html#gosa.agent.command.CommandRegistry.sendEvent" title="gosa.agent.command.CommandRegistry.sendEvent"><tt class="xref py py-meth docutils literal"><span class="pre">gosa.agent.command.CommandRegistry.sendEvent()</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">gosa.common.components</span> <span class="kn">import</span> <span class="n">AMQPServiceProxy</span>
+<span class="kn">from</span> <span class="nn">gosa.common.event</span> <span class="kn">import</span> <span class="n">EventMaker</span>
+<span class="kn">from</span> <span class="nn">lxml</span> <span class="kn">import</span> <span class="n">etree</span>
+
+<span class="c"># Connect to AMQP bus</span>
+<span class="n">proxy</span> <span class="o">=</span> <span class="n">AMQPServiceProxy</span><span class="p">(</span><span class="s">&#39;amqp://admin:secret@localhost/org.gosa&#39;</span><span class="p">)</span>
+
+<span class="c"># Example of building event without direct strings...</span>
+<span class="n">e</span> <span class="o">=</span> <span class="n">EventMaker</span><span class="p">()</span>
+<span class="n">status</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">Event</span><span class="p">(</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">PhoneStatus</span><span class="p">(</span>
+        <span class="n">e</span><span class="o">.</span><span class="n">CallerId</span><span class="p">(</span><span class="s">&quot;012345&quot;</span><span class="p">),</span>
+        <span class="n">e</span><span class="o">.</span><span class="n">ReceiverId</span><span class="p">(</span><span class="s">&quot;12343424&quot;</span><span class="p">),</span>
+        <span class="n">e</span><span class="o">.</span><span class="n">Status</span><span class="p">(</span><span class="s">&quot;busy&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c"># ... which in turn needs to be converted to a string</span>
+<span class="n">status</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">pretty_print</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c"># Send it</span>
+<span class="n">proxy</span><span class="o">.</span><span class="n">sendEvent</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you start that script you can receive the message using the
+receiver.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Events are just one way, fire and forget. If there is no one who&#8217;s
+listening for that event, it&#8217;s lost.</p>
+</div>
+</div>
+<div class="section" id="available-events">
+<h1>Available events<a class="headerlink" href="#available-events" title="Permalink to this headline">¶</a></h1>
+<p>GOsa comes with a set of predefined events and modules itself can
+provide new events. Here&#8217;s a short overview:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="12%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Event name</th>
+<th class="head">Module</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>AsteriskNotification</td>
+<td>Asterisk</td>
+<td>Sends information about queue usage, allows status tracking.</td>
+</tr>
+<tr><td>ClientAnnounce</td>
+<td>GOto</td>
+<td>Sent when a client is coming up, contains information about
+the client and it&#8217;s methods.</td>
+</tr>
+<tr><td>ClientLeave</td>
+<td>GOto</td>
+<td>Sent when a client is about to shut down.</td>
+</tr>
+<tr><td>ClientPoll</td>
+<td>Core</td>
+<td>Sent by the agent if it&#8217;s &#8220;alone&#8221; and has no way to find
+it&#8217;s assigned clients. All clients reply with a newly sent
+ClientAnnounce to this event.</td>
+</tr>
+<tr><td>CollectD</td>
+<td>CollectD</td>
+<td>Experimental collectd event.</td>
+</tr>
+<tr><td>NodeAnnounce</td>
+<td>Core</td>
+<td>Sent by an agent when starting up.</td>
+</tr>
+<tr><td>NodeCapabilities</td>
+<td>Core</td>
+<td>Sent by an agent when starting up, containing a brief
+list of information about the agent itself.</td>
+</tr>
+<tr><td>NodeLeave</td>
+<td>Core</td>
+<td>Sent by an agent when shutting down.</td>
+</tr>
+<tr><td>NodeStatus</td>
+<td>Core</td>
+<td>Sent regulary by an agent in order to do pseudo load
+balancing for HTTP connections.</td>
+</tr>
+<tr><td>UserSession</td>
+<td>GOto</td>
+<td>Sent if a user logs onto the client.</td>
+</tr>
+<tr><td>PuppetReport</td>
+<td>libinst</td>
+<td>Sent after a client puppet run.</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Event handling</a></li>
+<li><a class="reference internal" href="#available-events">Available events</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="log.html"
+                        title="previous chapter">Logging</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="utils.html"
+                        title="next chapter">Utilities</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/common/event.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="utils.html" title="Utilities"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="log.html" title="Logging"
+             >previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >The GOsa <em>common</em> library</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Cajus Pollmeier.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

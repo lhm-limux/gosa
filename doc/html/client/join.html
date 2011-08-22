@@ -1,0 +1,198 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Domain join &mdash; GOsa v3.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/requirements.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="GOsa v3.0 documentation" href="../index.html" />
+    <link rel="up" title="Client" href="index.html" />
+    <link rel="next" title="DBUS integration" href="../dbus/index.html" />
+    <link rel="prev" title="AMQP service" href="amqp.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../dbus/index.html" title="DBUS integration"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="amqp.html" title="AMQP service"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="../development.html" >Development documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Client</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="domain-join">
+<h1>Domain join<a class="headerlink" href="#domain-join" title="Permalink to this headline">¶</a></h1>
+<p>As stated in the overview of the GOsa client documentation, a client has to be
+joined to the GOsa domain in order to participate in the AMQP bus functionality.
+In the moment you just need a non &#8216;machine account&#8217; to join a new client to the
+domain, because ACLs are not implemented yet.</p>
+<p>If your client has not been joined, you&#8217;ve to do this by starting the <em>gosa-join</em> command:</p>
+<div class="highlight-python"><pre>Please enter the credentials of an administrative user to join this client.
+(Press Ctrl-C to cancel)
+
+User name: admin
+Password: *******</pre>
+</div>
+<p>This will create an automatic client configuration, which is needed to start the
+GOsa client itself.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The process of joining a client transfers the computers unique device-uuid
+to the server. Because it is only readable by root, it can be used later on
+to pass an initial encrypted secret to the client after a reboot happened.</p>
+</div>
+<hr class="docutils" />
+<dl class="class">
+<dt id="gosa.client.plugins.join.methods.join_method">
+<em class="property">class </em><tt class="descclassname">gosa.client.plugins.join.methods.</tt><tt class="descname">join_method</tt><a class="headerlink" href="#gosa.client.plugins.join.methods.join_method" title="Permalink to this definition">¶</a></dt>
+<dd><p>There are several ways to present the join process, that are</p>
+<blockquote>
+<div><ul class="simple">
+<li>CLI</li>
+<li>Curses</li>
+</ul>
+</div></blockquote>
+<p>in the moment. By implementing the <a class="reference internal" href="#gosa.client.plugins.join.methods.join_method" title="gosa.client.plugins.join.methods.join_method"><tt class="xref py py-class docutils literal"><span class="pre">gosa.client.plugins.join.methods.join_method</span></tt></a> interface,
+new ones (i.e. graphical) can simply be added. The resulting modules have to be
+registerd in the setuptools <tt class="docutils literal"><span class="pre">[gosa_join.modules]</span></tt> section.</p>
+<p>The <strong>priority</strong> class member is used to order the join methods.</p>
+<dl class="staticmethod">
+<dt id="gosa.client.plugins.join.methods.join_method.available">
+<em class="property">static </em><tt class="descname">available</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.client.plugins.join.methods.join_method.available" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method can check if the current method is available
+on the system. It is used to avoid that i.e. a framebuffer
+dialog will show up when there&#8217;s no framebuffer.</p>
+<p><tt class="docutils literal"><span class="pre">Returns</span></tt>: True if available</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.client.plugins.join.methods.join_method.join_dialog">
+<tt class="descname">join_dialog</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.client.plugins.join.methods.join_method.join_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>This dialog presents the join dialog aquiring the username
+and the password of a person capable to join the client. It
+must call the <tt class="xref py py-meth docutils literal"><span class="pre">gosa.client.plugins.join.methods.join_method.join()</span></tt>
+method and loop until success or abort itself.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.client.plugins.join.methods.join_method.show_error">
+<tt class="descname">show_error</tt><big>(</big><em>error</em><big>)</big><a class="headerlink" href="#gosa.client.plugins.join.methods.join_method.show_error" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>show_error</em> is the function used to show messages to the user. It
+needs to be implemented.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="38%" />
+<col width="62%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>error</td>
+<td>The error string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="amqp.html"
+                        title="previous chapter">AMQP service</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../dbus/index.html"
+                        title="next chapter">DBUS integration</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/client/join.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../dbus/index.html" title="DBUS integration"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="amqp.html" title="AMQP service"
+             >previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="../development.html" >Development documentation</a> &raquo;</li>
+          <li><a href="index.html" >Client</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Cajus Pollmeier.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

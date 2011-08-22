@@ -1,0 +1,231 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>HTTP service &mdash; GOsa v3.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/requirements.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="GOsa v3.0 documentation" href="../index.html" />
+    <link rel="up" title="Agent" href="index.html" />
+    <link rel="next" title="JSON RPC service" href="jsonrpc.html" />
+    <link rel="prev" title="AMQP service" href="amqp.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="jsonrpc.html" title="JSON RPC service"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="amqp.html" title="AMQP service"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Agent</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-gosa.agent.httpd">
+<span id="http-service"></span><h1>HTTP service<a class="headerlink" href="#module-gosa.agent.httpd" title="Permalink to this headline">¶</a></h1>
+<p>The <em>HTTPService</em> and the <em>HTTPDispatcher</em> are responsible for exposing
+registered <a class="reference external" href="http://wsgi.org">WSGI</a> components to the world. While the
+<em>HTTPService</em> is just providing the raw HTTP service, the <em>HTTPDispatcher</em>
+is redirecting a path to a module.</p>
+<hr class="docutils" />
+<dl class="class">
+<dt id="gosa.agent.httpd.HTTPDispatcher">
+<em class="property">class </em><tt class="descclassname">gosa.agent.httpd.</tt><tt class="descname">HTTPDispatcher</tt><a class="headerlink" href="#gosa.agent.httpd.HTTPDispatcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <em>HTTPDispatcher</em> can be used to register WSGI applications
+to a given path. It will inspect the path of an incoming request
+and decides which registered application it gets.</p>
+<p>Analyzing the path can be configured to detect a <em>subtree</em> match
+or an <em>exact</em> match. If you need subtree matches, just add the
+class variable <tt class="docutils literal"><span class="pre">http_subtree</span></tt> to the WSGI class and set it to
+<em>True</em>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="gosa.agent.httpd.HTTPService">
+<em class="property">class </em><tt class="descclassname">gosa.agent.httpd.</tt><tt class="descname">HTTPService</tt><a class="headerlink" href="#gosa.agent.httpd.HTTPService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class to serve HTTP fragments to the interested client. It makes
+makes use of a couple of configuration flags provided by the gosa
+configuration files <tt class="docutils literal"><span class="pre">[http]</span></tt> section:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>url</td>
+<td>AMQP URL to connect to the broker</td>
+</tr>
+<tr><td>id</td>
+<td>User name to connect with</td>
+</tr>
+<tr><td>key</td>
+<td>Password to connect with</td>
+</tr>
+<tr><td>command-worker</td>
+<td>Number of worker processes</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><pre>[http]
+host = node1.intranet.gonicus.de
+port = 8080
+sslpemfile = /etc/gosa/host.pem</pre>
+</div>
+<p>If you want to create a gosa agent module that is going to export
+functionality (i.e. static content or some RPC functionality) you
+can register such a component like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">gosa.common.components</span> <span class="kn">import</span> <span class="n">PluginRegistry</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">SomeTest</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="gp">... </span>   <span class="n">http_subtree</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="gp">... </span>   <span class="n">path</span> <span class="o">=</span> <span class="s">&#39;/test&#39;</span>
+<span class="gp">...</span>
+<span class="gp">... </span>   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>       <span class="c"># Get http service instance</span>
+<span class="gp">... </span>       <span class="bp">self</span><span class="o">.</span><span class="n">__http</span> <span class="o">=</span> <span class="n">PluginRegistry</span><span class="o">.</span><span class="n">getInstance</span><span class="p">(</span><span class="s">&#39;HTTPService&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">... </span>       <span class="c"># Register ourselves</span>
+<span class="gp">... </span>       <span class="bp">self</span><span class="o">.</span><span class="n">__http</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+<span class="gp">...</span>
+</pre></div>
+</div>
+<p>When <em>SomeTest</em> is instantiated, it will register itself to the <em>HTTPService</em> -
+and will be served when the <em>HTTPService</em> starts up.</p>
+<dl class="method">
+<dt id="gosa.agent.httpd.HTTPService.register">
+<tt class="descname">register</tt><big>(</big><em>path</em>, <em>obj</em><big>)</big><a class="headerlink" href="#gosa.agent.httpd.HTTPService.register" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register the application <em>app</em> on path <em>path</em>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>path</td>
+<td>Path part of an URL - i.e. &#8216;/rpc&#8217;</td>
+</tr>
+<tr><td>app</td>
+<td>WSGI application</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.httpd.HTTPService.serve">
+<tt class="descname">serve</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.agent.httpd.HTTPService.serve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start HTTP service thread.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.httpd.HTTPService.stop">
+<tt class="descname">stop</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.agent.httpd.HTTPService.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop HTTP service thread.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="amqp.html"
+                        title="previous chapter">AMQP service</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="jsonrpc.html"
+                        title="next chapter">JSON RPC service</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/agent/http.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="jsonrpc.html" title="JSON RPC service"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="amqp.html" title="AMQP service"
+             >previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Agent</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Cajus Pollmeier.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

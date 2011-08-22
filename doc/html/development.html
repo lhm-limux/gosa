@@ -1,0 +1,179 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Development documentation &mdash; GOsa v3.0 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/requirements.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="GOsa v3.0 documentation" href="index.html" />
+    <link rel="next" title="Concepts" href="concepts.html" />
+    <link rel="prev" title="Installation and configuration guide" href="production.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="concepts.html" title="Concepts"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="production.html" title="Installation and configuration guide"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">GOsa v3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="development-documentation">
+<h1>Development documentation<a class="headerlink" href="#development-documentation" title="Permalink to this headline">¶</a></h1>
+<p>This chapter is all about class descriptions, concept hints and APIs. If
+you&#8217;re a developer, or you&#8217;re looking for some more detailed descriptions,
+this will be the right place to go.</p>
+<hr class="docutils" />
+<p><strong>Contents:</strong></p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/index.html">The GOsa <em>common</em> library</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="common/env.html">Environment access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="common/config.html">Configuration handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="common/log.html">Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="common/event.html">Event handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="common/event.html#available-events">Available events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="common/utils.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="common/components.html">Components</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="agent/index.html">Agent</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="agent/index.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agent/index.html#using-the-binary">Using the binary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agent/command.html">Command registry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agent/amqp.html">AMQP service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agent/http.html">HTTP service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agent/ldap.html">LDAP Handler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agent/jsonrpc.html">JSON RPC service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agent/jsonrpc.html#module-gosa.agent.jsonrpc_objects">JSON RPC objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agent/objects.html">Object abstraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agent/objects.html#gosa-object-factory">GOsa Object Factory</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="client/index.html">Client</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="client/index.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="client/index.html#joining-clients">Joining clients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="client/index.html#using-the-binaries">Using the binaries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="client/command.html">Command registry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="client/amqp.html">AMQP service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="client/join.html">Domain join</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dbus/index.html">DBUS integration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dbus/index.html#overview">Overview</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="shell/index.html">Shell and scripting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="shell/index.html#module-gosa.shell">Using the shell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shell/index.html#using-the-api">Using the API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plugins/index.html">Plugin development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="plugins/agent/index.html">Agent plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugins/client/index.html">Client plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugins/dbus/index.html">DBUS plugins</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plugins/index.html#id1">Plugins</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="plugins/index.html#agent-plugins">Agent plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugins/index.html#client-plugins">Client plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugins/index.html#dbus-plugins">DBUS plugins</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="production.html"
+                        title="previous chapter">Installation and configuration guide</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="concepts.html"
+                        title="next chapter">Concepts</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/development.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="concepts.html" title="Concepts"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="production.html" title="Installation and configuration guide"
+             >previous</a> |</li>
+        <li><a href="index.html">GOsa v3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Cajus Pollmeier.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

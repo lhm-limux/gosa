@@ -1,0 +1,244 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Agent &mdash; GOsa v3.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/requirements.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="GOsa v3.0 documentation" href="../index.html" />
+    <link rel="up" title="Development documentation" href="../development.html" />
+    <link rel="next" title="Command registry" href="command.html" />
+    <link rel="prev" title="Components" href="../common/components.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="command.html" title="Command registry"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../common/components.html" title="Components"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="../development.html" accesskey="U">Development documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-gosa.agent">
+<span id="agent"></span><h1>Agent<a class="headerlink" href="#module-gosa.agent" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>The <em>agent</em> module bundles the agent daemon and a couple code modules
+needed to run it. The agent itself is meant to be extended by plugins
+using the <a class="reference internal" href="../common/components.html#gosa.common.components.plugin.Plugin" title="gosa.common.components.plugin.Plugin"><tt class="xref py py-class docutils literal"><span class="pre">gosa.common.components.plugin.Plugin</span></tt></a> interface.
+When starting up the system, the agent looks for plugins in the setuptools
+system and registers them into to the <a class="reference internal" href="../common/components.html#gosa.common.components.registry.PluginRegistry" title="gosa.common.components.registry.PluginRegistry"><tt class="xref py py-class docutils literal"><span class="pre">gosa.common.components.registry.PluginRegistry</span></tt></a>.
+The same happens for objects in <a class="reference internal" href="../common/components.html#gosa.common.components.objects.ObjectRegistry" title="gosa.common.components.objects.ObjectRegistry"><tt class="xref py py-class docutils literal"><span class="pre">gosa.common.components.objects.ObjectRegistry</span></tt></a>.</p>
+<p>After the <em>PluginRegistry</em> is ready with loading the modules, it orders
+them by priority and tries to determine whether it is</p>
+<blockquote>
+<div><ul class="simple">
+<li>an ordinary plugin</li>
+<li>an interface handler</li>
+</ul>
+</div></blockquote>
+<p>Modules marked with the <em>IInterfaceHandler</em> interface provide a <em>serve</em>
+method which is instantly called in this case. Modules like i.e. a
+AMQP handler or an HTTP service can start their own threads and
+start processing what ever they need to process. When the service
+shuts down, the method <em>stop</em> is called and the module has the chance
+to cleanly shut down the process.</p>
+<p>The agent is now in a state where it enters the main loop by sending
+AMQP <tt class="docutils literal"><span class="pre">NodeStatus</span></tt> events from time to time, joining threads and waiting
+to be stopped.</p>
+<p>To provide real services an ordinary agent will load a couple of modules
+exposing functionality to the outside world. Here are some of them:</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference internal" href="command.html#gosa.agent.command.CommandRegistry" title="gosa.agent.command.CommandRegistry"><tt class="xref py py-class docutils literal"><span class="pre">gosa.agent.command.CommandRegistry</span></tt></a> inspects all loaded modules
+for the <a class="reference internal" href="../common/components.html#gosa.common.components.command.Command" title="gosa.common.components.command.Command"><tt class="xref py py-meth docutils literal"><span class="pre">gosa.common.components.command.Command()</span></tt></a> decorator
+and registers all decorated methods to be available thru the CommandRegistry
+dispatcher.</li>
+<li><a class="reference internal" href="amqp.html#gosa.agent.amqp_service.AMQPService" title="gosa.agent.amqp_service.AMQPService"><tt class="xref py py-class docutils literal"><span class="pre">gosa.agent.amqp_service.AMQPService</span></tt></a> joins to the qpid broker
+federation and provides methods to <em>speak</em> with the bus.</li>
+<li><a class="reference internal" href="http.html#gosa.agent.httpd.HTTPService" title="gosa.agent.httpd.HTTPService"><tt class="xref py py-class docutils literal"><span class="pre">gosa.agent.httpd.HTTPService</span></tt></a> provides a WSGI based HTTP service,
+which is extended by <a class="reference internal" href="http.html#gosa.agent.httpd.HTTPDispatcher" title="gosa.agent.httpd.HTTPDispatcher"><tt class="xref py py-class docutils literal"><span class="pre">gosa.agent.httpd.HTTPDispatcher</span></tt></a> to let
+interested modules hook into a HTTP path if desired.</li>
+<li><a class="reference internal" href="jsonrpc.html#gosa.agent.jsonrpc_service.JSONRPCService" title="gosa.agent.jsonrpc_service.JSONRPCService"><tt class="xref py py-class docutils literal"><span class="pre">gosa.agent.jsonrpc_service.JSONRPCService</span></tt></a> uses the HTTPDispatcher
+to provide the <em>/rpc</em> URL with JSONRPC capabilities. It exposes all
+methods decorated by &#64;Command.</li>
+</ul>
+</div></blockquote>
+<p>This happens automatically depending on what&#8217;s registered on the
+<tt class="docutils literal"><span class="pre">[gosa.modules]</span></tt> setuptools entrypoint.</p>
+<p>The agent will send a <strong>NodeLeave</strong> event when shutting down.</p>
+<p>If you&#8217;re looking for documentation on how to write plugins, please take a look
+at the <a class="reference internal" href="../plugins/index.html#plugins"><em>Plugin section</em></a>.</p>
+</div>
+<div class="section" id="using-the-binary">
+<h2>Using the binary<a class="headerlink" href="#using-the-binary" title="Permalink to this headline">¶</a></h2>
+<p>The gosa-agent binary gets installed when you run the setup process. It
+has a couple of command line arguments:</p>
+<blockquote>
+<div><div class="highlight-text"><div class="highlight"><pre>$ gosa-agent --help
+Usage: gosa-agent - the GOsa core daemon
+
+Options:
+  --version             show program&#39;s version number and exit
+  -h, --help            show this help message and exit
+  -c FILE, --config=FILE
+                        read configuration from FILE [/etc/gosa/config]
+  -f                    run daemon in foreground [none]
+  -u USER, --user=USER  run daemon as USER [none]
+  -g GROUP, --group=GROUP
+                        run daemon as GROUP [none]
+  -p FILE, --pid-file=FILE
+                        store PID information into FILE [none]
+  --profile             write profiling information (only if daemon runs in
+                        foreground mode [none]
+
+  Logging options:
+    -v LOGLEVEL, --log-level=LOGLEVEL
+                        log level 0 - INFO, 1 - WARNING, 2 - ERROR, 4 -
+                        CRITICAL, 5 - DEBUG
+    -l METHOD, --log-mode=METHOD
+                        method used for logging (syslog, stderr, file) [none]
+    --log-file=FILE     if the file method is used, log to FILE
+
+  Advanced options:
+    --umask=UMASK       run daemon with UMASK [none]
+    --workdir=DIR       change directory to DIR after starting up [none]
+</pre></div>
+</div>
+</div></blockquote>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Take a look at the <a class="reference internal" href="../intro.html#quickstart"><em>quickstart</em></a> to see how the agent is
+controlled.</p>
+</div>
+<div class="admonition-requirement admonition " id="req-0">
+<p class="first admonition-title">Requirement</p>
+<p class="last"><em class="status todo">todo</em> Describe the init script / default usage</p>
+</div>
+</div>
+<hr class="docutils" />
+<p><strong>Contents:</strong></p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="command.html">Command registry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amqp.html">AMQP service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="http.html">HTTP service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ldap.html">LDAP Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jsonrpc.html">JSON RPC service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jsonrpc.html#module-gosa.agent.jsonrpc_objects">JSON RPC objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="objects.html">Object abstraction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="objects.html#basic-usage">Basic usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="objects.html#how-does-it-work-xml-definition-for-gosa-objects">How does it work - XML definition for GOsa objects</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="objects.html#gosa-object-factory">GOsa Object Factory</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="objects.html#short-description">Short description</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Agent</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#using-the-binary">Using the binary</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../common/components.html"
+                        title="previous chapter">Components</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="command.html"
+                        title="next chapter">Command registry</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/agent/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="command.html" title="Command registry"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../common/components.html" title="Components"
+             >previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="../development.html" >Development documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Cajus Pollmeier.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

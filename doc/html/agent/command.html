@@ -1,0 +1,515 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Command registry &mdash; GOsa v3.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/requirements.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="GOsa v3.0 documentation" href="../index.html" />
+    <link rel="up" title="Agent" href="index.html" />
+    <link rel="next" title="AMQP service" href="amqp.html" />
+    <link rel="prev" title="Agent" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="amqp.html" title="AMQP service"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Agent"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Agent</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-gosa.agent.command">
+<span id="command-registry"></span><h1>Command registry<a class="headerlink" href="#module-gosa.agent.command" title="Permalink to this headline">¶</a></h1>
+<p>The <em>CommandRegistry</em> is responsible for knowing what kind of commands
+are available for users. It works together with the
+<a class="reference internal" href="../common/components.html#gosa.common.components.registry.PluginRegistry" title="gosa.common.components.registry.PluginRegistry"><tt class="xref py py-class docutils literal"><span class="pre">gosa.common.components.registry.PluginRegistry</span></tt></a> and inspects
+all loaded plugins for methods marked with the
+<a class="reference internal" href="../common/components.html#gosa.common.components.command.Command" title="gosa.common.components.command.Command"><tt class="xref py py-meth docutils literal"><span class="pre">gosa.common.components.command.Command()</span></tt></a> decorator. All available
+information like <em>method path</em>, <em>command name</em>, <em>target queue</em>,
+<em>documentation</em> and <em>signature</em> are recorded and are available for users
+via the <a class="reference internal" href="#gosa.agent.command.CommandRegistry.dispatch" title="gosa.agent.command.CommandRegistry.dispatch"><tt class="xref py py-meth docutils literal"><span class="pre">gosa.agent.command.CommandRegistry.dispatch()</span></tt></a> method
+(or better with the several proxies) and the CLI.</p>
+<p>Next to registering commands, the <em>CommandRegistry</em> is also responsible
+for sending and receiving a couple of important bus events:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="40%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Name</th>
+<th class="head">Direction</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>NodeCapabilities</td>
+<td>send/receive</td>
+</tr>
+<tr><td>NodeAnnounce</td>
+<td>send/receive</td>
+</tr>
+<tr><td>NodeLeave</td>
+<td>receive</td>
+</tr>
+<tr><td>NodeStatus</td>
+<td>receive</td>
+</tr>
+</tbody>
+</table>
+<p>All mentioned signals maintain an internal list of available nodes,
+their status and their capabilities - aka collection of supported
+methods and their signatures. This information is used to locate a
+willing node for methods that the receiving node is not able to
+process.</p>
+<hr class="docutils" />
+<dl class="exception">
+<dt id="gosa.agent.command.CommandInvalid">
+<em class="property">exception </em><tt class="descclassname">gosa.agent.command.</tt><tt class="descname">CommandInvalid</tt><a class="headerlink" href="#gosa.agent.command.CommandInvalid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception which is raised when the command is not valid.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="gosa.agent.command.CommandNotAuthorized">
+<em class="property">exception </em><tt class="descclassname">gosa.agent.command.</tt><tt class="descname">CommandNotAuthorized</tt><a class="headerlink" href="#gosa.agent.command.CommandNotAuthorized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception which is raised when the call was not authorized.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="gosa.agent.command.CommandRegistry">
+<em class="property">class </em><tt class="descclassname">gosa.agent.command.</tt><tt class="descname">CommandRegistry</tt><a class="headerlink" href="#gosa.agent.command.CommandRegistry" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class covers the registration and invocation of methods
+imported thru plugins.</p>
+<dl class="method">
+<dt id="gosa.agent.command.CommandRegistry.call">
+<tt class="descname">call</tt><big>(</big><em>func</em>, <em>*arg</em>, <em>**larg</em><big>)</big><a class="headerlink" href="#gosa.agent.command.CommandRegistry.call" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>call</em> can be used to internally call a registered method
+directly. There&#8217;s no access control happening with this
+method.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="27%" />
+<col width="73%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>func</td>
+<td>method to call</td>
+</tr>
+<tr><td>args</td>
+<td>ordinary argument list/dict</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> return value from the method call</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.command.CommandRegistry.callNeedsQueue">
+<tt class="descname">callNeedsQueue</tt><big>(</big><em>func</em><big>)</big><a class="headerlink" href="#gosa.agent.command.CommandRegistry.callNeedsQueue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the provided method requires a queue parameter.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="45%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>func</td>
+<td>method name</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> success or failure</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.command.CommandRegistry.callNeedsUser">
+<tt class="descname">callNeedsUser</tt><big>(</big><em>func</em><big>)</big><a class="headerlink" href="#gosa.agent.command.CommandRegistry.callNeedsUser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the provided method requires a user parameter.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="45%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>func</td>
+<td>method name</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> success or failure</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.command.CommandRegistry.checkQueue">
+<tt class="descname">checkQueue</tt><big>(</big><em>func</em>, <em>queue</em><big>)</big><a class="headerlink" href="#gosa.agent.command.CommandRegistry.checkQueue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the provided method was sent to the correct queue.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>func</td>
+<td>method name</td>
+</tr>
+<tr><td>queue</td>
+<td>queue to compare to</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> success or failure</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.command.CommandRegistry.dispatch">
+<tt class="descname">dispatch</tt><big>(</big><em>user</em>, <em>queue</em>, <em>func</em>, <em>*arg</em>, <em>**larg</em><big>)</big><a class="headerlink" href="#gosa.agent.command.CommandRegistry.dispatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>The dispatch method will try to call the specified function and
+checks for user and queue. Additionally, it carries the call to
+it&#8217;s really destination (function types, cumulative results) and
+does some sanity checks.</p>
+<p>Handlers like JSONRPC or AMQP should use this function to
+dispatch the real calls.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="83%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>user</td>
+<td>the calling users name</td>
+</tr>
+<tr><td>queue</td>
+<td>the queue address where the call originated from</td>
+</tr>
+<tr><td>func</td>
+<td>method to call</td>
+</tr>
+<tr><td>args</td>
+<td>ordinary argument list/dict</td>
+</tr>
+</tbody>
+</table>
+<p>Dispatch will...</p>
+<blockquote>
+<div><ul class="simple">
+<li>... forward <em>unknown</em> commands to nodes that
+are capable of processing them - ordered by load.</li>
+<li>... will take care about the modes <em>NORMAL</em>, <em>FIRSTRESULT</em>,
+<em>CUMULATIVE</em> like defined in the <em>Command</em> decorator.</li>
+</ul>
+</div></blockquote>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> the real methods result</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.command.CommandRegistry.getMethods">
+<tt class="descname">getMethods</tt><big>(</big><em>queue=None</em>, <em>locale=None</em><big>)</big><a class="headerlink" href="#gosa.agent.command.CommandRegistry.getMethods" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Lists the all methods that are available in the domain.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>queue</td>
+<td>Ask for methods on special queue, None for all</td>
+</tr>
+<tr><td>locale</td>
+<td>Translate __help__ strings to the desired language</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return</span></tt>: dict describing all methods</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.command.CommandRegistry.getNodes">
+<tt class="descname">getNodes</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.agent.command.CommandRegistry.getNodes" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Returns a list of available nodes.</p>
+<p><tt class="docutils literal"><span class="pre">Return</span></tt>: list of nodes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.command.CommandRegistry.get_load_sorted_nodes">
+<tt class="descname">get_load_sorted_nodes</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.agent.command.CommandRegistry.get_load_sorted_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a node list sorted by node <em>load</em>.</p>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> list</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.command.CommandRegistry.hasMethod">
+<tt class="descname">hasMethod</tt><big>(</big><em>func</em><big>)</big><a class="headerlink" href="#gosa.agent.command.CommandRegistry.hasMethod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the desired method is available.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>func</td>
+<td>method to check for</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> flag if available or not</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.command.CommandRegistry.isAvailable">
+<tt class="descname">isAvailable</tt><big>(</big><em>providers</em><big>)</big><a class="headerlink" href="#gosa.agent.command.CommandRegistry.isAvailable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the list of providers contain at least one
+node which is available.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="37%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>providers</td>
+<td>list of providers</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> bool flag if at least one available or not</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.command.CommandRegistry.path2method">
+<tt class="descname">path2method</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#gosa.agent.command.CommandRegistry.path2method" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the call path (class.method) to the method itself</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="76%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>path</td>
+<td>method path including the class</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> the method name</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.command.CommandRegistry.sendEvent">
+<tt class="descname">sendEvent</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#gosa.agent.command.CommandRegistry.sendEvent" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Sends an event to the AMQP bus. Data must be in XML format,
+see <a class="reference internal" href="../common/event.html#events"><em>Events handling</em></a> for details.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="45%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>data</td>
+<td>valid event</td>
+</tr>
+</tbody>
+</table>
+<p><em>sendEvent</em> will indirectly validate the event against the bundled &#8220;XSD&#8221;.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.command.CommandRegistry.serve">
+<tt class="descname">serve</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.agent.command.CommandRegistry.serve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start serving the command registry to the outside world. Send
+hello and register event callbacks.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.command.CommandRegistry.shutdown">
+<tt class="descname">shutdown</tt><big>(</big><em>queue</em>, <em>force=False</em><big>)</big><a class="headerlink" href="#gosa.agent.command.CommandRegistry.shutdown" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Shut down the service belonging to the supplied queue. In case of HTTP
+connections, this command will shut down the node you&#8217;re currently
+logged in.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="40%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>force</td>
+<td>force global shut down</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return</span></tt>: True when shutting down</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.command.CommandRegistry.updateNodes">
+<tt class="descname">updateNodes</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.agent.command.CommandRegistry.updateNodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maintain node list. Remove entries that haven&#8217;t shown up
+in the configured interval.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Agent</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="amqp.html"
+                        title="next chapter">AMQP service</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/agent/command.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="amqp.html" title="AMQP service"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Agent"
+             >previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Agent</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Cajus Pollmeier.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

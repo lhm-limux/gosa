@@ -1,0 +1,921 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Object abstraction &mdash; GOsa v3.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/requirements.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="GOsa v3.0 documentation" href="../index.html" />
+    <link rel="up" title="Agent" href="index.html" />
+    <link rel="next" title="Client" href="../client/index.html" />
+    <link rel="prev" title="JSON RPC service" href="jsonrpc.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../client/index.html" title="Client"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="jsonrpc.html" title="JSON RPC service"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="../development.html" >Development documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Agent</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-gosa.agent.objects"><span id="objects"></span></span><div class="section" id="object-abstraction">
+<h1>Object abstraction<a class="headerlink" href="#object-abstraction" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="basic-usage">
+<h2>Basic usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h2>
+<p>The object abstraction module allows to access managed-information in an object oriented way.</p>
+<p>You can get an object instance like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">gosa.agent.objects</span> <span class="kn">import</span> <span class="n">GOsaObjectFactory</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">person</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">getObjectInstance</span><span class="p">(</span><span class="s">&#39;Person&#39;</span><span class="p">,</span> <span class="s">&quot;cn=Cajus Pollmeier,ou=people,ou=Technik,dc=gonicus,dc=de&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">(Instead</span> <span class="pre">of</span> <span class="pre">getting</span> <span class="pre">things</span> <span class="pre">by</span> <span class="pre">their</span> <span class="pre">'dn',</span> <span class="pre">we</span> <span class="pre">will</span> <span class="pre">later</span> <span class="pre">use</span> <span class="pre">an</span> <span class="pre">UUID)</span></tt></p>
+<p>and then you can access, update and persist values like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">person</span><span class="o">-&gt;</span><span class="n">sn</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">person</span><span class="o">-&gt;</span><span class="n">givenName</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">person</span><span class="o">-&gt;</span><span class="n">sn</span> <span class="o">=</span> <span class="s">&quot;New Surname&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">person</span><span class="o">-&gt;</span><span class="n">givenName</span> <span class="o">=</span> <span class="s">&quot;Cajus&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">person</span><span class="o">-&gt;</span><span class="n">commit</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">person</span><span class="o">-&gt;</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>or call object methods:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">person</span><span class="o">-&gt;</span><span class="n">notify</span><span class="p">(</span><span class="s">u&quot;Shutdown of your client&quot;</span><span class="p">,</span> <span class="s">u&quot;Please prepare yourselves for a system reboot!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The following is not implemented yet!</p>
+</div>
+<p>or add and remove extension:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">person</span><span class="o">-&gt;</span><span class="n">addExtension</span><span class="p">(</span><span class="s">&#39;Mail&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">person</span><span class="o">-&gt;</span><span class="n">removeExtension</span><span class="p">(</span><span class="s">&#39;POSIX&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The following is not implemented yet!</p>
+</div>
+<p>Each object modification sends an event, with the related action and the objects uuid. These action
+can then be caught later to perform different tasks, e.g. remove the mail-account from the server when
+a Mail extension is removed.</p>
+</div>
+<div class="section" id="how-does-it-work-xml-definition-for-gosa-objects">
+<h2>How does it work - XML definition for GOsa objects<a class="headerlink" href="#how-does-it-work-xml-definition-for-gosa-objects" title="Permalink to this headline">¶</a></h2>
+<p>What properties are managed and how they are managed is defined in a set of XML files.
+Each of these XML files can contain one or more object definition, you can find them here <tt class="docutils literal"><span class="pre">./gosa.common/src/gosa/common/data/objects/</span></tt>.</p>
+<p>An object definition consist of the following information:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="84%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Name</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>Name</td>
+<td>The Name of the object</td>
+</tr>
+<tr><td>Description</td>
+<td>A description</td>
+</tr>
+<tr><td>DefaultBackend</td>
+<td>A default backend which defines which storage backend is used to persist the data</td>
+</tr>
+<tr><td>BaseRDN</td>
+<td>A base RDN which specifies a storage container for these objects</td>
+</tr>
+<tr><td>Attributes</td>
+<td>Attributes that are provided by this object</td>
+</tr>
+<tr><td>Methods</td>
+<td>Methods that can be called on object instances</td>
+</tr>
+<tr><td>Container</td>
+<td>A list of potential sub-objects this object can contain</td>
+</tr>
+<tr><td>Extends</td>
+<td>Another objects name that we can extend. E.g. POSIX can extend a Person object</td>
+</tr>
+<tr><td>BaseObject</td>
+<td>Defines this object as root object. E.g. Person is a base object</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="xml-definition-of-gosa-objects-in-detail">
+<h3>XML definition of GOsa-objects in detail<a class="headerlink" href="#xml-definition-of-gosa-objects-in-detail" title="Permalink to this headline">¶</a></h3>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">We try to keep this documentation up to date, but at the moment the
+definition
+changes frequently.</p>
+</div>
+<div class="section" id="a-minimum-example">
+<h4>A minimum example<a class="headerlink" href="#a-minimum-example" title="Permalink to this headline">¶</a></h4>
+<p>All starts with an <tt class="docutils literal"><span class="pre">&lt;Object&gt;</span></tt> tag which introduces a new GOsa-object, this
+<tt class="docutils literal"><span class="pre">&lt;Object&gt;</span></tt> tag must contain at least a <tt class="docutils literal"><span class="pre">&lt;Name&gt;</span></tt>, a <tt class="docutils literal"><span class="pre">&lt;Description&gt;</span></tt> and a
+<tt class="docutils literal"><span class="pre">&lt;DefaultBackend&gt;</span></tt> tag. The name and the description are self-explaining.
+The default-backend specifies which backend has to be used as default, for example
+a LDAP or a MySQL backend - There may be more depending on your setup.</p>
+<p>Backends are storage points for GOsa-objects, they take care of caching,
+loading and saving of objects and their attributes from different stores e.g. MySQL
+or LDAP.</p>
+<p>Here is a minimum configuration for a GOsa-object. It does not have any
+methods nor attributes:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;Objects</span> <span class="na">xmlns=</span><span class="s">&quot;http://www.gonicus.de/Objects&quot;</span><span class="nt">&gt;</span>
+    ...
+    <span class="nt">&lt;Object&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>Dummy<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;Description&gt;</span>A dummy class<span class="nt">&lt;/Description&gt;</span>
+        <span class="nt">&lt;DefaultBackend&gt;</span>LDAP<span class="nt">&lt;/DefaultBackend&gt;</span>
+    <span class="nt">&lt;/Object&gt;</span>
+    ...
+<span class="nt">&lt;/Objects&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="some-optional-properties-added">
+<h4>Some optional properties added<a class="headerlink" href="#some-optional-properties-added" title="Permalink to this headline">¶</a></h4>
+<p>Here is a more complete example which include some optional values, but still
+lacks attribute and method definitions:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;Objects</span> <span class="na">xmlns=</span><span class="s">&quot;http://www.gonicus.de/Objects&quot;</span><span class="nt">&gt;</span>
+    ...
+    <span class="nt">&lt;Object&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>Person<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;Description&gt;</span>Person class<span class="nt">&lt;/Description&gt;</span>
+        <span class="nt">&lt;DefaultBackend&gt;</span>LDAP<span class="nt">&lt;/DefaultBackend&gt;</span>
+
+        <span class="nt">&lt;BaseRDN&gt;</span>ou=people<span class="nt">&lt;/BaseRDN&gt;</span>
+        <span class="nt">&lt;Container&gt;</span>
+            <span class="nt">&lt;Type&gt;</span>Something<span class="nt">&lt;/Type&gt;</span>
+        <span class="nt">&lt;/Container&gt;</span>
+        <span class="nt">&lt;Extends&gt;</span>Base<span class="nt">&lt;/Extends&gt;</span>
+        <span class="nt">&lt;BaseObject&gt;</span>false<span class="nt">&lt;/BaseObject&gt;</span>
+    <span class="nt">&lt;/Object&gt;</span>
+    ...
+<span class="nt">&lt;/Objects&gt;</span>
+</pre></div>
+</div>
+<p>As you can see, four more tags were introduced here, a <tt class="docutils literal"><span class="pre">&lt;BaseRDN&gt;</span></tt> tag which specifies a
+storage-container name for these kind of objects.</p>
+<p>A <tt class="docutils literal"><span class="pre">&lt;Container&gt;</span></tt> tag which specifies for which objects we are a container.
+For example an <tt class="docutils literal"><span class="pre">OrganizationalUnit</span></tt> can be a container for <tt class="docutils literal"><span class="pre">Person</span></tt> or <tt class="docutils literal"><span class="pre">Group</span></tt> objects.
+In this example we could place <tt class="docutils literal"><span class="pre">Something</span></tt> objects under <tt class="docutils literal"><span class="pre">Person</span></tt> objects.</p>
+<p>A <tt class="docutils literal"><span class="pre">Person</span></tt> object may have extensions like mail, posix, samba, ...  which can be added to or
+removed from our object dynamically.
+To be able to identify those addable extension we have the <tt class="docutils literal"><span class="pre">&lt;Extends&gt;</span></tt> tag, it specifies
+which objects could be added to our object as extension.</p>
+<p>The <tt class="docutils literal"><span class="pre">&lt;BaseObject&gt;</span></tt> tag, defines our object as root object, (if set to true) it cannot be attached
+to some other objects, like described above in the <tt class="docutils literal"><span class="pre">&lt;Extends&gt;</span></tt> tag.</p>
+<p>With the above example we can now instantiate a <tt class="docutils literal"><span class="pre">Person</span></tt> object, it has no attributes
+nor methods, but we could add a <tt class="docutils literal"><span class="pre">POSIX</span></tt> and a <tt class="docutils literal"><span class="pre">Mail</span></tt> extension to it. And the backend
+is told to store Person objects in &#8216;ou=people&#8217;.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The inheritance and extension handling is not implemented yet. But it will follow soon.
+In other words, these tags do not affect a GOsa-object right now: 
+<tt class="docutils literal"><span class="pre">BaseRDN</span></tt>, <tt class="docutils literal"><span class="pre">Container</span></tt>, <tt class="docutils literal"><span class="pre">BaseObject</span></tt>, <tt class="docutils literal"><span class="pre">Extends</span></tt></p>
+</div>
+</div>
+<div class="section" id="adding-attributes-and-their-in-and-out-filters">
+<h4>Adding attributes and their in- and out-filters<a class="headerlink" href="#adding-attributes-and-their-in-and-out-filters" title="Permalink to this headline">¶</a></h4>
+<p>To be able to store a users name or its postal address we need to define object-attributes.</p>
+<p>Attributes can be access easily like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">person</span><span class="o">-&gt;</span><span class="n">givenName</span>
+</pre></div>
+</div>
+<p>or can be set this way.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">person</span><span class="o">-&gt;</span><span class="n">postalAddress</span> <span class="o">=</span> <span class="s">&quot;Herr Musterman</span><span class="se">\n</span><span class="s">11111 Musterhausen</span><span class="se">\n</span><span class="s">Musterstr. 55&quot;</span>
+</pre></div>
+</div>
+<p>Here is a minimum example of an attribute:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;Objects</span> <span class="na">xmlns=</span><span class="s">&quot;http://www.gonicus.de/Objects&quot;</span><span class="nt">&gt;</span>
+    ...
+    <span class="nt">&lt;Object&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>Person<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;DefaultBackend&gt;</span>LDAP<span class="nt">&lt;/DefaultBackend&gt;</span>
+        ...
+        <span class="nt">&lt;Attributes&gt;</span>
+            <span class="nt">&lt;Attribute&gt;</span>
+                <span class="nt">&lt;Name&gt;</span>sn<span class="nt">&lt;/Name&gt;</span>
+                <span class="nt">&lt;Description&gt;</span>Surname<span class="nt">&lt;/Description&gt;</span>
+                <span class="nt">&lt;Syntax&gt;</span>String<span class="nt">&lt;/Syntax&gt;</span>
+            <span class="nt">&lt;/Attribute&gt;</span>
+        <span class="nt">&lt;/Attributes&gt;</span>
+        ...
+    <span class="nt">&lt;/Object&gt;</span>
+<span class="nt">&lt;/Objects&gt;</span>
+</pre></div>
+</div>
+<p>The above definition creates an attribute named <tt class="docutils literal"><span class="pre">sn</span></tt> which is
+stored in the LDAP backend. If you want to store this attribute in another Backend, then
+you can specify it explicitly like this:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;Objects</span> <span class="na">xmlns=</span><span class="s">&quot;http://www.gonicus.de/Objects&quot;</span><span class="nt">&gt;</span>
+    ...
+    <span class="nt">&lt;Object&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>Person<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;DefaultBackend&gt;</span>LDAP<span class="nt">&lt;/DefaultBackend&gt;</span>
+        ...
+        <span class="nt">&lt;Attributes&gt;</span>
+            <span class="nt">&lt;Attribute&gt;</span>
+                <span class="nt">&lt;Name&gt;</span>sn<span class="nt">&lt;/Name&gt;</span>
+                <span class="nt">&lt;Description&gt;</span>Surname<span class="nt">&lt;/Description&gt;</span>
+                <span class="nt">&lt;Backend&gt;</span>LDAP<span class="nt">&lt;/Backend&gt;</span>
+                <span class="nt">&lt;Syntax&gt;</span>String<span class="nt">&lt;/Syntax&gt;</span>
+            <span class="nt">&lt;/Attribute&gt;</span>
+        <span class="nt">&lt;/Attributes&gt;</span>
+        ...
+    <span class="nt">&lt;/Object&gt;</span>
+<span class="nt">&lt;/Objects&gt;</span>
+</pre></div>
+</div>
+<p>Attribute definition can contain the following tags, including optional:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="12%" />
+<col width="71%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Name</th>
+<th class="head">Optional</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>Name</td>
+<td>No</td>
+<td>The attributes name</td>
+</tr>
+<tr><td>Description</td>
+<td>No</td>
+<td>A short description for the attribute</td>
+</tr>
+<tr><td>DependsOn</td>
+<td>Yes</td>
+<td>A list of attributes that depends on this attribute</td>
+</tr>
+<tr><td>Backend</td>
+<td>Yes</td>
+<td>The backend to store this attribute</td>
+</tr>
+<tr><td>Syntax</td>
+<td>No</td>
+<td>A simple string which defines the attributes syntax, e.g. String</td>
+</tr>
+<tr><td>Validators</td>
+<td>Yes</td>
+<td>A validation rule</td>
+</tr>
+<tr><td>InFilter</td>
+<td>Yes</td>
+<td>A filter which is used to read the attribute from the backend</td>
+</tr>
+<tr><td>OutFilter</td>
+<td>Yes</td>
+<td>A filter which is used to store the attribute in the backend</td>
+</tr>
+<tr><td>MultiValue</td>
+<td>Yes</td>
+<td>A boolean flag, which marks this value as multiple value</td>
+</tr>
+<tr><td>Readonly</td>
+<td>Yes</td>
+<td>Marks the attribute as read only</td>
+</tr>
+<tr><td>Mandatory</td>
+<td>Yes</td>
+<td>Marks the attribute as mandatory</td>
+</tr>
+</tbody>
+</table>
+<p>Here is an explanation of the simple properties above, the complex properties like <tt class="docutils literal"><span class="pre">Validators</span></tt>,
+<tt class="docutils literal"><span class="pre">InFilter</span></tt> and <tt class="docutils literal"><span class="pre">OutFilter</span></tt> are described separately, later.</p>
+<p>The tag <tt class="docutils literal"><span class="pre">&lt;DependsOn&gt;</span></tt> specifies a list of attributes that are related to the current attribute.
+For example, the attribute &#8216;cn&#8217; (common name) for a user is a combination of <tt class="docutils literal"><span class="pre">givenName</span></tt> and
+<tt class="docutils literal"><span class="pre">sn</span></tt>, whenever you modify the users sn, you&#8217;ve to update the value of the <tt class="docutils literal"><span class="pre">cn</span></tt> attribute too.
+If you now add <tt class="docutils literal"><span class="pre">cn</span></tt> to the <tt class="docutils literal"><span class="pre">&lt;Depends&gt;</span></tt> tag of the <tt class="docutils literal"><span class="pre">sn</span></tt> and <tt class="docutils literal"><span class="pre">givenName</span></tt> attributes, then
+each modification of sn and givenName will mark the attribute cn as modified and thus forces it
+to be saved again. (How sn and givenName are combined into the cn attribute will be described later
+when the in- and out-filters are described).</p>
+<p>With <tt class="docutils literal"><span class="pre">&lt;Backend&gt;</span></tt> you can specifiy another backend then defined in the <tt class="docutils literal"><span class="pre">&lt;Object&gt;s</span>
+<span class="pre">&lt;DefaultBackend&gt;</span></tt> tag.</p>
+<p>The <tt class="docutils literal"><span class="pre">&lt;Syntax&gt;</span></tt> specifies which syntax this attribute has, here is a list of all available values:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Boolean: bool</li>
+<li>String: unicode</li>
+<li>Integer: int</li>
+<li>Timestamp: time.time</li>
+<li>Date: datetime.date</li>
+<li>Dictionary: dict</li>
+<li>List: list</li>
+<li>Binary</li>
+</ul>
+</div></blockquote>
+<p>An attribute may have multiple values, for example you can have multiple phone numbers or mail addresses.
+If you want an attribute to be multi value then just add the <tt class="docutils literal"><span class="pre">&lt;MultiValue&gt;</span></tt> tag and set it to true.</p>
+<p>To create a read only attribute add the tag <tt class="docutils literal"><span class="pre">&lt;Readonly&gt;</span></tt> and set it to true.</p>
+<p>If the attribute is required then you should add the <tt class="docutils literal"><span class="pre">&lt;Mandatory&gt;</span></tt> flag and set it
+to true.</p>
+</div>
+<div class="section" id="writing-attribute-validators">
+<h4>Writing attribute validators<a class="headerlink" href="#writing-attribute-validators" title="Permalink to this headline">¶</a></h4>
+<p>You can use validators to check the value of an attribute.</p>
+<p>Validators are defined in an <tt class="docutils literal"><span class="pre">&lt;Validators&gt;</span></tt> tag using either the <tt class="docutils literal"><span class="pre">&lt;Condition&gt;</span></tt> or the <tt class="docutils literal"><span class="pre">&lt;ConditionOperator&gt;</span></tt> tag. 
+The <tt class="docutils literal"><span class="pre">&lt;Condition&gt;</span></tt> tag is a single check like shown below, where <tt class="docutils literal"><span class="pre">&lt;ConditionOperator&gt;</span></tt> are combined conditions:</p>
+<p>A simple single condition:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;Validators&gt;</span>
+    <span class="nt">&lt;Condition&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>stringLength<span class="nt">&lt;/Name&gt;</span>
+        <span class="nt">&lt;Param&gt;</span>4<span class="nt">&lt;/Param&gt;</span>
+        <span class="nt">&lt;Param&gt;</span>20<span class="nt">&lt;/Param&gt;</span>
+    <span class="nt">&lt;/Condition&gt;</span>
+<span class="nt">&lt;/Validators&gt;</span>
+</pre></div>
+</div>
+<p>This example uses the stringLength condition with a set of parameters to check the values length.
+Right now there is a very limited set of conditions available - but there will be more.</p>
+<p>You can also define more complex validators like this (This example does not make much sense!):</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;Validators&gt;</span>
+    <span class="nt">&lt;ConditionOperator&gt;</span>
+        <span class="nt">&lt;Operator&gt;</span>or<span class="nt">&lt;/Operator&gt;</span>
+        <span class="nt">&lt;LeftConditionChain&gt;</span>
+            <span class="nt">&lt;Condition&gt;</span>
+                <span class="nt">&lt;Name&gt;</span>stringLength<span class="nt">&lt;/Name&gt;</span>
+                <span class="nt">&lt;Param&gt;</span>5<span class="nt">&lt;/Param&gt;</span>
+                <span class="nt">&lt;Param&gt;</span>10<span class="nt">&lt;/Param&gt;</span>
+            <span class="nt">&lt;/Condition&gt;</span>
+        <span class="nt">&lt;/LeftConditionChain&gt;</span>
+        <span class="nt">&lt;RightConditionChain&gt;</span>
+            <span class="nt">&lt;Condition&gt;</span>
+                <span class="nt">&lt;Name&gt;</span>Equals<span class="nt">&lt;/Name&gt;</span>
+                <span class="nt">&lt;Param&gt;</span>Heh?<span class="nt">&lt;/Param&gt;</span>
+                <span class="nt">&lt;Param&gt;</span>%{sn}s<span class="nt">&lt;/Param&gt;</span>
+            <span class="nt">&lt;/Condition&gt;</span>
+        <span class="nt">&lt;/RightConditionChain&gt;</span>
+    <span class="nt">&lt;/ConditionOperator&gt;</span>
+<span class="nt">&lt;/Validators&gt;</span>
+</pre></div>
+</div>
+<p>The above example is valid, when the value has a length of 5-10 characters OR the value of sn is &#8216;Heh?&#8217;.</p>
+<p>Instead of <tt class="docutils literal"><span class="pre">or</span></tt> can also <tt class="docutils literal"><span class="pre">and</span></tt> be used.</p>
+<p>And you can even stack <tt class="docutils literal"><span class="pre">&lt;ConditionOperator&gt;</span></tt> as deep as you want:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;ConditionOperator&gt;</span>
+    <span class="nt">&lt;Operator&gt;</span>or<span class="nt">&lt;/Operator&gt;</span>
+    <span class="nt">&lt;LeftConditionChain&gt;</span>
+        <span class="nt">&lt;ConditionOperator&gt;</span>
+            <span class="nt">&lt;Operator&gt;</span>and<span class="nt">&lt;/Operator&gt;</span>
+            <span class="nt">&lt;LeftConditionChain&gt;</span>
+                <span class="nt">&lt;ConditionOperator&gt;</span>...<span class="nt">&lt;/ConditionOperator&gt;</span>
+            <span class="nt">&lt;/LeftConditionChain&gt;</span>
+            <span class="nt">&lt;RightConditionChain&gt;</span>
+                <span class="nt">&lt;ConditionOperator&gt;</span>...<span class="nt">&lt;/ConditionOperator&gt;</span>
+            <span class="nt">&lt;/RightConditionChain&gt;</span>
+        <span class="nt">&lt;/ConditionOperator&gt;</span>
+    <span class="nt">&lt;/LeftConditionChain&gt;</span>
+    <span class="nt">&lt;RightConditionChain&gt;</span>
+        <span class="nt">&lt;ConditionOperator&gt;</span>
+            <span class="nt">&lt;Operator&gt;</span>and<span class="nt">&lt;/Operator&gt;</span>
+            <span class="nt">&lt;LeftConditionChain&gt;</span>
+                <span class="nt">&lt;Condition&gt;</span>...<span class="nt">&lt;/Condition&gt;</span>
+            <span class="nt">&lt;/LeftConditionChain&gt;</span>
+            <span class="nt">&lt;RightConditionChain&gt;</span>
+                <span class="nt">&lt;Condition&gt;</span>...<span class="nt">&lt;/Condition&gt;</span>
+            <span class="nt">&lt;/RightConditionChain&gt;</span>
+        <span class="nt">&lt;/ConditionOperator&gt;</span>
+    <span class="nt">&lt;/RightConditionChain&gt;</span>
+<span class="nt">&lt;/ConditionOperator&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="creating-in-and-out-filters">
+<h4>Creating in and out filters<a class="headerlink" href="#creating-in-and-out-filters" title="Permalink to this headline">¶</a></h4>
+<p>Normally attributes are stored and read from the defined backend directly without any modification.
+If you want to manipulate the value before it gets saved or read, then you&#8217;ve to use in- and out-filters.</p>
+<p>This is usefull for values like passwords or value that have to be converted before they get saved.</p>
+<p>For example you can generate a hash out of a text-password instead of storing the password in clear-text.
+Or you could generate the cn (common name) for a user out of his sn and givenName, automatically.</p>
+<p>The in-filters are executed when the objects gets loaded and the out-filters when the object is saved.</p>
+<p>Here is an example out-filter which combines <tt class="docutils literal"><span class="pre">sn</span></tt> and <tt class="docutils literal"><span class="pre">givenName</span></tt> in the attribute cn:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;Attribute&gt;</span>
+    <span class="nt">&lt;Name&gt;</span>cn<span class="nt">&lt;/Name&gt;</span>
+    ...
+    <span class="nt">&lt;OutFilter&gt;</span>
+        <span class="nt">&lt;FilterChain&gt;</span>
+            <span class="nt">&lt;FilterEntry&gt;</span>
+                <span class="nt">&lt;Filter&gt;</span>
+                    <span class="nt">&lt;Name&gt;</span>Clear<span class="nt">&lt;/Name&gt;</span>
+                <span class="nt">&lt;/Filter&gt;</span>
+            <span class="nt">&lt;/FilterEntry&gt;</span>
+            <span class="nt">&lt;FilterEntry&gt;</span>
+                <span class="nt">&lt;Filter&gt;</span>
+                    <span class="nt">&lt;Name&gt;</span>ConcatString<span class="nt">&lt;/Name&gt;</span>
+                    <span class="nt">&lt;Param&gt;</span>%(givenName)s %(sn)s<span class="nt">&lt;/Param&gt;</span>
+                    <span class="nt">&lt;Param&gt;</span>left<span class="nt">&lt;/Param&gt;</span>
+                <span class="nt">&lt;/Filter&gt;</span>
+            <span class="nt">&lt;/FilterEntry&gt;</span>
+        <span class="nt">&lt;/FilterChain&gt;</span>
+    <span class="nt">&lt;/OutFilter&gt;</span>
+</pre></div>
+</div>
+<p>Out-filters are defined in the <tt class="docutils literal"><span class="pre">&lt;OutFilter&gt;</span></tt> tag and in-filters in
+the <tt class="docutils literal"><span class="pre">&lt;InFilter&gt;</span></tt> tag of the <tt class="docutils literal"><span class="pre">&lt;Attribute&gt;</span></tt>,
+the filter definition is then placed inside a <tt class="docutils literal"><span class="pre">&lt;FilterChain&gt;</span></tt> tag.
+Both definitions, for in- and out filter, are created in the same way.</p>
+<p>The <tt class="docutils literal"><span class="pre">&lt;FilterChain&gt;</span></tt> tag inside of the <tt class="docutils literal"><span class="pre">&lt;In/OutFilter&gt;</span></tt> tag contains
+various <tt class="docutils literal"><span class="pre">&lt;FilterEntry&gt;</span></tt> tags, which will be executed
+sequentially, when the filter is executed.</p>
+<p>The example above will do the following when the property cn gets saved:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Clear the contents of the attribute cn</li>
+<li>Add the value <tt class="docutils literal"><span class="pre">&quot;%(givenName)s</span> <span class="pre">%(sn)s&quot;</span></tt> to the left of the current value of cn while the <tt class="docutils literal"><span class="pre">%(..)s</span></tt> are replaced by real values.</li>
+</ul>
+</div></blockquote>
+<p>Another filter action could be, to change an attributes name during the filter execution:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;Attribute&gt;</span>
+    <span class="nt">&lt;Name&gt;</span>cn<span class="nt">&lt;/Name&gt;</span>
+    ...
+    <span class="nt">&lt;InFilter&gt;</span>
+        <span class="nt">&lt;FilterChain&gt;</span>
+            <span class="nt">&lt;FilterEntry&gt;</span>
+                <span class="nt">&lt;Filter&gt;</span>
+                    <span class="nt">&lt;Name&gt;</span>Target<span class="nt">&lt;/Name&gt;</span>
+                    <span class="nt">&lt;Param&gt;</span>commonName<span class="nt">&lt;/Param&gt;</span>
+                <span class="nt">&lt;/Filter&gt;</span>
+            <span class="nt">&lt;/FilterEntry&gt;</span>
+        <span class="nt">&lt;/FilterChain&gt;</span>
+    <span class="nt">&lt;/InFilter&gt;</span>
+
+    <span class="nt">&lt;OutFilter&gt;</span>
+        <span class="nt">&lt;FilterChain&gt;</span>
+            <span class="nt">&lt;FilterEntry&gt;</span>
+                <span class="nt">&lt;Filter&gt;</span>
+                    <span class="nt">&lt;Name&gt;</span>Target<span class="nt">&lt;/Name&gt;</span>
+                    <span class="nt">&lt;Param&gt;</span>cn<span class="nt">&lt;/Param&gt;</span>
+                <span class="nt">&lt;/Filter&gt;</span>
+            <span class="nt">&lt;/FilterEntry&gt;</span>
+        <span class="nt">&lt;/FilterChain&gt;</span>
+    <span class="nt">&lt;/OutFilter&gt;</span>
+</pre></div>
+</div>
+<p>In the above example we change the attributes name from <tt class="docutils literal"><span class="pre">cn</span></tt> to
+<tt class="docutils literal"><span class="pre">commonName</span></tt> in the in-filter and back to <tt class="docutils literal"><span class="pre">cn</span></tt> in the out-filter.
+This enables us to access the value like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">person</span><span class="o">-&gt;</span><span class="n">commonName</span>
+</pre></div>
+</div>
+<p>while the attribute is still stored as <tt class="docutils literal"><span class="pre">cn</span></tt> due to the out-filter definition.</p>
+<p>You can also add conditions to your filters like shown below:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;FilterChain&gt;</span>
+    <span class="nt">&lt;FilterEntry&gt;</span>
+        <span class="nt">&lt;Choice&gt;</span>
+            <span class="nt">&lt;When&gt;</span>
+                <span class="nt">&lt;ConditionChain&gt;</span>
+                    <span class="nt">&lt;Condition&gt;</span>
+                        <span class="nt">&lt;Name&gt;</span>stringLength<span class="nt">&lt;/Name&gt;</span>
+                        <span class="nt">&lt;Param&gt;</span>0<span class="nt">&lt;/Param&gt;</span>
+                        <span class="nt">&lt;Param&gt;</span>5<span class="nt">&lt;/Param&gt;</span>
+                    <span class="nt">&lt;/Condition&gt;</span>
+                <span class="nt">&lt;/ConditionChain&gt;</span>
+                <span class="nt">&lt;FilterChain&gt;</span>
+                    <span class="nt">&lt;FilterEntry&gt;</span>
+                        <span class="nt">&lt;Filter&gt;</span>
+                            <span class="nt">&lt;Name&gt;</span>Clear<span class="nt">&lt;/Name&gt;</span>
+                        <span class="nt">&lt;/Filter&gt;</span>
+                    <span class="nt">&lt;/FilterEntry&gt;</span>
+                <span class="nt">&lt;/FilterChain&gt;</span>
+                <span class="nt">&lt;Else&gt;</span>
+                    <span class="nt">&lt;FilterChain&gt;</span>
+                        <span class="nt">&lt;FilterEntry&gt;</span>
+                            <span class="nt">&lt;Filter&gt;</span>
+                                <span class="nt">&lt;Name&gt;</span>ConcatString<span class="nt">&lt;/Name&gt;</span>
+                                <span class="nt">&lt;Param&gt;</span>Value is longer than 5 chars: <span class="nt">&lt;/Param&gt;</span>
+                                <span class="nt">&lt;Param&gt;</span>left<span class="nt">&lt;/Param&gt;</span>
+                            <span class="nt">&lt;/Filter&gt;</span>
+                        <span class="nt">&lt;/FilterEntry&gt;</span>
+                    <span class="nt">&lt;/FilterChain&gt;</span>
+                <span class="nt">&lt;/Else&gt;</span>
+            <span class="nt">&lt;/When&gt;</span>
+        <span class="nt">&lt;/Choice&gt;</span>
+</pre></div>
+</div>
+<p>If the value is smaller then 6 chars it will be cleared, if it is greater then 6 chars a string will be appended to the left.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Once we&#8217;ve more operatros, filters and so on, we should generate better examples.
+The following example does not work at the moment due to missing comperators.</p>
+</div>
+<p>Another example could be to convert a list of flags into different boolean values, like this.</p>
+<p>Lets say we&#8217;ve a given flag list which looks like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span> <span class="n">gosaFlagList</span> <span class="o">=</span> <span class="p">[</span><span class="n">LVM</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Where L stands for Lookup ...</p>
+<p>While loading the gosaFlagList we can convert this string flag list into real
+boolean value like this:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;Attribute&gt;</span>
+    <span class="nt">&lt;Name&gt;</span>Flag_Lookup<span class="nt">&lt;/Name&gt;</span>
+    ...
+    <span class="nt">&lt;InFilter&gt;</span>
+
+        <span class="nt">&lt;FilterChain&gt;</span>
+            <span class="nt">&lt;FilterEntry&gt;</span>
+                <span class="nt">&lt;Choice&gt;</span>
+                    <span class="nt">&lt;When&gt;</span>
+                        <span class="nt">&lt;ConditionChain&gt;</span>
+                            <span class="nt">&lt;Condition&gt;</span>
+                                <span class="nt">&lt;Name&gt;</span>RegEx<span class="nt">&lt;/Name&gt;</span>
+                                <span class="nt">&lt;Param&gt;</span>%(gosaFlagList)s<span class="nt">&lt;/Param&gt;</span>
+                                <span class="nt">&lt;Param&gt;</span>/[L]/i<span class="nt">&lt;/Param&gt;</span>
+                            <span class="nt">&lt;/Condition&gt;</span>
+                        <span class="nt">&lt;/ConditionChain&gt;</span>
+                        <span class="nt">&lt;FilterChain&gt;</span>
+                            <span class="nt">&lt;FilterEntry&gt;</span>
+                                <span class="nt">&lt;Filter&gt;</span>
+                                    <span class="nt">&lt;Name&gt;</span>SetValue<span class="nt">&lt;/Name&gt;</span>
+                                    <span class="nt">&lt;Param&gt;</span>true<span class="nt">&lt;/Param&gt;</span>
+                                    <span class="nt">&lt;Param&gt;</span>Boolean<span class="nt">&lt;/Param&gt;</span>
+                                <span class="nt">&lt;/Filter&gt;</span>
+                            <span class="nt">&lt;/FilterEntry&gt;</span>
+                        <span class="nt">&lt;/FilterChain&gt;</span>
+                        <span class="nt">&lt;Else&gt;</span>
+                            <span class="nt">&lt;FilterChain&gt;</span>
+                                <span class="nt">&lt;FilterEntry&gt;</span>
+                                    <span class="nt">&lt;Filter&gt;</span>
+                                        <span class="nt">&lt;Name&gt;</span>SetValue<span class="nt">&lt;/Name&gt;</span>
+                                        <span class="nt">&lt;Param&gt;</span>false<span class="nt">&lt;/Param&gt;</span>
+                                        <span class="nt">&lt;Param&gt;</span>Boolean<span class="nt">&lt;/Param&gt;</span>
+                                    <span class="nt">&lt;/Filter&gt;</span>
+                                <span class="nt">&lt;/FilterEntry&gt;</span>
+                            <span class="nt">&lt;/FilterChain&gt;</span>
+                        <span class="nt">&lt;/Else&gt;</span>
+                    <span class="nt">&lt;/When&gt;</span>
+                <span class="nt">&lt;/Choice&gt;</span>
+</pre></div>
+</div>
+<p>And then we could define an out filter which looks like this, to store the boolean values as string again:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;Attribute&gt;</span>
+    <span class="nt">&lt;Name&gt;</span>gosaFlagList<span class="nt">&lt;/Name&gt;</span>
+    ...
+    <span class="nt">&lt;OutFilter&gt;</span>
+        <span class="nt">&lt;FilterChain&gt;</span>
+            <span class="nt">&lt;FilterEntry&gt;</span>
+                <span class="nt">&lt;Filter&gt;</span>
+                    <span class="nt">&lt;Name&gt;</span>Clear<span class="nt">&lt;/Name&gt;</span>
+                <span class="nt">&lt;/Filter&gt;</span>
+            <span class="nt">&lt;/FilterEntry&gt;</span>
+            <span class="nt">&lt;FilterEntry&gt;</span>
+                <span class="nt">&lt;Choice&gt;</span>
+                    <span class="nt">&lt;When&gt;</span>
+                        <span class="nt">&lt;ConditionChain&gt;</span>
+                            <span class="nt">&lt;Condition&gt;</span>
+                                <span class="nt">&lt;Name&gt;</span>Equals<span class="nt">&lt;/Name&gt;</span>
+                                <span class="nt">&lt;Param&gt;</span>%(Flag_Lookup)s<span class="nt">&lt;/Param&gt;</span>
+                                <span class="nt">&lt;Param&gt;</span>true<span class="nt">&lt;/Param&gt;</span>
+                                <span class="nt">&lt;Param&gt;</span>Boolean<span class="nt">&lt;/Param&gt;</span>
+                            <span class="nt">&lt;/Condition&gt;</span>
+                        <span class="nt">&lt;/ConditionChain&gt;</span>
+                        <span class="nt">&lt;FilterChain&gt;</span>
+                            <span class="nt">&lt;FilterEntry&gt;</span>
+                                <span class="nt">&lt;Filter&gt;</span>
+                                    <span class="nt">&lt;Name&gt;</span>ConcatString<span class="nt">&lt;/Name&gt;</span>
+                                    <span class="nt">&lt;Param&gt;</span>L<span class="nt">&lt;/Param&gt;</span>
+                                    <span class="nt">&lt;Param&gt;</span>left<span class="nt">&lt;/Param&gt;</span>
+                                <span class="nt">&lt;/Filter&gt;</span>
+                            <span class="nt">&lt;/FilterEntry&gt;</span>
+                        <span class="nt">&lt;/FilterChain&gt;</span>
+                    <span class="nt">&lt;/When&gt;</span>
+                <span class="nt">&lt;/Choice&gt;</span>
+            <span class="nt">&lt;/FilterEntry&gt;</span>
+            ... add here the other flag checks...
+            <span class="nt">&lt;FilterEntry&gt;</span>
+                <span class="nt">&lt;Filter&gt;</span>
+                    <span class="nt">&lt;Name&gt;</span>ConcatString<span class="nt">&lt;/Name&gt;</span>
+                    <span class="nt">&lt;Param&gt;</span>[<span class="nt">&lt;/Param&gt;</span>
+                    <span class="nt">&lt;Param&gt;</span>left<span class="nt">&lt;/Param&gt;</span>
+                <span class="nt">&lt;/Filter&gt;</span>
+            <span class="nt">&lt;/FilterEntry&gt;</span>
+            <span class="nt">&lt;FilterEntry&gt;</span>
+                <span class="nt">&lt;Filter&gt;</span>
+                    <span class="nt">&lt;Name&gt;</span>ConcatString<span class="nt">&lt;/Name&gt;</span>
+                    <span class="nt">&lt;Param&gt;</span>]<span class="nt">&lt;/Param&gt;</span>
+                    <span class="nt">&lt;Param&gt;</span>right<span class="nt">&lt;/Param&gt;</span>
+                <span class="nt">&lt;/Filter&gt;</span>
+            <span class="nt">&lt;/FilterEntry&gt;</span>
+</pre></div>
+</div>
+<p>When saving the gosaFlagList again, it will be created out of the flag states.</p>
+</div>
+<div class="section" id="introduction-of-methods">
+<h4>Introduction of methods<a class="headerlink" href="#introduction-of-methods" title="Permalink to this headline">¶</a></h4>
+<p>We can also define methods for GOsa-objects within the XML definition, these methods can
+then be called directly on an instance of these object:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">person</span><span class="o">-&gt;</span><span class="n">notify</span><span class="p">(</span><span class="s">u&quot;Shutdown of your client&quot;</span><span class="p">,</span> <span class="s">u&quot;Please prepare yourselves for a system reboot!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here is the XML code for the above method call, all other object tags are removed for better reading:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;Objects</span> <span class="na">xmlns=</span><span class="s">&quot;http://www.gonicus.de/Objects&quot;</span><span class="nt">&gt;</span>
+    ...
+    <span class="nt">&lt;Object&gt;</span>
+        <span class="nt">&lt;Name&gt;</span>Person<span class="nt">&lt;/Name&gt;</span>
+        ...
+        <span class="nt">&lt;Methods&gt;</span>
+            <span class="nt">&lt;Method&gt;</span>
+                <span class="nt">&lt;Name&gt;</span>notify<span class="nt">&lt;/Name&gt;</span>
+                <span class="nt">&lt;MethodParameters&gt;</span>
+                    <span class="nt">&lt;MethodParameter&gt;</span>
+                        <span class="nt">&lt;Name&gt;</span>notify_title<span class="nt">&lt;/Name&gt;</span>
+                        <span class="nt">&lt;Type&gt;</span>String<span class="nt">&lt;/Type&gt;</span>
+                        <span class="nt">&lt;Default&gt;</span>Notification<span class="nt">&lt;/Default&gt;</span>
+                    <span class="nt">&lt;/MethodParameter&gt;</span>
+                    <span class="nt">&lt;MethodParameter&gt;</span>
+                        <span class="nt">&lt;Name&gt;</span>notify_message<span class="nt">&lt;/Name&gt;</span>
+                        <span class="nt">&lt;Type&gt;</span>String<span class="nt">&lt;/Type&gt;</span>
+                        <span class="nt">&lt;Required&gt;</span>true<span class="nt">&lt;/Required&gt;</span>
+                    <span class="nt">&lt;/MethodParameter&gt;</span>
+                <span class="nt">&lt;/MethodParameters&gt;</span>
+                <span class="nt">&lt;Command&gt;</span>notifyUser<span class="nt">&lt;/Command&gt;</span>
+                <span class="nt">&lt;CommandParameters&gt;</span>
+                    <span class="nt">&lt;CommandParameter&gt;</span>
+                        <span class="nt">&lt;Value&gt;</span>%(uid)s<span class="nt">&lt;/Value&gt;</span>
+                    <span class="nt">&lt;/CommandParameter&gt;</span>
+                    <span class="nt">&lt;CommandParameter&gt;</span>
+                        <span class="nt">&lt;Value&gt;</span>Der angegebene Titel war: %(notify_title)s<span class="nt">&lt;/Value&gt;</span>
+                    <span class="nt">&lt;/CommandParameter&gt;</span>
+                    <span class="nt">&lt;CommandParameter&gt;</span>
+                        <span class="nt">&lt;Value&gt;</span>%(notify_message)s<span class="nt">&lt;/Value&gt;</span>
+                    <span class="nt">&lt;/CommandParameter&gt;</span>
+                <span class="nt">&lt;/CommandParameters&gt;</span>
+            <span class="nt">&lt;/Method&gt;</span>
+        <span class="nt">&lt;/Methods&gt;</span>
+        ...
+    <span class="nt">&lt;/Object&gt;</span>
+<span class="nt">&lt;/Objects&gt;</span>
+</pre></div>
+</div>
+<p>Methods are introduced by a <tt class="docutils literal"><span class="pre">&lt;Method&gt;</span></tt> tag and are grouped within the <tt class="docutils literal"><span class="pre">&lt;Methods&gt;</span></tt> tag.
+You can have multiple methods if you want.</p>
+<p>Methods consist of four tags:</p>
+<blockquote>
+<div><ul class="simple">
+<li>The <tt class="docutils literal"><span class="pre">&lt;Name&gt;</span></tt> tag which specifies the name of the method.</li>
+<li>A <tt class="docutils literal"><span class="pre">&lt;MethodParameters&gt;</span></tt> tag, which contains a list of parameters to this method.</li>
+<li>A <tt class="docutils literal"><span class="pre">&lt;Command&gt;</span></tt> tag, which represents to GOsa-agent command we want to call.</li>
+<li>The <tt class="docutils literal"><span class="pre">&lt;CommandParameters&gt;</span></tt> tag, defines a list parameters we want to pass to the
+GOsa-agent command call.</li>
+</ul>
+</div></blockquote>
+<p>The above definition creates a method named notify which looks like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">notify</span><span class="p">(</span><span class="n">notify_message</span><span class="p">,</span> <span class="n">notify_title</span> <span class="o">=</span> <span class="s">u&quot;Notification&quot;</span><span class="p">):</span>
+</pre></div>
+</div>
+<p>If you call this method like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">person</span><span class="o">-&gt;</span><span class="n">notifyUser</span><span class="p">(</span><span class="s">&quot;Warning&quot;</span><span class="p">,</span> <span class="s">&quot;Restart imminent!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>it will invoke a GOsa-agent command named notifyUser with this parameters:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">notifyUser</span><span class="p">(</span><span class="s">u&quot;user1&quot;</span><span class="p">,</span> <span class="s">u&quot;Der angegebene Titel war: Warning&quot;</span><span class="p">,</span> <span class="s">u&quot;Restart imminent!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>As you can see, you cannot freely create whatever method you want, you can just call
+existing GOsa-agent commands and adjust their arguments.</p>
+<p>You can use placeholders using <tt class="docutils literal"><span class="pre">%(property_name)s</span></tt>, to dynamically fill in
+command parameters, like done for the first <tt class="docutils literal"><span class="pre">&lt;CommandParameter&gt;</span></tt>.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;CommandParameter&gt;</span>
+    <span class="nt">&lt;Value&gt;</span>%(uid)s<span class="nt">&lt;/Value&gt;</span>
+<span class="nt">&lt;/CommandParameter&gt;</span>
+</pre></div>
+</div>
+<p>or you can use it to refer to the method-parameters like this:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;CommandParameter&gt;</span>
+    <span class="nt">&lt;Value&gt;</span>Placeholder: %(notify_message)s<span class="nt">&lt;/Value&gt;</span>
+<span class="nt">&lt;/CommandParameter&gt;</span>
+</pre></div>
+</div>
+<p>You can use all the attribute names you have defined and additionally all the
+parameters of the method as placeholders.</p>
+</div>
+</div>
+</div>
+</div>
+<hr class="docutils" />
+<span class="target" id="module-gosa.agent.objects.factory"></span><div class="section" id="gosa-object-factory">
+<h1>GOsa Object Factory<a class="headerlink" href="#gosa-object-factory" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="short-description">
+<h2>Short description<a class="headerlink" href="#short-description" title="Permalink to this headline">¶</a></h2>
+<p>The object factory provides access to backend-data in an object
+oriented way. You can create, read, update and delete objects easily.</p>
+<p>What object-types are avaialable is configured using XML files, these files
+are located here: <tt class="docutils literal"><span class="pre">./gosa.common/src/gosa/common/data/objects/</span></tt>.</p>
+<p>Each XML file can contain multiple object definitions, with object related
+information, like attributes, methods, how to store and read
+objects.</p>
+<p>(For a detailed documentation of the of XML files, please have a look at the
+./doc directory)</p>
+<p>A python meta-class will be created for each object-definition.
+Those meta-classes will then be used to instantiate a new python object,
+which will then provide the defined attributes, methods, aso.</p>
+<p>Here are some examples on how to instatiate on new object:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">gosa.agent.objects</span> <span class="kn">import</span> <span class="n">GOsaObjectFactory</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">person</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">getObjectInstance</span><span class="p">(</span><span class="s">&#39;Person&#39;</span><span class="p">,</span> <span class="s">&quot;410ad9f0-c4c0-11e0-962b-0800200c9a66&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">person</span><span class="o">-&gt;</span><span class="n">sn</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">person</span><span class="o">-&gt;</span><span class="n">sn</span> <span class="o">=</span> <span class="s">&quot;Surname&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">person</span><span class="o">-&gt;</span><span class="n">commit</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="gosa.agent.objects.factory.GOsaObject">
+<em class="property">class </em><tt class="descclassname">gosa.agent.objects.factory.</tt><tt class="descname">GOsaObject</tt><big>(</big><em>dn=None</em><big>)</big><a class="headerlink" href="#gosa.agent.objects.factory.GOsaObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class is the base class for all GOsa-objects.</p>
+<p>It contains a getter and setter methods for the objects
+attributes and it is able to initialize itself by reading data from
+backends.</p>
+<p>It also contains the ability to execute the in- and out-filters for the
+object properties.</p>
+<p>All meta-classes for GOsa-objects, created by the XML defintions, will inherit this class.</p>
+<dl class="method">
+<dt id="gosa.agent.objects.factory.GOsaObject.commit">
+<tt class="descname">commit</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.agent.objects.factory.GOsaObject.commit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Commits changes of an GOsa-object to the corresponding backends.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.objects.factory.GOsaObject.delete">
+<tt class="descname">delete</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.agent.objects.factory.GOsaObject.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes this object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.objects.factory.GOsaObject.getAttrType">
+<tt class="descname">getAttrType</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#gosa.agent.objects.factory.GOsaObject.getAttrType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the type of a given GOsa-object attribute.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.objects.factory.GOsaObject.revert">
+<tt class="descname">revert</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.agent.objects.factory.GOsaObject.revert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reverts all changes made to this object since it was loaded.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gosa.agent.objects.factory.GOsaObjectFactory">
+<em class="property">class </em><tt class="descclassname">gosa.agent.objects.factory.</tt><tt class="descname">GOsaObjectFactory</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#gosa.agent.objects.factory.GOsaObjectFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class reads GOsa-object defintions and generates python-meta classes
+for each object, which can then be instantiated using
+<a class="reference internal" href="#gosa.agent.objects.factory.GOsaObjectFactory.getObjectInstance" title="gosa.agent.objects.factory.GOsaObjectFactory.getObjectInstance"><tt class="xref py py-meth docutils literal"><span class="pre">gosa.agent.objects.factory.GOsaObjectFactory.getObjectInstance()</span></tt></a>.</p>
+<dl class="method">
+<dt id="gosa.agent.objects.factory.GOsaObjectFactory.getObjectInstance">
+<tt class="descname">getObjectInstance</tt><big>(</big><em>name</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#gosa.agent.objects.factory.GOsaObjectFactory.getObjectInstance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a GOsa-object instance.</p>
+<p>e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">person</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">getObjectInstance</span><span class="p">(</span><span class="s">&#39;Person&#39;</span><span class="p">,</span> <span class="s">&quot;410ad9f0-c4c0-11e0-962b-0800200c9a66&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.objects.factory.GOsaObjectFactory.loadSchema">
+<tt class="descname">loadSchema</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#gosa.agent.objects.factory.GOsaObjectFactory.loadSchema" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method reads all gosa-object defintion files and then calls
+<a class="reference internal" href="#gosa.agent.objects.factory.GOsaObjectFactory.getObjectInstance" title="gosa.agent.objects.factory.GOsaObjectFactory.getObjectInstance"><tt class="xref py py-meth docutils literal"><span class="pre">gosa.agent.objects.factory.GOsaObjectFactory.getObjectInstance()</span></tt></a>
+to initiate the parsing into meta-classes for each file.</p>
+<p>These meta-classes are used for object instantiation later.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Object abstraction</a><ul>
+<li><a class="reference internal" href="#basic-usage">Basic usage</a></li>
+<li><a class="reference internal" href="#how-does-it-work-xml-definition-for-gosa-objects">How does it work - XML definition for GOsa objects</a><ul>
+<li><a class="reference internal" href="#xml-definition-of-gosa-objects-in-detail">XML definition of GOsa-objects in detail</a><ul>
+<li><a class="reference internal" href="#a-minimum-example">A minimum example</a></li>
+<li><a class="reference internal" href="#some-optional-properties-added">Some optional properties added</a></li>
+<li><a class="reference internal" href="#adding-attributes-and-their-in-and-out-filters">Adding attributes and their in- and out-filters</a></li>
+<li><a class="reference internal" href="#writing-attribute-validators">Writing attribute validators</a></li>
+<li><a class="reference internal" href="#creating-in-and-out-filters">Creating in and out filters</a></li>
+<li><a class="reference internal" href="#introduction-of-methods">Introduction of methods</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#gosa-object-factory">GOsa Object Factory</a><ul>
+<li><a class="reference internal" href="#short-description">Short description</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="jsonrpc.html"
+                        title="previous chapter">JSON RPC service</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../client/index.html"
+                        title="next chapter">Client</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/agent/objects.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../client/index.html" title="Client"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="jsonrpc.html" title="JSON RPC service"
+             >previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="../development.html" >Development documentation</a> &raquo;</li>
+          <li><a href="index.html" >Agent</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Cajus Pollmeier.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,253 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>AMQP service &mdash; GOsa v3.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/requirements.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="GOsa v3.0 documentation" href="../index.html" />
+    <link rel="up" title="Agent" href="index.html" />
+    <link rel="next" title="HTTP service" href="http.html" />
+    <link rel="prev" title="Command registry" href="command.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="http.html" title="HTTP service"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="command.html" title="Command registry"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="../development.html" >Development documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Agent</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-gosa.agent.amqp_service">
+<span id="amqp-service"></span><h1>AMQP service<a class="headerlink" href="#module-gosa.agent.amqp_service" title="Permalink to this headline">¶</a></h1>
+<p>The <em>AMQPService</em> is responsible for connecting the <em>agent</em> to the AMQP
+bus, registers the required queues, listens for commands on that queues
+and dispatches incoming commands to the
+<a class="reference internal" href="command.html#gosa.agent.command.CommandRegistry" title="gosa.agent.command.CommandRegistry"><tt class="xref py py-class docutils literal"><span class="pre">gosa.agent.command.CommandRegistry</span></tt></a>.</p>
+<p id="agent-queues"><strong>Queues</strong></p>
+<p>In order to use features like round robin and automatic routing of commands
+to agents that are capable of handling them, the AMQPService creates a
+queue structure that addresses these facts.</p>
+<p>Queues are named after the configured <em>domain</em> - i.e. if you use the
+configured default domain, you&#8217;ll get <tt class="docutils literal"><span class="pre">org.gosa</span></tt> as the base dot
+separated string for the queues. The agent registers two <strong>core</strong> queues:</p>
+<blockquote>
+<div><ul>
+<li><p class="first"><strong>{domain}.command.core</strong> <em>(i.e. org.gosa.command.core)</em></p>
+<p>This is a round robin queue that is shared by all agents joining
+the domain. The core queue must only handle commands that are provided
+by all agents.</p>
+</li>
+<li><p class="first"><strong>{domain}.command.core.{nodename}</strong> <em>(i.e. org.gosa.command.core.node1 if your node is named node1)</em></p>
+<p>This queue is a private queue that is only used by a specific
+agent. It is possible to direct a command to exactly the agent identified
+by <em>nodename</em>.</p>
+</li>
+</ul>
+</div></blockquote>
+<p>The same thing which is established for the <strong>command.core</strong> queues is done
+for queues registered by certain plugins. This ensures that commands are only
+delivered to nodes which provide that functionality by listening to these
+queues:</p>
+<blockquote>
+<div><ul>
+<li><p class="first"><strong>{domain}.command.{plugin}</strong> <em>(i.e. org.gosa.command.goto)</em></p>
+<p>This is a round robin queue that is shared by all agents joining
+the domain. In the example above, all agents providing the <em>goto</em> plugin
+will share this queue.</p>
+</li>
+<li><p class="first"><strong>{domain}.command.{plugin}.nodename</strong> <em>(i.e. org.gosa.command.goto.node1 if your node is named node1)</em></p>
+<p>Like for the <em>command.core</em> queues, this queue is private for the current
+agent and makes it possible to direct a command to exactly the agent identified
+by <em>nodename</em>.</p>
+</li>
+</ul>
+</div></blockquote>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">To learn how to specify the plugin&#8217;s target queue, please read <a class="reference external" href="plugins">Plugins</a> 
+for more information.</p>
+</div>
+<p>Last but not least, the <em>AMQPService</em> binds to the queues mentioned above
+and dispatches command calls to the <em>CommandRegistry</em>.</p>
+<hr class="docutils" />
+<dl class="class">
+<dt id="gosa.agent.amqp_service.AMQPService">
+<em class="property">class </em><tt class="descclassname">gosa.agent.amqp_service.</tt><tt class="descname">AMQPService</tt><a class="headerlink" href="#gosa.agent.amqp_service.AMQPService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class to serve all available queues and commands to the AMQP broker. It
+makes use of a couple of configuration flags provided by the gosa
+configurations file <tt class="docutils literal"><span class="pre">[amqp]</span></tt> section:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>url</td>
+<td>AMQP URL to connect to the broker</td>
+</tr>
+<tr><td>id</td>
+<td>User name to connect with</td>
+</tr>
+<tr><td>key</td>
+<td>Password to connect with</td>
+</tr>
+<tr><td>command-worker</td>
+<td>Number of worker processes</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><pre>[amqp]
+url = amqps://amqp.intranet.gonicus.de:5671
+id = node1
+key = secret</pre>
+</div>
+<dl class="method">
+<dt id="gosa.agent.amqp_service.AMQPService.commandReceived">
+<tt class="descname">commandReceived</tt><big>(</big><em>ssn</em>, <em>message</em><big>)</big><a class="headerlink" href="#gosa.agent.amqp_service.AMQPService.commandReceived" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process incoming commands, coming in with session and message
+information.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="40%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>ssn</td>
+<td>AMQP session object</td>
+</tr>
+<tr><td>message</td>
+<td>Received AMQP message</td>
+</tr>
+</tbody>
+</table>
+<p>Incoming messages are coming from an
+<a class="reference internal" href="../common/components.html#gosa.common.components.amqp_proxy.AMQPServiceProxy" title="gosa.common.components.amqp_proxy.AMQPServiceProxy"><tt class="xref py py-class docutils literal"><span class="pre">gosa.common.components.amqp_proxy.AMQPServiceProxy</span></tt></a> which
+is providing a <em>reply to</em> queue as a return channel. The command
+result is written to that queue.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.amqp_service.AMQPService.serve">
+<tt class="descname">serve</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.agent.amqp_service.AMQPService.serve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start AMQP service for this GOsa service provider.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.amqp_service.AMQPService.stop">
+<tt class="descname">stop</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.agent.amqp_service.AMQPService.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop AMQP service for this GOsa service provider.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="command.html"
+                        title="previous chapter">Command registry</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="http.html"
+                        title="next chapter">HTTP service</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/agent/amqp.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="http.html" title="HTTP service"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="command.html" title="Command registry"
+             >previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="../development.html" >Development documentation</a> &raquo;</li>
+          <li><a href="index.html" >Agent</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Cajus Pollmeier.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

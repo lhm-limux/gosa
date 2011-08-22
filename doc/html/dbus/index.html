@@ -1,0 +1,180 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>DBUS integration &mdash; GOsa v3.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/requirements.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="GOsa v3.0 documentation" href="../index.html" />
+    <link rel="up" title="Development documentation" href="../development.html" />
+    <link rel="next" title="Shell and scripting" href="../shell/index.html" />
+    <link rel="prev" title="Domain join" href="../client/join.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../shell/index.html" title="Shell and scripting"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../client/join.html" title="Domain join"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="../development.html" accesskey="U">Development documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-gosa.dbus">
+<span id="dbus-integration"></span><h1>DBUS integration<a class="headerlink" href="#module-gosa.dbus" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>The <em>DBUS</em> module bundles the GOsa DBUS daemon and a couple code modules
+needed to run it. The DBUS itself is meant to be extended by implementing
+<tt class="xref py py-class docutils literal"><span class="pre">dbus.service.Object</span></tt> and additionally inherit from
+<a class="reference internal" href="../common/components.html#gosa.common.components.plugin.Plugin" title="gosa.common.components.plugin.Plugin"><tt class="xref py py-class docutils literal"><span class="pre">gosa.common.components.plugin.Plugin</span></tt></a>.
+When starting up the system, the DBUS components looks for plugins in the setuptools
+system and registers them into to the <a class="reference internal" href="../common/components.html#gosa.common.components.registry.PluginRegistry" title="gosa.common.components.registry.PluginRegistry"><tt class="xref py py-class docutils literal"><span class="pre">gosa.common.components.registry.PluginRegistry</span></tt></a>.</p>
+<p>This happens automatically depending on what&#8217;s registered on the
+<tt class="docutils literal"><span class="pre">[gosa_dbus.modules]</span></tt> setuptools entrypoint.</p>
+<p>To provide services it registers the system bus <tt class="docutils literal"><span class="pre">com.gonicus.gosa</span></tt> to the
+systems DBUS, exposing functionality to the outside world.</p>
+<p>All the DBUS plugins you provide run as <em>root</em>, so the service is meant as
+a gateway to call functionality which needs more administrative power than
+the GOsa client user has.</p>
+<p>Code example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">dbus.service</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">from</span> <span class="nn">gosa.common</span> <span class="kn">import</span> <span class="n">Environment</span>
+<span class="kn">from</span> <span class="nn">gosa.common.components</span> <span class="kn">import</span> <span class="n">Plugin</span>
+<span class="kn">from</span> <span class="nn">gosa.dbus</span> <span class="kn">import</span> <span class="n">get_system_bus</span>
+
+
+<span class="k">class</span> <span class="nc">DBusWakeOnLanHandler</span><span class="p">(</span><span class="n">dbus</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">Object</span><span class="p">,</span> <span class="n">Plugin</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; WOL handler, exporting shell commands to the bus &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">get_system_bus</span><span class="p">()</span>
+        <span class="n">dbus</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">Object</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn</span><span class="p">,</span> <span class="s">&#39;/com/gonicus/gosa/wol&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">Environment</span><span class="o">.</span><span class="n">getInstance</span><span class="p">()</span>
+
+    <span class="nd">@dbus.service.method</span><span class="p">(</span><span class="s">&#39;com.gonicus.gosa&#39;</span><span class="p">,</span> <span class="n">in_signature</span><span class="o">=</span><span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="n">out_signature</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wakeOnLan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mac</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s">r&quot;wakeonlan&quot;</span><span class="p">,</span> <span class="n">mac</span><span class="p">])</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+        <span class="c"># return exit code, unfortunately wakeonlan returns 0</span>
+        <span class="c"># even when an error occurs :(</span>
+        <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">returncode</span>
+</pre></div>
+</div>
+<p>This one will provide wake-on-lan functionality over DBUS.</p>
+<p>If you&#8217;re looking for documentation on how to write plugins, please take a look
+at the <a class="reference internal" href="../plugins/index.html#id1"><em>Plugin section</em></a>.</p>
+</div>
+<hr class="docutils" />
+<span class="target" id="module-gosa.dbus.utils"></span><dl class="function">
+<dt id="gosa.dbus.utils.get_system_bus">
+<tt class="descclassname">gosa.dbus.utils.</tt><tt class="descname">get_system_bus</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.dbus.utils.get_system_bus" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>get_system_bus</em> acts as a singleton and returns the
+system bus for &#8216;com.gonicus.gosa&#8217;.</p>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> system bus</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">DBUS integration</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../client/join.html"
+                        title="previous chapter">Domain join</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../shell/index.html"
+                        title="next chapter">Shell and scripting</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/dbus/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../shell/index.html" title="Shell and scripting"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../client/join.html" title="Domain join"
+             >previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="../development.html" >Development documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Cajus Pollmeier.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

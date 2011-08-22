@@ -1,0 +1,229 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Client &mdash; GOsa v3.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/requirements.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="GOsa v3.0 documentation" href="../index.html" />
+    <link rel="up" title="Development documentation" href="../development.html" />
+    <link rel="next" title="Command registry" href="command.html" />
+    <link rel="prev" title="Object abstraction" href="../agent/objects.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="command.html" title="Command registry"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../agent/objects.html" title="Object abstraction"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="../development.html" accesskey="U">Development documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-gosa.client">
+<span id="client"></span><h1>Client<a class="headerlink" href="#module-gosa.client" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>The <em>client</em> module bundles the client daemon and a couple code modules
+needed to run it. The client itself is meant to be extended by plugins
+using the <a class="reference internal" href="../common/components.html#gosa.common.components.plugin.Plugin" title="gosa.common.components.plugin.Plugin"><tt class="xref py py-class docutils literal"><span class="pre">gosa.common.components.plugin.Plugin</span></tt></a> interface.
+When starting up the system, the client looks for plugins in the setuptools
+system and registers them into to the <a class="reference internal" href="../common/components.html#gosa.common.components.registry.PluginRegistry" title="gosa.common.components.registry.PluginRegistry"><tt class="xref py py-class docutils literal"><span class="pre">gosa.common.components.registry.PluginRegistry</span></tt></a>.</p>
+<p>After the <em>PluginRegistry</em> is ready with loading the modules, it orders
+them by priority and loads them in sorted order.</p>
+<p>The client is now in a state where it enters the main loop by sending
+an AMQP <tt class="docutils literal"><span class="pre">ClientAnnounce</span></tt> event to be recognized by agents.</p>
+<p>To provide services an ordinary client will load a couple of modules
+exposing functionality to the outside world. Here are some of them:</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="xref py py-class docutils literal"><span class="pre">gosa.client.command.CommandRegistry</span></tt> inspects all loaded modules
+for the <a class="reference internal" href="../common/components.html#gosa.common.components.command.Command" title="gosa.common.components.command.Command"><tt class="xref py py-meth docutils literal"><span class="pre">gosa.common.components.command.Command()</span></tt></a> decorator
+and registers all decorated methods to be available thru the CommandRegistry
+dispatcher.</li>
+<li><tt class="xref py py-class docutils literal"><span class="pre">gosa.client.amqp_service.AMQPService</span></tt> joins to the qpid broker
+federation and provides methods to <em>speak</em> with the bus.</li>
+</ul>
+</div></blockquote>
+<p>This happens automatically depending on what&#8217;s registered on the
+<tt class="docutils literal"><span class="pre">[gosa_client.modules]</span></tt> setuptools entrypoint.</p>
+<p>The client will send a <strong>ClientLeave</strong> event when shutting down.</p>
+<p>If you&#8217;re looking for documentation on how to write plugins, please take a look
+at the <a class="reference internal" href="../plugins/index.html#id1"><em>Plugin section</em></a>.</p>
+</div>
+<div class="section" id="joining-clients">
+<h2>Joining clients<a class="headerlink" href="#joining-clients" title="Permalink to this headline">¶</a></h2>
+<p>Before a GOsa client can connect to the AMQP bus, it needs to be known to
+the infrastructure - which is done by <em>joining</em> the client. The process
+of joining is like joining a windows client to a domain: you need someone
+with adequate permission to do that.</p>
+<p>While the <em>gosa-join</em> binary will do this for you, it is possible to extend
+it to use i.e. a graphical join dialog. At present, we provide a ncurses
+and a readline based join mechanism. More can be added using the setuptools
+<tt class="docutils literal"><span class="pre">gosa_join.modules</span></tt> entrypoint. For more information, take a look at the
+<tt class="xref py py-mod docutils literal"><span class="pre">gosa.client.join</span></tt> and <tt class="xref py py-class docutils literal"><span class="pre">gosa.client.plugins.join.join_method</span></tt> documentation.</p>
+</div>
+<div class="section" id="using-the-binaries">
+<h2>Using the binaries<a class="headerlink" href="#using-the-binaries" title="Permalink to this headline">¶</a></h2>
+<p>The gosa-client binary gets installed when you run the setup process. It
+has a couple of command line arguments:</p>
+<blockquote>
+<div><div class="highlight-text"><div class="highlight"><pre>$ gosa-client --help
+Usage: gosa-client - the GOsa core daemon
+
+Options:
+  --version             show program&#39;s version number and exit
+  -h, --help            show this help message and exit
+  -c FILE, --config=FILE
+                        read configuration from FILE [/etc/gosa/config]
+  -f                    run daemon in foreground [none]
+  -u USER, --user=USER  run daemon as USER [none]
+  -g GROUP, --group=GROUP
+                        run daemon as GROUP [none]
+  -p FILE, --pid-file=FILE
+                        store PID information into FILE [none]
+  --profile             write profiling information (only if daemon runs in
+                        foreground mode [none]
+
+  Logging options:
+    -v LOGLEVEL, --log-level=LOGLEVEL
+                        log level 0 - INFO, 1 - WARNING, 2 - ERROR, 4 -
+                        CRITICAL, 5 - DEBUG
+    -l METHOD, --log-mode=METHOD
+                        method used for logging (syslog, stderr, file) [none]
+    --log-file=FILE     if the file method is used, log to FILE
+
+  Advanced options:
+    --umask=UMASK       run daemon with UMASK [none]
+    --workdir=DIR       change directory to DIR after starting up [none]
+</pre></div>
+</div>
+</div></blockquote>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Take a look at the <a class="reference internal" href="../intro.html#quickstart"><em>quickstart</em></a> to see how the client is
+controlled.</p>
+</div>
+<div class="admonition-requirement admonition " id="req-0">
+<p class="first admonition-title">Requirement</p>
+<p class="last"><em class="status todo">todo</em> Describe the init script / default usage</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">On windows the binary is called <em>gcs</em>.</p>
+</div>
+</div>
+<hr class="docutils" />
+<p><strong>Contents:</strong></p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="command.html">Command registry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amqp.html">AMQP service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="join.html">Domain join</a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Client</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#joining-clients">Joining clients</a></li>
+<li><a class="reference internal" href="#using-the-binaries">Using the binaries</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../agent/objects.html"
+                        title="previous chapter">Object abstraction</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="command.html"
+                        title="next chapter">Command registry</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/client/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="command.html" title="Command registry"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../agent/objects.html" title="Object abstraction"
+             >previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="../development.html" >Development documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Cajus Pollmeier.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

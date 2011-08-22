@@ -1,0 +1,543 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Introduction &mdash; GOsa v3.0 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/requirements.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="GOsa v3.0 documentation" href="index.html" />
+    <link rel="next" title="Installation and configuration guide" href="production.html" />
+    <link rel="prev" title="Welcome to GOsa’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="production.html" title="Installation and configuration guide"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to GOsa’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">GOsa v3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="quickstart">
+<span id="id1"></span><h2>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h2>
+<p>This document contains information on <em>how to get started</em> with
+the current gosa 3.0 alpha. It does not care about SSL or other
+security related issues around qpid.</p>
+<p>It works starting with squeeze or later.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Lenny does not work, so you just don&#8217;t have to try...</p>
+</div>
+<p>Depending on which parts of gosa-ng you want to deploy, there are
+different prerequisites to fulfill. Please read the relevant sections.</p>
+<div class="section" id="common-setup">
+<h3>Common setup<a class="headerlink" href="#common-setup" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="system-prerequisites">
+<h4>System prerequisites<a class="headerlink" href="#system-prerequisites" title="Permalink to this headline">¶</a></h4>
+<p>To run the services in the designed way later on, you need a special user
+and a couple of directories:</p>
+<div class="highlight-python"><pre>$ sudo adduser --system --group gosa --home=/var/lib/gosa</pre>
+</div>
+<p>If you&#8217;re going to run the service in daemon mode, please take care that
+there&#8217;s a <em>/var/run/gosa</em> for placing the PID files.</p>
+</div>
+<div class="section" id="python-prerequisites">
+<h4>Python prerequisites<a class="headerlink" href="#python-prerequisites" title="Permalink to this headline">¶</a></h4>
+<p>While we try to keep everything inside a virtual python environment for
+development, some of the python modules need compilation - which rises the
+number of required packages drastically. For the time being, please install
+the following packages in your system:</p>
+<div class="highlight-python"><pre>$ sudo apt-get install python2.6-dev python-dumbnet python-avahi python-virtualenv \
+       libavahi-compat-libdnssd-dev python-openssl python-dbus libssl-dev python-gtk2 \
+       python-lxml python-libxml2 python-dmidecode python-ldap python-nose \
+       python-kid python-coverage python-dateutil python-smbpasswd python-netifaces</pre>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">On MS Windows systems, only the client is supposed to work. Please install the
+pywin32 package: <a class="reference external" href="http://sourceforge.net/projects/pywin32/">http://sourceforge.net/projects/pywin32/</a></p>
+</div>
+</div>
+<div class="section" id="setup-a-virtual-environment-for-playing-with-gosa-3-0-alpha">
+<h4>Setup a virtual environment for playing with GOsa 3.0 alpha<a class="headerlink" href="#setup-a-virtual-environment-for-playing-with-gosa-3-0-alpha" title="Permalink to this headline">¶</a></h4>
+<p>As a non-root user, initialize the virtual environment:</p>
+<div class="highlight-python"><pre>$ virtualenv --setuptools --python=python2.6  gosa-ng
+$ cd gosa-ng
+$ source bin/activate</pre>
+</div>
+</div>
+<div class="section" id="obtaining-the-source">
+<h4>Obtaining the source<a class="headerlink" href="#obtaining-the-source" title="Permalink to this headline">¶</a></h4>
+<p>For now, please use the tar or git:</p>
+<div class="highlight-python"><pre>$ cd 'the place where you created the gosa-ng virtualenv'
+$ git clone git://oss.gonicus.de/git/gosa.git src</pre>
+</div>
+<p>This will place all relevant files inside the &#8216;src&#8217; directory.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The &#8220;source bin/activate&#8221; has to be done every time you work in or with the
+virtual environment. Stuff will fail if you don&#8217;t do this. If you&#8217;re asked for
+sudo/root, you&#8217;re doing something wrong.</p>
+</div>
+</div>
+</div>
+<div class="section" id="the-gosa-ng-agent">
+<h3>The gosa-ng agent<a class="headerlink" href="#the-gosa-ng-agent" title="Permalink to this headline">¶</a></h3>
+<p>To run the agent, you most likely need a working AMQP broker and
+a working LDAP setup.</p>
+<div class="section" id="prerequisites">
+<h4>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h4>
+<p>We use qpidc as the AMQP broker. Other implementations like rabbitmq,
+etc. are not supported. They lack some functionality we&#8217;re making use
+of.</p>
+</div>
+<div class="section" id="adding-the-amqp-repository">
+<h4>Adding the AMQP repository<a class="headerlink" href="#adding-the-amqp-repository" title="Permalink to this headline">¶</a></h4>
+<p>In Debian, the simpliest way to get qpid running would be the use
+of an existing repository. Include it in your configuration like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># wget -O - http://apt.naasa.net/archive.key | apt-key add -</span>
+<span class="c"># [ -d /etc/apt/sources.d ] || mkdir /etc/apt/sources.d</span>
+<span class="c"># echo &quot;deb http://apt.naasa.net/debian/ lenny main&quot; &gt; /etc/apt/sources.d/qpid.list</span>
+<span class="c"># apt-get update</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="install-qpid-broker-and-clients">
+<h4>Install qpid broker and clients<a class="headerlink" href="#install-qpid-broker-and-clients" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># apt-get install qpid-broker qpid-client qpid-utils qpid-specs</span>
+</pre></div>
+</div>
+<p>Add a user for playing with the current development snapshot:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># saslpasswd2 -f /var/lib/qpidd/qpidd.sasldb -u QPID admin</span>
+</pre></div>
+</div>
+<p>Maybe set the access policy for the admin. Not directly needed for non-production,
+but a definitive must on ordinary systems:</p>
+<div class="highlight-python"><pre># vi /etc/qpid/qpidd.policy
+|# Admin is allowed to do everything
+|acl allow admin all
+|
+|# Deny everything else by default
+|acl allow all deny
+|:wq</pre>
+</div>
+<p>Check if it works:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># qpid-config -a admin/secret@hostname queues</span>
+</pre></div>
+</div>
+<p>Now the broker aka bus is up and running on the host.</p>
+<p>For production use, you should enable SSL for the broker and for GOsa core. Generating
+the certificates is shown here:</p>
+<p><a class="reference external" href="http://rajith.2rlabs.com/2010/03/01/apache-qpid-securing-connections-with-ssl/">http://rajith.2rlabs.com/2010/03/01/apache-qpid-securing-connections-with-ssl/</a></p>
+</div>
+<div class="section" id="install-ldap-service">
+<h4>Install LDAP service<a class="headerlink" href="#install-ldap-service" title="Permalink to this headline">¶</a></h4>
+<div class="admonition-requirement admonition " id="req-0">
+<p class="first admonition-title">Requirement</p>
+<p class="last"><em class="status todo">todo</em> Describe the basic LDAP setup.</p>
+</div>
+</div>
+<div class="section" id="amqp-ldap-authentication">
+<h4>AMQP LDAP-Authentication<a class="headerlink" href="#amqp-ldap-authentication" title="Permalink to this headline">¶</a></h4>
+<p>/etc/default/saslauthd:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#</span>
+<span class="c"># Settings for saslauthd daemon</span>
+<span class="c"># Please read /usr/share/doc/sasl2-bin/README.Debian for details.</span>
+<span class="c">#</span>
+
+<span class="c"># Should saslauthd run automatically on startup? (default: no)</span>
+<span class="n">START</span><span class="o">=</span><span class="n">yes</span>
+
+<span class="c"># Description of this saslauthd instance. Recommended.</span>
+<span class="c"># (suggestion: SASL Authentication Daemon)</span>
+<span class="n">DESC</span><span class="o">=</span><span class="s">&quot;SASL Authentication Daemon&quot;</span>
+
+<span class="c"># Short name of this saslauthd instance. Strongly recommended.</span>
+<span class="c"># (suggestion: saslauthd)</span>
+<span class="n">NAME</span><span class="o">=</span><span class="s">&quot;saslauthd&quot;</span>
+
+<span class="c"># Which authentication mechanisms should saslauthd use? (default: pam)</span>
+<span class="c">#</span>
+<span class="c"># Available options in this Debian package:</span>
+<span class="c"># getpwent  -- use the getpwent() library function</span>
+<span class="c"># kerberos5 -- use Kerberos 5</span>
+<span class="c"># pam       -- use PAM</span>
+<span class="c"># rimap     -- use a remote IMAP server</span>
+<span class="c"># shadow    -- use the local shadow password file</span>
+<span class="c"># sasldb    -- use the local sasldb database file</span>
+<span class="c"># ldap      -- use LDAP (configuration is in /etc/saslauthd.conf)</span>
+<span class="c">#</span>
+<span class="c"># Only one option may be used at a time. See the saslauthd man page</span>
+<span class="c"># for more information.</span>
+<span class="c">#</span>
+<span class="c"># Example: MECHANISMS=&quot;pam&quot;</span>
+<span class="n">MECHANISMS</span><span class="o">=</span><span class="s">&quot;ldap&quot;</span>
+
+<span class="c"># Additional options for this mechanism. (default: none)</span>
+<span class="c"># See the saslauthd man page for information about mech-specific options.</span>
+<span class="n">MECH_OPTIONS</span><span class="o">=</span><span class="s">&quot;&quot;</span>
+
+<span class="c"># How many saslauthd processes should we run? (default: 5)</span>
+<span class="c"># A value of 0 will fork a new process for each connection.</span>
+<span class="n">THREADS</span><span class="o">=</span><span class="mi">5</span>
+
+<span class="c"># Other options (default: -c -m /var/run/saslauthd)</span>
+<span class="c"># Note: You MUST specify the -m option or saslauthd won&#39;t run!</span>
+<span class="c">#</span>
+<span class="c"># WARNING: DO NOT SPECIFY THE -d OPTION.</span>
+<span class="c"># The -d option will cause saslauthd to run in the foreground instead of as</span>
+<span class="c"># a daemon. This will PREVENT YOUR SYSTEM FROM BOOTING PROPERLY. If you wish</span>
+<span class="c"># to run saslauthd in debug mode, please run it by hand to be safe.</span>
+<span class="c">#</span>
+<span class="c"># See /usr/share/doc/sasl2-bin/README.Debian for Debian-specific information.</span>
+<span class="c"># See the saslauthd man page and the output of &#39;saslauthd -h&#39; for general</span>
+<span class="c"># information about these options.</span>
+<span class="c">#</span>
+<span class="c"># Example for postfix users: &quot;-c -m /var/spool/postfix/var/run/saslauthd&quot;</span>
+<span class="n">OPTIONS</span><span class="o">=</span><span class="s">&quot;-c -m /var/run/saslauthd&quot;</span>
+</pre></div>
+</div>
+<p>/etc/saslauthd.conf:</p>
+<div class="highlight-python"><pre>ldap_servers: ldap://ldap.your.domain
+ldap_search_base: dc=example,dc=com
+ldap_filter: (|(&amp;(objectClass=gosaAccount)(uid=%U))(&amp;(objectClass=registeredDevice)(deviceUUID=%U)))
+ldap_scope: sub
+ldap_size_limit: 0
+ldap_time_limit: 15
+ldap_timeout: 15
+ldap_version: 3
+ldap_debug: 255</pre>
+</div>
+<p>Test:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># /etc/init.d/saslauthd restart</span>
+<span class="c"># testsaslauthd -u admin -p secret -r QPID</span>
+</pre></div>
+</div>
+<p>/etc/qpid/sasl/qpidd.conf:</p>
+<div class="highlight-python"><pre>pwcheck_method: saslauthd
+mech_list: PLAIN LOGIN</pre>
+</div>
+<p>Start up service:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># adduser qpidd sasl</span>
+<span class="c"># /etc/init.d/qpid-broker restart</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="prepare-dns-zone-for-zeroconf">
+<h4>Prepare DNS-Zone for zeroconf<a class="headerlink" href="#prepare-dns-zone-for-zeroconf" title="Permalink to this headline">¶</a></h4>
+<p>Zeroconf setup:</p>
+<div class="highlight-python"><pre>; Zeroconf base setup
+b._dns-sd._udp  IN PTR @   ;  b = browse domain
+lb._dns-sd._udp IN PTR @   ;  lb = legacy browse domain
+r._dns-sd._udp  IN PTR @   ;  r = registration domain
+
+; Zeroconf gosa-ng records
+_gosa._tcp  PTR GOsa\ NG\ Service._gosa._tcp
+GOsa\ NG\ Service._gosa._tcp     SRV 0 0 5671 amqp.example.org.
+                               TXT amqps://amqp.example.org:5671/org.gosa</pre>
+</div>
+<p>You can test your setup with:</p>
+<div class="highlight-python"><pre># avahi-browse -D
+-&gt; this should list your domain
+# avahi-browse -r example.org _gosa._tcp
+-&gt; this should list your services</pre>
+</div>
+</div>
+<div class="section" id="deploy-a-development-agent">
+<h4>Deploy a development agent<a class="headerlink" href="#deploy-a-development-agent" title="Permalink to this headline">¶</a></h4>
+<p>To deploy the agent, please run these commands inside the activated
+virtual environment:</p>
+<div class="highlight-python"><pre>$ pushd .; cd gosa.common &amp;&amp; ./setup.py develop; popd
+$ pushd .; cd gosa.agent &amp;&amp; ./setup.py develop; popd</pre>
+</div>
+<p>Alternatively you can build the complete package using:</p>
+<div class="highlight-python"><pre>$ ./setup.py develop</pre>
+</div>
+</div>
+<div class="section" id="starting-the-service">
+<h4>Starting the service<a class="headerlink" href="#starting-the-service" title="Permalink to this headline">¶</a></h4>
+<p>In a productive environment, everything should be defined in the configuration
+file, so take a look at the agent.conf present in the src/gosa/agent/data directory
+and adapt it to your needs. Fire up the daemon in foreground mode:</p>
+<div class="highlight-python"><pre>$ gosa-agent -f --config=src/gosa/agent/data/agent.conf</pre>
+</div>
+<p>If you want to run the agent in a more productive manner, you can use the
+daemon mode and start it as root. It will then fork to the configured user
+and run as a daemon.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Make sure, you&#8217;ve entered the virtual environment using &#8220;source bin/activate&#8221;
+from inside the gosa-ng directory.</p>
+</div>
+</div>
+</div>
+<div class="section" id="the-gosa-ng-shell">
+<h3>The gosa-ng shell<a class="headerlink" href="#the-gosa-ng-shell" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="installing">
+<h4>Installing<a class="headerlink" href="#installing" title="Permalink to this headline">¶</a></h4>
+<p>To deploy the shell, use:</p>
+<div class="highlight-python"><pre>$ pushd .; cd gosa.common &amp;&amp; ./setup.py develop; popd
+$ pushd .; cd gosa.shell &amp;&amp; ./setup.py develop; popd</pre>
+</div>
+<p>inside your activated virtual env. You can skip this if you ran ./setup.py for
+a complete deployment.</p>
+</div>
+</div>
+<div class="section" id="first-contact">
+<h3>First contact<a class="headerlink" href="#first-contact" title="Permalink to this headline">¶</a></h3>
+<p>The gosa-shell will use zeroconf/DNS to find relevant connection methods. Alternatively
+you can specify the connection URL to skip zeroconf/DNS.</p>
+<p>Start the shell and send a command:</p>
+<div class="highlight-python"><pre>$ gosa-shell
+(authenticate as the admin user you've created in qpid's SASL DB)
+&gt;&gt;&gt; gosa.help()
+&gt;&gt;&gt; gosa.mksmbhash("secret")
+&gt;&gt;&gt; &lt;Strg+D&gt;</pre>
+</div>
+<p>The shell did not get priorized work in the moment, so the gosa.help() output is
+neither sorted, nor grouped by plugins. Much space for improvements.</p>
+<p>If you tend to use a connection URL directly, use:</p>
+<div class="highlight-python"><pre>$ gosa-shell http[s]://amqp.example.com:8080/rpc</pre>
+</div>
+<p>for HTTP based sessions or</p>
+<div class="highlight-python"><pre>$ gosa-shell amqp[s]://amqp.example.com/org.gosa</pre>
+</div>
+<p>for AMQP based sessions.</p>
+</div>
+<div class="section" id="the-gosa-ng-client">
+<h3>The gosa-ng client<a class="headerlink" href="#the-gosa-ng-client" title="Permalink to this headline">¶</a></h3>
+<p>A gosa-ng client is a device instance that has been joined into the gosa network.
+Every client can incorporate functionality into the network - or can just be
+a managed client.</p>
+<div class="section" id="id2">
+<h4>Installing<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<p>To deploy the client components, use:</p>
+<div class="highlight-python"><pre>$ pushd .; cd gosa.common &amp;&amp; ./setup.py develop; popd
+$ pushd .; cd gosa.client &amp;&amp; ./setup.py develop; popd
+$ pushd .; cd gosa.dbus &amp;&amp; ./setup.py develop; popd</pre>
+</div>
+<p>inside your activated virtual env. You can skip this if you ran ./setup.py for
+a complete deployment.</p>
+</div>
+<div class="section" id="joining-the-party">
+<h4>Joining the party<a class="headerlink" href="#joining-the-party" title="Permalink to this headline">¶</a></h4>
+<p>A client needs to authenticate to the gosa-ng bus. In order to create the required
+credentials for that, you&#8217;ve to &#8220;announce&#8221; or &#8220;join&#8221; the client to the system.</p>
+<p>To do that, run</p>
+<div class="highlight-python"><pre>$ sudo -s
+# cd 'wherever your gosa-ng virtual environment is'
+# source/bin activate
+# gosa-join</pre>
+</div>
+<p>on the client you&#8217;re going to join. In the development case, this may be the
+same machine which runs the agent.</p>
+</div>
+<div class="section" id="running-the-root-component">
+<h4>Running the root component<a class="headerlink" href="#running-the-root-component" title="Permalink to this headline">¶</a></h4>
+<p>Some functionality may need root permission, while we don&#8217;t want to run the complete
+client as root. The gosa-dbus component is used to run dedicated tasks as root. It
+can be extended by simple plugins and registers the resulting methods in the dbus
+interface.</p>
+<p>To use the dbus-component, you&#8217;ve to allow the gosa system user (or whatever user
+the gosa-client is running later on) to use certain dbus services. Copy and eventually
+adapt the file src/contrib/dbus/com.gonicus.gosa.conf to /etc/dbus/service.d and
+reload your dbus service.</p>
+<div class="highlight-python"><pre>$ sudo service dbus reload</pre>
+</div>
+<p>To start the dbus component, activate the python virtual environment as root and run
+the gosa-dbus component in daemon or foreground mode:</p>
+<div class="highlight-python"><pre>$ sudo -s
+# cd 'wherever your gosa-ng virtual environment is'
+# source/bin activate
+# gosa-dbus -f</pre>
+</div>
+</div>
+<div class="section" id="running-the-client">
+<h4>Running the client<a class="headerlink" href="#running-the-client" title="Permalink to this headline">¶</a></h4>
+<p>To run the client, you should put your development user into the gosa group - to
+be able to use the dbus features:</p>
+<div class="highlight-python"><pre>$ sudo adduser $USER gosa</pre>
+</div>
+<p>You might need to re-login to make the changes happen. After that, start the gosa-ng
+client inside the activated virtual environment:</p>
+<div class="highlight-python"><pre>$ gosa-client -f</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="integration-with-php-gosa">
+<h2>Integration with PHP GOsa<a class="headerlink" href="#integration-with-php-gosa" title="Permalink to this headline">¶</a></h2>
+<p>The <em>GOsa agent</em> and <em>GOsa client</em> setup may be ok for playing around, but
+as of GOsa 2.7 you can configure an active communication between the ordinary
+PHP GOsa and the agent - which acts as a replacement for <em>gosa-si</em>.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">While the GOsa agent series are under heavy development, it is recommended
+to try with GOsa 2.7 trunk. You should be aware of not beeing able to replace
+all gosa-si functionality in the moment.</p>
+</div>
+<hr class="docutils" />
+<p>To connection the web-based GOsa with the GOsa-agent you have to adjust the configuration slightly.
+There are two ways to do so, the first is to update the GOsa 2.7 configuration file directly
+<tt class="docutils literal"><span class="pre">/etc/gosa/gosa.conf</span></tt> to include the following lines:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;main&gt;</span>
+    ...
+    <span class="nt">&lt;location</span>
+        <span class="na">gosaRpcPassword=</span><span class="s">&quot;secret&quot;</span>
+        <span class="na">gosaRpcServer=</span><span class="s">&quot;https://gosa-agent-server:8080/rpc&quot;</span>
+        <span class="na">gosaRpcUser=</span><span class="s">&quot;amqp&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/main&gt;</span>
+</pre></div>
+</div>
+<p>The other way would be to configure these properties inside of GOsa using the <tt class="docutils literal"><span class="pre">preferences</span></tt> plugin.</p>
+<p>Select the <tt class="docutils literal"><span class="pre">preferences</span></tt> plugin from the menu and then read and accept the warning message.</p>
+<img alt="_images/gosa_setup_rpc_110.png" src="_images/gosa_setup_rpc_110.png" />
+<p>Then click on the filter rules and select &#8220;All properties&#8221; to show all properties, even unused.
+Then enter <tt class="docutils literal"><span class="pre">rpc</span></tt> in the search-filter input box, to only show rpc related options, only three options should
+be left in the list below.
+Now adjust the values of these properties to match your setup and click <tt class="docutils literal"><span class="pre">apply</span></tt> on the bottom of the page.</p>
+<img alt="_images/gosa_setup_rpc_210.png" src="_images/gosa_setup_rpc_210.png" />
+<p>That is all, you may only need to relog into the GOsa gui.</p>
+</div>
+<div class="section" id="design-overview">
+<h2>Design overview<a class="headerlink" href="#design-overview" title="Permalink to this headline">¶</a></h2>
+<p><strong>TODO</strong>: graphics, text, etc.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Introduction</a><ul>
+<li><a class="reference internal" href="#quickstart">Quickstart</a><ul>
+<li><a class="reference internal" href="#common-setup">Common setup</a><ul>
+<li><a class="reference internal" href="#system-prerequisites">System prerequisites</a></li>
+<li><a class="reference internal" href="#python-prerequisites">Python prerequisites</a></li>
+<li><a class="reference internal" href="#setup-a-virtual-environment-for-playing-with-gosa-3-0-alpha">Setup a virtual environment for playing with GOsa 3.0 alpha</a></li>
+<li><a class="reference internal" href="#obtaining-the-source">Obtaining the source</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-gosa-ng-agent">The gosa-ng agent</a><ul>
+<li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li><a class="reference internal" href="#adding-the-amqp-repository">Adding the AMQP repository</a></li>
+<li><a class="reference internal" href="#install-qpid-broker-and-clients">Install qpid broker and clients</a></li>
+<li><a class="reference internal" href="#install-ldap-service">Install LDAP service</a></li>
+<li><a class="reference internal" href="#amqp-ldap-authentication">AMQP LDAP-Authentication</a></li>
+<li><a class="reference internal" href="#prepare-dns-zone-for-zeroconf">Prepare DNS-Zone for zeroconf</a></li>
+<li><a class="reference internal" href="#deploy-a-development-agent">Deploy a development agent</a></li>
+<li><a class="reference internal" href="#starting-the-service">Starting the service</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-gosa-ng-shell">The gosa-ng shell</a><ul>
+<li><a class="reference internal" href="#installing">Installing</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#first-contact">First contact</a></li>
+<li><a class="reference internal" href="#the-gosa-ng-client">The gosa-ng client</a><ul>
+<li><a class="reference internal" href="#id2">Installing</a></li>
+<li><a class="reference internal" href="#joining-the-party">Joining the party</a></li>
+<li><a class="reference internal" href="#running-the-root-component">Running the root component</a></li>
+<li><a class="reference internal" href="#running-the-client">Running the client</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#integration-with-php-gosa">Integration with PHP GOsa</a></li>
+<li><a class="reference internal" href="#design-overview">Design overview</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to GOsa&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="production.html"
+                        title="next chapter">Installation and configuration guide</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/intro.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="production.html" title="Installation and configuration guide"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to GOsa’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">GOsa v3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Cajus Pollmeier.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

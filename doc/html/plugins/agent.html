@@ -1,0 +1,227 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Agent plugins &mdash; GOsa v3.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/requirements.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="GOsa v3.0 documentation" href="../index.html" />
+    <link rel="up" title="Plugin development" href="index.html" />
+    <link rel="next" title="Client plugins" href="client.html" />
+    <link rel="prev" title="Plugin development" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="client.html" title="Client plugins"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Plugin development"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="../development.html" >Development documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Plugin development</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="agent-plugins">
+<h1>Agent plugins<a class="headerlink" href="#agent-plugins" title="Permalink to this headline">¶</a></h1>
+<p>The agent supports two kinds of plugins. Plain plugins normally provide commands
+to the outside world, which are exposed by the <em>&#64;Command</em> decorator. Handler plugins
+have <em>serve</em>/<em>stop</em> methods and a <em>priority</em>: they&#8217;re started by the agent on
+service startup.</p>
+<div class="section" id="plain-plugins">
+<h2>Plain plugins<a class="headerlink" href="#plain-plugins" title="Permalink to this headline">¶</a></h2>
+<p>Plain plugins just need to inherit from <a class="reference internal" href="../common/components.html#gosa.common.components.plugin.Plugin" title="gosa.common.components.plugin.Plugin"><tt class="xref py py-class docutils literal"><span class="pre">gosa.common.components.plugin.Plugin</span></tt></a>
+and make use of <a class="reference internal" href="../common/components.html#gosa.common.components.command.Command" title="gosa.common.components.command.Command"><tt class="xref py py-meth docutils literal"><span class="pre">gosa.common.components.command.Command()</span></tt></a>. Additionally, they&#8217;ve
+to specify their target queue - <a class="reference internal" href="../agent/amqp.html#agent-queues"><em>see agent queues</em></a>.</p>
+<p>Use the <strong>tools/gosa-plugin-skell</strong> command to get a GOsa agent plugin skeleton and
+take a look at the <em>main.py</em> file:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span> <span class="nn">gettext</span>
+<span class="kn">from</span> <span class="nn">gosa.common</span> <span class="kn">import</span> <span class="n">Environment</span>
+<span class="kn">from</span> <span class="nn">gosa.common.components</span> <span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Plugin</span>
+
+<span class="c"># Load gettext</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">gettext</span><span class="o">.</span><span class="n">translation</span><span class="p">(</span><span class="s">&#39;messages&#39;</span><span class="p">,</span> <span class="n">resource_filename</span><span class="p">(</span><span class="s">&quot;sample&quot;</span><span class="p">,</span> <span class="s">&quot;locale&quot;</span><span class="p">),</span> <span class="n">fallback</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">ugettext</span>
+
+
+<span class="k">class</span> <span class="nc">SamplePlugin</span><span class="p">(</span><span class="n">Plugin</span><span class="p">):</span>
+    <span class="n">_target_</span> <span class="o">=</span> <span class="s">&#39;sample&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">Environment</span><span class="o">.</span><span class="n">getInstance</span><span class="p">()</span>
+
+    <span class="nd">@Command</span><span class="p">(</span><span class="n">__help__</span><span class="o">=</span><span class="n">N_</span><span class="p">(</span><span class="s">&quot;Return a pre-defined message to the caller&quot;</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">hello</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&quot;unknown&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Now calling &#39;hello&#39; with parameter </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_</span><span class="p">(</span><span class="s">&quot;Hello </span><span class="si">%s</span><span class="s">!&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">name</span>
+</pre></div>
+</div>
+<p>It shows a very minimal sample plugin which provides the command <em>hello</em> to
+the GOsa agents <em>CommandRegistry</em> - which is callable for users later on. You
+can see a couple of things that are common to all plugins:</p>
+<blockquote>
+<div><ul class="simple">
+<li>they import <em>Command</em> and <em>Plugin</em> from the <a class="reference internal" href="../common/components.html#module-gosa.common.components" title="gosa.common.components"><tt class="xref py py-mod docutils literal"><span class="pre">gosa.common.components</span></tt></a></li>
+<li>they optionally import the <em>Environment</em> if there&#8217;s a need for it (i.e.
+logging or config management)</li>
+<li>they optionally initialize the gettext module for i18n support</li>
+<li>they define a &#8216;_target_&#8217; queue where the plugin is registered to</li>
+</ul>
+</div></blockquote>
+<p>Just modify the code to your needs. After that you can do a test deployment
+using:</p>
+<div class="highlight-python"><pre>$ ./setup.py develop</pre>
+</div>
+<p>and <em>restart</em> your GOsa agent to let it notice the newly created plugin. From
+now on you can use the <em>hello</em> command from the shell or one of the proxies - whatever
+makes sense for you.</p>
+</div>
+<div class="section" id="handler-plugins">
+<h2>Handler plugins<a class="headerlink" href="#handler-plugins" title="Permalink to this headline">¶</a></h2>
+<p>Handler plugins differ from plain plugins because they provide <em>something</em>
+which needs to be started when the agent starts up. Maybe this is a web service
+or a special scheduler service. To enable this, you need to specify the</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">implements</span><span class="p">(</span><span class="n">IInterfaceHandler</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>keywords in top of the class definition, and optionally provide a priority
+which indicates the time of &#8216;serving&#8217;. Bigger values mean later, smaller mean
+earlier. You can maintain service dependencies this way if you need to.</p>
+<p>Here&#8217;s the modified snipped from above to run as a handler:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span> <span class="nn">gettext</span>
+<span class="kn">from</span> <span class="nn">zope.interface</span> <span class="kn">import</span> <span class="n">implements</span>
+<span class="kn">from</span> <span class="nn">gosa.common</span> <span class="kn">import</span> <span class="n">Environment</span>
+<span class="kn">from</span> <span class="nn">gosa.common.handler</span> <span class="kn">import</span> <span class="n">IInterfaceHandler</span>
+<span class="kn">from</span> <span class="nn">gosa.common.components</span> <span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Plugin</span>
+
+<span class="c"># Load gettext</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">gettext</span><span class="o">.</span><span class="n">translation</span><span class="p">(</span><span class="s">&#39;messages&#39;</span><span class="p">,</span> <span class="n">resource_filename</span><span class="p">(</span><span class="s">&quot;sample&quot;</span><span class="p">,</span> <span class="s">&quot;locale&quot;</span><span class="p">),</span> <span class="n">fallback</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">ugettext</span>
+
+
+<span class="k">class</span> <span class="nc">SampleHandler</span><span class="p">(</span><span class="n">Plugin</span><span class="p">):</span>
+    <span class="n">implements</span><span class="p">(</span><span class="n">IInterfaceHandler</span><span class="p">)</span>
+
+    <span class="n">_target_</span> <span class="o">=</span> <span class="s">&#39;sample&#39;</span>
+    <span class="n">_priority_</span> <span class="o">=</span> <span class="mi">99</span>
+
+    <span class="k">def</span> <span class="nf">serve</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+       <span class="c"># What ever you need to do to serve stuff</span>
+       <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+       <span class="c"># What ever you need to do to stop serving stuff</span>
+       <span class="k">pass</span>
+
+    <span class="nd">@Command</span><span class="p">(</span><span class="n">__help__</span><span class="o">=</span><span class="n">N_</span><span class="p">(</span><span class="s">&quot;Return a pre-defined message to the caller&quot;</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">hello</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&quot;unknown&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_</span><span class="p">(</span><span class="s">&quot;Hello </span><span class="si">%s</span><span class="s">!&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">name</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Agent plugins</a><ul>
+<li><a class="reference internal" href="#plain-plugins">Plain plugins</a></li>
+<li><a class="reference internal" href="#handler-plugins">Handler plugins</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Plugin development</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="client.html"
+                        title="next chapter">Client plugins</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/plugins/agent.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="client.html" title="Client plugins"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Plugin development"
+             >previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="../development.html" >Development documentation</a> &raquo;</li>
+          <li><a href="index.html" >Plugin development</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Cajus Pollmeier.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>
