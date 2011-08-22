@@ -117,11 +117,8 @@ class PxeFS(Fuse):
                 result = f.read(size)
         elif macaddress.match(path[4:]):
             # Need to transform /01-00-00-00-00-00-00 into 00:00:00:00:00:00
-            try:
-                address = path[4:].replace('-', ':')
-                result = proxy.systemGetBootParams(None, address)
-            except:
-                raise
+            result = str(proxy.systemGetBootParams(None, path[4:].replace('-', ':')))[offset:offset+size]
+            print result
         elif path.lstrip(os.sep) in self.filesystem[self.root].keys():
             result = str(self.filesystem[self.root][path.lstrip(os.sep)]["content"])[offset:offset+size]
         return result
