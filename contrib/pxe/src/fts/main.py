@@ -7,6 +7,7 @@ from time import time
 
 import errno
 import os
+import re
 import stat
 
 try:
@@ -24,6 +25,8 @@ if not hasattr(fuse, '__version__'):
 
 fuse.feature_assert('stateful_files', 'has_init')
 
+macaddress = re.compile("^[0-9a-f]{1,2}-[0-9a-f]{1,2}-[0-9a-f]{1,2}-[0-9a-f]{1,2}-[0-9a-f]{1,2}-[0-9a-f]{1,2}$")
+
 testclients = {
     "de:ad:d9:57:56:d5": "install"
 }
@@ -31,11 +34,8 @@ testclients = {
 static=os.getcwd()+'/pxelinux.static'
 
 # Create connection to service
-#try:
-#    proxy = AMQPServiceProxy('amqps://cajus:tester@amqp.intranet.gonicus.de/org.gosa')
-#    print proxy.systemGetBootParams(None, 'de:ad:d9:57:56:d5')
-#except:
-#    raise
+proxy = AMQPServiceProxy('amqps://cajus:tester@amqp.intranet.gonicus.de/org.gosa')
+#print proxy.systemGetBootParams(None, 'de:ad:d9:57:56:d5')
 
 def getDepth(path):
     """
@@ -83,14 +83,6 @@ class PxeFS(Fuse):
         Environment.noargs=True
         env = Environment.getInstance()
 
-        for testclient in testclients.keys():
-            self.filesystem[self.root]= { testclient : { "content" : r'''vga=normal initrd=debian-installer/i386/initrd.gz
-netcfg/choose_interface=eth0 locale=de_DE debian-installer/country=DE
-debian-installer/language=de
-debian-installer/keymap=de-latin1-nodeadkeys
-console-keymaps-at/keymap=de-latin1-nodeadkeys auto-install/enable=false
-preseed/url=https://amqp.intranet.gonicus.de:8080/preseed/de-ad-d9-57-56-d5 debian/priority=critical hostname=dyn-10 domain=please-fixme.org DEBCONF_DEBUG=5 svc_key=f1p8zRBGrUA26Nn+2qBS/JC8KOXHTEfgIEq5Le2WC4jW2xUuVzzHnO9LYiH8hYLNXHo7V9+2Aiz8\n/XU6xxcusWUiMjXgdZcDe8wJtXR5krg=\n''' } }
-
     def getattr(self, path):
         result = FileStat()
         if path == self.root:
@@ -98,6 +90,8 @@ preseed/url=https://amqp.intranet.gonicus.de:8080/preseed/de-ad-d9-57-56-d5 debi
         elif os.path.exists(os.sep.join((static, path))):
             result = os.stat(os.sep.join((static, path)))
         else:
+            if macaddress.match(path[4:]):
+                address = path[4:].replace('-', ':')
             result.st_mode = stat.S_IFREG | 0666
             result.st_nlink = 1
             result.st_size = self.getSize(path)
@@ -121,6 +115,13 @@ preseed/url=https://amqp.intranet.gonicus.de:8080/preseed/de-ad-d9-57-56-d5 debi
             with open(os.sep.join((static, path))) as f:
                 f.seek(offset)
                 result = f.read(size)
+        elif macaddress.match(path[4:]):
+            # Need to transform /01-00-00-00-00-00-00 into 00:00:00:00:00:00
+            try:
+                address = path[4:].replace('-', ':')
+                result = proxy.systemGetBootParams(None, address)
+            except:
+                raise
         elif path.lstrip(os.sep) in self.filesystem[self.root].keys():
             result = str(self.filesystem[self.root][path.lstrip(os.sep)]["content"])[offset:offset+size]
         return result
