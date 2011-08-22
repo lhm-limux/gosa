@@ -1,3 +1,0 @@
-rst2latex
-
-sed -n '/\\begin{document}/,/\\end{document}/p' l.tex | sed '/\\end{document}/d;/\\begin{document}/d' > api.tex
