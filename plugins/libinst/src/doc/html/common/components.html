@@ -1,0 +1,854 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Components &mdash; libinst v3.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/requirements.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="libinst v3.0 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">libinst v3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-gosa.common.components">
+<span id="components"></span><h1>Components<a class="headerlink" href="#module-gosa.common.components" title="Permalink to this headline">¶</a></h1>
+<p>The compoments module gathers a couple of common components that are of
+use for both agents and clients.</p>
+<hr class="docutils" />
+<span class="target" id="module-gosa.common.components.amqp_proxy"></span><dl class="class">
+<dt id="gosa.common.components.amqp_proxy.AMQPEventConsumer">
+<em class="property">class </em><tt class="descclassname">gosa.common.components.amqp_proxy.</tt><tt class="descname">AMQPEventConsumer</tt><big>(</big><em>url</em>, <em>domain='org.gosa'</em>, <em>xquery='.'</em>, <em>callback=None</em><big>)</big><a class="headerlink" href="#gosa.common.components.amqp_proxy.AMQPEventConsumer" title="Permalink to this definition">¶</a></dt>
+<dd><p>The AMQPEventConsumer can be used to subscribe for events
+and process them thru a callback. The subscription is done
+thru <em>XQuery</em>, the callback can be a python method.</p>
+<p>Example listening for an event called <em>AsteriskNotification</em>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">gosa.common.components</span> <span class="kn">import</span> <span class="n">AMQPEventConsumer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">lxml</span> <span class="kn">import</span> <span class="n">etree</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Event callback</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">print</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pretty_print</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Create event consumer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">consumer</span> <span class="o">=</span> <span class="n">AMQPEventConsumer</span><span class="p">(</span><span class="s">&quot;amqps://admin:secret@localhost/org.gosa&quot;</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="n">xquery</span><span class="o">=</span><span class="s">&quot;&quot;&quot;</span>
+<span class="gp">... </span><span class="s">                declare namespace f=&#39;http://www.gonicus.de/Events&#39;;</span>
+<span class="gp">... </span><span class="s">                let $e := ./f:Event</span>
+<span class="gp">... </span><span class="s">                return $e/f:AsteriskNotification</span>
+<span class="gp">... </span><span class="s">            &quot;&quot;&quot;</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="n">callback</span><span class="o">=</span><span class="n">process</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The consumer will start right away, listening for your events.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="83%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>url</td>
+<td>URL used to connect to the AMQP service broker</td>
+</tr>
+<tr><td>domain</td>
+<td>If the domain is not already encoded in the URL, it can be specified here.</td>
+</tr>
+<tr><td>xquery</td>
+<td><a class="reference external" href="http://en.wikipedia.org/wiki/XQuery">XQuery</a> string to query for events.</td>
+</tr>
+<tr><td>callback</td>
+<td>Python method to be called if the event happened.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The AMQP URL consists of these parts:</p>
+<div class="last highlight-python"><pre>(amqp|amqps)://user:password@host:port/domain</pre>
+</div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="gosa.common.components.amqp_proxy.AMQPServiceProxy">
+<em class="property">class </em><tt class="descclassname">gosa.common.components.amqp_proxy.</tt><tt class="descname">AMQPServiceProxy</tt><big>(</big><em>serviceURL</em>, <em>serviceAddress=None</em>, <em>serviceName=None</em>, <em>conn=None</em>, <em>workers=3</em><big>)</big><a class="headerlink" href="#gosa.common.components.amqp_proxy.AMQPServiceProxy" title="Permalink to this definition">¶</a></dt>
+<dd><p>The AMQPServiceProxy provides a simple way to use GOsa RPC
+services from various clients. Using the proxy object, you
+can directly call methods without the need to know where
+it actually gets executed:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">gosa.common.components</span> <span class="kn">import</span> <span class="n">AMQPServiceProxy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span> <span class="o">=</span> <span class="n">AMQPServiceProxy</span><span class="p">(</span><span class="s">&#39;amqp://admin:secret@localhost/org.gosa&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">getMethods</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This will return a dictionary describing the available methods.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>serviceURL</td>
+<td>URL used to connect to the AMQP service broker</td>
+</tr>
+<tr><td>serviceAddress</td>
+<td>Address string describing the target queue to bind to, must be skipped if no special queue is needed</td>
+</tr>
+<tr><td>serviceName</td>
+<td><em>internal</em></td>
+</tr>
+<tr><td>conn</td>
+<td><em>internal</em></td>
+</tr>
+<tr><td>workers</td>
+<td>Number of workers to allocate for processing</td>
+</tr>
+</tbody>
+</table>
+<p>The AMQPService proxy creates a temporary AMQP <em>reply to</em> queue, which
+is used for command results.</p>
+<dl class="method">
+<dt id="gosa.common.components.amqp_proxy.AMQPServiceProxy.close">
+<tt class="descname">close</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.common.components.amqp_proxy.AMQPServiceProxy.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the AMQP connection established by the proxy.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gosa.common.components.amqp_proxy.AMQPStandaloneWorker">
+<em class="property">class </em><tt class="descclassname">gosa.common.components.amqp_proxy.</tt><tt class="descname">AMQPStandaloneWorker</tt><big>(</big><em>connection</em>, <em>s_address=None</em>, <em>r_address=None</em>, <em>workers=0</em>, <em>callback=None</em><big>)</big><a class="headerlink" href="#gosa.common.components.amqp_proxy.AMQPStandaloneWorker" title="Permalink to this definition">¶</a></dt>
+<dd><p>AMQP standalone worker container. This object creates a number of worker threads
+for the defined sender and receiver addresses. It registers receiver
+callbacks for incoming packets.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="26%" />
+<col width="74%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>connection</td>
+<td><tt class="xref py py-class docutils literal"><span class="pre">qpid.messaging.Connection</span></tt></td>
+</tr>
+<tr><td>s_address</td>
+<td>Address used to create a sender instance</td>
+</tr>
+<tr><td>r_address</td>
+<td>Address used to create a receiver instance</td>
+</tr>
+<tr><td>workers</td>
+<td>Number of worker threads</td>
+</tr>
+<tr><td>callback</td>
+<td>method to be called on incoming messages</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="gosa.common.components.amqp_proxy.AMQPStandaloneWorker.join">
+<tt class="descname">join</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.common.components.amqp_proxy.AMQPStandaloneWorker.join" title="Permalink to this definition">¶</a></dt>
+<dd><p>Join the worker threads.</p>
+</dd></dl>
+
+</dd></dl>
+
+<hr class="docutils" />
+<span class="target" id="module-gosa.common.components.amqp"></span><dl class="class">
+<dt id="gosa.common.components.amqp.AMQPHandler">
+<em class="property">class </em><tt class="descclassname">gosa.common.components.amqp.</tt><tt class="descname">AMQPHandler</tt><a class="headerlink" href="#gosa.common.components.amqp.AMQPHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class handles the AMQP connection, incoming and outgoing connections.</p>
+<dl class="method">
+<dt id="gosa.common.components.amqp.AMQPHandler.checkAuth">
+<tt class="descname">checkAuth</tt><big>(</big><em>user</em>, <em>password</em><big>)</big><a class="headerlink" href="#gosa.common.components.amqp.AMQPHandler.checkAuth" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function checks a username / password combination using
+the AMQP service&#8217; SASL configuration.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="56%" />
+<col width="44%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>user</td>
+<td>Username</td>
+</tr>
+<tr><td>password</td>
+<td>Password</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> Bool, success or failure</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.common.components.amqp.AMQPHandler.getConnection">
+<tt class="descname">getConnection</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.common.components.amqp.AMQPHandler.getConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an AMQP connection handle for further usage.</p>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> <tt class="xref py py-class docutils literal"><span class="pre">qpid.messaging.Connection</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.common.components.amqp.AMQPHandler.sendEvent">
+<tt class="descname">sendEvent</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#gosa.common.components.amqp.AMQPHandler.sendEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send and validate an event thru AMQP service.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>data</td>
+<td>XML string or etree object representing the event.</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> Bool, success or failure</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.common.components.amqp.AMQPHandler.start">
+<tt class="descname">start</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.common.components.amqp.AMQPHandler.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable AMQP queueing. This method puts up the event processor and
+sets it to &#8220;active&#8221;.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gosa.common.components.amqp.AMQPProcessor">
+<em class="property">class </em><tt class="descclassname">gosa.common.components.amqp.</tt><tt class="descname">AMQPProcessor</tt><big>(</big><em>ssn</em>, <em>callback</em><big>)</big><a class="headerlink" href="#gosa.common.components.amqp.AMQPProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>AMQP worker thread. This objects get instantiated by the AMQPWorker
+class. It is responsible for receiving the messages and calling the
+callback function.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="76%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>ssn</td>
+<td>AMQP session</td>
+</tr>
+<tr><td>callback</td>
+<td>method to be called when receiving AMQP messages</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="gosa.common.components.amqp.AMQPWorker">
+<em class="property">class </em><tt class="descclassname">gosa.common.components.amqp.</tt><tt class="descname">AMQPWorker</tt><big>(</big><em>env</em>, <em>connection</em>, <em>s_address=None</em>, <em>r_address=None</em>, <em>workers=0</em>, <em>callback=None</em><big>)</big><a class="headerlink" href="#gosa.common.components.amqp.AMQPWorker" title="Permalink to this definition">¶</a></dt>
+<dd><p>AMQP worker container. This object creates a number of worker threads
+for the defined sender and receiver addresses. It registers receiver
+callbacks for incoming packets.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="26%" />
+<col width="74%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>env</td>
+<td><a class="reference internal" href="env.html#gosa.common.env.Environment" title="gosa.common.env.Environment"><tt class="xref py py-class docutils literal"><span class="pre">gosa.common.env.Environment</span></tt></a> object</td>
+</tr>
+<tr><td>connection</td>
+<td><tt class="xref py py-class docutils literal"><span class="pre">qpid.messaging.Connection</span></tt> object</td>
+</tr>
+<tr><td>s_address</td>
+<td>address used to create a sender instance</td>
+</tr>
+<tr><td>r_address</td>
+<td>address used to create a receiver instance</td>
+</tr>
+<tr><td>workers</td>
+<td>number of worker threads</td>
+</tr>
+<tr><td>callback</td>
+<td>method to be called on incoming messages</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<hr class="docutils" />
+<span class="target" id="module-gosa.common.components.cache"></span><dl class="attribute">
+<dt id="gosa.common.components.cache.cache">
+<tt class="descclassname">gosa.common.components.cache.</tt><tt class="descname">cache</tt><a class="headerlink" href="#gosa.common.components.cache.cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Caching decorator basically taken from the
+<a class="reference external" href="http://wiki.python.org/moin/PythonDecoratorLibrary">Python Wiki</a>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nd">@cache</span><span class="p">(</span><span class="n">ttl</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">fibonacci</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+<span class="gp">... </span>   <span class="s">&quot;Return the nth fibonacci number.&quot;</span>
+<span class="gp">... </span>   <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+<span class="gp">... </span>      <span class="k">return</span> <span class="n">n</span>
+<span class="gp">... </span>   <span class="k">return</span> <span class="n">fibonacci</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">fibonacci</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fibonacci</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="78%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>ttl</td>
+<td>time to cache results in seconds</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<hr class="docutils" />
+<span class="target" id="module-gosa.common.components.command"></span><dl class="function">
+<dt id="gosa.common.components.command.Command">
+<tt class="descclassname">gosa.common.components.command.</tt><tt class="descname">Command</tt><big>(</big><em>**d_kwargs</em><big>)</big><a class="headerlink" href="#gosa.common.components.command.Command" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the Command decorator. It adds properties based on its
+parameters to the function attributes:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nd">@Command</span><span class="p">(</span><span class="n">needsQueue</span><span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span> <span class="n">NORMAL</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">hello</span><span class="p">():</span>
+<span class="gp">...</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="14%" />
+<col width="86%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>needsQueue</td>
+<td>indicates if the decorated function needs a queue parameter</td>
+</tr>
+<tr><td>type</td>
+<td>describes the function type</td>
+</tr>
+</tbody>
+</table>
+<p>Function types can be:</p>
+<ul>
+<li><p class="first"><strong>NORMAL</strong> (default)</p>
+<p>The decorated function will be called as if it is local. Which
+node will answer this request is not important.</p>
+</li>
+<li><p class="first"><strong>FIRSTRESULT</strong></p>
+<p>Some functionality may be distributed on several nodes with
+several information. FIRSTRESULT iterates thru all nodes which
+provide the decorated function and return on first success.</p>
+</li>
+<li><p class="first"><strong>CUMULATIVE</strong></p>
+<p>Some functionality may be distributed on several nodes with
+several information. CUMULATIVE iterates thru all nodes which
+provide the decorated function and returns the combined result.</p>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="exception">
+<dt id="gosa.common.components.command.CommandInvalid">
+<em class="property">exception </em><tt class="descclassname">gosa.common.components.command.</tt><tt class="descname">CommandInvalid</tt><a class="headerlink" href="#gosa.common.components.command.CommandInvalid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception which is raised when the command is not valid.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="gosa.common.components.command.CommandNotAuthorized">
+<em class="property">exception </em><tt class="descclassname">gosa.common.components.command.</tt><tt class="descname">CommandNotAuthorized</tt><a class="headerlink" href="#gosa.common.components.command.CommandNotAuthorized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception which is raised when the call was not authorized.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="gosa.common.components.command.NamedArgs">
+<tt class="descclassname">gosa.common.components.command.</tt><tt class="descname">NamedArgs</tt><big>(</big><em>d_collector=None</em>, <em>**d_kwargs</em><big>)</big><a class="headerlink" href="#gosa.common.components.command.NamedArgs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <em>NamedArgs</em> decorator is used to transfer a dictionary parameter named
+by <em>d_collector</em> to the ordinary <em>kwargs</em> following this keyword.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>d_collector</td>
+<td>Name of the dict container</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nd">@NamedArgs</span><span class="p">(</span><span class="s">&#39;m_hash&#39;</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">def</span> <span class="nf">getArchitectures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m_hash</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">release</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+</pre></div>
+</div>
+<p>This will transfer a JSON call like:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">getArchitectures</span><span class="p">({</span><span class="s">&#39;release&#39;</span><span class="p">:</span> <span class="s">&#39;squeeze/1.0&#39;</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>to be:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">getArchitectures</span><span class="p">(</span><span class="n">release</span><span class="o">=</span><span class="s">&#39;squeeze/1.0&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<hr class="docutils" />
+<span class="target" id="module-gosa.common.components.dbus_runner"></span><dl class="class">
+<dt id="gosa.common.components.dbus_runner.DBusRunner">
+<em class="property">class </em><tt class="descclassname">gosa.common.components.dbus_runner.</tt><tt class="descname">DBusRunner</tt><a class="headerlink" href="#gosa.common.components.dbus_runner.DBusRunner" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <em>DBusRunner</em> module acts as a singleton for the DBUS system
+bus. Interested instances can obtain the system bus from the
+runner.</p>
+<dl class="staticmethod">
+<dt id="gosa.common.components.dbus_runner.DBusRunner.get_instance">
+<em class="property">static </em><tt class="descname">get_instance</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.common.components.dbus_runner.DBusRunner.get_instance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Singleton to return a DBusRunner object.</p>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> <tt class="xref py py-class docutils literal"><span class="pre">gosa.common.dbus_runner.DBusRunner</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.common.components.dbus_runner.DBusRunner.get_system_bus">
+<tt class="descname">get_system_bus</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.common.components.dbus_runner.DBusRunner.get_system_bus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the current DBUS system bus.</p>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> DBusRunner bus object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.common.components.dbus_runner.DBusRunner.is_active">
+<tt class="descname">is_active</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.common.components.dbus_runner.DBusRunner.is_active" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the current DBUS system bus.</p>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> Bool value</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.common.components.dbus_runner.DBusRunner.start">
+<tt class="descname">start</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.common.components.dbus_runner.DBusRunner.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the <tt class="xref py py-func docutils literal"><span class="pre">gobject.MainLoop()</span></tt> to establish DBUS communications.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.common.components.dbus_runner.DBusRunner.stop">
+<tt class="descname">stop</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.common.components.dbus_runner.DBusRunner.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop the <tt class="xref py py-func docutils literal"><span class="pre">gobject.MainLoop()</span></tt> to shut down DBUS communications.</p>
+</dd></dl>
+
+</dd></dl>
+
+<hr class="docutils" />
+<span class="target" id="module-gosa.common.components.jsonrpc_proxy"></span><dl class="exception">
+<dt id="gosa.common.components.jsonrpc_proxy.JSONRPCException">
+<em class="property">exception </em><tt class="descclassname">gosa.common.components.jsonrpc_proxy.</tt><tt class="descname">JSONRPCException</tt><big>(</big><em>rpcError</em><big>)</big><a class="headerlink" href="#gosa.common.components.jsonrpc_proxy.JSONRPCException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception raises if there&#8217;s an error when processing JSONRPC related
+tasks.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="gosa.common.components.jsonrpc_proxy.JSONServiceProxy">
+<em class="property">class </em><tt class="descclassname">gosa.common.components.jsonrpc_proxy.</tt><tt class="descname">JSONServiceProxy</tt><big>(</big><em>serviceURL=None</em>, <em>serviceName=None</em>, <em>opener=None</em><big>)</big><a class="headerlink" href="#gosa.common.components.jsonrpc_proxy.JSONServiceProxy" title="Permalink to this definition">¶</a></dt>
+<dd><p>The JSONServiceProxy provides a simple way to use GOsa RPC
+services from various clients. Using the proxy object, you
+can directly call methods without the need to know where
+it actually gets executed.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span> <span class="o">=</span> <span class="n">JSONServiceProxy</span><span class="p">(</span><span class="s">&#39;https://localhost&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="s">&quot;admin&quot;</span><span class="p">,</span> <span class="s">&quot;secret&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">getMethods</span><span class="p">()</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">logout</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This will return a dictionary describing the available methods.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="72%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>serviceURL</td>
+<td>URL used to connect to the HTTP service</td>
+</tr>
+<tr><td>serviceName</td>
+<td><em>internal</em></td>
+</tr>
+<tr><td>opener</td>
+<td><em>internal</em></td>
+</tr>
+</tbody>
+</table>
+<p>The URL format is:</p>
+<div class="highlight-python"><pre>(http|https)://user:password@host:port/rpc</pre>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The HTTP service is operated by a gosa-agent instance. This means
+that you don&#8217;t have load balancing and failover out of the box.
+If you need these features, you should use <a class="reference internal" href="#gosa.common.components.amqp_proxy.AMQPServiceProxy" title="gosa.common.components.amqp_proxy.AMQPServiceProxy"><tt class="xref py py-class docutils literal"><span class="pre">gosa.common.components.amqp_proxy.AMQPServiceProxy</span></tt></a>
+instead.</p>
+</div>
+</dd></dl>
+
+<hr class="docutils" />
+<span class="target" id="module-gosa.common.components.plugin"></span><dl class="class">
+<dt id="gosa.common.components.plugin.Plugin">
+<em class="property">class </em><tt class="descclassname">gosa.common.components.plugin.</tt><tt class="descname">Plugin</tt><a class="headerlink" href="#gosa.common.components.plugin.Plugin" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Plugin object is just a marker in the moment: it lacks special
+code. While being a marker, there&#8217;s a mandatory class member that must
+be maintained by users: <tt class="docutils literal"><span class="pre">_target_</span></tt></p>
+<p>The <tt class="docutils literal"><span class="pre">_target_</span></tt> class member determines what queue the plugin will be
+registered on. The target queue is assembled by the GOsa <em>domain</em> and
+the <em>_target_</em>. Plugins that do not offer common functionality should
+register on something else than <em>core</em>.</p>
+<p>In this example, we create a sample plugin which is listening on
+<tt class="docutils literal"><span class="pre">&lt;domain&gt;.sample</span></tt> (domain is <em>org.gosa</em> if you didn&#8217;t change the
+configuration), which makes it possible that only agents having this
+module installed get related messages:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">gosa.common</span> <span class="kn">import</span> <span class="n">Environment</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">gosa.common.components</span> <span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Plugin</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">SampleModule</span><span class="p">(</span><span class="n">Plugin</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">_target_</span> <span class="o">=</span> <span class="s">&#39;sample&#39;</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="nd">@Command</span><span class="p">(</span><span class="n">__help__</span><span class="o">=</span><span class="n">N_</span><span class="p">(</span><span class="s">&quot;Return a pre-defined message to the caller&quot;</span><span class="p">))</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">hello</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&quot;unknown&quot;</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="n">_</span><span class="p">(</span><span class="s">&quot;Hello </span><span class="si">%s</span><span class="s">!&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">name</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<hr class="docutils" />
+<span class="target" id="module-gosa.common.components.registry"></span><dl class="class">
+<dt id="gosa.common.components.registry.PluginRegistry">
+<em class="property">class </em><tt class="descclassname">gosa.common.components.registry.</tt><tt class="descname">PluginRegistry</tt><big>(</big><em>component='gosa.modules'</em><big>)</big><a class="headerlink" href="#gosa.common.components.registry.PluginRegistry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plugin registry class. The registry holds plugin instances and
+provides overall functionality like &#8220;serve&#8221; and &#8220;shutdown&#8221;.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>component</td>
+<td>What setuptools entrypoint to use when looking for <a class="reference internal" href="#gosa.common.components.plugin.Plugin" title="gosa.common.components.plugin.Plugin"><tt class="xref py py-class docutils literal"><span class="pre">gosa.common.components.plugin.Plugin</span></tt></a>.</td>
+</tr>
+</tbody>
+</table>
+<dl class="staticmethod">
+<dt id="gosa.common.components.registry.PluginRegistry.getInstance">
+<em class="property">static </em><tt class="descname">getInstance</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#gosa.common.components.registry.PluginRegistry.getInstance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an instance of a registered class.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="29%" />
+<col width="71%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>name of the class to get instance of</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">gosa.common.components</span> <span class="kn">import</span> <span class="n">PluginRegistry</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cr</span> <span class="o">=</span> <span class="n">PluginRegistry</span><span class="o">.</span><span class="n">getInstance</span><span class="p">(</span><span class="s">&quot;CommandRegistry&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="gosa.common.components.registry.PluginRegistry.shutdown">
+<em class="property">static </em><tt class="descname">shutdown</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.common.components.registry.PluginRegistry.shutdown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call handlers stop() methods in order to grant a clean shutdown.</p>
+</dd></dl>
+
+</dd></dl>
+
+<hr class="docutils" />
+<span class="target" id="module-gosa.common.components.objects"></span><dl class="class">
+<dt id="gosa.common.components.objects.ObjectRegistry">
+<em class="property">class </em><tt class="descclassname">gosa.common.components.objects.</tt><tt class="descname">ObjectRegistry</tt><a class="headerlink" href="#gosa.common.components.objects.ObjectRegistry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Object registry class. The registry holds object instances
+that are currently in use by clients. Objects can be either
+registered manually using:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">gosa.common.components</span> <span class="kn">import</span> <span class="n">ObjectRegistry</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ObjectRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s">&quot;the.unique.object.oid&quot;</span><span class="p">,</span> <span class="n">ObjectToRegister</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The preferred way to register objects is to use the setuptools
+section <tt class="docutils literal"><span class="pre">`[gosa.objects]`</span></tt>:</p>
+<div class="highlight-python"><pre>[gosa.objects]
+the.unique.object.oid = full.path.to.the:ObjectToRegister</pre>
+</div>
+<p>In this case, all objects are registered after the agent is fired
+up automatically.</p>
+<dl class="staticmethod">
+<dt id="gosa.common.components.objects.ObjectRegistry.getInstance">
+<em class="property">static </em><tt class="descname">getInstance</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.common.components.objects.ObjectRegistry.getInstance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Act as a singleton and return an instance of ObjectRegistry.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="gosa.common.components.objects.ObjectRegistry.register">
+<em class="property">static </em><tt class="descname">register</tt><big>(</big><em>oid</em>, <em>obj</em><big>)</big><a class="headerlink" href="#gosa.common.components.objects.ObjectRegistry.register" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register the given object at the provided OID.</p>
+</dd></dl>
+
+</dd></dl>
+
+<hr class="docutils" />
+<span class="target" id="module-gosa.common.components.zeroconf_client"></span><dl class="class">
+<dt id="gosa.common.components.zeroconf_client.ZeroconfClient">
+<em class="property">class </em><tt class="descclassname">gosa.common.components.zeroconf_client.</tt><tt class="descname">ZeroconfClient</tt><big>(</big><em>regtype</em>, <em>timeout=2.0</em>, <em>callback=None</em><big>)</big><a class="headerlink" href="#gosa.common.components.zeroconf_client.ZeroconfClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ZeroconfClient class helps with browsing for announced services. It
+creates a separate thread and needs the registrated service to look for
+as a parameter.</p>
+<p>Usage example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">time</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">ZerconfClient</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># This is the function called on changes</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">sdRef</span><span class="p">,</span> <span class="n">flags</span><span class="p">,</span> <span class="n">interfaceIndex</span><span class="p">,</span> <span class="n">errorCode</span><span class="p">,</span> <span class="n">fullname</span><span class="p">,</span>
+<span class="gp">... </span>                        <span class="n">hosttarget</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">txtRecord</span><span class="p">):</span>
+<span class="gp">... </span>  <span class="k">print</span><span class="p">(</span><span class="s">&#39;Resolved service:&#39;</span><span class="p">)</span>
+<span class="gp">... </span>  <span class="k">print</span><span class="p">(</span><span class="s">&#39;  fullname   =&#39;</span><span class="p">,</span> <span class="n">fullname</span><span class="p">)</span>
+<span class="gp">... </span>  <span class="k">print</span><span class="p">(</span><span class="s">&#39;  hosttarget =&#39;</span><span class="p">,</span> <span class="n">hosttarget</span><span class="p">)</span>
+<span class="gp">... </span>  <span class="k">print</span><span class="p">(</span><span class="s">&#39;  TXT        =&#39;</span><span class="p">,</span> <span class="n">txtRecord</span><span class="p">)</span>
+<span class="gp">... </span>  <span class="k">print</span><span class="p">(</span><span class="s">&#39;  port       =&#39;</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Get instance and tell client to start</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">z</span><span class="o">=</span> <span class="n">ZeroconfClient</span><span class="p">(</span><span class="s">&#39;_gosa._tcp&#39;</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">z</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Do some sleep until someone presses Ctrl+C</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c"># Shutdown client</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">z</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nb">exit</span><span class="p">()</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>regtype</td>
+<td>The service to watch out for - i.e. _gosa._tcp</td>
+</tr>
+<tr><td>timeout</td>
+<td>The timeout in seconds</td>
+</tr>
+<tr><td>callback</td>
+<td>Method to call when we&#8217;ve received something</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="gosa.common.components.zeroconf_client.ZeroconfClient.start">
+<tt class="descname">start</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.common.components.zeroconf_client.ZeroconfClient.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start zeroconf event processing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.common.components.zeroconf_client.ZeroconfClient.stop">
+<tt class="descname">stop</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.common.components.zeroconf_client.ZeroconfClient.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop the zeroconf event processing.</p>
+</dd></dl>
+
+</dd></dl>
+
+<hr class="docutils" />
+<span class="target" id="module-gosa.common.components.zeroconf"></span><dl class="class">
+<dt id="gosa.common.components.zeroconf.ZeroconfService">
+<em class="property">class </em><tt class="descclassname">gosa.common.components.zeroconf.</tt><tt class="descname">ZeroconfService</tt><big>(</big><em>name</em>, <em>port</em>, <em>stype=''</em>, <em>domain=''</em>, <em>host=''</em>, <em>text=''</em><big>)</big><a class="headerlink" href="#gosa.common.components.zeroconf.ZeroconfService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Module to publish our services with zeroconf using avahi.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="26%" />
+<col width="74%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>service description</td>
+</tr>
+<tr><td>port</td>
+<td>port which is used by the service</td>
+</tr>
+<tr><td>stype</td>
+<td>service type (i.e. _http._tcp)</td>
+</tr>
+<tr><td>domain</td>
+<td>service type</td>
+</tr>
+<tr><td>host</td>
+<td>hostname to identify where the service runs</td>
+</tr>
+<tr><td>text</td>
+<td>additional descriptive text</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="gosa.common.components.zeroconf.ZeroconfService.publish">
+<tt class="descname">publish</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.common.components.zeroconf.ZeroconfService.publish" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start publishing the service.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.common.components.zeroconf.ZeroconfService.unpublish">
+<tt class="descname">unpublish</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.common.components.zeroconf.ZeroconfService.unpublish" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop publishing the service.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/common/components.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">libinst v3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Cajus Pollmeier.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

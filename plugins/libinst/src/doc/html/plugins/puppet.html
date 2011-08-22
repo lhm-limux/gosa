@@ -1,0 +1,195 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Puppet &mdash; libinst v3.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/requirements.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="libinst v3.0 documentation" href="../index.html" />
+    <link rel="up" title="Avaliable Plugins" href="index.html" />
+    <link rel="next" title="License" href="../license.html" />
+    <link rel="prev" title="Avaliable Plugins" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../license.html" title="License"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Avaliable Plugins"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">libinst v3.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Avaliable Plugins</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="puppet">
+<h1>Puppet<a class="headerlink" href="#puppet" title="Permalink to this headline">¶</a></h1>
+<p>This chapter explains the way <a class="reference external" href="http://www.puppetlabs.com/">Puppet</a> is integrated
+in the libinst GOsa plugin.</p>
+<p>Due to limitations of the original puppet master daemon (puppetmasterd) that ships with Puppet, GOsa uses
+a simple GIT mechanism to push configuration data to its clients.</p>
+<p>The limitations of the original puppetmasterd can be pointed out with two basic statements:</p>
+<ul class="simple">
+<li>puppetmasterd doesn&#8217;t scale well</li>
+<li>we don&#8217;t want another daemon running on GOsa-NG-Clients</li>
+</ul>
+<p>Regarding the first statement there can be found a wealth of reports and considerations around scalability within puppet environments. There are different possiblities which all deal with the aim to integrate other web server in order to serve puppet&#8217;s infrastructure. A direct consequence of this setup will be that a GOsa-NG-Server would have to deal with another service (other than GOsa-NG-daemon) and another technology/programming language (other than python/AMQP).</p>
+<p>The second statement is especially important regarding low performance and thin clients, but also deals with aspects of security and efficiency. Considering the abilities of the GOsa-NG-Client regarding communication and the possibilities of acquiring information about the client it is running on, there is simply no legitimation to start other daemons for achieving the same goal.</p>
+<p>After all, the conclusion is that GOsa-NG will be integrated with puppet by running the so-called &#8216;standalone&#8217; mode which is fully supported by the authors respectively puppetlabs.com .</p>
+<div class="section" id="puppet-server">
+<h2>Puppet Server<a class="headerlink" href="#puppet-server" title="Permalink to this headline">¶</a></h2>
+<p>The default puppet setup deploys a classical client-server (2-tier) architecture in terms of organization, deployment and execution of puppet recipes (aka manifests aka configuration descriptions).
+Considering the aforementioned limitations of this implementation, a different approach was built that will fulfill the requirements in terms of scalability, flexibility and stability.</p>
+<p>The server part of the puppet integration is represented by a simple GIT repository that will centrally hold and control all
+recipes of a GOsa-NG Instance. Administration of this repository can be done with git CLI or other git-tools which are
+widely available. Additionally, the GOsa Web Interface and Shell will be able to handle basic tasks such as committing
+new versions of recipes.</p>
+<p>As GOsa-NG will not use the default communication between the puppetmaster daemon and the puppet client daemon, there
+has to be another way of delivering the recipes to the managed client. There are different possibilities regarding GIT,
+but GOsa-NG will rely on a simple git+ssh setup.</p>
+<p>This setup will be built upon a central (Gosa-NG) Server which hosts the GIT repo as main source of the configuration data (recipes etc.).
+In addition to a basic GIT configuration, this central repo will be configured with the &#8220;Remote&#8221; feature of git.</p>
+<p>By adding each client into the list of remote entries, distribution of the recipes to the gosa-ng-clients can be achieved
+automatically using a push-mechanism. Using alias-names, it is possible to define groups of hosts which will be pushed, too.</p>
+<p>An exemplary command would be</p>
+<blockquote>
+<div><tt class="docutils literal"><span class="pre">#</span> <span class="pre">git</span> <span class="pre">push</span> <span class="pre">client</span> <span class="pre">master</span></tt></div></blockquote>
+<p>This command would result in a push of the recent source of the distinct client &#8216;client&#8217; with the master-branch of the repository.</p>
+<p>In case of mirroring of repositories, there are several possibilities, for example writing a post-commit hook to execute automated push actions for selected repositories or groups of repositories.</p>
+<div class="admonition-requirement admonition " id="req-0">
+<p class="first admonition-title">Requirement</p>
+<p class="last"><em class="status todo">todo</em> Describe what the components do</p>
+</div>
+<p>When creating branches of the repository, the server takes care of managing different releases by evaluating a release.info file which is residing in the root of each branch.</p>
+<p>In case of manual interference within the repository, for example by editing and updating files in the repository directly via commandline, this file has to be adjusted accordingly. (using a tag mechanism as in SVN?)</p>
+</div>
+<div class="section" id="puppet-client">
+<h2>Puppet Client<a class="headerlink" href="#puppet-client" title="Permalink to this headline">¶</a></h2>
+<p>A registered client will receive a &#8220;bare&#8221; GIT-repository using the GOsa-NG-client communication. This bare repository is the basis for the push process originating from the puppet server.</p>
+<p>By using a post-update hook inside the GIT repository, changes will be directly deployed to the default puppet directory /etc/puppet. The value of the directory is configurable within the GOsa-NG-Client.</p>
+<p>After copying the recipes to the puppet directory, the standalone binary will be called and therefore a puppet run will be executed.</p>
+<p>For information and control purposes, puppet creates detailed logfiles in the YAML format. These are collected in a directory which is monitored by the GOsa-NG-Client. Using the UNIX-inotify mechanism,
+the client is able to collect and evaluate the log information and sends a corresponding event &#8220;puppet run successful/failed&#8221; to the GOsa-NG-server.</p>
+<p>The following list collects the system requirements for a GOsa-NG-Client which can use configuration management with puppet:</p>
+<ul class="simple">
+<li>sshd running</li>
+<li>puppet installed</li>
+<li>git installed</li>
+<li>gosa user with disabled password</li>
+<li>server must add ssh key auth via clientDispatch.puppetAddKey()</li>
+</ul>
+<div class="section" id="handling-of-puppet-recipes-within-the-release-management">
+<h3>Handling of puppet recipes within the release management<a class="headerlink" href="#handling-of-puppet-recipes-within-the-release-management" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="implementation-for-installationitems">
+<h4>Implementation for InstallationItems<a class="headerlink" href="#implementation-for-installationitems" title="Permalink to this headline">¶</a></h4>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Puppet</a><ul>
+<li><a class="reference internal" href="#puppet-server">Puppet Server</a></li>
+<li><a class="reference internal" href="#puppet-client">Puppet Client</a><ul>
+<li><a class="reference internal" href="#handling-of-puppet-recipes-within-the-release-management">Handling of puppet recipes within the release management</a><ul>
+<li><a class="reference internal" href="#implementation-for-installationitems">Implementation for InstallationItems</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Avaliable Plugins</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../license.html"
+                        title="next chapter">License</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/plugins/puppet.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../license.html" title="License"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Avaliable Plugins"
+             >previous</a> |</li>
+        <li><a href="../index.html">libinst v3.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Avaliable Plugins</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Cajus Pollmeier.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

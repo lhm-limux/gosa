@@ -1,0 +1,273 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Configuration handling &mdash; libinst v3.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/requirements.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="libinst v3.0 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">libinst v3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-gosa.common.config">
+<span id="configuration-handling"></span><h1>Configuration handling<a class="headerlink" href="#module-gosa.common.config" title="Permalink to this headline">¶</a></h1>
+<p>The configuration module is the central place where the GOsa configuration
+can be queried. Using the configuration module requires the presence of the
+GOsa configuration file - commonly <tt class="docutils literal"><span class="pre">/etc/gosa/config</span></tt> and the subdirectory
+<tt class="docutils literal"><span class="pre">/etc/gosa/config.d</span></tt>. All these configurations will be merged into one
+&#8216;virtual&#8217; configuration so that certain packages can provide their own config
+file without knowing how to read it.</p>
+<p>Additionally to reading the configuration file, it merges that information
+with potential command line parameters.</p>
+<p>Here is an example on how to use the common module:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">gosa.common</span> <span class="kn">import</span> <span class="n">Environment</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cfg</span> <span class="o">=</span> <span class="n">Environment</span><span class="o">.</span><span class="n">getInstance</span><span class="p">()</span><span class="o">.</span><span class="n">config</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;core.loglevel&#39;</span><span class="p">)</span>
+<span class="go">DEBUG</span>
+</pre></div>
+</div>
+<p>If no configuration is present, the system will raise a
+<a class="reference internal" href="#gosa.common.config.ConfigNoFile" title="gosa.common.config.ConfigNoFile"><tt class="xref py py-class docutils literal"><span class="pre">gosa.common.config.ConfigNoFile</span></tt></a> exception.</p>
+<hr class="docutils" />
+<dl class="class">
+<dt id="gosa.common.config.Config">
+<em class="property">class </em><tt class="descclassname">gosa.common.config.</tt><tt class="descname">Config</tt><big>(</big><em>config='/etc/gosa/config'</em>, <em>noargs=False</em><big>)</big><a class="headerlink" href="#gosa.common.config.Config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a new Config object using the provided configuration file
+and parse the <tt class="docutils literal"><span class="pre">sys.argv</span></tt> information.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>config</td>
+<td>Path to the configuration file.</td>
+</tr>
+<tr><td>noargs</td>
+<td>Don&#8217;t parse <tt class="docutils literal"><span class="pre">sys.argv</span></tt> information</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="gosa.common.config.Config.get">
+<tt class="descname">get</tt><big>(</big><em>path</em>, <em>default=None</em><big>)</big><a class="headerlink" href="#gosa.common.config.Config.get" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>get</em> allows dot-separated access to the configuration structure.
+If the desired value is not defined, you can specify a default
+value.</p>
+<p>For example, if you want to access the <em>loglevel</em> option located
+in the section <em>[core]</em>, the path is:</p>
+<blockquote>
+<div>core.loglevel</div></blockquote>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="84%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>path</td>
+<td>dot-separated path to the configuration option</td>
+</tr>
+<tr><td>default</td>
+<td>default value if the desired option is not set</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return</span></tt>: value or default</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.common.config.Config.getOptions">
+<tt class="descname">getOptions</tt><big>(</big><em>section</em><big>)</big><a class="headerlink" href="#gosa.common.config.Config.getOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the list of provided option names in the specified section of the
+ini file.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="76%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>str</td>
+<td>section name in the ini file</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return</span></tt>: list of options</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.common.config.Config.getSections">
+<tt class="descname">getSections</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.common.config.Config.getSections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the list of available sections of the ini file. There should be at
+least &#8216;core&#8217; available.</p>
+<p><tt class="docutils literal"><span class="pre">Return</span></tt>: list of sections</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="gosa.common.config.ConfigNoFile">
+<em class="property">exception </em><tt class="descclassname">gosa.common.config.</tt><tt class="descname">ConfigNoFile</tt><a class="headerlink" href="#gosa.common.config.ConfigNoFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception to inform about non existing or not accessible
+configuration files.</p>
+</dd></dl>
+
+<hr class="docutils" />
+<p>The configuration module handles a couple of default configuration values
+of the <tt class="docutils literal"><span class="pre">[core]</span></tt> section:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>foreground</td>
+<td>Run in daemon mode or not</td>
+</tr>
+<tr><td>pidfile</td>
+<td>Path to the PID file when running in daemon mode</td>
+</tr>
+<tr><td>umask</td>
+<td>Umask when running in daemon mode</td>
+</tr>
+<tr><td>user</td>
+<td>User to become when running in daemon mode</td>
+</tr>
+<tr><td>group</td>
+<td>Group to become when running in daemon mode</td>
+</tr>
+<tr><td>workdir</td>
+<td>Change to this directory when running in daemon mode</td>
+</tr>
+<tr><td>loglevel</td>
+<td>Level where logging starts</td>
+</tr>
+<tr><td>profile</td>
+<td>Save profiling information</td>
+</tr>
+<tr><td>log</td>
+<td>Log target (stderr, syslog, file)</td>
+</tr>
+<tr><td>logfile</td>
+<td>If log=&#8221;file&#8221; this is the path to the logfile</td>
+</tr>
+<tr><td>id</td>
+<td>Unique ID of this node</td>
+</tr>
+<tr><td>domain</td>
+<td>Which domain this node will be part of</td>
+</tr>
+</tbody>
+</table>
+<p>Here is an example:</p>
+<div class="highlight-python"><pre>[core]
+loglevel = DEBUG
+log = file
+logfile = /var/log/gosa/agent.log
+profile = False
+id = amqp
+user = gosa
+group = gosa</pre>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/common/config.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">libinst v3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Cajus Pollmeier.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>
