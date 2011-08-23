@@ -4,7 +4,7 @@ The *LibinstManager* proxies the complete repository, base installation and
 config management process to the target plugins. It is the abstraction layer
 to be used from your frontend - shell, GUI or whatever you tend to use.
 
----
+----------
 """
 
 # pylint: disable=E0611
@@ -460,15 +460,27 @@ class LibinstManager(Plugin):
     @NamedArgs("m_hash")
     def getReleases(self, m_hash=None, distribution=None):
         """
-        getReleases lists all registered releases for the given distribution.
+        List releases by distribution or all.
 
-        @type distribution: string
-        @param distribution: distribution name
+        Example:
 
-        @rtype: dict
-        @return: dictionary containing a list of releases name /
-                 discription pairs.
+        >>> proxy.getReleases({'distribution': 'debian'})
+        [{'origin': None, 'codename': None, 'name': 'squeeze', 'parent': None}, {'origin': None, 'codename': None, 'name': 'squeeze/1.0', 'parent': {'origin': None, 'codename': None, 'name': 'squeeze', 'parent': None}}]
+
+        A release dict contains the following keys:
+
+        =================== ====================================================
+        Key                 Description
+        =================== ====================================================
+        name                Name of the release
+        codename            Codename of the release
+        origin              TODO
+        parent              TODO
+        =================== ====================================================
+
+        ``Return:`` list of dicts
         """
+        #TODO: what's the reason for m_hash here?
         result = None
         session = None
 
@@ -494,19 +506,38 @@ class LibinstManager(Plugin):
             session.close()
 
         return result
-    
+
     @Command(__help__=N_("Return available information for the given release"))
     @NamedArgs("m_hash")
     def getRelease(self, m_hash=None, release=None):
         """
-        getRelease returns available information for the given release.
+        Returns information about the privided release.
 
-        @type release: string
-        @param release: release name
+        ========= ============
+        Parameter Description
+        ========= ============
+        m_hash    Dictionary with release name
+        ========= ============
 
-        @rtype: dict
-        @return: dictionary containing a list of release parameter / value pairs.
+        Example:
+
+        >>> proxy.getRelease({'release': 'squeeze/1.0'})
+        {'origin': None, 'codename': None, 'name': 'squeeze/1.0', 'parent': {'origin': None, 'codename': None, 'name': 'squeeze', 'parent': None}}
+
+        The resulting dictionary contains this information:
+
+        =================== ====================================================
+        Key                 Description
+        =================== ====================================================
+        name                Release name
+        codename            Code name
+        origin              TODO
+        parent              Parent release information
+        =================== ====================================================
+
+        ``Return:`` dict with information
         """
+        #TODO: reason for m_hash?
         result = None
         session = None
 

@@ -57,7 +57,7 @@
 <p>The <em>LibinstManager</em> proxies the complete repository, base installation and
 config management process to the target plugins. It is the abstraction layer
 to be used from your frontend - shell, GUI or whatever you tend to use.</p>
-<p>&#8212;</p>
+<hr class="docutils" />
 <dl class="class">
 <dt id="libinst.manage.LibinstManager">
 <em class="property">class </em><tt class="descclassname">libinst.manage.</tt><tt class="descname">LibinstManager</tt><a class="headerlink" href="#libinst.manage.LibinstManager" title="Permalink to this definition">¶</a></dt>
@@ -162,7 +162,8 @@ given distribution or release.</p>
 </tr>
 </tbody>
 </table>
-<p>For information about the returned dict, please see <tt class="xref py py-meth docutils literal"><span class="pre">libinst.manage.ManageLibinst.getDistributions()</span></tt>.</p>
+<p>For information about the returned dict, please see
+<a class="reference internal" href="#libinst.manage.LibinstManager.getDistributions" title="libinst.manage.LibinstManager.getDistributions"><tt class="xref py py-meth docutils literal"><span class="pre">libinst.manage.LibinstManager.getDistributions()</span></tt></a>.</p>
 <p>Example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">getDistribution</span><span class="p">({</span><span class="s">&#39;distribution&#39;</span><span class="p">:</span> <span class="s">&#39;debian&#39;</span><span class="p">})</span>
 <span class="go">{&#39;origin&#39;: None, &#39;installation_method&#39;: &#39;puppet&#39;, &#39;last_updated&#39;: None, &#39;name&#39;: &#39;debian&#39;, &#39;releases&#39;: [{&#39;origin&#39;: None, &#39;codename&#39;: None, &#39;name&#39;: &#39;squeeze&#39;, &#39;parent&#39;: None}, {&#39;origin&#39;: None, &#39;codename&#39;: None, &#39;name&#39;: &#39;squeeze/1.0&#39;, &#39;parent&#39;: {&#39;origin&#39;: None, &#39;codename&#39;: None, &#39;name&#39;: &#39;squeeze&#39;, &#39;parent&#39;: None}}], &#39;sections&#39;: [{&#39;name&#39;: &#39;sound&#39;, &#39;description&#39;: None}, {&#39;name&#39;: &#39;kernel&#39;, &#39;description&#39;: None}, {&#39;name&#39;: &#39;debug&#39;, &#39;description&#39;: None}], &#39;type&#39;: {&#39;name&#39;: &#39;deb&#39;, &#39;description&#39;: &#39;&#39;}, &#39;debian_volatile&#39;: None, &#39;debian_security&#39;: None, &#39;architectures&#39;: [{&#39;name&#39;: &#39;i386&#39;, &#39;description&#39;: None}, {&#39;name&#39;: &#39;amd64&#39;, &#39;description&#39;: None}, {&#39;name&#39;: &#39;source&#39;, &#39;description&#39;: None}], &#39;components&#39;: [{&#39;name&#39;: &#39;main&#39;, &#39;description&#39;: None}], &#39;path&#39;: &#39;/srv/repository/data/debian&#39;, &#39;mirror_sources&#39;: False, &#39;managed&#39;: True}</span>
