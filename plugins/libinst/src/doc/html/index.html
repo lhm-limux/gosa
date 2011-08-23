@@ -50,7 +50,35 @@
             
   <div class="section" id="welcome-to-the-libinst-documentation">
 <h1>Welcome to the libinst documentation!<a class="headerlink" href="#welcome-to-the-libinst-documentation" title="Permalink to this headline">¶</a></h1>
-<p id="libinst">text</p>
+<p id="libinst">The libinst library provides an abstraction for three base components needed for
+system deployment and config management:</p>
+<blockquote>
+<div><ul>
+<li><p class="first">Repository management</p>
+<p>This abstraction layer manages software releases based on distribution, components
+and packages. It is possible to work on certain versions of a release. Basically
+this can be a management for debian or redhat packages - or maybe even OPSI products.</p>
+</li>
+<li><p class="first">Base install</p>
+<p>The base installation takes care of installing the very basic os stuff on a
+target system in order to go on with <em>Config management</em> later on. The ordinary
+way is to boot via TFTP/fts and load into an OS installer like debian preseed,
+redhat kickstart, opsi or FAI. The base install keeps a set of unified parameters which
+configure the used base install method.</p>
+</li>
+<li><p class="first">Config management</p>
+<p>The config management takes care of doing <em>everything else</em> left after the
+base installation: install remaining packages, setup the configuration, etc.</p>
+<p>How the config management takes place varies and should be initiated by some
+process in the base installation - normally the installation of the <em>gosa.client</em>
+which can take care of doing the right thing.</p>
+<p>Methods could be puppet, FAI, opsi, etc. which get some level of abstraction
+thru an item concept.</p>
+</li>
+</ul>
+</div></blockquote>
+<p>In combination with the <em>gosa.client</em>, libinst is going to cover the complete client
+lifecycle.</p>
 <hr class="docutils" />
 <p><strong>Documentation TODO list:</strong></p>
 <p class="req-source"><em class="status todo">todo</em> Describe what the components do<a class="reference internal" href="plugins/puppet.html#req-0"> <em>→</em></a></p>
