@@ -50,7 +50,10 @@ def Command(**d_kwargs):
         doc = getattr(f, '__doc__')
         if doc:
             lines = map(lambda x: x.lstrip(' '), doc.split('\n'))
-            setattr(f, '__doc__', ".. note::\n   **This method will be exported by the CommandRegistry.**\n\n%s" % "\n".join(lines))
+            hlp = getattr(f, '__help__')
+            name = getattr(f, '__name__')
+#            setattr(f, '__doc__', ".. note::\n    **This method will be exported by the CommandRegistry.**\n\n%s" % "\n".join(lines))
+            setattr(f, '__doc__', ".. command:: %s\n\n    %s\n\n.. note::\n    **This method will be exported by the CommandRegistry.**\n\n%s" % (name, hlp, "\n".join(lines)))
 
         return f
 

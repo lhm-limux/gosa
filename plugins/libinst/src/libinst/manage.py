@@ -4,6 +4,8 @@ The *LibinstManager* proxies the complete repository, base installation and
 config management process to the target plugins. It is the abstraction layer
 to be used from your frontend - shell, GUI or whatever you tend to use.
 
+.. cmdlist::
+
 ----------
 """
 
@@ -1392,11 +1394,6 @@ class LibinstManager(Plugin):
         offset=None, limit=None):
         """
         Like getPackages, but returns a complete dictionary with package information.
-
-        .. requirement::
-            :status: todo
-
-            Documentation and implementation is missing.
         """
         pass
 
@@ -1404,11 +1401,6 @@ class LibinstManager(Plugin):
     def getPackageInformation(self, release, arch, package):
         """
         getPackageInformation returns a dictionary containing package information.
-
-        .. requirement::
-            :status: todo
-
-            Documentation and implementation is missing.
         """
         pass
 
@@ -1530,18 +1522,6 @@ class LibinstManager(Plugin):
     @NamedArgs("m_hash")
     def removePackage(self, package, m_hash=None, arch=None, release=None, distribution=None):
         """
-        removePackage removes a package from a release.
-
-        @type package: string
-        @param package: package name
-
-        @type release: string
-        @param release: name of the release
-
-        @rtype: boolean
-        @return: adding package successfull
-        """
-        """
         Removes a package from a release.
 
         =============== ========================
@@ -1555,7 +1535,7 @@ class LibinstManager(Plugin):
 
         Example:
 
-        >>> proxy.removePackage("jaaa", release="squeeze/1.0", arch="source"))
+        >>> proxy.removePackage("jaaa", release="squeeze/1.0", arch="source")
 
         ``Return:`` True on success
         """
@@ -1592,6 +1572,42 @@ class LibinstManager(Plugin):
         return result != None
 
     def addKeys(self, keys):
+        """
+        Add keys for repository validation.
+
+        =============== ========================
+        Parameter       Description
+        =============== ========================
+        key             GPG private key block
+        =============== ========================
+
+        Example:
+
+        >>> keyring = \"\"\"-----BEGIN PGP PRIVATE KEY BLOCK-----
+        ... Version: GnuPG v1.4.10 (GNU/Linux)
+        ...
+        ... lQHYBEx2RJ8BBADGAvwUiutOLO+OgkpWmOfNczRcEWZSja8jfZJFAHkSknq7t9lM
+        ... FD0qYkjxnmGvi44cPmKu7Z2xkBxljyKK5pDOkCqB2QBUrXSnb3rg6/w9gX8Mh1er
+        ... e8VZ/45sjxqwoUIPWWsrmEotQ9388KbEhdw14FQj/rai/Xa7rqYI6nVQSQARAQAB
+        ... AAP6AyHggTljDsfnvu3ZQj/ihdj27A056XmOJ4elkobqNpfsdI9l8t3fy4dFvy28
+        ... 8gKvnzG08uG1iyD1mnBho/sdytTKe7GMLDcHyWWBOl31WLKUzQFTOpQ6EjzKNyNl
+        ... CGvwSKBm8u81BfNi7FpfgnVI733jdqZ8Lvq5znKRrK4WJdECANOaZn78oghTONUQ
+        ... 1Fo6PgrjFkD337TR3Dm5tllp0Mlly9C9/N5CiTZj/0VLNyzT0tHVik8WEmF37bgY
+        ... Zd2gA9kCAO+Oj6k9Bqs6uTjHFmT5NEGvoJVSd4Q+F4jDmT+U2yJEBUk1dHiRAcEr
+        ... NcRU5VMbpBk9rbsmikX0oA1gavaNmfECAJi9uX99nb+dNWpqFqHxuDKaHapG9cKv
+        ... AlI+btxIAzPFvqMuHMjFKn6T57D8QpIz1f7LdmlYKKOr3DRmaYOaJBClOrQ2QXV0
+        ... b2dlbmVyYXRlZCBLZXkgKEdlbmVyYXRlZCBieSBnbnVwZy5weSkgPGphbndAaG9t
+        ... ZXI+iLgEEwECACIFAkx2RJ8CGy8GCwkIBwMCBhUIAgkKCwQWAgMBAh4BAheAAAoJ
+        ... ELxLvnLaEqJwX2oD/2wAOYbZG68k7iDOqFI1TpQjlgRQKHNuvindjWrPjfgsDfZH
+        ... kEhidYX1IRzgyhhLjrPDcB0RTcnjlXm9xOXJb3tcuyKWxi2CHMstdgTMHt6xb37o
+        ... LcWMU6gayNYj7eMgCOFM6ywySRS81FC+PPnr147xbp5FwgmoPRK52MURsHJ+
+        ... =RwlJ
+        ... -----END PGP PRIVATE KEY BLOCK-----\"\"\"
+        >>> manager = LibinstManager()
+        >>> manager.addKeys(keyring)
+
+        ``Return:`` True on success
+        """
         result = False
         session = None
         repository = None
@@ -1632,6 +1648,22 @@ class LibinstManager(Plugin):
         return result
 
     def removeKey(self, key_id):
+        """
+        Remove key with given fingerprint.
+
+        =============== ========================
+        Parameter       Description
+        =============== ========================
+        key_id          Key fingerprint
+        =============== ========================
+
+        Example:
+
+        >>> manager = LibinstManager()
+        >>> manager.removeKey("BC4BBE72DA12A270")
+
+        ``Return:`` True on success
+        """
         result = None
         session = None
         work_dir = self._getGPGEnvironment()
@@ -1660,6 +1692,17 @@ class LibinstManager(Plugin):
         return result
 
     def listKeys(self):
+        """
+        List available keys.
+
+        Example:
+
+        >>> manager = LibinstManager()
+        >>> manager.listKeys()
+        []
+
+        ``Return:`` list of key_id/key pairs
+        """
         result = None
         try:
             session = self.getSession()
@@ -1681,6 +1724,25 @@ class LibinstManager(Plugin):
     @Command(__help__=N_("Returns a list of items of item_type (if given) for the specified release - or all."))
     @NamedArgs("m_hash")
     def listConfigItems(self, release, m_hash=None, item_type=None, path=None, children=None):
+        """
+        List configuration items for given release
+
+        =============== =================================================================
+        Parameter       Description
+        =============== =================================================================
+        release         Name of the release to list config items of
+        item_type       Filter items by type
+        path            Filter items by path
+        children        Filter items by children
+        =============== =================================================================
+
+        Example:
+
+        >>> proxy.listConfigItems('squeeze/1.0')
+        {'/gon-base/sudoers': 'PuppetFile', '/gon-base': 'PuppetModule', '/gon-base/users': 'PuppetManifest', '/gon-base/sudo': 'PuppetManifest', '/': 'PuppetRoot'}
+
+        ``Return:`` dict path/type pair
+        """
         result = None
         session = None
         try:
@@ -1712,6 +1774,32 @@ class LibinstManager(Plugin):
 
     @Command(__help__=N_("Returns a list of all asignable elements for a release"))
     def listAssignableElements(self, release):
+        """
+        List items that can be assigned to a client for a specific release.
+
+        =============== =================================================================
+        Parameter       Description
+        =============== =================================================================
+        release         Name of the release to list config items of
+        =============== =================================================================
+
+        Example:
+
+        >>> proxy.listAssignableElements('squeeze/1.0')
+        {'gon-base::users': {'parameter': {'starting_uid': 'this global variable is used to set the minimum uid used for our users\n\n'}, 'description': 'This class installs our default set of users in our servers'}, 'gon-base::sudo': {'parameter': {}, 'description': 'This class installs our default sudoers file.'}}
+
+        The resulting dictionary contains the assignable object name as the key and
+        potential parameter descriptions as a nested dict:
+
+        =================== ====================================================
+        Key                 Description
+        =================== ====================================================
+        parameter           Parameter dictionary
+        description         Item description
+        =================== ====================================================
+
+        ``Return:`` dict
+        """
         result = None
         session = None
         try:
@@ -1743,6 +1831,27 @@ class LibinstManager(Plugin):
 
     @Command(__help__=N_("Set the data for the specified item"))
     def setConfigItem(self, release, path, item_type, data):
+        """
+        Create or update item by setting specified parameters.
+
+        ========== ===========================================
+        Parameter  Description
+        ========== ===========================================
+        release    Release name
+        path       Path to the item
+        item_type  Type of the target item
+        data       Parameter dict containing item information
+        ========== ===========================================
+
+        Example:
+
+        >>> proxy.setConfigItem('wheezy', '/module', 'PuppetModule',
+        ... {'dependency': [],
+        ...  'version': '42',
+        ...  'description': 'A senseles puppet module'})
+
+        ``Return:`` True on success
+        """
         result = None
         session = None
         try:
@@ -1770,6 +1879,23 @@ class LibinstManager(Plugin):
 
     @Command(__help__=N_("Remove the specified item and it's children"))
     def removeConfigItem(self, release, path, children=None):
+        """
+        Remove specified item.
+
+        ========== ===========================================
+        Parameter  Description
+        ========== ===========================================
+        release    Release name
+        path       Path to the item
+        children   Remove children
+        ========== ===========================================
+
+        Example:
+
+        >>> proxy.removeConfigItem('squeeze', '/module')
+
+        ``Return:`` True on success
+        """
         result = None
         session = None
         try:
@@ -1798,6 +1924,26 @@ class LibinstManager(Plugin):
 
     @Command(__help__=N_("Return the data of specified item"))
     def getConfigItem(self, release, path):
+        """
+        Get a dict describing the addressed config item.
+
+        ========== ===========================================
+        Parameter  Description
+        ========== ===========================================
+        release    Release name
+        path       Path to the item
+        ========== ===========================================
+
+        Example:
+
+        >>> proxy.getConfigItem('squeeze/1.0', '/gon-base')
+        {'dependency': [], 'version': '11', 'name': 'gon-base', 'description': None}
+
+        The resulting dict depends on the parameters that are possible
+        for the defined item.
+
+        ``Return:`` dict
+        """
         result = None
         session = None
         try:
@@ -1826,15 +1972,47 @@ class LibinstManager(Plugin):
 
     @Command(__help__=N_("Get supported system locales"))
     def getSystemLocales(self):
+        """
+        List available system locales.
+
+        Example:
+
+        >>> proxy.getSystemLocales()
+        {'sk_SK.UTF-8': 'Slovak', 'ml_IN.UTF-8': 'Malayalam (India)', 'ar_QA.UTF-8': 'Arabic (Qatar)', ...}
+
+        ``Return:`` dict
+        """
         return locale_map
 
     @Command(__help__=N_("Get supported keyboard models"))
     def getKeyboardModels(self):
+        """
+        List available keyboard models.
+
+        Example:
+
+        >>> proxy.getKeyboardModels()
+        {'gr': ['Greek', 'gr,us', 'pc105', '', 'grp:shifts_toggle,grp_led:scroll'], ... }
+
+        ``Return:`` dict
+        """
         return self.keyboardModels
 
     @Command(__help__=N_("Get supported time zones"))
     def getTimezones(self):
+        """
+        List available timezones.
+
+        Example:
+
+        >>> proxy.getTimezones()
+        ['Africa/Abidjan', 'Africa/Accra', 'Africa/Addis_Ababa', ...]
+
+        ``Return:`` list
+        """
         return pytz.all_timezones
+
+#---HIER
 
     @Command(__help__=N_("Get kernel packages for the specified release"))
     def getKernelPackages(self, release):
