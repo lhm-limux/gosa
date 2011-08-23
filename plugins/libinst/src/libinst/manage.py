@@ -564,18 +564,31 @@ class LibinstManager(Plugin):
     @NamedArgs("m_hash")
     def getArchitectures(self, m_hash=None, distribution=None, release=None):
         """
-        getArchitectures lists all available architectures, optional for the
-        given distribution or release.
+        List available architectures per release, distribution or global.
 
-        @type distribution: string
-        @param distribution: distribution name
+        ========= ============
+        Parameter Description
+        ========= ============
+        m_hash    Dictionary with release name or distribution name
+        ========= ============
 
-        @type release: string
-        @param release: release name
+        Example:
 
-        @rtype: list
-        @return: list of architectures
+        >>> proxy.getArchitectures({'release': 'squeeze/1.0'})
+        [{'name': 'amd64', 'description': None}]
+
+        The resulting dictionary contains this information:
+
+        =================== ====================================================
+        Key                 Description
+        =================== ====================================================
+        name                Release name
+        description         Description
+        =================== ====================================================
+
+        ``Return:`` dict describing the archtiectures
         """
+        #TODO: reason for m_hash?
         result = None
         session = None
 
@@ -610,15 +623,31 @@ class LibinstManager(Plugin):
     @NamedArgs("m_hash")
     def getSections(self, m_hash=None, distribution=None, release=None):
         """
-        getSections lists all available sections for the given
-        distribution.
+        List available sections per release, distribution or global.
 
-        @type distribution: string
-        @param distribution: distribution name
+        ========= ============
+        Parameter Description
+        ========= ============
+        m_hash    Dictionary with release name or distribution name
+        ========= ============
 
-        @rtype: list
-        @return: list of sections
+        Example:
+
+        >>> proxy.getSections({'release': 'squeeze/1.0'})
+        [{'name': 'kernel', 'description': None}, {'name': 'sound', 'description': None}]
+
+        The resulting dictionary contains this information:
+
+        =================== ====================================================
+        Key                 Description
+        =================== ====================================================
+        name                Release name
+        description         Description
+        =================== ====================================================
+
+        ``Return:`` dict describing the sections
         """
+        #TODO: reason for m_hash?
         result = None
         session = None
         try:
@@ -651,20 +680,27 @@ class LibinstManager(Plugin):
     @NamedArgs("m_hash")
     def createDistribution(self, name, type, m_hash=None, install_method=None, mirror=None):
         """
-        createDistribution creates a new distribution, optionally based on a
-        specific type or mirror.
+        Create a new distribution based on type, mirror and installation method. This
+        is the first step to be done before creating releases - because releases depend
+        on distributions.
 
-        @type name: string
-        @param name: distribution name
+        =============== ============
+        Parameter       Description
+        =============== ============
+        name            The distribution name
+        type            Repository type
+        install_method  Method to be used for this distribution
+        mirror          Optional source for this distribution
+        =============== ============
 
-        @type type: string
-        @param type: type of distribution (i.e. 'deb, 'rpm', etc.)
+        Example:
 
-        @type mirror: string
-        @param mirror: Source URL for to mirror the distribution from
+        >>> proxy.createDistribution('debian', 'deb',
+        ...       {'install_method': 'puppet', 'mirror': 'http://ftp.de.debian.org/debian'})
+        >>> proxy.updateMirror(distribution="debian", components=["main"], sections=["shells"])
+        >>> proxy.createRelease("debian", "squeeze")
 
-        @rtype: boolean
-        @return: True for success
+        ``Return:`` True on success
         """
         result = None
         session = None
@@ -719,18 +755,17 @@ class LibinstManager(Plugin):
     @NamedArgs("m_hash")
     def removeDistribution(self, distribution, m_hash=None, recursive=False):
         """
-        removeDistribution removes an existing distribution. It checks the
-        dependencies and will not remove a parent distribution until the
-        recursive parameter is specified.
+        Remove an existing distribution. It checks the dependencies and will
+        not remove a parent distribution until the recursive parameter is specified.
 
-        @type name: string
-        @param name: distribution name
+        =============== ============
+        Parameter       Description
+        =============== ============
+        distribution    The distribution name
+        recursive       Remove all release children, too
+        =============== ============
 
-        @type recursive: bool
-        @param recursive: recursive removal of distributions
-
-        @rtype: boolean
-        @return: True for success
+        ``Return:`` True on success
         """
         result = None
         session = None
@@ -771,18 +806,20 @@ class LibinstManager(Plugin):
     @Command(__help__=N_("Create a new release belonging to distribution"))
     def createRelease(self, distribution, name):
         """
-        createRelease creates a new release belonging to a distribution. It
+        Create a new release belonging to a distribution. It
         can optionally have a parent release. Parent releases are specified
         using the name field: i.e. name = 'lenny/5.0.4'
 
-        @type distribution: string
-        @param distribution: distribution name
+        =============== ======================
+        Parameter       Description
+        =============== ======================
+        distribution    The distribution name
+        name            The release name
+        =============== ======================
 
-        @type name: string
-        @param name: release name
+        An usage example can be found at :meth:`libinst.manage.LibinstManger.createDistribution`.
 
-        @rtype: boolean
-        @return: True for success
+        ``Return:`` True on success
         """
         result = None
         session = None
@@ -831,17 +868,21 @@ class LibinstManager(Plugin):
     @NamedArgs("m_hash")
     def removeRelease(self, release, m_hash=None, recursive=False):
         """
-        removeRelease removes an existing release and - if recursive is specified -
-        the sub-releases.
+        Remove an existing release. It checks the dependencies and will
+        not remove a parent release until the recursive parameter is specified.
 
-        @type release: string
-        @param release: release name
+        =============== ============
+        Parameter       Description
+        =============== ============
+        release         The release name
+        recursive       Remove all release children, too
+        =============== ============
 
-        @type recursive: bool
-        @param recursive: True to remove sub releases
+        Example:
 
-        @rtype: boolean
-        @return: True for success
+        >>> proxy.removeRelease(release="squeeze")
+
+        ``Return:`` True on success
         """
         result = None
         session = None
@@ -897,14 +938,18 @@ class LibinstManager(Plugin):
         """
         renameRelease changes the name from source to target.
 
-        @type source: string
-        @param source: source release name
+        =============== ============
+        Parameter       Description
+        =============== ============
+        source          Source release name
+        target          Target release name
+        =============== ============
 
-        @type target: string
-        @param target: target release name
+        Example:
 
-        @rtype: boolean
-        @return: True for success
+        >>> proxy.renameRelease("squeeze", "wheezy")
+
+        ``Return:`` True on success
         """
         result = None
         session = None
@@ -934,6 +979,30 @@ class LibinstManager(Plugin):
     @Command(__help__=N_("Replace distribution properties"))
     @NamedArgs("m_hash")
     def setDistribution(self, m_hash=None, distribution=None, arch=None, component=None, mirror_sources=None):
+        """
+        Modify properties of an existing distribution.
+
+        =============== ============
+        Parameter       Description
+        =============== ============
+        distribution    The distribution name
+        arch            List of architectures
+        component       List of components
+        mirror_sources  Flag to mirror sources
+        =============== ============
+
+        Example:
+
+        >>> proxy..setDistribution(
+        ... {
+        ...     'component': [],
+        ...     'distribution': 'debian',
+        ...     'arch': [],
+        ...     'mirror_sources': False
+        ... })
+
+        ``Return:`` True on success
+        """
         result = None
         session = None
 
@@ -1006,6 +1075,25 @@ class LibinstManager(Plugin):
     @Command(__help__=N_("Add new properties to a mirrored distribution"))
     @NamedArgs("m_hash")
     def addMirrorProperty(self, m_hash=None, distribution=None, arch=None, component=None, mirror_sources=None, origin=None):
+        """
+        Add properties to an existing distribution mirror definition.
+
+        =============== ============
+        Parameter       Description
+        =============== ============
+        distribution    The distribution name
+        arch            List of architectures
+        component       List of components
+        mirror_sources  Flag to mirror sources
+        origin          TODO
+        =============== ============
+
+        Example:
+
+        >>> proxy.addMirrorProperty(distribution="debian", arch="i386", component="main")
+
+        ``Return:`` True on success
+        """
         result = None
         session = None
         try:
@@ -1058,6 +1146,19 @@ class LibinstManager(Plugin):
     @Command(__help__=N_("Remove existing properties from a mirrored distribution"))
     @NamedArgs("m_hash")
     def removeMirrorProperty(self, m_hash=None, distribution=None, arch=None, component=None):
+        """
+        Remove properties of an existing distribution mirror definition.
+
+        =============== ============
+        Parameter       Description
+        =============== ============
+        distribution    The distribution name
+        arch            List of architectures
+        component       List of components
+        =============== ============
+
+        ``Return:`` True on success
+        """
         result = None
         session = None
         try:
@@ -1106,6 +1207,25 @@ class LibinstManager(Plugin):
     @Command(__help__=N_("Update a local mirror"))
     @NamedArgs("m_hash")
     def updateMirror(self, m_hash=None, distribution=None, releases=None, components=None, architectures=None, sections=None):
+        """
+        Initially download or update a distribution from a mirror.
+
+        =============== ============
+        Parameter       Description
+        =============== ============
+        distribution    The distribution name
+        releases        TODO
+        components      List of components to download
+        architectures   List of architectures to download
+        sections        List of sections to download
+        =============== ============
+
+        Example:
+
+        >>> proxy.updateMirror(distribution="debian", components=["main"], sections=["shells"])
+
+        ``Return:`` True on success
+        """
         result = None
         session = None
 
@@ -1121,11 +1241,11 @@ class LibinstManager(Plugin):
                 distribution = session.merge(distribution)
                 if distribution.releases:
                     result = self.type_reg[distribution.type.name].updateMirror(
-                        session, 
-                        distribution=distribution, 
-                        releases=releases, 
-                        components=components, 
-                        architectures=architectures, 
+                        session,
+                        distribution=distribution,
+                        releases=releases,
+                        components=components,
+                        architectures=architectures,
                         sections=sections)
                     distribution.last_updated=datetime.datetime.utcnow()
                 else:
@@ -1163,33 +1283,55 @@ class LibinstManager(Plugin):
     def getPackages(self, m_hash=None, release=None, arch=None, component=None, section=None, custom_filter=None,
         offset=None, limit=None):
         """
-        getPackages lists available packages using the specified
-        criteria.
+        List available packages using the specified criteria.
 
-        @type release: string/Release
-        @param release: Optional release instance or release name
+        =============== =================================================================
+        Parameter       Description
+        =============== =================================================================
+        release         Optional release instance or release name
+        arch            Optional name or instance of architecture (i.e. 'i386', 'amd64')
+        component       Optional name or instance of component (i.e. 'main', 'contrib')
+        section         Optional name or instance of section (i.e. 'text', 'utils')
+        custom_filter   TODO
+        offset          Offset to begin with, starting with 0
+        limit           Limit result entries
+        =============== =================================================================
 
-        @type arch: string/Architecture
-        @param arch: Optional name or instance of architecture (i.e. 'i386', 'amd64')
+        Example:
 
-        @type component: string/Component
-        @param component: Optional name or instance of component (i.e. 'main', 'contrib')
+        >>> proxy.getPackages({'releases':"sqeeze/1.0", 'section':'kernel'})
+        ...
 
-        @type section: string/Section
-        @param section: Optional name or instance of section (i.e. 'text', 'utils')
+        The result list consists of hashes with these keys:
 
-        @type custom_filter: string
-        @param filter: #TODO: really a string? if not, is it serializable?
+        =================== ====================================================
+        Key                 Description
+        =================== ====================================================
+        name                Package name
+        files               List of files that belong to this package
+        arch                Package architecture
+        long_description    Description
+        description         Package description
+        origin              Source URL
+        recommends          List of recommended packages
+        suggests            List of dependency suggestsions
+        depends             List of dependencies
+        build_depends       List of build dependencies
+        provides            List of alias names
+        maintainer          Contact of the package maintainers
+        format              TODO
+        type                Package type (i.e. deb)
+        section             Section this package is part of
+        component           Component this package is part of
+        standards_version   Standards version for this package
+        priority            Package priority
+        source              Source URL
+        installed_size      Number of bytes that will be used on the harddisk
+        =================== ====================================================
 
-        @type offset: int
-        @param offset: Offset to begin with, starting with 0
-
-        type limit: int
-        @param limit: Limit result entries
-
-        @rtype: list
-        @return: list of package names
+        ``Return:`` list of package names
         """
+        #TODO: make lists of recommends, etc.
         def package_filter(package):
             if arch and not package.arch.name == arch:
                 return False
@@ -1251,26 +1393,10 @@ class LibinstManager(Plugin):
         """
         Like getPackages, but returns a complete dictionary with package information.
 
-        @type release: string/Release
-        @param release: Optional release instance or release name
+        .. requirement::
+            :status: todo
 
-        @type arch: string/Architecture
-        @param arch: Optional name or instance of architecture (i.e. 'i386', 'amd64')
-
-        @type section: string/Section
-        @param section: Optional name or instance of section (i.e. 'main', 'contrib')
-
-        @type custom_filter: string
-        @param custom_filter: #TODO: really a string? if not, is it serializable?
-
-        @type offset: int
-        @param offset: Offset to begin with, starting with 0
-
-        type limit: int
-        @param limit: Limit result entries
-
-        @rtype: dict
-        @return: #TODO
+            Documentation and implementation is missing.
         """
         pass
 
@@ -1279,17 +1405,10 @@ class LibinstManager(Plugin):
         """
         getPackageInformation returns a dictionary containing package information.
 
-        @type release: string/Release
-        @param release: Optional release instance or release name
+        .. requirement::
+            :status: todo
 
-        @type arch: string/Architecture
-        @param arch: Optional name or instance of architecture (i.e. 'i386', 'amd64')
-
-        @type package: string
-        @param package: Package name
-
-        @rtype: dict
-        @return: dictionary containing package information
+            Documentation and implementation is missing.
         """
         pass
 
@@ -1297,25 +1416,25 @@ class LibinstManager(Plugin):
     @NamedArgs("m_hash")
     def addPackage(self, url, m_hash=None, release=None, distribution=None, component=None, updateInventory=True):
         """
-        addPackage adds one package to a distribution.
+        Add one package to a distribution.
 
-        @type url: string
-        @param url: Local or remote path to package file (supported remote protocols: http/https/ftp)
+        =============== ==================================================================================
+        Parameter       Description
+        =============== ==================================================================================
+        url             Local or remote path to package file (supported remote protocols: http/https/ftp)
+        release         (optional) add package to specified release
+        distribution    (optional) add package to specified distribution
+        component       (optional) override component for package
+        updateInventory rebuild packages list after adding package
+        =============== ==================================================================================
 
-        @type release: string
-        @param release: (optional) add package to specified release
+        Example:
 
-        @type distribution: string
-        @param distribution: (optional) add package to specified distribution
+        >>> proxy.addPackage(
+        ...   "http://ftp.de.debian.org/debian/pool/main/j/jaaa/jaaa_0.4.2-1.dsc",
+        ...   {"release": "squeeze/1.0"})
 
-        @type component: string
-        @param component: (optional) override component for package
-
-        @type updateInventory: boolean
-        @param updateInventory: rebuild packages list after adding package
-
-        @rtype: boolean
-        @return: adding package successfull
+        ``Return:`` True on success
         """
         result = None
         download_dir = None
@@ -1421,6 +1540,24 @@ class LibinstManager(Plugin):
 
         @rtype: boolean
         @return: adding package successfull
+        """
+        """
+        Removes a package from a release.
+
+        =============== ========================
+        Parameter       Description
+        =============== ========================
+        package         Package name
+        release         Name of the release
+        distribution    Name of the distribution
+        arch            Architecture
+        =============== ========================
+
+        Example:
+
+        >>> proxy.removePackage("jaaa", release="squeeze/1.0", arch="source"))
+
+        ``Return:`` True on success
         """
         result = None
         session = None
