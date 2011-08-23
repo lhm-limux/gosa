@@ -56,6 +56,164 @@
             
   <div class="section" id="concepts">
 <span id="id1"></span><h1>Concepts<a class="headerlink" href="#concepts" title="Permalink to this headline">¶</a></h1>
+<p>This chapter contains a brief overview over the concepts and technologies
+used in GOsa 3.0.</p>
+<div class="section" id="messaging-with-amqp">
+<h2>Messaging with AMQP<a class="headerlink" href="#messaging-with-amqp" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="what-is-amqp">
+<h3>What is AMQP?<a class="headerlink" href="#what-is-amqp" title="Permalink to this headline">¶</a></h3>
+<p>AMQP is the short form for <em>Advanced Message Queueing Protocol</em> and provides a
+middleware for message oriented applications on the OSI application layer. It
+provides a secure and reliable way to deliver, forward and store messages.</p>
+<p>AMQP is a binary protocol which assures the interoperability between different
+platforms. Size and form of messages do not matter.</p>
+<p>The AMQP infrastructure consists of at least one broker - that&#8217;s the instance
+where messages get processed - and a number of clients. These clients can publish
+or consume messages. Clients wich consume messages are named <em>consumer</em> and
+clients publishing messages are named <em>producer</em>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For more detailed introduction, please refer to the exellent
+<a class="reference external" href="http://en.wikipedia.org/wiki/Advanced_Message_Queuing_Protocol">Wikipedia article</a>.</p>
+</div>
+</div>
+<div class="section" id="queues">
+<h3>Queues<a class="headerlink" href="#queues" title="Permalink to this headline">¶</a></h3>
+<p>The base for communication with messages are so called <em>queues</em>. Messages in
+queues get stored in memory or on disk and will be transferred (in sent order
+if applicable) to the consumers. Queues are message store and distribution
+unit in one. Message queues do not depend on each other and can have different
+properties: private or public, permanent or temporary, permanent or volatile.
+These properties make a determination whether the queue implements a store-and-forward,
+a pub-sub or what ever mechanism.</p>
+<p>If you compare queues to SMTP, the queues would be like post boxes. The mail
+sender is a producer and a mail filter the consumer.</p>
+<p>Queues can be configured to realize one-to-one, one-to-any, point-to-point and
+publish-subscribe mechanisms. For members of the AMQP network, it may be
+interresting if a disk of a connected system is running out of space. In this
+case you can create some kind of status queue which is taking your systems
+disk status messages. Interrested consumers can inspect incoming messages and
+trigger an automatic cleanup or send a short message to the administrator.</p>
+<p>Queues can be mirrored on different brokers in a cluster - while this kind of
+clustering is called <em>federation</em>.</p>
+</div>
+<div class="section" id="exchange">
+<h3>Exchange<a class="headerlink" href="#exchange" title="Permalink to this headline">¶</a></h3>
+<p>An exchange is an instance of the AMQP concept, which can connect queues
+by several criteria - it provides some kind of routing mechanism for
+messages. The process of connecting queues is called <em>binding</em>.</p>
+<p>AMQP provides a couple of exchanges. One way would be to assign messages
+and queues be the routing key, or by using an XQuery for XML based
+messages.</p>
+<p>GOsa itself uses two kinds of exchanges: the XML exchange for events, to
+allow dedicated filtering and the routing key based exchange to provide
+round robin command queues.</p>
+</div>
+<div class="section" id="messages">
+<h3>Messages<a class="headerlink" href="#messages" title="Permalink to this headline">¶</a></h3>
+<p>Sent information consists of AMQP header information and the message body.
+The contents of the message body is not specified - if you want to you can
+transport DVD images via AMQP. In case of GOsa the message body consists
+either of XML messages or JSON encoded RPC calls.</p>
+<p>The &#8216;configuration&#8217; on how to transport messages is done by the header
+specification.</p>
+</div>
+<div class="section" id="broker">
+<h3>Broker<a class="headerlink" href="#broker" title="Permalink to this headline">¶</a></h3>
+<p>Currently, one of the biggest drawbacks of AMQP is that there are different
+specifications in different states of development available. While there&#8217;s
+a version 1.0 of AMQP available now, there&#8217;s no broker which is implementing
+it right now. There are brokers to support 0.6, 0.7, 0.8, 0.9 etc. and all of
+them tend to be not 100% compatible to each other.</p>
+<p>Here&#8217;s an (incomplete) excerpt of available OSS and non OSS brokers:</p>
+<blockquote>
+<div><ul>
+<li><p class="first"><strong>OpenAMQ</strong></p>
+<p>This free broker has been developed by the former creators of AMQP. It&#8217;s
+done in <em>C</em> and supports interresting features like REST based messaging.
+Sadly it looks like they&#8217;ve abandoned OpenAMQ and the company behind it
+(iMatix) seems to focus on <em>0mq</em> - another messaging system.</p>
+<p>OpenAMQ only supports older versions of the AMQP standard.</p>
+<p>OpenAMQ does not support any authentication or authorization mechanisms.</p>
+</li>
+<li><p class="first"><strong>RabbitMQ</strong></p>
+<p>RabbitMQ is a free broker done in <em>Erlang</em>. It&#8217;s maintained by Rabbit
+Technologies Ltd.</p>
+<p>At the time of writing, they only supports older versions of the AMQP standard.</p>
+</li>
+<li><p class="first"><strong>QPID</strong></p>
+<p>QPID is a free broker under the hood of the apache project. They provide
+a <em>C</em> and a <em>Java</em> based broker. It supports SASL based authentication and
+access control to queues.</p>
+<p>They support content based filtering via XQuery and it seems to be the most
+up-to-date broker in concerns of AMQP specifications.</p>
+</li>
+<li><p class="first"><strong>Red Hat Enterprise MRG</strong></p>
+<p>This is the commercial version of QPID, maintained by RedHat.</p>
+</li>
+</ul>
+</div></blockquote>
+<p>GOsa is using the <em>C</em> broker of QPID, because it makes life easier in several
+places.</p>
+</div>
+<div class="section" id="authentication">
+<h3>Authentication<a class="headerlink" href="#authentication" title="Permalink to this headline">¶</a></h3>
+<p>Using QPID, we can rely on a SASL based authentication wich can be simply
+connected to the LDAP directory infrastructure. The authorization itself
+must be done by GOsa, because the QPID acl concept is not dynamic - mostly
+for reasons of performance.</p>
+<p>The AMQP broker can automatically store the authentication information in
+the AMQP headers, so that GOsa is able to notice who&#8217;s sending messages.</p>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="gosa-overview">
+<h2>GOsa overview<a class="headerlink" href="#gosa-overview" title="Permalink to this headline">¶</a></h2>
+<p>Dieses Kapitel beschäftigt sich mit den einzelnen GOsa-Komponenten, erklärt
+welche Aufgabe sie im Gesamtkonstrukt haben und setzt sie zu einem grossen
+Ganzen zusammen. Entwickler-Informationen entnehmen Sie bitte der dem Entwickler
+teil dieses Buches.</p>
+<p>Die folgenden Unterkapitel beschäftigen sich allesamt mit dieser Grafik:</p>
+<dl class="docutils">
+<dt>begin{minipage}{linewidth}</dt>
+<dd>centering
+includegraphics[width=1textwidth]{media/gosa-design-overview.pdf}
+figcaption{Komponentenübersicht}
+label{fig:DesignOverview}</dd>
+</dl>
+<p>end{minipage}</p>
+<div class="section" id="core">
+<h3>Core<a class="headerlink" href="#core" title="Permalink to this headline">¶</a></h3>
+<p>Der GOsa-Kern beinhaltet grundlegende Funktionen, die von allen Modulen
+direkt verwendet werden können. Hierbei kann es sich z.B. um das Auflisten
+von verfügbaren Objekt-Typen oder die Authentifizierung handeln.</p>
+<p>Alle vom Kern bereitgestellten Funktionen werden in der textit{Function Registry}
+registriert und können von dort benutzt werden.</p>
+<div class="section" id="function-registry">
+<h4>Function Registry<a class="headerlink" href="#function-registry" title="Permalink to this headline">¶</a></h4>
+<p>In der textit{Function Registry} sind alle aufrufbaren Funktionen hinterlegt.
+Plugins, die öffentliche Funktionen bereitstellen müssen sie an dieser Stelle
+registrieren. Öffentliche Funktionen lassen sich beispielsweise über einen
+Client über RPC aufrufen.</p>
+<p>Ein Überladen von Funktionen ist durch in der Ladenreihenfolge weiter hinten
+angeordnete Plugins möglich. Bei Bedarf lassen sich die Funktionen also
+überschreiben.</p>
+<p>Ausführbar sind diese Funktionen, wenn die Zugriffsrichtlinien das X-Flag
+für diese Funktion vorsehen. Eine Ausführung durch berechtigte Personen
+wird damit gewährleistet.</p>
+</div>
+<div class="section" id="plugins">
+<h4>Plugins<a class="headerlink" href="#plugins" title="Permalink to this headline">¶</a></h4>
+<p>Plugins sind Module die die GOsa-Funktionalität um bestimmte Aspekte erweitern.
+So existiert ein Modul für den LDAP- oder Datenbank-Zugriff. Denkbar wäre z.B.
+ein Modul das sich um Ihre Zeiterfassung kümmert und die Anwesenheitszeiten
+von Benutzern in einer Datenbank pflegt.</p>
+<p>Plugins können auf Funktionen der textit{Function Registry} zurückgreifen und
+sind in der Lage GOsa textit{AMQP-Queues} zu nutzen.</p>
+<p>Plugins werden beim Start von GOsa eingebunden.</p>
+</div>
+</div>
+</div>
 </div>
 
 
@@ -64,6 +222,30 @@
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Concepts</a><ul>
+<li><a class="reference internal" href="#messaging-with-amqp">Messaging with AMQP</a><ul>
+<li><a class="reference internal" href="#what-is-amqp">What is AMQP?</a></li>
+<li><a class="reference internal" href="#queues">Queues</a></li>
+<li><a class="reference internal" href="#exchange">Exchange</a></li>
+<li><a class="reference internal" href="#messages">Messages</a></li>
+<li><a class="reference internal" href="#broker">Broker</a></li>
+<li><a class="reference internal" href="#authentication">Authentication</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#gosa-overview">GOsa overview</a><ul>
+<li><a class="reference internal" href="#core">Core</a><ul>
+<li><a class="reference internal" href="#function-registry">Function Registry</a></li>
+<li><a class="reference internal" href="#plugins">Plugins</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
   <h4>Previous topic</h4>
   <p class="topless"><a href="development.html"
                         title="previous chapter">Development documentation</a></p>
