@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+"""
+The *LibinstManager* proxies the complete repository, base installation and
+config management process to the target plugins. It is the abstraction layer
+to be used from your frontend - shell, GUI or whatever you tend to use.
+
+---
+"""
+
 # pylint: disable=E0611
 from pkg_resources import resource_filename
 
@@ -56,11 +64,9 @@ ALLOWED_CHARS_DISTRIBUTION = "^[A-Za-z0-9\-_\.]+$"
 #TODO: ATM a host must have a dedicated database, path is not specific enough
 #      to identify hosts. What about other plugins?
 
-class RepositoryManager(Plugin):
-    """ The RepositoryManager allows managing several types of repositories.
-
-        Example usage:
-        ...
+class LibinstManager(Plugin):
+    """
+    Manage repositories, base install and configuration of clients.
     """
     _target_ = 'libinst'
     recipeRecursionDepth = 3
@@ -70,13 +76,6 @@ class RepositoryManager(Plugin):
         "templateData": "data"}
 
     def __init__(self):
-        """
-        Construct a new RepositoryManager instance based on the configuration
-        stored in the environment.
-
-        @type env: Environment
-        @param env: L{Environment} object
-        """
         env = Environment.getInstance()
         self.env = env
         engine = env.getDatabaseEngine("repository")
@@ -124,11 +123,11 @@ class RepositoryManager(Plugin):
         # Load keyboard models
         self.keyboardModels = KeyboardModels().get_models()
 
-    #==========================================================================
-    # initialize all DB schema for an in Memory Database:
-    # the parameter given here are not important
-    #==========================================================================
     def initializeDatabase(self, engine):
+        """
+        Initialize the database by dropping everything and recreating the
+        table schema.
+        """
         a = Base()
         # pylint: disable=E1101
         a.metadata.drop_all(engine)
@@ -137,6 +136,33 @@ class RepositoryManager(Plugin):
 
     @Command(__help__=N_("List the available base install methods"))
     def getSupportedBaseInstallMethods(self):
+        """
+        List the registered :class:`libinst.methods.BaseInstallMethod` methods.
+        Registration works by specifying a setuptools ``[libinst.base_methods]``
+        entrypoint.
+
+        Example:
+
+        >>> proxy.getSupportedBaseInstallMethods()
+        {'preseed': {'title': 'Debian preseed installation method',
+        'repositories': ['deb'], 'methods': ['puppet'], 'name': 'Preseed',
+        'description': 'Base installation using the debian installer'}}
+
+        The returned dictionary has the install method name as the key and
+        these information keys:
+
+        ============= =======================================
+        Key           Description
+        ============= =======================================
+        name          Symbolic name of the method
+        title         Short description
+        description   Long description
+        repositories  List of supported repositories
+        methods       List of supported configuration methods
+        ============= =======================================
+
+        ``Return:`` dictionary
+        """
         res = {}
         for name, method in self.base_install_method_reg.items():
             res[name] = method.getInfo()
@@ -145,6 +171,55 @@ class RepositoryManager(Plugin):
 
     @Command(__help__=N_("List the available installation methods"))
     def getSupportedInstallMethods(self):
+        """
+        List the registered :class:`libinst.methods.InstallMethod` methods.
+        Registration works by specifying a setuptools ``[libinst.methods]``
+        entrypoint.
+
+        Example:
+
+        >>> proxy.getSupportedInstallMethods()
+        {'puppet': ....}
+
+        The returned dictionary has the install method name as the key and
+        these information keys:
+
+        ============= =======================================
+        Key           Description
+        ============= =======================================
+        name          Display name of the method
+        description   Long description
+        title         Short description
+        items         Symbolic name of the method
+        repositories  List of supported repositories
+        ============= =======================================
+
+        The items are a dictionary by themselves, where the key is the item name:
+
+        ============= =======================================
+        Key           Description
+        ============= =======================================
+        name          Display name of the item
+        description   Long description of the item
+        container     List of sub-items this item can contain
+        options       Description of supported item options
+        ============= =======================================
+
+        The item options are a dictionary by themselves, where the key is the option name:
+
+        ============= =========================================
+        Key           Description
+        ============= =========================================
+        display       Display label
+        description   Long description
+        default       Default value
+        required      Flag if option is mandatory
+        value         Current value (if applicable)
+        type          Option type (file, string, bool, integer)
+        ============= =========================================
+
+        ``Return:`` dictionary
+        """
         methods = {}
         for method, obj in self.install_method_reg.iteritems():
             methods[method] = obj.getInfo()
@@ -165,17 +240,28 @@ class RepositoryManager(Plugin):
 
     @Command(__help__=N_("List the available repository types for this host"))
     def getSupportedRepositoryTypes(self):
+        """
+        List registered :class:`libinst.interface.DistributionHandler` objects.
+        Registration works by specifying a setuptools ``[libinst.repository]``
+        entrypoint.
+
+        >>> proxy.getSupportedRepositoryTypes()
+        ['deb', 'udeb', 'dsc']
+
+        ``Return:`` list
+        """
+        #TODO: what about descriptions like in getRepositoryTypes?
         return self.type_reg.keys()
 
     @Command(__help__=N_("List used repository types"))
     def getRepositoryTypes(self):
         """
-        getRepositoryTypes lists all available repository types like
-        i.e. 'deb', 'rpm', etc.
+        List used repository types from the database including their description:
 
-        @rtype: dict
-        @return: dictionary containing types and discriptions of available
-                 repository types.
+        >>> proxy.getRepositoryTypes()
+        ['deb': '', 'dsc': '']
+
+        ``Return:`` Dictionary pairing name with description
         """
         result = None
         session = None
@@ -190,8 +276,22 @@ class RepositoryManager(Plugin):
             session.close()
         return result
 
-    @Command(__help__=N_("Get the external Repository URL for the given Release"))
+    @Command(__help__=N_("Get the external repository URL for the given release"))
     def getMirrorURL(self, release):
+        """
+        Return the URL to an external repository for the provided release.
+
+        >>> proxy.getMirrorURL("squeeze")
+        'http://mirror.example.net/debian/squeeze'
+
+        ========= ============
+        Parameter Description
+        ========= ============
+        release   Target release to query for mirror
+        ========= ============
+
+        ``Return:`` mirror URL
+        """
         result = None
         session = None
 
@@ -227,11 +327,70 @@ class RepositoryManager(Plugin):
     @Command(__help__=N_("List available distributions"))
     def getDistributions(self):
         """
-        getDistributions lists all registered distributions.
+        Return a list of distribution descriptions from the database.
 
-        @rtype: dict
-        @return: dictionary containing a list of distribution name /
-                 discription pairs.
+        >>> proxy.getDistributions()
+        [{'origin': None, 'installation_method': 'puppet', 'last_updated': None, 'name': 'debian', 'releases': [{'origin': None, 'codename': None, 'name': 'squeeze', 'parent': None}, {'origin': None, 'codename': None, 'name': 'squeeze/1.0', 'parent': {'origin': None, 'codename': None, 'name': 'squeeze', 'parent': None}}], 'sections': [{'name': 'sound', 'description': None}, {'name': 'kernel', 'description': None}, {'name': 'debug', 'description': None}], 'type': {'name': 'deb', 'description': ''}, 'debian_volatile': None, 'debian_security': None, 'architectures': [{'name': 'i386', 'description': None}, {'name': 'amd64', 'description': None}, {'name': 'source', 'description': None}], 'components': [{'name': 'main', 'description': None}], 'path': '/srv/repository/data/debian', 'mirror_sources': False, 'managed': True}]
+
+        Every list element is a dictionary with these keys:
+
+        =================== ====================================================
+        Key                 Description
+        =================== ====================================================
+        name                Distribution name
+        origin              TODO
+        installation_method Method to be used for this distribution
+        last_updated        Timestamp of last update
+        releases            List of releases the use this distribution as parent
+        sections            List of sections in this distribution
+        components          List of components in this distribution
+        architectures       List of supported architectures
+        path                Local mirror path
+        mirror_sources      Flag whether to mirror sources or not
+        managed             TODO
+        =================== ====================================================
+
+        The list of releases contains descriptive dicts, too:
+
+        =================== ====================================================
+        Key                 Description
+        =================== ====================================================
+        name                Name of the release
+        codename            Codename of the release
+        parent              TODO
+        origin              TODO
+        =================== ====================================================
+
+        In the debian way of packaging, sections are something like *sound*, *net*, etc.
+        The list of sections contains descriptive dicts, too:
+
+        =================== ====================================================
+        Key                 Description
+        =================== ====================================================
+        name                Name of the section
+        description         Descriptive text
+        =================== ====================================================
+
+        In the debian way of packaging, components are something like *main*, *contrib*, etc.
+        The list of components contains descriptive dicts, too:
+
+        =================== ====================================================
+        Key                 Description
+        =================== ====================================================
+        name                Name of the component
+        description         Descriptive text
+        =================== ====================================================
+
+        The list of architectures contains descriptive dicts, too:
+
+        =================== ====================================================
+        Key                 Description
+        =================== ====================================================
+        name                Name of the architecture
+        description         Descriptive text
+        =================== ====================================================
+
+        ``Return:`` list of dicts
         """
         result = None
         repository = None
@@ -251,17 +410,30 @@ class RepositoryManager(Plugin):
             session.close()
 
         return result
-    
+
     @Command(__help__=N_("Return available information for the given distribution"))
     @NamedArgs("m_hash")
     def getDistribution(self, m_hash=None, distribution=None):
         """
-        getDistributions returns available information for the given distribution.
+        Return information about the named distribution.
 
-        @rtype: dict
-        @return: dictionary containing a list of distribution name /
-                 discription pairs.
+        ========= ============
+        Parameter Description
+        ========= ============
+        m_hash    Dictionary with distribution name
+        ========= ============
+
+        For information about the returned dict, please see
+        :meth:`libinst.manage.LibinstManager.getDistributions`.
+
+        Example:
+
+        >>> proxy.getDistribution({'distribution': 'debian'})
+        {'origin': None, 'installation_method': 'puppet', 'last_updated': None, 'name': 'debian', 'releases': [{'origin': None, 'codename': None, 'name': 'squeeze', 'parent': None}, {'origin': None, 'codename': None, 'name': 'squeeze/1.0', 'parent': {'origin': None, 'codename': None, 'name': 'squeeze', 'parent': None}}], 'sections': [{'name': 'sound', 'description': None}, {'name': 'kernel', 'description': None}, {'name': 'debug', 'description': None}], 'type': {'name': 'deb', 'description': ''}, 'debian_volatile': None, 'debian_security': None, 'architectures': [{'name': 'i386', 'description': None}, {'name': 'amd64', 'description': None}, {'name': 'source', 'description': None}], 'components': [{'name': 'main', 'description': None}], 'path': '/srv/repository/data/debian', 'mirror_sources': False, 'managed': True}
+
+        ``Return:`` dictionary describing the distribution
         """
+        #TODO: reason for m_hash in signature?
         result = None
         session = None
 
@@ -2220,4 +2392,7 @@ class RepositoryManager(Plugin):
 
 
 class NotFoundException(Exception):
+    """
+    TODO
+    """
     pass

@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="libinst v3.0 documentation" href="#" />
-    <link rel="next" title="Introduction" href="intro.html" /> 
+    <link rel="next" title="Management API" href="concepts.html" /> 
   </head>
   <body>
     <div class="related">
@@ -37,7 +37,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="intro.html" title="Introduction"
+          <a href="concepts.html" title="Management API"
              accesskey="N">next</a> |</li>
         <li><a href="#">libinst v3.0 documentation</a> &raquo;</li> 
       </ul>
@@ -54,19 +54,19 @@
 system deployment and config management:</p>
 <blockquote>
 <div><ul>
-<li><p class="first">Repository management</p>
+<li><p class="first"><strong>Repository management</strong></p>
 <p>This abstraction layer manages software releases based on distribution, components
 and packages. It is possible to work on certain versions of a release. Basically
 this can be a management for debian or redhat packages - or maybe even OPSI products.</p>
 </li>
-<li><p class="first">Base install</p>
+<li><p class="first"><strong>Base install</strong></p>
 <p>The base installation takes care of installing the very basic os stuff on a
 target system in order to go on with <em>Config management</em> later on. The ordinary
 way is to boot via TFTP/fts and load into an OS installer like debian preseed,
 redhat kickstart, opsi or FAI. The base install keeps a set of unified parameters which
 configure the used base install method.</p>
 </li>
-<li><p class="first">Config management</p>
+<li><p class="first"><strong>Config management</strong></p>
 <p>The config management takes care of doing <em>everything else</em> left after the
 base installation: install remaining packages, setup the configuration, etc.</p>
 <p>How the config management takes place varies and should be initiated by some
@@ -79,14 +79,14 @@ thru an item concept.</p>
 </div></blockquote>
 <p>In combination with the <em>gosa.client</em>, libinst is going to cover the complete client
 lifecycle.</p>
+<p><em>libinst</em> replaces the old FAI/opsi processes used withing gosa-si.</p>
 <hr class="docutils" />
 <p><strong>Documentation TODO list:</strong></p>
 <p class="req-source"><em class="status todo">todo</em> Describe what the components do<a class="reference internal" href="plugins/puppet.html#req-0"> <em>→</em></a></p>
 <p><strong>Contents:</strong></p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">Management API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="develop/index.html">Development</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plugins/index.html">Avaliable Plugins</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="plugins/puppet.html">Puppet</a><ul>
@@ -127,8 +127,8 @@ lifecycle.</p>
 </ul>
 
   <h4>Next topic</h4>
-  <p class="topless"><a href="intro.html"
-                        title="next chapter">Introduction</a></p>
+  <p class="topless"><a href="concepts.html"
+                        title="next chapter">Management API</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/index.txt"
@@ -161,7 +161,7 @@ lifecycle.</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="intro.html" title="Introduction"
+          <a href="concepts.html" title="Management API"
              >next</a> |</li>
         <li><a href="#">libinst v3.0 documentation</a> &raquo;</li> 
       </ul>

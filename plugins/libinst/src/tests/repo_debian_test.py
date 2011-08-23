@@ -2,7 +2,7 @@
 import unittest
 
 from sqlalchemy.orm import sessionmaker
-from libinst.manage import RepositoryManager
+from libinst.manage import LibinstManager
 from libinst.entities.type import Type
 from gosa.common import Environment
 import pprint
@@ -16,7 +16,7 @@ class TestDebianRepository(unittest.TestCase):
         Environment.config = "test-libinst.conf"
         Environment.noargs = True
         self.env = Environment.getInstance()
-        self.mgr = RepositoryManager()
+        self.mgr = LibinstManager()
         engine = self.env.getDatabaseEngine("repository")
 
         keyring = """-----BEGIN PGP PRIVATE KEY BLOCK-----

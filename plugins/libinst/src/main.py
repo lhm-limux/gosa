@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import os, shutil
 from gosa.common import Environment
-from libinst.manage import RepositoryManager
+from libinst.manage import LibinstManager
 
 def main():
     Environment.config="tests/test-libinst.conf"
@@ -40,7 +40,7 @@ LcWMU6gayNYj7eMgCOFM6ywySRS81FC+PPnr147xbp5FwgmoPRK52MURsHJ+
 
 
     # Begin: New stuff
-    manager = RepositoryManager()
+    manager = LibinstManager()
     #print manager.getSupportedBaseInstallMethods()
     #print manager.getSupportedInstallMethods()
 

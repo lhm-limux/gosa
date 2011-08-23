@@ -6,13 +6,13 @@ Welcome to the libinst documentation!
 The libinst library provides an abstraction for three base components needed for
 system deployment and config management:
 
- * Repository management
+ * **Repository management**
 
    This abstraction layer manages software releases based on distribution, components
    and packages. It is possible to work on certain versions of a release. Basically
    this can be a management for debian or redhat packages - or maybe even OPSI products.
 
- * Base install
+ * **Base install**
 
    The base installation takes care of installing the very basic os stuff on a
    target system in order to go on with *Config management* later on. The ordinary
@@ -20,7 +20,7 @@ system deployment and config management:
    redhat kickstart, opsi or FAI. The base install keeps a set of unified parameters which
    configure the used base install method.
 
- * Config management
+ * **Config management**
 
    The config management takes care of doing *everything else* left after the
    base installation: install remaining packages, setup the configuration, etc.
@@ -35,6 +35,8 @@ system deployment and config management:
 In combination with the *gosa.client*, libinst is going to cover the complete client
 lifecycle.
 
+*libinst* replaces the old FAI/opsi processes used withing gosa-si.
+
 ---------------------
 
 **Documentation TODO list:**
@@ -46,7 +48,6 @@ lifecycle.
 .. toctree::
    :maxdepth: 3
 
-   intro
    concepts
    develop/index
    plugins/index

@@ -54,9 +54,9 @@ _ = t.ugettext
 
 class DebianHandler(DistributionHandler):
 
-    def __init__(self, RepositoryManager):
+    def __init__(self, LibinstManager):
         self.env = Environment.getInstance()
-        self.manager = RepositoryManager
+        self.manager = LibinstManager
 
     @staticmethod
     def getRepositoryTypes():
