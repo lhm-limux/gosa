@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Management API &mdash; libinst v3.0 documentation</title>
+    <title>Libinst API &mdash; libinst v3.0 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/cindex.css" type="text/css" />
@@ -54,7 +54,7 @@
           <div class="body">
             
   <div class="section" id="module-libinst.manage">
-<span id="management-api"></span><span id="concepts"></span><h1>Management API<a class="headerlink" href="#module-libinst.manage" title="Permalink to this headline">¶</a></h1>
+<span id="libinst-api"></span><span id="concepts"></span><h1>Libinst API<a class="headerlink" href="#module-libinst.manage" title="Permalink to this headline">¶</a></h1>
 <p>The <em>LibinstManager</em> proxies the complete repository, base installation and
 config management process to the target plugins. It is the abstraction layer
 to be used from your frontend - shell, GUI or whatever you tend to use.</p>
@@ -567,9 +567,49 @@ The list of components contains descriptive dicts, too:</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="libinst.manage.LibinstManager.getKernelPackages">
+<tt class="descname">getKernelPackages</tt><big>(</big><em>release</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getKernelPackages" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-8">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Get a dict describing the available kernel packages for a release.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>release</td>
+<td>Release name</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">getKernelPackages</span><span class="p">(</span><span class="s">&#39;squeeze/1.0&#39;</span><span class="p">)</span>
+<span class="go">[{&#39;files&#39;: [{&#39;md5sum&#39;: &#39;4b827524cf3d3c77e91f4afa089cf196&#39;, &#39;name&#39;: &#39;linux-image-2.6.32-5-xen-amd64_2.6.32-31_amd64.deb&#39;, &#39;size&#39;: &#39;28592546&#39;}], &#39;origin&#39;: &#39;http://ftp.de.debian.org/debian/pool/main/l/linux-2.6/linux-image-2.6.32-5-xen-amd64_2.6.32-31_amd64.deb&#39;, &#39;recommends&#39;: &#39;firmware-linux-free (&gt;= 2.6.32)&#39;, &#39;maintainer&#39;: &#39;Debian Kernel Team &lt;debian-kernel@lists.debian.org&gt;&#39;, &#39;description&#39;: &#39;Linux 2.6.32 for 64-bit PCs, Xen dom0 support&#39;, &#39;format&#39;: None, &#39;type&#39;: &#39;deb&#39;, &#39;section&#39;: &#39;kernel&#39;, &#39;suggests&#39;: &#39;linux-doc-2.6.32, grub&#39;, &#39;component&#39;: &#39;main&#39;, &#39;standards_version&#39;: &#39;2.0&#39;, &#39;priority&#39;: &#39;optional&#39;, &#39;source&#39;: &#39;linux-2.6&#39;, &#39;depends&#39;: &#39;module-init-tools, linux-base (&gt;= 2.6.32-31), initramfs-tools (&gt;= 0.55)&#39;, &#39;version&#39;: &#39;2.6.32-31&#39;, &#39;build_depends&#39;: None, &#39;provides&#39;: &#39;linux-image, linux-image-2.6, linux-modules-2.6.32-5-xen-amd64&#39;, &#39;installed_size&#39;: &#39;97340&#39;, &#39;arch&#39;: &#39;amd64&#39;, &#39;long_description&#39;: &#39;  The Linux kernel 2.6.32 and modules for use on PCs with AMD64 or Intel 64</span>
+<span class="go">processors.</span>
+<span class="go">.</span>
+<span class="go">This kernel also runs on a Xen hypervisor.  It supports both privileged</span>
+<span class="go">(dom0) and unprivileged (domU) operation.&#39;, &#39;name&#39;: &#39;linux-image-2.6.32-5-xen-amd64&#39;}]</span>
+</pre></div>
+</div>
+<p>The result is a package list like delivered by
+<a class="reference internal" href="#libinst.manage.LibinstManager.getPackages" title="libinst.manage.LibinstManager.getPackages"><tt class="xref py py-meth docutils literal"><span class="pre">libinst.manage.LibinstManager.getPackages()</span></tt></a>.</p>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="libinst.manage.LibinstManager.getKeyboardModels">
 <tt class="descname">getKeyboardModels</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getKeyboardModels" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-8">
+<dd><div class="admonition " id="cmd-9">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -587,7 +627,7 @@ The list of components contains descriptive dicts, too:</p>
 <dl class="method">
 <dt id="libinst.manage.LibinstManager.getMirrorURL">
 <tt class="descname">getMirrorURL</tt><big>(</big><em>release</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getMirrorURL" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-9">
+<dd><div class="admonition " id="cmd-10">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -620,7 +660,7 @@ The list of components contains descriptive dicts, too:</p>
 <dl class="method">
 <dt id="libinst.manage.LibinstManager.getPackageInformation">
 <tt class="descname">getPackageInformation</tt><big>(</big><em>release</em>, <em>arch</em>, <em>package</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getPackageInformation" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-10">
+<dd><div class="admonition " id="cmd-11">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -632,7 +672,7 @@ The list of components contains descriptive dicts, too:</p>
 <dl class="method">
 <dt id="libinst.manage.LibinstManager.getPackages">
 <tt class="descname">getPackages</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getPackages" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-11">
+<dd><div class="admonition " id="cmd-12">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -758,7 +798,7 @@ The list of components contains descriptive dicts, too:</p>
 <dl class="method">
 <dt id="libinst.manage.LibinstManager.getPackagesInformation">
 <tt class="descname">getPackagesInformation</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getPackagesInformation" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-12">
+<dd><div class="admonition " id="cmd-13">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -770,7 +810,7 @@ The list of components contains descriptive dicts, too:</p>
 <dl class="method">
 <dt id="libinst.manage.LibinstManager.getRelease">
 <tt class="descname">getRelease</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getRelease" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-13">
+<dd><div class="admonition " id="cmd-14">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -830,7 +870,7 @@ The list of components contains descriptive dicts, too:</p>
 <dl class="method">
 <dt id="libinst.manage.LibinstManager.getReleases">
 <tt class="descname">getReleases</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getReleases" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-14">
+<dd><div class="admonition " id="cmd-15">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -874,7 +914,7 @@ The list of components contains descriptive dicts, too:</p>
 <dl class="method">
 <dt id="libinst.manage.LibinstManager.getRepositoryTypes">
 <tt class="descname">getRepositoryTypes</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getRepositoryTypes" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-15">
+<dd><div class="admonition " id="cmd-16">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -891,7 +931,7 @@ The list of components contains descriptive dicts, too:</p>
 <dl class="method">
 <dt id="libinst.manage.LibinstManager.getSections">
 <tt class="descname">getSections</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getSections" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-16">
+<dd><div class="admonition " id="cmd-17">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -945,13 +985,13 @@ The list of components contains descriptive dicts, too:</p>
 <dl class="method">
 <dt id="libinst.manage.LibinstManager.getSupportedBaseInstallMethods">
 <tt class="descname">getSupportedBaseInstallMethods</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getSupportedBaseInstallMethods" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-17">
+<dd><div class="admonition " id="cmd-18">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
 </div>
-<p>List the registered <a class="reference internal" href="#libinst.methods.BaseInstallMethod" title="libinst.methods.BaseInstallMethod"><tt class="xref py py-class docutils literal"><span class="pre">libinst.methods.BaseInstallMethod</span></tt></a> methods.
+<p>List the registered <a class="reference internal" href="develop/index.html#libinst.methods.BaseInstallMethod" title="libinst.methods.BaseInstallMethod"><tt class="xref py py-class docutils literal"><span class="pre">libinst.methods.BaseInstallMethod</span></tt></a> methods.
 Registration works by specifying a setuptools <tt class="docutils literal"><span class="pre">[libinst.base_methods]</span></tt>
 entrypoint.</p>
 <p>Example:</p>
@@ -997,13 +1037,13 @@ these information keys:</p>
 <dl class="method">
 <dt id="libinst.manage.LibinstManager.getSupportedInstallMethods">
 <tt class="descname">getSupportedInstallMethods</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getSupportedInstallMethods" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-18">
+<dd><div class="admonition " id="cmd-19">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
 </div>
-<p>List the registered <a class="reference internal" href="#libinst.methods.InstallMethod" title="libinst.methods.InstallMethod"><tt class="xref py py-class docutils literal"><span class="pre">libinst.methods.InstallMethod</span></tt></a> methods.
+<p>List the registered <a class="reference internal" href="develop/index.html#libinst.methods.InstallMethod" title="libinst.methods.InstallMethod"><tt class="xref py py-class docutils literal"><span class="pre">libinst.methods.InstallMethod</span></tt></a> methods.
 Registration works by specifying a setuptools <tt class="docutils literal"><span class="pre">[libinst.methods]</span></tt>
 entrypoint.</p>
 <p>Example:</p>
@@ -1105,7 +1145,7 @@ these information keys:</p>
 <dl class="method">
 <dt id="libinst.manage.LibinstManager.getSupportedRepositoryTypes">
 <tt class="descname">getSupportedRepositoryTypes</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getSupportedRepositoryTypes" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-19">
+<dd><div class="admonition " id="cmd-20">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1124,7 +1164,7 @@ entrypoint.</p>
 <dl class="method">
 <dt id="libinst.manage.LibinstManager.getSystemLocales">
 <tt class="descname">getSystemLocales</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getSystemLocales" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-20">
+<dd><div class="admonition " id="cmd-21">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1142,7 +1182,7 @@ entrypoint.</p>
 <dl class="method">
 <dt id="libinst.manage.LibinstManager.getTimezones">
 <tt class="descname">getTimezones</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getTimezones" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-21">
+<dd><div class="admonition " id="cmd-22">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1167,7 +1207,7 @@ table schema.</p>
 <dl class="method">
 <dt id="libinst.manage.LibinstManager.listAssignableElements">
 <tt class="descname">listAssignableElements</tt><big>(</big><em>release</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.listAssignableElements" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-22">
+<dd><div class="admonition " id="cmd-23">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1223,7 +1263,7 @@ potential parameter descriptions as a nested dict:</p>
 <dl class="method">
 <dt id="libinst.manage.LibinstManager.listConfigItems">
 <tt class="descname">listConfigItems</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.listConfigItems" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-23">
+<dd><div class="admonition " id="cmd-24">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1292,9 +1332,38 @@ the specified release - or all.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="libinst.manage.LibinstManager.removeBaseInstallParameters">
+<tt class="descname">removeBaseInstallParameters</tt><big>(</big><em>device_uuid</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.removeBaseInstallParameters" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-25">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Disable device base install capabilities.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>device_uuid</td>
+<td>Unique identifier of a device</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="libinst.manage.LibinstManager.removeConfigItem">
 <tt class="descname">removeConfigItem</tt><big>(</big><em>release</em>, <em>path</em>, <em>children=None</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.removeConfigItem" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-24">
+<dd><div class="admonition " id="cmd-26">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1333,7 +1402,7 @@ the specified release - or all.</p>
 <dl class="method">
 <dt id="libinst.manage.LibinstManager.removeDistribution">
 <tt class="descname">removeDistribution</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.removeDistribution" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-25">
+<dd><div class="admonition " id="cmd-27">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1394,7 +1463,7 @@ not remove a parent distribution until the recursive parameter is specified.</p>
 <dl class="method">
 <dt id="libinst.manage.LibinstManager.removeMirrorProperty">
 <tt class="descname">removeMirrorProperty</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.removeMirrorProperty" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-26">
+<dd><div class="admonition " id="cmd-28">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1429,7 +1498,7 @@ not remove a parent distribution until the recursive parameter is specified.</p>
 <dl class="method">
 <dt id="libinst.manage.LibinstManager.removePackage">
 <tt class="descname">removePackage</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.removePackage" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-27">
+<dd><div class="admonition " id="cmd-29">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1471,7 +1540,7 @@ not remove a parent distribution until the recursive parameter is specified.</p>
 <dl class="method">
 <dt id="libinst.manage.LibinstManager.removeRelease">
 <tt class="descname">removeRelease</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.removeRelease" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-28">
+<dd><div class="admonition " id="cmd-30">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1508,7 +1577,7 @@ not remove a parent release until the recursive parameter is specified.</p>
 <dl class="method">
 <dt id="libinst.manage.LibinstManager.renameRelease">
 <tt class="descname">renameRelease</tt><big>(</big><em>source</em>, <em>target</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.renameRelease" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-29">
+<dd><div class="admonition " id="cmd-31">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1544,7 +1613,7 @@ not remove a parent release until the recursive parameter is specified.</p>
 <dl class="method">
 <dt id="libinst.manage.LibinstManager.setConfigItem">
 <tt class="descname">setConfigItem</tt><big>(</big><em>release</em>, <em>path</em>, <em>item_type</em>, <em>data</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.setConfigItem" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-30">
+<dd><div class="admonition " id="cmd-32">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1589,7 +1658,7 @@ not remove a parent release until the recursive parameter is specified.</p>
 <dl class="method">
 <dt id="libinst.manage.LibinstManager.setDistribution">
 <tt class="descname">setDistribution</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.setDistribution" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-31">
+<dd><div class="admonition " id="cmd-33">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1635,21 +1704,281 @@ not remove a parent release until the recursive parameter is specified.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="libinst.manage.LibinstManager.systemGetTemplate">
-<tt class="descname">systemGetTemplate</tt><big>(</big><em>device_uuid</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.systemGetTemplate" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-32">
+<dt id="libinst.manage.LibinstManager.systemGetBaseInstallMethod">
+<tt class="descname">systemGetBaseInstallMethod</tt><big>(</big><em>device_uuid</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.systemGetBaseInstallMethod" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-34">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
 </div>
-<p>Evaulate template for system with device_uuid &#8216;device_uuid&#8217;</p>
+<p>Return the systems base install method.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>device_uuid</td>
+<td>Unique identifier of a device</td>
+</tr>
+<tr><td>data</td>
+<td><em>Reserved for internal use</em></td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">systemGetBaseInstallMethod</span><span class="p">(</span><span class="s">&#39;2daf7cbf-75c2-4ea3-bfec-606fe9f07051&#39;</span><span class="p">)</span>
+<span class="go">&#39;preseed&#39;</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> String describing the base install method</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.systemGetBaseInstallParameters">
+<tt class="descname">systemGetBaseInstallParameters</tt><big>(</big><em>device_uuid</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.systemGetBaseInstallParameters" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-35">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Return the systems base install parameters that are used
+to fill up the template.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>device_uuid</td>
+<td>Optional unique identifier of a device</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">gosa</span><span class="o">.</span><span class="n">systemGetBaseInstallParameters</span><span class="p">(</span><span class="s">&#39;2daf7cbf-75c2-4ea3-bfec-606fe9f07051&#39;</span><span class="p">)</span>
+<span class="go">{&#39;utc&#39;: [&#39;TRUE&#39;], &#39;ntp-servers&#39;: [&#39;1.2.3.4&#39;], &#39;kernel&#39;: [&#39;linux-image-2.6.32-5-xen-amd64&#39;], &#39;root-hash&#39;: [&#39;{CRYPT}&#39;], &#39;root-user&#39;: [&#39;TRUE&#39;], &#39;disk-setup&#39;: [&#39;disk sda --initlabel --none;part pv.00 --size 1000 --ondisk sda;volgroup Kaese --format pv.00;&#39;], &#39;template&#39;: &#39;&lt;snip&gt;&#39;, &#39;system-locale&#39;: [&#39;de_DE.UTF-8&#39;], &#39;release&#39;: [&#39;debian/squeeze/1.0&#39;], &#39;timezone&#39;: [&#39;Europe/Berlin&#39;], &#39;keyboard-layout&#39;: [&#39;de-latin1-nodeadkeys&#39;]}</span>
+</pre></div>
+</div>
+<p>Please take a look at
+<a class="reference internal" href="#libinst.manage.LibinstManager.systemSetBaseInstallParameters" title="libinst.manage.LibinstManager.systemSetBaseInstallParameters"><tt class="xref py py-meth docutils literal"><span class="pre">libinst.manage.LibinstManager.systemSetBaseInstallParameters()</span></tt></a>
+for more information about the returned properties.</p>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict of properties</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.systemGetBootConfiguration">
+<tt class="descname">systemGetBootConfiguration</tt><big>(</big><em>device_uuid</em>, <em>mac=None</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.systemGetBootConfiguration" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-36">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Return the systems base install template based on either the
+device UUID or the MAC address.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>device_uuid</td>
+<td>Optional unique identifier of a device</td>
+</tr>
+<tr><td>mac</td>
+<td>Optional MAC</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">systemGetTemplate</span><span class="p">(</span><span class="s">&#39;2daf7cbf-75c2-4ea3-bfec-606fe9f07051&#39;</span><span class="p">)</span>
+<span class="go">&#39;the template code&#39;</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> Template as a string</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.systemGetBootParams">
+<tt class="descname">systemGetBootParams</tt><big>(</big><em>device_uuid</em>, <em>mac=None</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.systemGetBootParams" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-37">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Return the systems PXE boot string based on either the
+device UUID or the MAC address.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>device_uuid</td>
+<td>Optional unique identifier of a device</td>
+</tr>
+<tr><td>mac</td>
+<td>Optional MAC</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">systemGetBootParams</span><span class="p">(</span><span class="s">&#39;2daf7cbf-75c2-4ea3-bfec-606fe9f07051&#39;</span><span class="p">)</span>
+<span class="go">&#39;vga=normal initrd=debian-installer/i386/initrd.gz netcfg/choose_interface=eth0 locale=de_DE debian-installer/country=DE debian-installer/language=de debian-installer/keymap=de-latin1-nodeadkeys console-keymaps-at/keymap=de-latin1-nodeadkeys auto-install/enable=false preseed/url=https://amqp.example.net:8080/preseed/de-ad-d9-57-56-d5 debian/priority=critical hostname=test domain=example.net DEBCONF_DEBUG=5 svc_key=f1p8zRBGrUA26Nn+2qBS/JC8KOXHTEfgIEq5Le2WC4jW2xUuVzzHnO9LYiH8hYLNXHo7V9+2Aiz8</span>
+<span class="go">/XU6xxcusWUiMjXgdZcDe8wJtXR5krg=&#39;</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> Template as a string</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.systemGetConfigMethod">
+<tt class="descname">systemGetConfigMethod</tt><big>(</big><em>device_uuid</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.systemGetConfigMethod" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-38">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Return the systems configuration method.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>device_uuid</td>
+<td>Unique identifier of a device</td>
+</tr>
+<tr><td>data</td>
+<td><em>Reserved for internal use</em></td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">systemGetConfigMethod</span><span class="p">(</span><span class="s">&#39;2daf7cbf-75c2-4ea3-bfec-606fe9f07051&#39;</span><span class="p">)</span>
+<span class="go">&#39;puppet&#39;</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> Template as a string</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.systemSetBaseInstallParameters">
+<tt class="descname">systemSetBaseInstallParameters</tt><big>(</big><em>device_uuid</em>, <em>data</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.systemSetBaseInstallParameters" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-39">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Set the system base install parameters that are used
+to fill up the template.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>device_uuid</td>
+<td>Unique device identifier</td>
+</tr>
+<tr><td>data</td>
+<td>Dictionary specifying the properties</td>
+</tr>
+</tbody>
+</table>
+<p>The data dictionary has the following property keys (<strong>values are
+always lists</strong>):</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="78%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>utc</td>
+<td>Flag to specify if system uses UTC</td>
+</tr>
+<tr><td>timezone</td>
+<td>String to specify time zone</td>
+</tr>
+<tr><td>ntp-servers</td>
+<td>List of time server names/IPs</td>
+</tr>
+<tr><td>kernel</td>
+<td>The boot kernel package name</td>
+</tr>
+<tr><td>root-hash</td>
+<td>Hashed version of the root password</td>
+</tr>
+<tr><td>root-user</td>
+<td>Flag to decide if there&#8217;s a root user</td>
+</tr>
+<tr><td>disk-setup</td>
+<td>String oriented at the RedHat kickstart device string</td>
+</tr>
+<tr><td>template</td>
+<td>String containing the system template</td>
+</tr>
+<tr><td>system-locale</td>
+<td>Locale definition for the system</td>
+</tr>
+<tr><td>release</td>
+<td>Release to install on the system</td>
+</tr>
+<tr><td>keyboard-layout</td>
+<td>Keyboard layout to use</td>
+</tr>
+</tbody>
+</table>
+<p>These are the absolute base settings needed to install a device,
+additional stuff is done by configuration methods.</p>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict of properties</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="libinst.manage.LibinstManager.updateMirror">
 <tt class="descname">updateMirror</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.updateMirror" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-33">
+<dd><div class="admonition " id="cmd-40">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1697,210 +2026,6 @@ not remove a parent release until the recursive parameter is specified.</p>
 <dt id="libinst.manage.NotFoundException">
 <em class="property">exception </em><tt class="descclassname">libinst.manage.</tt><tt class="descname">NotFoundException</tt><a class="headerlink" href="#libinst.manage.NotFoundException" title="Permalink to this definition">¶</a></dt>
 <dd><p>TODO</p>
-</dd></dl>
-
-<hr class="docutils" />
-<span class="target" id="module-libinst.methods"></span><dl class="class">
-<dt id="libinst.methods.BaseInstallMethod">
-<em class="property">class </em><tt class="descclassname">libinst.methods.</tt><tt class="descname">BaseInstallMethod</tt><a class="headerlink" href="#libinst.methods.BaseInstallMethod" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is the base install method interface class. It defines all relevant methods
-needed to interact with any install method. Implementations of this interface
-must implement all methods.</p>
-<dl class="method">
-<dt id="libinst.methods.BaseInstallMethod.getBootConfiguration">
-<tt class="descname">getBootConfiguration</tt><big>(</big><em>device_uuid</em>, <em>mac=None</em><big>)</big><a class="headerlink" href="#libinst.methods.BaseInstallMethod.getBootConfiguration" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the complete boot configuration file needed to do a base
-bootstrapping.</p>
-<p>&#64;rtype: string
-&#64;return: multi line text</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="libinst.methods.BaseInstallMethod.getBootParams">
-<tt class="descname">getBootParams</tt><big>(</big><em>device_uuid</em>, <em>mac=None</em><big>)</big><a class="headerlink" href="#libinst.methods.BaseInstallMethod.getBootParams" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return boot parameters needed for that install method.</p>
-<p>&#64;rtype: list
-&#64;return: list of boot parameters</p>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="libinst.methods.BaseInstallMethod.getInfo">
-<em class="property">static </em><tt class="descname">getInfo</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.BaseInstallMethod.getInfo" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get information for the current install method implementation.</p>
-<p>&#64;rtype: dict
-&#64;return: A dict containing name, title and description</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="libinst.methods.InstallMethod">
-<em class="property">class </em><tt class="descclassname">libinst.methods.</tt><tt class="descname">InstallMethod</tt><big>(</big><em>manager</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is the install method interface class. It defines all relevant methods
-needed to interact with any install method. Implementations of this interface
-must implement all methods.</p>
-<dl class="method">
-<dt id="libinst.methods.InstallMethod.createRelease">
-<tt class="descname">createRelease</tt><big>(</big><em>name</em>, <em>parent=None</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.createRelease" title="Permalink to this definition">¶</a></dt>
-<dd><p>Makes the specified release available in the config
-management system.</p>
-<p>&#64;type name: string
-&#64;param name: release path</p>
-<p>&#64;type parent: string
-&#64;param parent: path of the optional</p>
-<blockquote>
-<div>parent release. Data from the parent release gets
-duplicated for the new one.</div></blockquote>
-<p>&#64;rtype: bool
-&#64;return: True - success</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="libinst.methods.InstallMethod.getBaseDir">
-<tt class="descname">getBaseDir</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.getBaseDir" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the methods &#8220;working&#8221; directory</p>
-<p>&#64;rtype: string
-&#64;return: Working directory</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="libinst.methods.InstallMethod.getBootParams">
-<tt class="descname">getBootParams</tt><big>(</big><em>device_uuid</em>, <em>mac=None</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.getBootParams" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return boot parameters needed for that install method.</p>
-<p>&#64;rtype: list
-&#64;return: list of boot parameters</p>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="libinst.methods.InstallMethod.getInfo">
-<em class="property">static </em><tt class="descname">getInfo</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.getInfo" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get information for the current install method implementation.</p>
-<p>&#64;rtype: dict
-&#64;return: A dict containing name, title and description</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="libinst.methods.InstallMethod.getItem">
-<tt class="descname">getItem</tt><big>(</big><em>release</em>, <em>path</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.getItem" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the data of specified item.</p>
-<p>&#64;type release: string
-&#64;param release: release path</p>
-<p>&#64;type path: string
-&#64;param path: item path inside of the structure</p>
-<p>&#64;rtype: json-string
-&#64;return: the encoded data of the item, depending on the format</p>
-<blockquote>
-<div>definition.</div></blockquote>
-</dd></dl>
-
-<dl class="method">
-<dt id="libinst.methods.InstallMethod.getItemTypes">
-<tt class="descname">getItemTypes</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.getItemTypes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a dict of name/description pairs for the
-current backend.</p>
-<p>&#64;rtype: dict
-&#64;return: dict of name/info pairs</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>&#8216;name&#8217; <span class="classifier-delimiter">:</span> <span class="classifier">{</span></dt>
-<dd>&#8216;description&#8217;: &#8216;text&#8217;,
-&#8216;container&#8217;: [item_type,...],
-&#8216;interface&#8217;: &#8220;text&#8221;,
-}</dd>
-</dl>
-</div></blockquote>
-</dd></dl>
-
-<dl class="method">
-<dt id="libinst.methods.InstallMethod.getSupportedTypes">
-<tt class="descname">getSupportedTypes</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.getSupportedTypes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the list of supported repository types.</p>
-<p>&#64;rtype: list
-&#64;return: List of repository types</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="libinst.methods.InstallMethod.listItems">
-<tt class="descname">listItems</tt><big>(</big><em>release</em>, <em>item_type=None</em>, <em>path=None</em>, <em>children=None</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.listItems" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a list of items of item_type (if given) for
-the specified release - or all.</p>
-<p>&#64;type release: string
-&#64;param release: release path</p>
-<p>&#64;type item_type: string
-&#64;param item_type: type of item to list, None for all</p>
-<p>&#64;type path: string
-&#64;param path: path to list items on</p>
-<p>&#64;rtype: dict
-&#64;return: dictionary of name/item_type pairs</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="libinst.methods.InstallMethod.removeItem">
-<tt class="descname">removeItem</tt><big>(</big><em>release</em>, <em>path</em>, <em>children=None</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.removeItem" title="Permalink to this definition">¶</a></dt>
-<dd><p>Remove the specified item and it&#8217;s children.</p>
-<p>&#64;type release: string
-&#64;param release: release path</p>
-<p>&#64;type path: string
-&#64;param path: item path inside of the structure, including</p>
-<blockquote>
-<div>the name as last element of the path.</div></blockquote>
-<p>&#64;rtype: bool
-&#64;return: True = success</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="libinst.methods.InstallMethod.removeRelease">
-<tt class="descname">removeRelease</tt><big>(</big><em>name</em>, <em>recursive=False</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.removeRelease" title="Permalink to this definition">¶</a></dt>
-<dd><p>Removes the specified release available from the config
-management system.</p>
-<p>&#64;type name: string
-&#64;param name: release path</p>
-<p>&#64;type recursive: bool
-&#64;param recursive: Remove child releases, too.</p>
-<p>&#64;rtype: bool
-&#64;return: True - success</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="libinst.methods.InstallMethod.renameRelease">
-<tt class="descname">renameRelease</tt><big>(</big><em>old_name</em>, <em>new_name</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.renameRelease" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rename a release inside the config management
-system. Subreleases will be renamed, too.</p>
-<p>&#64;type old_name: string
-&#64;param old_name: release path</p>
-<p>&#64;type new_name: string
-&#64;param new_name: release path</p>
-<p>&#64;rtype: bool
-&#64;return: True - success</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="libinst.methods.InstallMethod.scan">
-<tt class="descname">scan</tt><big>(</big><em>release</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.scan" title="Permalink to this definition">¶</a></dt>
-<dd><p>Re-scan the specified release and update the database stored
-path information.</p>
-<p>&#64;type release: string
-&#64;param release: release path</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="libinst.methods.InstallMethod.setItem">
-<tt class="descname">setItem</tt><big>(</big><em>release</em>, <em>path</em>, <em>item_type</em>, <em>data</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.setItem" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the data for the specified item.</p>
-<p>&#64;type release: string
-&#64;param release: release path</p>
-<p>&#64;type path: string
-&#64;param path: item path inside of the structure, including</p>
-<blockquote>
-<div>the name as last element of the path.</div></blockquote>
-<p>&#64;type item_type: string
-&#64;param item_type: the item type to create</p>
-<p>&#64;type data: json-string
-&#64;param data: the encoded data item</p>
-<p>&#64;rtype: bool
-&#64;return: True = success</p>
-</dd></dl>
-
 </dd></dl>
 
 </div>

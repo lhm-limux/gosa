@@ -1,12 +1,7 @@
 .. _concepts:
 
-Management API
-**************
+Libinst API
+***********
 
 .. automodule:: libinst.manage
-   :members:
-
------
-
-.. automodule:: libinst.methods
    :members:

@@ -2010,10 +2010,27 @@ class LibinstManager(Plugin):
         """
         return pytz.all_timezones
 
-#---HIER
-
     @Command(__help__=N_("Get kernel packages for the specified release"))
     def getKernelPackages(self, release):
+        """
+        Get a dict describing the available kernel packages for a release.
+
+        ========== ===========================================
+        Parameter  Description
+        ========== ===========================================
+        release    Release name
+        ========== ===========================================
+
+        Example:
+
+        >>> proxy.getKernelPackages('squeeze/1.0')
+        [{'files': [{'md5sum': '4b827524cf3d3c77e91f4afa089cf196', 'name': 'linux-image-2.6.32-5-xen-amd64_2.6.32-31_amd64.deb', 'size': '28592546'}], 'origin': 'http://ftp.de.debian.org/debian/pool/main/l/linux-2.6/linux-image-2.6.32-5-xen-amd64_2.6.32-31_amd64.deb', 'recommends': 'firmware-linux-free (>= 2.6.32)', 'maintainer': 'Debian Kernel Team <debian-kernel@lists.debian.org>', 'description': 'Linux 2.6.32 for 64-bit PCs, Xen dom0 support', 'format': None, 'type': 'deb', 'section': 'kernel', 'suggests': 'linux-doc-2.6.32, grub', 'component': 'main', 'standards_version': '2.0', 'priority': 'optional', 'source': 'linux-2.6', 'depends': 'module-init-tools, linux-base (>= 2.6.32-31), initramfs-tools (>= 0.55)', 'version': '2.6.32-31', 'build_depends': None, 'provides': 'linux-image, linux-image-2.6, linux-modules-2.6.32-5-xen-amd64', 'installed_size': '97340', 'arch': 'amd64', 'long_description': '  The Linux kernel 2.6.32 and modules for use on PCs with AMD64 or Intel 64\n  processors.\n  .\n  This kernel also runs on a Xen hypervisor.  It supports both privileged\n  (dom0) and unprivileged (domU) operation.', 'name': 'linux-image-2.6.32-5-xen-amd64'}]
+
+        The result is a package list like delivered by
+        :meth:`libinst.manage.LibinstManager.getPackages`.
+
+        ``Return:`` dict
+        """
         result = None
         session = None
         try:
@@ -2040,6 +2057,17 @@ class LibinstManager(Plugin):
 
     @Command(__help__=N_("Completely remove device's installation parameters"))
     def removeBaseInstallParameters(self, device_uuid):
+        """
+        Disable device base install capabilities.
+
+        =========== ===========================================
+        Parameter   Description
+        =========== ===========================================
+        device_uuid Unique identifier of a device
+        =========== ===========================================
+
+        ``Return:`` True on success
+        """
         data = load_system(device_uuid)
         method = self.systemGetBaseInstallMethod(device_uuid, data)
         inst_m = self.base_install_method_reg[method]
@@ -2047,6 +2075,23 @@ class LibinstManager(Plugin):
 
     @Command(__help__=N_("Get device's installation method"))
     def systemGetBaseInstallMethod(self, device_uuid, data=None):
+        """
+        Return the systems base install method.
+
+        =========== ===========================================
+        Parameter   Description
+        =========== ===========================================
+        device_uuid Unique identifier of a device
+        data        *Reserved for internal use*
+        =========== ===========================================
+
+        Example:
+
+        >>> proxy.systemGetBaseInstallMethod('2daf7cbf-75c2-4ea3-bfec-606fe9f07051')
+        'preseed'
+
+        ``Return:`` String describing the base install method
+        """
         # Load system
         if not data:
             data = load_system(device_uuid)
@@ -2063,21 +2108,25 @@ class LibinstManager(Plugin):
 
         return res[0][1]["installMethod"][0].lower()
 
-    @Command(__help__=N_("Get device's filled install template"))
-    def systemGetTemplate(self, device_uuid):
-        """ Evaulate template for system with device_uuid 'device_uuid' """
-        data = load_system(device_uuid)
-        method = self.systemGetBaseInstallMethod(device_uuid, data)
-
-        # Use the method described by "method" and pass evaluated data
-        if not method in self.base_install_method_reg:
-            raise ValueError("device with UUID '%s' has an unknown installation method assigned" % device_uuid)
-
-        inst_m = self.base_install_method_reg[method]
-        return inst_m.getTemplate(data)
-
     @Command(__help__=N_("Get device's configuration method"))
     def systemGetConfigMethod(self, device_uuid, data=None):
+        """
+        Return the systems configuration method.
+
+        =========== ===========================================
+        Parameter   Description
+        =========== ===========================================
+        device_uuid Unique identifier of a device
+        data        *Reserved for internal use*
+        =========== ===========================================
+
+        Example:
+
+        >>> proxy.systemGetConfigMethod('2daf7cbf-75c2-4ea3-bfec-606fe9f07051')
+        'puppet'
+
+        ``Return:`` Template as a string
+        """
         if not data:
             data = load_system(device_uuid)
 
@@ -2088,6 +2137,25 @@ class LibinstManager(Plugin):
 
     @Command(__help__=N_("Get device's boot string"))
     def systemGetBootParams(self, device_uuid, mac=None):
+        """
+        Return the systems PXE boot string based on either the
+        device UUID or the MAC address.
+
+        =========== ===========================================
+        Parameter   Description
+        =========== ===========================================
+        device_uuid Optional unique identifier of a device
+        mac         Optional MAC
+        =========== ===========================================
+
+        Example:
+
+        >>> proxy.systemGetBootParams('2daf7cbf-75c2-4ea3-bfec-606fe9f07051')
+        'vga=normal initrd=debian-installer/i386/initrd.gz netcfg/choose_interface=eth0 locale=de_DE debian-installer/country=DE debian-installer/language=de debian-installer/keymap=de-latin1-nodeadkeys console-keymaps-at/keymap=de-latin1-nodeadkeys auto-install/enable=false preseed/url=https://amqp.example.net:8080/preseed/de-ad-d9-57-56-d5 debian/priority=critical hostname=test domain=example.net DEBCONF_DEBUG=5 svc_key=f1p8zRBGrUA26Nn+2qBS/JC8KOXHTEfgIEq5Le2WC4jW2xUuVzzHnO9LYiH8hYLNXHo7V9+2Aiz8\n/XU6xxcusWUiMjXgdZcDe8wJtXR5krg='
+
+        ``Return:`` Template as a string
+        """
+        #TODO: needs to be fixed. it's missing the base PXE stuff.
         params = []
         data = load_system(device_uuid, mac)
         device_uuid = data['deviceUUID'][0]
@@ -2117,12 +2185,29 @@ class LibinstManager(Plugin):
 
         #TODO: for non DNS/zeroconf setups, it might be a good idea to
         #      send a connection URI, too
-        print params
 
         return " ".join(params)
 
-    @Command(__help__=N_("Get device's boot string"))
+    @Command(__help__=N_("Get device's boot configuration"))
     def systemGetBootConfiguration(self, device_uuid, mac=None):
+        """
+        Return the systems base install template based on either the
+        device UUID or the MAC address.
+
+        =========== ===========================================
+        Parameter   Description
+        =========== ===========================================
+        device_uuid Optional unique identifier of a device
+        mac         Optional MAC
+        =========== ===========================================
+
+        Example:
+
+        >>> proxy.systemGetTemplate('2daf7cbf-75c2-4ea3-bfec-606fe9f07051')
+        'the template code'
+
+        ``Return:`` Template as a string
+        """
         data = load_system(device_uuid, mac)
         device_uuid = data['deviceUUID'][0]
         method = self.systemGetBaseInstallMethod(device_uuid, data)
@@ -2137,6 +2222,27 @@ class LibinstManager(Plugin):
 
     @Command(__help__=N_("Get device's base install parameters"))
     def systemGetBaseInstallParameters(self, device_uuid):
+        """
+        Return the systems base install parameters that are used
+        to fill up the template.
+
+        =========== ===========================================
+        Parameter   Description
+        =========== ===========================================
+        device_uuid Optional unique identifier of a device
+        =========== ===========================================
+
+        Example:
+
+        >>> gosa.systemGetBaseInstallParameters('2daf7cbf-75c2-4ea3-bfec-606fe9f07051')
+        {'utc': ['TRUE'], 'ntp-servers': ['1.2.3.4'], 'kernel': ['linux-image-2.6.32-5-xen-amd64'], 'root-hash': ['{CRYPT}'], 'root-user': ['TRUE'], 'disk-setup': ['disk sda --initlabel --none;part pv.00 --size 1000 --ondisk sda;volgroup Kaese --format pv.00;'], 'template': '<snip>', 'system-locale': ['de_DE.UTF-8'], 'release': ['debian/squeeze/1.0'], 'timezone': ['Europe/Berlin'], 'keyboard-layout': ['de-latin1-nodeadkeys']}
+
+        Please take a look at
+        :meth:`libinst.manage.LibinstManager.systemSetBaseInstallParameters`
+        for more information about the returned properties.
+
+        ``Return:`` dict of properties
+        """
         data = load_system(device_uuid, None, False)
         method = self.systemGetBaseInstallMethod(device_uuid, data)
         inst_m = self.base_install_method_reg[method]
@@ -2144,6 +2250,41 @@ class LibinstManager(Plugin):
 
     @Command(__help__=N_("Set device's base install parameters"))
     def systemSetBaseInstallParameters(self, device_uuid, data):
+        """
+        Set the system base install parameters that are used
+        to fill up the template.
+
+        =========== ===========================================
+        Parameter   Description
+        =========== ===========================================
+        device_uuid Unique device identifier
+        data        Dictionary specifying the properties
+        =========== ===========================================
+
+        The data dictionary has the following property keys (**values are
+        always lists**):
+
+        =============== ======================================================
+        Key             Description
+        =============== ======================================================
+        utc             Flag to specify if system uses UTC
+        timezone        String to specify time zone
+        ntp-servers     List of time server names/IPs
+        kernel          The boot kernel package name
+        root-hash       Hashed version of the root password
+        root-user       Flag to decide if there's a root user
+        disk-setup      String oriented at the RedHat kickstart device string
+        template        String containing the system template
+        system-locale   Locale definition for the system
+        release         Release to install on the system
+        keyboard-layout Keyboard layout to use
+        =============== ======================================================
+
+        These are the absolute base settings needed to install a device,
+        additional stuff is done by configuration methods.
+
+        ``Return:`` dict of properties
+        """
         sys_data = load_system(device_uuid, None, False)
         method = self.systemGetBaseInstallMethod(device_uuid, data)
 
@@ -2155,6 +2296,8 @@ class LibinstManager(Plugin):
 
         inst_m = self.base_install_method_reg[method]
         return inst_m.setBaseInstallParameters(device_uuid, data, sys_data)
+
+    ###HIER
 
     @Command(__help__=N_("Get device's config parameters"))
     def systemGetConfigParameters(self, device_uuid):

@@ -50,12 +50,14 @@ def Command(**d_kwargs):
         doc = getattr(f, '__doc__')
         if doc:
             lines = map(lambda x: x.lstrip(' '), doc.split('\n'))
+            name = getattr(f, '__name__')
             try:
                 hlp = getattr(f, '__help__')
+                setattr(f, '__doc__', ".. command:: agent %s\n\n    %s\n\n.. note::\n    **This method will be exported by the CommandRegistry.**\n\n%s" % (name, hlp, "\n".join(lines)))
             except:
-                hlp = "no help available"
-            name = getattr(f, '__name__')
-            setattr(f, '__doc__', ".. command:: %s\n\n    %s\n\n.. note::\n    **This method will be exported by the CommandRegistry.**\n\n%s" % (name, hlp, "\n".join(lines)))
+                setattr(f, '__doc__', ".. command:: client %s\n\n    %s\n\n..
+                        note::\n    **This method will be exported by the
+                        CommandRegistry.**\n\n%s" % (name, hlp, "\nClient command with no help"))
 
         return f
 
