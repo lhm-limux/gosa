@@ -2234,7 +2234,7 @@ class LibinstManager(Plugin):
 
         Example:
 
-        >>> gosa.systemGetBaseInstallParameters('2daf7cbf-75c2-4ea3-bfec-606fe9f07051')
+        >>> proxy.systemGetBaseInstallParameters('2daf7cbf-75c2-4ea3-bfec-606fe9f07051')
         {'utc': ['TRUE'], 'ntp-servers': ['1.2.3.4'], 'kernel': ['linux-image-2.6.32-5-xen-amd64'], 'root-hash': ['{CRYPT}'], 'root-user': ['TRUE'], 'disk-setup': ['disk sda --initlabel --none;part pv.00 --size 1000 --ondisk sda;volgroup Kaese --format pv.00;'], 'template': '<snip>', 'system-locale': ['de_DE.UTF-8'], 'release': ['debian/squeeze/1.0'], 'timezone': ['Europe/Berlin'], 'keyboard-layout': ['de-latin1-nodeadkeys']}
 
         Please take a look at
@@ -2283,7 +2283,7 @@ class LibinstManager(Plugin):
         These are the absolute base settings needed to install a device,
         additional stuff is done by configuration methods.
 
-        ``Return:`` dict of properties
+        ``Return:`` True on success
         """
         sys_data = load_system(device_uuid, None, False)
         method = self.systemGetBaseInstallMethod(device_uuid, data)
@@ -2297,10 +2297,31 @@ class LibinstManager(Plugin):
         inst_m = self.base_install_method_reg[method]
         return inst_m.setBaseInstallParameters(device_uuid, data, sys_data)
 
-    ###HIER
-
     @Command(__help__=N_("Get device's config parameters"))
     def systemGetConfigParameters(self, device_uuid):
+        """
+        Return the systems config parameters that are used
+        to provision the config management system.
+
+        =========== ===========================================
+        Parameter   Description
+        =========== ===========================================
+        device_uuid Optional unique identifier of a device
+        =========== ===========================================
+
+        Example:
+
+        >>> proxy.systemGetConfigParameters('2daf7cbf-75c2-4ea3-bfec-606fe9f07051')
+        {'var': {'starting_uid': ''}, 'item': ['gon-base::sudo', 'gon-base::users'], 'method': 'puppet'}
+
+        Please take a look at
+        :meth:`libinst.manage.LibinstManager.systemSetConfigParameters`
+        for more information about the returned properties.
+
+        ``Return:`` dict of properties
+        """
+
+
         sys_data = load_system(device_uuid, None, False)
         method = self.systemGetConfigMethod(device_uuid)
 
@@ -2312,6 +2333,30 @@ class LibinstManager(Plugin):
 
     @Command(__help__=N_("Set device's config parameters"))
     def systemSetConfigParameters(self, device_uuid, data):
+        """
+        Set the system config parameters that are used
+        provision the config management system.
+
+        =========== ===========================================
+        Parameter   Description
+        =========== ===========================================
+        device_uuid Unique device identifier
+        data        Dictionary specifying the properties
+        =========== ===========================================
+
+        The data dictionary has the following property keys:
+        always lists**):
+
+        ====== ===================================
+        Key    Description
+        ====== ===================================
+        item    List of assigned items
+        method  Config management method to use
+        var     Dict of variables and their values
+        ====== ===================================
+
+        ``Return:`` True no success
+        """
         sys_data = load_system(device_uuid, None, False)
         method = data['method']
 
@@ -2323,6 +2368,17 @@ class LibinstManager(Plugin):
 
     @Command(__help__=N_("Completely remove device's config parameters"))
     def removeConfigParameters(self, device_uuid):
+        """
+        Disable device configuration managmenet.
+
+        =========== ===========================================
+        Parameter   Description
+        =========== ===========================================
+        device_uuid Unique identifier of a device
+        =========== ===========================================
+
+        ``Return:`` True on success
+        """
         sys_data = load_system(device_uuid, None, False)
         method = self.systemGetConfigMethod(device_uuid)
 
@@ -2332,9 +2388,34 @@ class LibinstManager(Plugin):
         config_m = self.install_method_reg[method]
         return config_m.removeConfigParameters(device_uuid, sys_data)
 
-
     @Command(__help__=N_("Get list of templates, filter by method"))
     def installListTemplates(self, method=None):
+        """
+        List available templates - optionally by method.
+
+        =========== ===========================================
+        Parameter   Description
+        =========== ===========================================
+        method      Optional method to filter for
+        =========== ===========================================
+
+        Example:
+
+        >>> agent.installListTemplates()
+        {'test': {'description': 'test', 'method': 'preseed'}, 'debian-test': {'description': 'Test', 'method': 'preseed'}}
+
+        The resulting dict has the template name as key and a property
+        dict with these keys:
+
+        =========== ====================================
+        Key         Description
+        =========== ====================================
+        method      Name of the assigned template method
+        description Description of the template
+        =========== ====================================
+
+        ``Return:`` dict describing templates
+        """
         result = {}
         lh = LDAPHandler.get_instance()
         fltr = "installMethod=%s" % method if method else "cn=*"
@@ -2352,6 +2433,26 @@ class LibinstManager(Plugin):
 
     @Command(__help__=N_("Get template by name"))
     def installGetTemplate(self, name):
+        """
+        Get template by name
+
+        =========== ==============
+        Parameter   Description
+        =========== ==============
+        name        Template name
+        =========== ==============
+
+        Example:
+
+        >>> agent.installGetTemplate('debian-test')
+        ...
+
+        Please take a look at
+        :meth:`libinst.manage.LibinstManager.installSetTemplate`
+        for more information about the returned properties.
+
+        ``Return:`` dict describing template
+        """
         lh = LDAPHandler.get_instance()
         fltr = "cn=%s" % name
 
@@ -2370,6 +2471,26 @@ class LibinstManager(Plugin):
 
     @Command(__help__=N_("Set template by name"))
     def installSetTemplate(self, name, data):
+        """
+        Set template by name and data.
+
+        =========== ==============
+        Parameter   Description
+        =========== ==============
+        name        Template name
+        data        Template data
+        =========== ==============
+
+        *data* is a dictionary with these keys:
+
+        =========== ====================================
+        Key         Description
+        =========== ====================================
+        method      Name of the assigned template method
+        description Description of the template
+        data        The template string
+        =========== ====================================
+        """
         lh = LDAPHandler.get_instance()
         fltr = "cn=%s" % name
 
@@ -2422,6 +2543,15 @@ class LibinstManager(Plugin):
 
     @Command(__help__=N_("Remove template by name"))
     def installRemoveTemplate(self, name):
+        """
+        Remove existing template by name.
+
+        =========== ==============
+        Parameter   Description
+        =========== ==============
+        name        Template name
+        =========== ==============
+        """
         lh = LDAPHandler.get_instance()
         fltr = "cn=%s" % name
 
@@ -2437,7 +2567,18 @@ class LibinstManager(Plugin):
 
     @Command(__help__=N_("Perpare system for config methods"))
     def prepareSystem(self, device_uuid):
-        #TODO: look for install recipe tasks
+        """
+        Prepare a client device for beeing managed by the
+        configured config management method. This may create
+        some account or install a daemon - or whatever is needed
+        to manage it.
+
+        =========== =======================
+        Parameter   Description
+        =========== =======================
+        device_uuid Unique ID of the device
+        =========== =======================
+        """
 
         # Check for config recipe tasks
         method = self.systemGetConfigMethod(device_uuid)
@@ -2768,22 +2909,6 @@ class LibinstManager(Plugin):
         return result
 
     def listItems(self, release, item_type=None, path=None, children=None):
-        """
-        Returns a list of items of item_type (if given) for
-        the specified release - or all.
-
-        @type release: string
-        @param release: release path
-
-        @type item_type: string
-        @param item_type: type of item to list, None for all
-
-        @type path: string
-        @param path: path to list items on
-
-        @rtype: dict
-        @return: dictionary of name/item_type pairs
-        """
         res = {}
         session = None
 
@@ -2876,10 +3001,3 @@ class LibinstManager(Plugin):
         finally:
             session.close()
         return result
-
-
-class NotFoundException(Exception):
-    """
-    TODO
-    """
-    pass
