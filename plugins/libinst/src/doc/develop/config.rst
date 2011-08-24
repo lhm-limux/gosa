@@ -25,11 +25,11 @@ Lets discuss items by looking at the way `FAI <http://www.fai.org>`_ is
 configured. They basically have this structure:
 
  * Class
-   * Template
-   * Script
-   * Hook
-   * Variables
-   * Partitioning
+    - Template
+    - Script
+    - Hook
+    - Variables
+    - Partitioning
 
 So a *Class* can contains each of the subentries *Template*, *Script*,
 *Hook*, *Variables* and *Partitioning*. Partitioning is not a
@@ -57,11 +57,42 @@ to determine if it's assigneable to a client::
                     "value": None,
                     "default": None,
                     },
+		}
         ...
 
 Defining all the required item types make the final FAI config
 management work. The good thing about it: the potential GUI does
 not need to know about FAI and it's items directly.
+
+---------
+
+An install item describes the smallest assigneable element of a
+config management engine. It has a couple of control members:
+
+============== =====================================================
+Member         Description
+============== =====================================================
+_name          Item name
+_description   Description
+_container     List of modules that the current item can contain
+_prefix        Filesystem (or what ever) prefix used for storage
+_icon          Icon used to display this item
+_options       List of properties this item provides
+============== =====================================================
+
+The options describe properties using key (= property name)/value
+(=property description) pairs:
+
+============== =====================================================
+Key            Description
+============== =====================================================
+display        Display name
+description    Description
+type           Property type (string, integer, bool)
+syntax         Optional regluar expression for additional validation
+required       Flag to mark this property as mandatory
+default        Default value if not explicitly set
+============== =====================================================
 
 ---------
 

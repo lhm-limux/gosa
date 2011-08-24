@@ -27,7 +27,7 @@
     <link rel="top" title="libinst v3.0 documentation" href="../index.html" />
     <link rel="up" title="Avaliable modules" href="index.html" />
     <link rel="next" title="License" href="../license.html" />
-    <link rel="prev" title="Avaliable modules" href="index.html" /> 
+    <link rel="prev" title="Debian preseed" href="preseed.html" /> 
   </head>
   <body>
     <div class="related">
@@ -43,7 +43,7 @@
           <a href="../license.html" title="License"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="Avaliable modules"
+          <a href="preseed.html" title="Debian preseed"
              accesskey="P">previous</a> |</li>
         <li><a href="../index.html">libinst v3.0 documentation</a> &raquo;</li>
           <li><a href="index.html" accesskey="U">Avaliable modules</a> &raquo;</li> 
@@ -64,22 +64,22 @@ a simple GIT mechanism to push configuration data to its clients.</p>
 <p>The limitations of the original puppetmasterd can be pointed out with two basic statements:</p>
 <ul class="simple">
 <li>puppetmasterd doesn&#8217;t scale well</li>
-<li>we don&#8217;t want another daemon running on GOsa-NG-Clients</li>
+<li>we don&#8217;t want another daemon running on gosa.client</li>
 </ul>
-<p>Regarding the first statement there can be found a wealth of reports and considerations around scalability within puppet environments. There are different possiblities which all deal with the aim to integrate other web server in order to serve puppet&#8217;s infrastructure. A direct consequence of this setup will be that a GOsa-NG-Server would have to deal with another service (other than GOsa-NG-daemon) and another technology/programming language (other than python/AMQP).</p>
-<p>The second statement is especially important regarding low performance and thin clients, but also deals with aspects of security and efficiency. Considering the abilities of the GOsa-NG-Client regarding communication and the possibilities of acquiring information about the client it is running on, there is simply no legitimation to start other daemons for achieving the same goal.</p>
-<p>After all, the conclusion is that GOsa-NG will be integrated with puppet by running the so-called &#8216;standalone&#8217; mode which is fully supported by the authors respectively puppetlabs.com .</p>
+<p>Regarding the first statement there can be found a wealth of reports and considerations around scalability within puppet environments. There are different possiblities which all deal with the aim to integrate other web server in order to serve puppet&#8217;s infrastructure. A direct consequence of this setup will be that a gosa.agent would have to deal with another service (other than gosa.agent) and another technology/programming language (other than python/AMQP).</p>
+<p>The second statement is especially important regarding low performance and thin clients, but also deals with aspects of security and efficiency. Considering the abilities of the gosa.client regarding communication and the possibilities of acquiring information about the client it is running on, there is simply no legitimation to start other daemons for achieving the same goal.</p>
+<p>After all, the conclusion is that GOsa will be integrated with puppet by running the so-called &#8216;standalone&#8217; mode which is fully supported by the authors respectively puppetlabs.com .</p>
 <div class="section" id="puppet-server">
 <h2>Puppet Server<a class="headerlink" href="#puppet-server" title="Permalink to this headline">¶</a></h2>
 <p>The default puppet setup deploys a classical client-server (2-tier) architecture in terms of organization, deployment and execution of puppet recipes (aka manifests aka configuration descriptions).
 Considering the aforementioned limitations of this implementation, a different approach was built that will fulfill the requirements in terms of scalability, flexibility and stability.</p>
 <p>The server part of the puppet integration is represented by a simple GIT repository that will centrally hold and control all
-recipes of a GOsa-NG Instance. Administration of this repository can be done with git CLI or other git-tools which are
+recipes of a gosa.agent Instance. Administration of this repository can be done with git CLI or other git-tools which are
 widely available. Additionally, the GOsa Web Interface and Shell will be able to handle basic tasks such as committing
 new versions of recipes.</p>
-<p>As GOsa-NG will not use the default communication between the puppetmaster daemon and the puppet client daemon, there
+<p>As GOsa will not use the default communication between the puppetmaster daemon and the puppet client daemon, there
 has to be another way of delivering the recipes to the managed client. There are different possibilities regarding GIT,
-but GOsa-NG will rely on a simple git+ssh setup.</p>
+but GOsa will rely on a simple git+ssh setup.</p>
 <p>This setup will be built upon a central (Gosa-NG) Server which hosts the GIT repo as main source of the configuration data (recipes etc.).
 In addition to a basic GIT configuration, this central repo will be configured with the &#8220;Remote&#8221; feature of git.</p>
 <p>By adding each client into the list of remote entries, distribution of the recipes to the gosa-ng-clients can be achieved
@@ -98,12 +98,12 @@ automatically using a push-mechanism. Using alias-names, it is possible to defin
 </div>
 <div class="section" id="puppet-client">
 <h2>Puppet Client<a class="headerlink" href="#puppet-client" title="Permalink to this headline">¶</a></h2>
-<p>A registered client will receive a &#8220;bare&#8221; GIT-repository using the GOsa-NG-client communication. This bare repository is the basis for the push process originating from the puppet server.</p>
-<p>By using a post-update hook inside the GIT repository, changes will be directly deployed to the default puppet directory /etc/puppet. The value of the directory is configurable within the GOsa-NG-Client.</p>
+<p>A registered client will receive a &#8220;bare&#8221; GIT-repository using the gosa.client communication. This bare repository is the basis for the push process originating from the puppet server.</p>
+<p>By using a post-update hook inside the GIT repository, changes will be directly deployed to the default puppet directory /etc/puppet. The value of the directory is configurable within the gosa.client.</p>
 <p>After copying the recipes to the puppet directory, the standalone binary will be called and therefore a puppet run will be executed.</p>
-<p>For information and control purposes, puppet creates detailed logfiles in the YAML format. These are collected in a directory which is monitored by the GOsa-NG-Client. Using the UNIX-inotify mechanism,
-the client is able to collect and evaluate the log information and sends a corresponding event &#8220;puppet run successful/failed&#8221; to the GOsa-NG-server.</p>
-<p>The following list collects the system requirements for a GOsa-NG-Client which can use configuration management with puppet:</p>
+<p>For information and control purposes, puppet creates detailed logfiles in the YAML format. These are collected in a directory which is monitored by the gosa.client. Using the UNIX-inotify mechanism,
+the client is able to collect and evaluate the log information and sends a corresponding event &#8220;puppet run successful/failed&#8221; to the gosa.agent.</p>
+<p>The following list collects the system requirements for a gosa.client which can use configuration management with puppet:</p>
 <ul class="simple">
 <li>sshd running</li>
 <li>puppet installed</li>
@@ -142,8 +142,8 @@ the client is able to collect and evaluate the log information and sends a corre
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="index.html"
-                        title="previous chapter">Avaliable modules</a></p>
+  <p class="topless"><a href="preseed.html"
+                        title="previous chapter">Debian preseed</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="../license.html"
                         title="next chapter">License</a></p>
@@ -182,7 +182,7 @@ the client is able to collect and evaluate the log information and sends a corre
           <a href="../license.html" title="License"
              >next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="Avaliable modules"
+          <a href="preseed.html" title="Debian preseed"
              >previous</a> |</li>
         <li><a href="../index.html">libinst v3.0 documentation</a> &raquo;</li>
           <li><a href="index.html" >Avaliable modules</a> &raquo;</li> 

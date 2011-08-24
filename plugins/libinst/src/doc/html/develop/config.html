@@ -285,13 +285,19 @@ config mangement backend is used.</p>
 <p>Lets discuss items by looking at the way <a class="reference external" href="http://www.fai.org">FAI</a> is
 configured. They basically have this structure:</p>
 <blockquote>
-<div><ul class="simple">
-<li>Class
-* Template
-* Script
-* Hook
-* Variables
-* Partitioning</li>
+<div><ul>
+<li><dl class="first docutils">
+<dt>Class</dt>
+<dd><ul class="first last simple">
+<li>Template</li>
+<li>Script</li>
+<li>Hook</li>
+<li>Variables</li>
+<li>Partitioning</li>
+</ul>
+</dd>
+</dl>
+</li>
 </ul>
 </div></blockquote>
 <p>So a <em>Class</em> can contains each of the subentries <em>Template</em>, <em>Script</em>,
@@ -302,23 +308,25 @@ to implement FAI completely, there&#8217;s the need to implement a base
 install method for that, too.</p>
 <p>Every other item type has to be implemented - and needs to be able
 to determine if it&#8217;s assigneable to a client:</p>
-<div class="highlight-python"><pre>class FAIClass(InstallItem):
-    _name = "FAIClass"
-    _description = "A FAI class"
-    _container = ["FAITemplate", "FAIScript", "FAIVariable", "FAIHook"]
-    _prefix = "classes"
-    _icon = "module"
-    _options = {
-            "name": {
-                "display": "Class name",
-                "description": "The name of the FAI class",
-                "type": "string",
-                "syntax": r"^[a-zA-Z0-9_+.-]+$",
-                "required": True,
-                "value": None,
-                "default": None,
-                },
-    ...</pre>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">FAIClass</span><span class="p">(</span><span class="n">InstallItem</span><span class="p">):</span>
+    <span class="n">_name</span> <span class="o">=</span> <span class="s">&quot;FAIClass&quot;</span>
+    <span class="n">_description</span> <span class="o">=</span> <span class="s">&quot;A FAI class&quot;</span>
+    <span class="n">_container</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;FAITemplate&quot;</span><span class="p">,</span> <span class="s">&quot;FAIScript&quot;</span><span class="p">,</span> <span class="s">&quot;FAIVariable&quot;</span><span class="p">,</span> <span class="s">&quot;FAIHook&quot;</span><span class="p">]</span>
+    <span class="n">_prefix</span> <span class="o">=</span> <span class="s">&quot;classes&quot;</span>
+    <span class="n">_icon</span> <span class="o">=</span> <span class="s">&quot;module&quot;</span>
+    <span class="n">_options</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&quot;display&quot;</span><span class="p">:</span> <span class="s">&quot;Class name&quot;</span><span class="p">,</span>
+                <span class="s">&quot;description&quot;</span><span class="p">:</span> <span class="s">&quot;The name of the FAI class&quot;</span><span class="p">,</span>
+                <span class="s">&quot;type&quot;</span><span class="p">:</span> <span class="s">&quot;string&quot;</span><span class="p">,</span>
+                <span class="s">&quot;syntax&quot;</span><span class="p">:</span> <span class="s">r&quot;^[a-zA-Z0-9_+.-]+$&quot;</span><span class="p">,</span>
+                <span class="s">&quot;required&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                <span class="s">&quot;value&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                <span class="s">&quot;default&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">}</span>
+    <span class="o">...</span>
+</pre></div>
 </div>
 <p>Defining all the required item types make the final FAI config
 management work. The good thing about it: the potential GUI does

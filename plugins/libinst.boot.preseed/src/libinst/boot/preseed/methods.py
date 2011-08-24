@@ -140,6 +140,15 @@ class DebianPreseed(BaseInstallMethod):
 
         return data['templateData'].format(**mapped_data)
 
+    def getBootString(self, device_uuid, mac=None):
+        super(DebianPreseed, self).getBootString(device_uuid, mac)
+
+        # Load device data
+        data = load_system(device_uuid, mac)
+        arch = data["installArchitecture"][0]
+
+        return "label preseed\n    kernel debian-installer/%s/linux\n    append %%s\n" % arch
+
     def getBootParams(self, device_uuid, mac=None):
         super(DebianPreseed, self).getBootParams(device_uuid, mac)
 
@@ -163,7 +172,7 @@ class DebianPreseed(BaseInstallMethod):
         #TODO: take a look at RFC 1279 before doing anything else
         domain = "please-fixme.org"
 
-        params = [
+        return [
             "vga=normal",
             "initrd=debian-installer/%s/initrd.gz" % arch,
             "netcfg/choose_interface=eth0",
@@ -179,5 +188,3 @@ class DebianPreseed(BaseInstallMethod):
             "domain=%s" % domain,
             "DEBCONF_DEBUG=5",
             ]
-
-        return params

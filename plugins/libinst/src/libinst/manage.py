@@ -2136,7 +2136,7 @@ class LibinstManager(Plugin):
         return data["configMethod"][0].lower()
 
     @Command(__help__=N_("Get device's boot string"))
-    def systemGetBootParams(self, device_uuid, mac=None):
+    def systemGetBootString(self, device_uuid, mac=None):
         """
         Return the systems PXE boot string based on either the
         device UUID or the MAC address.
@@ -2150,12 +2150,11 @@ class LibinstManager(Plugin):
 
         Example:
 
-        >>> proxy.systemGetBootParams('2daf7cbf-75c2-4ea3-bfec-606fe9f07051')
-        'vga=normal initrd=debian-installer/i386/initrd.gz netcfg/choose_interface=eth0 locale=de_DE debian-installer/country=DE debian-installer/language=de debian-installer/keymap=de-latin1-nodeadkeys console-keymaps-at/keymap=de-latin1-nodeadkeys auto-install/enable=false preseed/url=https://amqp.example.net:8080/preseed/de-ad-d9-57-56-d5 debian/priority=critical hostname=test domain=example.net DEBCONF_DEBUG=5 svc_key=f1p8zRBGrUA26Nn+2qBS/JC8KOXHTEfgIEq5Le2WC4jW2xUuVzzHnO9LYiH8hYLNXHo7V9+2Aiz8\n/XU6xxcusWUiMjXgdZcDe8wJtXR5krg='
+        >>> proxy.systemGetBootString('2daf7cbf-75c2-4ea3-bfec-606fe9f07051')
+        u'label preseed\n    kernel debian-installer/i386/linux\n    append vga=normal initrd=debian-installer/i386/initrd.gz netcfg/choose_interface=eth0 locale=de_DE debian-installer/country=DE debian-installer/language=de debian-installer/keymap=de-latin1-nodeadkeys console-keymaps-at/keymap=de-latin1-nodeadkeys auto-install/enable=false preseed/url=https://amqp.intranet.gonicus.de:8080/preseed/de-ad-d9-57-56-d5 debian/priority=critical hostname=dyn-10 domain=please-fixme.org DEBCONF_DEBUG=5 svc_key=f1p8zRBGrUA26Nn+2qBS/JC8KOXHTEfgIEq5Le2WC4jW2xUuVzzHnO9LYiH8hYLNXHo7V9+2Aiz8\n/XU6xxcusWUiMjXgdZcDe8wJtXR5krg=\n\n'
 
         ``Return:`` Template as a string
         """
-        #TODO: needs to be fixed. it's missing the base PXE stuff.
         params = []
         data = load_system(device_uuid, mac)
         device_uuid = data['deviceUUID'][0]
@@ -2186,7 +2185,7 @@ class LibinstManager(Plugin):
         #TODO: for non DNS/zeroconf setups, it might be a good idea to
         #      send a connection URI, too
 
-        return " ".join(params)
+        return inst_m.getBootString(device_uuid) % " ".join(params)
 
     @Command(__help__=N_("Get device's boot configuration"))
     def systemGetBootConfiguration(self, device_uuid, mac=None):

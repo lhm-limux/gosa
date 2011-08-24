@@ -25,11 +25,11 @@ Lets discuss items by looking at the way `FAI <http://www.fai.org>`_ is
 configured. They basically have this structure:
 
  * Class
-   * Template
-   * Script
-   * Hook
-   * Variables
-   * Partitioning
+    - Template
+    - Script
+    - Hook
+    - Variables
+    - Partitioning
 
 So a *Class* can contains each of the subentries *Template*, *Script*,
 *Hook*, *Variables* and *Partitioning*. Partitioning is not a
@@ -57,6 +57,7 @@ to determine if it's assigneable to a client::
                     "value": None,
                     "default": None,
                     },
+		}
         ...
 
 Defining all the required item types make the final FAI config

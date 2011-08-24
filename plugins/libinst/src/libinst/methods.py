@@ -14,7 +14,14 @@ from sqlalchemy import func
 
 class InstallItem(object):
     """
-    TODO
+    Create an install item instance, *name* it and place it on
+    *path*
+
+    =========== ======================
+    Parameter   Description
+    =========== ======================
+    path        name
+    =========== ======================
     """
 
     _changed = False
@@ -148,6 +155,14 @@ class BaseInstallMethod(object):
         TODO
         """
         raise NotImplementedError("%s is not implemented" % stack()[0][3])
+
+    def getBootString(self, device_uuid, mac=None):
+        """
+        Return boot parameters needed for that install method.
+
+        TODO
+        """
+        return ""
 
     def getBootParams(self, device_uuid, mac=None):
         """
