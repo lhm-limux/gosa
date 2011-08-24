@@ -993,7 +993,7 @@ The list of components contains descriptive dicts, too:</p>
 <p class="first admonition-title">Note</p>
 <p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
 </div>
-<p>List the registered <a class="reference internal" href="repository.html#libinst.methods.BaseInstallMethod" title="libinst.methods.BaseInstallMethod"><tt class="xref py py-class docutils literal"><span class="pre">libinst.methods.BaseInstallMethod</span></tt></a> methods.
+<p>List the registered <a class="reference internal" href="baseinstall.html#libinst.methods.BaseInstallMethod" title="libinst.methods.BaseInstallMethod"><tt class="xref py py-class docutils literal"><span class="pre">libinst.methods.BaseInstallMethod</span></tt></a> methods.
 Registration works by specifying a setuptools <tt class="docutils literal"><span class="pre">[libinst.base_methods]</span></tt>
 entrypoint.</p>
 <p>Example:</p>
@@ -1045,7 +1045,7 @@ these information keys:</p>
 <p class="first admonition-title">Note</p>
 <p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
 </div>
-<p>List the registered <a class="reference internal" href="repository.html#libinst.methods.InstallMethod" title="libinst.methods.InstallMethod"><tt class="xref py py-class docutils literal"><span class="pre">libinst.methods.InstallMethod</span></tt></a> methods.
+<p>List the registered <a class="reference internal" href="config.html#libinst.methods.InstallMethod" title="libinst.methods.InstallMethod"><tt class="xref py py-class docutils literal"><span class="pre">libinst.methods.InstallMethod</span></tt></a> methods.
 Registration works by specifying a setuptools <tt class="docutils literal"><span class="pre">[libinst.methods]</span></tt>
 entrypoint.</p>
 <p>Example:</p>
@@ -1153,7 +1153,7 @@ these information keys:</p>
 <p class="first admonition-title">Note</p>
 <p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
 </div>
-<p>List registered <tt class="xref py py-class docutils literal"><span class="pre">libinst.interface.DistributionHandler</span></tt> objects.
+<p>List registered <a class="reference internal" href="repository.html#libinst.interface.DistributionHandler" title="libinst.interface.DistributionHandler"><tt class="xref py py-class docutils literal"><span class="pre">libinst.interface.DistributionHandler</span></tt></a> objects.
 Registration works by specifying a setuptools <tt class="docutils literal"><span class="pre">[libinst.repository]</span></tt>
 entrypoint.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">getSupportedRepositoryTypes</span><span class="p">()</span>
@@ -2038,8 +2038,8 @@ device UUID or the MAC address.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="libinst.manage.LibinstManager.systemGetBootParams">
-<tt class="descname">systemGetBootParams</tt><big>(</big><em>device_uuid</em>, <em>mac=None</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.systemGetBootParams" title="Permalink to this definition">¶</a></dt>
+<dt id="libinst.manage.LibinstManager.systemGetBootString">
+<tt class="descname">systemGetBootString</tt><big>(</big><em>device_uuid</em>, <em>mac=None</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.systemGetBootString" title="Permalink to this definition">¶</a></dt>
 <dd><div class="admonition " id="cmd-43">
 </div>
 <div class="admonition note">
@@ -2068,11 +2068,14 @@ device UUID or the MAC address.</p>
 </tbody>
 </table>
 <p>Example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">systemGetBootParams</span><span class="p">(</span><span class="s">&#39;2daf7cbf-75c2-4ea3-bfec-606fe9f07051&#39;</span><span class="p">)</span>
-<span class="go">&#39;vga=normal initrd=debian-installer/i386/initrd.gz netcfg/choose_interface=eth0 locale=de_DE debian-installer/country=DE debian-installer/language=de debian-installer/keymap=de-latin1-nodeadkeys console-keymaps-at/keymap=de-latin1-nodeadkeys auto-install/enable=false preseed/url=https://amqp.example.net:8080/preseed/de-ad-d9-57-56-d5 debian/priority=critical hostname=test domain=example.net DEBCONF_DEBUG=5 svc_key=f1p8zRBGrUA26Nn+2qBS/JC8KOXHTEfgIEq5Le2WC4jW2xUuVzzHnO9LYiH8hYLNXHo7V9+2Aiz8</span>
-<span class="go">/XU6xxcusWUiMjXgdZcDe8wJtXR5krg=&#39;</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">systemGetBootString</span><span class="p">(</span><span class="s">&#39;2daf7cbf-75c2-4ea3-bfec-606fe9f07051&#39;</span><span class="p">)</span>
+<span class="go">u&#39;label preseed</span>
+<span class="go">kernel debian-installer/i386/linux</span>
+<span class="go">append vga=normal initrd=debian-installer/i386/initrd.gz netcfg/choose_interface=eth0 locale=de_DE debian-installer/country=DE debian-installer/language=de debian-installer/keymap=de-latin1-nodeadkeys console-keymaps-at/keymap=de-latin1-nodeadkeys auto-install/enable=false preseed/url=https://amqp.intranet.gonicus.de:8080/preseed/de-ad-d9-57-56-d5 debian/priority=critical hostname=dyn-10 domain=please-fixme.org DEBCONF_DEBUG=5 svc_key=f1p8zRBGrUA26Nn+2qBS/JC8KOXHTEfgIEq5Le2WC4jW2xUuVzzHnO9LYiH8hYLNXHo7V9+2Aiz8</span>
+<span class="go">/XU6xxcusWUiMjXgdZcDe8wJtXR5krg=</span>
 </pre></div>
 </div>
+<p>&#8216;</p>
 <p><tt class="docutils literal"><span class="pre">Return:</span></tt> Template as a string</p>
 </dd></dl>
 

@@ -15,7 +15,7 @@ from sqlalchemy import func
 class InstallItem(object):
     """
     Create an install item instance, *name* it and place it on
-    *path*
+    *path*.
 
     =========== ======================
     Parameter   Description
@@ -32,7 +32,14 @@ class InstallItem(object):
 
     def set(self, name, values):
         """
-        TODO
+        Set the property given by *name* to value given by *value*.
+
+        =========== ======================
+        Parameter   Description
+        =========== ======================
+        name        Property name
+        value       Property value
+        =========== ======================
         """
         # pylint: disable-msg=E1101
         if not name in self._options:
@@ -67,7 +74,15 @@ class InstallItem(object):
 
     def get(self, name):
         """
-        TODO
+        Get the property given by *name*.
+
+        =========== ======================
+        Parameter   Description
+        =========== ======================
+        name        Property name
+        =========== ======================
+
+        ``Return:`` misc
         """
         # pylint: disable-msg=E1101
         if not name in self._options:
@@ -78,7 +93,9 @@ class InstallItem(object):
 
     def get_options(self):
         """
-        TODO
+        Get all properties as a key/value pair.
+
+        ``Return:`` dict
         """
         return dict((k, v['value']) for k, v in
                 # pylint: disable-msg=E1101
@@ -86,14 +103,16 @@ class InstallItem(object):
 
     def commit(self):
         """
-        TODO
+        Validate and do what ever is needed to store the
+        current item instance to a storage.
         """
         # Before writing data back, validate myself
         self._validate()
 
     def _validate(self):
         """
-        TODO
+        Validate item. Checks for mandatory properties. Raises
+        ref:`python:ValueError` on failure.
         """
         # pylint: disable-msg=E1101
         for opt, data in self._options.iteritems():
@@ -102,13 +121,26 @@ class InstallItem(object):
 
     def scan(self):
         """
-        TODO
+        Scans the configured path for items of the current type and
+        returns a dictionary with filename/absolute path mappings.
+
+        ``Return:`` dict
         """
         return {}
 
     def getAssignableElements(self):
         """
-        TODO
+        Returns items that are assignable to a device. The result is
+        represented by a dict index by the *item name* containing these keys:
+
+        =========== =========================
+        Key         Description
+        =========== =========================
+        description Item description
+        parameter   Available item parameters
+        =========== =========================
+
+        ``Return:`` dict
         """
         return {}
 

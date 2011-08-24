@@ -332,44 +332,189 @@ to determine if it&#8217;s assigneable to a client:</p>
 management work. The good thing about it: the potential GUI does
 not need to know about FAI and it&#8217;s items directly.</p>
 <hr class="docutils" />
+<p>An install item describes the smallest assigneable element of a
+config management engine. It has a couple of control members:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="21%" />
+<col width="79%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Member</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>_name</td>
+<td>Item name</td>
+</tr>
+<tr><td>_description</td>
+<td>Description</td>
+</tr>
+<tr><td>_container</td>
+<td>List of modules that the current item can contain</td>
+</tr>
+<tr><td>_prefix</td>
+<td>Filesystem (or what ever) prefix used for storage</td>
+</tr>
+<tr><td>_icon</td>
+<td>Icon used to display this item</td>
+</tr>
+<tr><td>_options</td>
+<td>List of properties this item provides</td>
+</tr>
+</tbody>
+</table>
+<p>The options describe properties using key (= property name)/value
+(=property description) pairs:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="21%" />
+<col width="79%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>display</td>
+<td>Display name</td>
+</tr>
+<tr><td>description</td>
+<td>Description</td>
+</tr>
+<tr><td>type</td>
+<td>Property type (string, integer, bool)</td>
+</tr>
+<tr><td>syntax</td>
+<td>Optional regluar expression for additional validation</td>
+</tr>
+<tr><td>required</td>
+<td>Flag to mark this property as mandatory</td>
+</tr>
+<tr><td>default</td>
+<td>Default value if not explicitly set</td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
 <dl class="class">
 <dt id="libinst.methods.InstallItem">
 <em class="property">class </em><tt class="descclassname">libinst.methods.</tt><tt class="descname">InstallItem</tt><big>(</big><em>path</em>, <em>name</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallItem" title="Permalink to this definition">¶</a></dt>
-<dd><p>TODO</p>
+<dd><p>Create an install item instance, <em>name</em> it and place it on
+<em>path</em>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="67%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>path</td>
+<td>name</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="libinst.methods.InstallItem.commit">
 <tt class="descname">commit</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.InstallItem.commit" title="Permalink to this definition">¶</a></dt>
-<dd><p>TODO</p>
+<dd><p>Validate and do what ever is needed to store the
+current item instance to a storage.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="libinst.methods.InstallItem.get">
 <tt class="descname">get</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallItem.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>TODO</p>
+<dd><p>Get the property given by <em>name</em>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="67%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>Property name</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> misc</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="libinst.methods.InstallItem.getAssignableElements">
 <tt class="descname">getAssignableElements</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.InstallItem.getAssignableElements" title="Permalink to this definition">¶</a></dt>
-<dd><p>TODO</p>
+<dd><p>Returns items that are assignable to a device. The result is
+represented by a dict index by the <em>item name</em> containing these keys:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="31%" />
+<col width="69%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>description</td>
+<td>Item description</td>
+</tr>
+<tr><td>parameter</td>
+<td>Available item parameters</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="libinst.methods.InstallItem.get_options">
 <tt class="descname">get_options</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.InstallItem.get_options" title="Permalink to this definition">¶</a></dt>
-<dd><p>TODO</p>
+<dd><p>Get all properties as a key/value pair.</p>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="libinst.methods.InstallItem.scan">
 <tt class="descname">scan</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.InstallItem.scan" title="Permalink to this definition">¶</a></dt>
-<dd><p>TODO</p>
+<dd><p>Scans the configured path for items of the current type and
+returns a dictionary with filename/absolute path mappings.</p>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="libinst.methods.InstallItem.set">
 <tt class="descname">set</tt><big>(</big><em>name</em>, <em>values</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallItem.set" title="Permalink to this definition">¶</a></dt>
-<dd><p>TODO</p>
+<dd><p>Set the property given by <em>name</em> to value given by <em>value</em>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="67%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>Property name</td>
+</tr>
+<tr><td>value</td>
+<td>Property value</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
