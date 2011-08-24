@@ -127,7 +127,7 @@ class PxeFS(Fuse):
         # Need to transform /01-00-00-00-00-00-00 into 00:00:00:00:00:00
         if not path in self.filesystem[self.root].keys() or self.filesystem[self.root][path]['timestamp'] < int(time()) - int(self.positive_cache_timeout):
             self.filesystem[self.root][path] = {}
-            self.filesystem[self.root][path]['content'] = str(proxy.systemGetBootParams(None, path[4:].replace('-', ':')))
+            self.filesystem[self.root][path]['content'] = str(proxy.systemGetBootString(None, path[4:].replace('-', ':')))
             self.filesystem[self.root][path]['timestamp'] = time()
         return self.filesystem[self.root][path]['content']
 
