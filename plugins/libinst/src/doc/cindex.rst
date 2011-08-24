@@ -1,7 +1,12 @@
 .. _cindex:
 
-Command index
-=============
+Agent command index
+===================
 
-.. cmdlist::
+.. cmdlist:: agent
+
+Client command index
+====================
+
+.. cmdlist:: client
 
