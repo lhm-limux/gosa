@@ -16,6 +16,11 @@ environment:
 $ pip install sphinxcontrib-spelling sphinxcontrib-email \
       sphinxcontrib-programoutput sphinxcontrib-requirements
 
+For the command index, you need the custom **cindex** module from the
+contrib directory:
+
+$ cd contrib/cindex && ./setup.py install
+
 -----------------------------------------------------------------------------
 
 For HTML based doumentaion, run:
