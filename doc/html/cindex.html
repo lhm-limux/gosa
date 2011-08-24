@@ -58,6 +58,11 @@
 </tr>
 </thead>
 <tbody valign="top">
+<tr><td><a class="reference internal" href="plugins/agent/goto.html#cmd-0">clientDispatch</a></td>
+<td><div class="first last container">
+Call method exposed by client.</div>
+</td>
+</tr>
 <tr><td><a class="reference internal" href="agent/jsonrpc.html#cmd-0">closeObject</a></td>
 <td><div class="first last container">
 Close object and remove it from stack</div>
@@ -66,6 +71,26 @@ Close object and remove it from stack</div>
 <tr><td><a class="reference internal" href="agent/jsonrpc.html#cmd-1">dispatchObjectMethod</a></td>
 <td><div class="first last container">
 Call method from object on stack</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="plugins/agent/goto.html#cmd-1">getClientMethods</a></td>
+<td><div class="first last container">
+List available client methods for specified client.</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="plugins/agent/goto.html#cmd-2">getClientNetInfo</a></td>
+<td><div class="first last container">
+Get the client Interface/IP/Netmask/Broadcast/MAC list.</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="plugins/agent/goto.html#cmd-3">getClients</a></td>
+<td><div class="first last container">
+List available clients.</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="plugins/agent/goto.html#cmd-10">getMacManufacturer</a></td>
+<td><div class="first last container">
+Resolve mac address to the producer of the network card if possible.</div>
 </td>
 </tr>
 <tr><td><a class="reference internal" href="agent/command.html#cmd-0">getMethods</a></td>
@@ -88,9 +113,34 @@ List available service nodes on the bus.</div>
 Get property from object on stack</div>
 </td>
 </tr>
+<tr><td><a class="reference internal" href="plugins/agent/goto.html#cmd-4">getUserClients</a></td>
+<td><div class="first last container">
+List clients a user is logged in</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="plugins/agent/goto.html#cmd-5">getUserSessions</a></td>
+<td><div class="first last container">
+List user sessions per client</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="plugins/agent/goto.html#cmd-6">joinClient</a></td>
+<td><div class="first last container">
+Join a client to the GOsa system.</div>
+</td>
+</tr>
 <tr><td><a class="reference internal" href="plugins/agent/samba.html#cmd-0">mksmbhash</a></td>
 <td><div class="first last container">
 Generate samba lm:nt hash combination from the supplied password.</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="plugins/agent/goto.html#cmd-11">networkCompletion</a></td>
+<td><div class="first last container">
+Resolve network address to a mac / dns name tupel.</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="plugins/agent/goto.html#cmd-7">notifyUser</a></td>
+<td><div class="first last container">
+Send synchronous notification message to user</div>
 </td>
 </tr>
 <tr><td><a class="reference internal" href="agent/jsonrpc.html#cmd-3">openObject</a></td>
@@ -111,6 +161,21 @@ Set property for object on stack</div>
 <tr><td><a class="reference internal" href="agent/command.html#cmd-3">shutdown</a></td>
 <td><div class="first last container">
 Shut down the service belonging to the supplied queue. In case of HTTP connections, this command will shut down the node you&#8217;re currently logged in.</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="plugins/agent/goto.html#cmd-8">systemGetStatus</a></td>
+<td><div class="first last container">
+Set system status</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="plugins/agent/goto.html#cmd-9">systemSetStatus</a></td>
+<td><div class="first last container">
+Set system status</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="plugins/agent/misc.html#cmd-0">transliterate</a></td>
+<td><div class="first last container">
+Transliterate a given string</div>
 </td>
 </tr>
 </tbody>

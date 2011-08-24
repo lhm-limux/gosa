@@ -10,6 +10,9 @@ class MiscUtils(Plugin):
 
     @Command(__help__=N_("Transliterate a given string"))
     def transliterate(self, string):
+        """
+        TODO
+        """
         table = {
             ord(u'ä'): u'ae',
             ord(u'ö'): u'oe',

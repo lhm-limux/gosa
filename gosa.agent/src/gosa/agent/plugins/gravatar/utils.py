@@ -21,6 +21,9 @@ class GravatarUtils(Plugin):
     @Command(__help__=N_("Generate samba lm:nt hash combination "+
         "from the supplied password."))
     def getGravatarURL(self, mail, size=40, url="http://www.gonicus.de"):
+        """
+        TODO
+        """
         gravatar_url = "http://www.gravatar.com/avatar.php?"
         gravatar_url += urllib.urlencode({
             'gravatar_id': hashlib.md5(mail.lower()).hexdigest(),
