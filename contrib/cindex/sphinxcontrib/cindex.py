@@ -25,7 +25,7 @@ class CmdDirective(Directive):
 
     # this enables content in the directive
     has_content = True
-    required_arguments = 1
+    required_arguments = 2
 
     option_spec = {
         'parameter': unicode
@@ -40,7 +40,7 @@ class CmdDirective(Directive):
         targetnode = nodes.target('', '', ids=[targetid])
 
         node = cmd_node('')
-        node.title_str = self.arguments[0]
+        node.title_str = self.arguments[1]
         node.desc_str = "".join(self.content[0::])
         ret = [targetnode] + [node]
         return ret

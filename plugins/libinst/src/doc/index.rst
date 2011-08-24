@@ -48,7 +48,7 @@ lifecycle.
 .. toctree::
    :maxdepth: 3
 
-   concepts
+   concept
    develop/index
    plugins/index
    license

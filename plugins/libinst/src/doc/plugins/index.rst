@@ -1,4 +1,4 @@
-Avaliable Plugins
+Avaliable modules
 =================
 
 .. toctree::
