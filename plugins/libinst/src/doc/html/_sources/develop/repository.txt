@@ -1,5 +1,9 @@
 Repository modules
 ==================
 
-.. automodule:: libinst.methods
+.. automodule:: libinst.interface
+
+----------
+
+.. autoclass:: libinst.interface.DistributionHandler
    :members:

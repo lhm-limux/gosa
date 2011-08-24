@@ -55,47 +55,22 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="module-libinst.methods">
-<span id="config-management-modules"></span><h1>Config management modules<a class="headerlink" href="#module-libinst.methods" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="libinst.methods.BaseInstallMethod">
-<em class="property">class </em><tt class="descclassname">libinst.methods.</tt><tt class="descname">BaseInstallMethod</tt><a class="headerlink" href="#libinst.methods.BaseInstallMethod" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is the base install method interface class. It defines all relevant methods
-needed to interact with any install method. Implementations of this interface
-must implement all methods.</p>
-<dl class="method">
-<dt id="libinst.methods.BaseInstallMethod.getBootConfiguration">
-<tt class="descname">getBootConfiguration</tt><big>(</big><em>device_uuid</em>, <em>mac=None</em><big>)</big><a class="headerlink" href="#libinst.methods.BaseInstallMethod.getBootConfiguration" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the complete boot configuration file needed to do a base
-bootstrapping.</p>
-<p>&#64;rtype: string
-&#64;return: multi line text</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="libinst.methods.BaseInstallMethod.getBootParams">
-<tt class="descname">getBootParams</tt><big>(</big><em>device_uuid</em>, <em>mac=None</em><big>)</big><a class="headerlink" href="#libinst.methods.BaseInstallMethod.getBootParams" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return boot parameters needed for that install method.</p>
-<p>&#64;rtype: list
-&#64;return: list of boot parameters</p>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="libinst.methods.BaseInstallMethod.getInfo">
-<em class="property">static </em><tt class="descname">getInfo</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.BaseInstallMethod.getInfo" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get information for the current install method implementation.</p>
-<p>&#64;rtype: dict
-&#64;return: A dict containing name, title and description</p>
-</dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="config-management-modules">
+<h1>Config management modules<a class="headerlink" href="#config-management-modules" title="Permalink to this headline">¶</a></h1>
+<p>TODO</p>
+<hr class="docutils" />
 <dl class="class">
 <dt id="libinst.methods.InstallMethod">
 <em class="property">class </em><tt class="descclassname">libinst.methods.</tt><tt class="descname">InstallMethod</tt><big>(</big><em>manager</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is the install method interface class. It defines all relevant methods
 needed to interact with any install method. Implementations of this interface
 must implement all methods.</p>
+<dl class="method">
+<dt id="libinst.methods.InstallMethod.addClient">
+<tt class="descname">addClient</tt><big>(</big><em>device_uuid</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.addClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="libinst.methods.InstallMethod.createRelease">
 <tt class="descname">createRelease</tt><big>(</big><em>name</em>, <em>parent=None</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.createRelease" title="Permalink to this definition">¶</a></dt>
@@ -126,6 +101,12 @@ duplicated for the new one.</div></blockquote>
 <dd><p>Return boot parameters needed for that install method.</p>
 <p>&#64;rtype: list
 &#64;return: list of boot parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.methods.InstallMethod.getConfigParameters">
+<tt class="descname">getConfigParameters</tt><big>(</big><em>device_uuid</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.getConfigParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO</p>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -169,11 +150,23 @@ current backend.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="libinst.methods.InstallMethod.getItemsAssignableElements">
+<tt class="descname">getItemsAssignableElements</tt><big>(</big><em>release</em>, <em>item</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.getItemsAssignableElements" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="libinst.methods.InstallMethod.getSupportedTypes">
 <tt class="descname">getSupportedTypes</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.getSupportedTypes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the list of supported repository types.</p>
 <p>&#64;rtype: list
 &#64;return: List of repository types</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.methods.InstallMethod.listAssignableElements">
+<tt class="descname">listAssignableElements</tt><big>(</big><em>release</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.listAssignableElements" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO</p>
 </dd></dl>
 
 <dl class="method">
@@ -189,6 +182,18 @@ the specified release - or all.</p>
 &#64;param path: path to list items on</p>
 <p>&#64;rtype: dict
 &#64;return: dictionary of name/item_type pairs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.methods.InstallMethod.removeClient">
+<tt class="descname">removeClient</tt><big>(</big><em>device_uuid</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.removeClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.methods.InstallMethod.removeConfigParameters">
+<tt class="descname">removeConfigParameters</tt><big>(</big><em>device_uuid</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.removeConfigParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO</p>
 </dd></dl>
 
 <dl class="method">
@@ -241,6 +246,12 @@ path information.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="libinst.methods.InstallMethod.setConfigParameters">
+<tt class="descname">setConfigParameters</tt><big>(</big><em>device_uuid</em>, <em>data</em>, <em>current_data=None</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.setConfigParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="libinst.methods.InstallMethod.setItem">
 <tt class="descname">setItem</tt><big>(</big><em>release</em>, <em>path</em>, <em>item_type</em>, <em>data</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.setItem" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the data for the specified item.</p>
@@ -256,6 +267,49 @@ path information.</p>
 &#64;param data: the encoded data item</p>
 <p>&#64;rtype: bool
 &#64;return: True = success</p>
+</dd></dl>
+
+</dd></dl>
+
+<hr class="docutils" />
+<dl class="class">
+<dt id="libinst.methods.InstallItem">
+<em class="property">class </em><tt class="descclassname">libinst.methods.</tt><tt class="descname">InstallItem</tt><big>(</big><em>path</em>, <em>name</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallItem" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO</p>
+<dl class="method">
+<dt id="libinst.methods.InstallItem.commit">
+<tt class="descname">commit</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.InstallItem.commit" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.methods.InstallItem.get">
+<tt class="descname">get</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallItem.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.methods.InstallItem.getAssignableElements">
+<tt class="descname">getAssignableElements</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.InstallItem.getAssignableElements" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.methods.InstallItem.get_options">
+<tt class="descname">get_options</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.InstallItem.get_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.methods.InstallItem.scan">
+<tt class="descname">scan</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.InstallItem.scan" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.methods.InstallItem.set">
+<tt class="descname">set</tt><big>(</big><em>name</em>, <em>values</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallItem.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO</p>
 </dd></dl>
 
 </dd></dl>

@@ -1,5 +1,9 @@
 Base install modules
 ====================
 
-.. automodule:: libinst.methods
+TODO
+
+---------------
+
+.. autoclass:: libinst.methods.BaseInstallMethod
    :members:

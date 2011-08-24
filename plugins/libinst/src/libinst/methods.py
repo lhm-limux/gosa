@@ -4,6 +4,7 @@ import os
 import ldap
 import sys
 from copy import copy
+from inspect import stack
 from types import StringTypes
 from gosa.common import Environment
 from gosa.agent.ldap_utils import LDAPHandler, unicode2utf8, normalize_ldap
@@ -12,6 +13,9 @@ from sqlalchemy import func
 
 
 class InstallItem(object):
+    """
+    TODO
+    """
 
     _changed = False
     _prefix = ""
@@ -20,6 +24,9 @@ class InstallItem(object):
         pass
 
     def set(self, name, values):
+        """
+        TODO
+        """
         # pylint: disable-msg=E1101
         if not name in self._options:
             raise ValueError("unknown property '%s'" % name)
@@ -52,6 +59,9 @@ class InstallItem(object):
             self._changed = True
 
     def get(self, name):
+        """
+        TODO
+        """
         # pylint: disable-msg=E1101
         if not name in self._options:
             raise ValueError("unknown property '%s'" % name)
@@ -60,24 +70,39 @@ class InstallItem(object):
         return self._options[name]['value']
 
     def get_options(self):
+        """
+        TODO
+        """
         return dict((k, v['value']) for k, v in
                 # pylint: disable-msg=E1101
                 self._options.iteritems())
 
     def commit(self):
+        """
+        TODO
+        """
         # Before writing data back, validate myself
         self._validate()
 
     def _validate(self):
+        """
+        TODO
+        """
         # pylint: disable-msg=E1101
         for opt, data in self._options.iteritems():
             if data['required'] and not data['value']:
                 raise ValueError("item '%s' is mandatory" % opt)
 
     def scan(self):
+        """
+        TODO
+        """
         return {}
 
     def getAssignableElements(self):
+        """
+        TODO
+        """
         return {}
 
 
@@ -108,23 +133,27 @@ class BaseInstallMethod(object):
         """
         Get information for the current install method implementation.
 
-        @rtype: dict
-        @return: A dict containing name, title and description
+        TODO
         """
-        return None
+        raise NotImplementedError("%s is not implemented" % stack()[0][3])
 
     def addClient(self, device_uuid):
-        pass
+        """
+        TODO
+        """
+        raise NotImplementedError("%s is not implemented" % stack()[0][3])
 
     def removeClient(self, device_uuid):
-        pass
+        """
+        TODO
+        """
+        raise NotImplementedError("%s is not implemented" % stack()[0][3])
 
     def getBootParams(self, device_uuid, mac=None):
         """
         Return boot parameters needed for that install method.
 
-        @rtype: list
-        @return: list of boot parameters
+        TODO
         """
         return []
 
@@ -133,12 +162,14 @@ class BaseInstallMethod(object):
         Return the complete boot configuration file needed to do a base
         bootstrapping.
 
-        @rtype: string
-        @return: multi line text
+        TODO
         """
         return None
 
     def getBaseInstallParameters(self, device_uuid, data=None):
+        """
+        TODO
+        """
         res = {}
         if not data:
             data = load_system(device_uuid, None, False)
@@ -158,6 +189,9 @@ class BaseInstallMethod(object):
         return res
 
     def setBaseInstallParameters(self, device_uuid, data, current_data=None):
+        """
+        TODO
+        """
         # Load device
         if not current_data:
             current_data = load_system(device_uuid, None, False)
@@ -215,6 +249,9 @@ class BaseInstallMethod(object):
         return res
 
     def removeBaseInstallParameters(self, device_uuid, data=None):
+        """
+        TODO
+        """
         if not data:
             data = load_system(device_uuid)
 
@@ -386,6 +423,9 @@ class InstallMethod(object):
         return res
 
     def listAssignableElements(self, release):
+        """
+        TODO
+        """
         res = {}
         for item in self._manager._getAssignableElements(release):
             res = dict(res.items() + self.getItemsAssignableElements(release, item).items())
@@ -533,7 +573,7 @@ class InstallMethod(object):
 
             # Try to commit the changes
             session.commit()
-            
+
             # Check if path has changed
             if "name" in data:
                 newPath = os.path.dirname(path)
@@ -563,12 +603,21 @@ class InstallMethod(object):
         return result
 
     def getItemsAssignableElements(self, release, item):
+        """
+        TODO
+        """
         return {}
 
     def addClient(self, device_uuid):
+        """
+        TODO
+        """
         pass
 
     def removeClient(self, device_uuid):
+        """
+        TODO
+        """
         pass
 
     def removeItem(self, release, path, children=None):
@@ -794,6 +843,9 @@ class InstallMethod(object):
         return result
 
     def getConfigParameters(self, device_uuid, data=None):
+        """
+        TODO
+        """
         res = {}
         if not data:
             data = load_system(device_uuid, None, False)
@@ -813,6 +865,9 @@ class InstallMethod(object):
         return res
 
     def setConfigParameters(self, device_uuid, data, current_data=None):
+        """
+        TODO
+        """
         if not current_data:
             current_data = load_system(device_uuid, None, False)
 
@@ -864,6 +919,9 @@ class InstallMethod(object):
             conn.modify_s(dn, mods)
 
     def removeConfigParameters(self, device_uuid, data=None):
+        """
+        TODO
+        """
         if not data:
             data = load_system(device_uuid)
 
