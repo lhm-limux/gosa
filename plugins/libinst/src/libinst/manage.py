@@ -4,8 +4,6 @@ The *LibinstManager* proxies the complete repository, base installation and
 config management process to the target plugins. It is the abstraction layer
 to be used from your frontend - shell, GUI or whatever you tend to use.
 
-.. cmdlist::
-
 ----------
 """
 

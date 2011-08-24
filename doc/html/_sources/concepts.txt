@@ -145,64 +145,82 @@ the AMQP headers, so that GOsa is able to notice who's sending messages.
 GOsa overview
 =============
 
-Dieses Kapitel beschäftigt sich mit den einzelnen GOsa-Komponenten, erklärt
-welche Aufgabe sie im Gesamtkonstrukt haben und setzt sie zu einem grossen
-Ganzen zusammen. Entwickler-Informationen entnehmen Sie bitte der dem Entwickler
-teil dieses Buches.
+This overview should provide a big picture of the GOsa components and describes
+the tasks the components are supposed to do. More detailed information can be
+found in the developer documentation.
 
-Die folgenden Unterkapitel beschäftigen sich allesamt mit dieser Grafik:
+Domains
+-------
 
-\begin{minipage}{\linewidth}
- \centering
- \includegraphics[width=1\textwidth]{media/gosa-design-overview.pdf}
- \figcaption{Komponentenübersicht}
- \label{fig:DesignOverview}
-\end{minipage}
+Systems connected with GOsa components shape a so called domain. If you like
+the analogy, you can compare a GOsa domain to a Windows domain: it keeps some
+kind of information about a delimited area of an organization (or in your
+opinion the world).
 
-
-Core
-----
-
-Der GOsa-Kern beinhaltet grundlegende Funktionen, die von allen Modulen
-direkt verwendet werden können. Hierbei kann es sich z.B. um das Auflisten
-von verfügbaren Objekt-Typen oder die Authentifizierung handeln.
-
-Alle vom Kern bereitgestellten Funktionen werden in der \textit{Function Registry}
-registriert und können von dort benutzt werden.
+A domain is basically constructed of a reverse DNS name - i.e. the default
+domain is *org.gosa*, but it could be *de.gonicus* or whatever you want it
+to be. AMQP queues are based on the domain, so if you use the default, all
+created queues start with *org.gosa.* and shape the namespace to use in AMQP.
 
 
-Function Registry
-^^^^^^^^^^^^^^^^^
+gosa.common
+-----------
 
-In der \textit{Function Registry} sind alle aufrufbaren Funktionen hinterlegt.
-Plugins, die öffentliche Funktionen bereitstellen müssen sie an dieser Stelle
-registrieren. Öffentliche Funktionen lassen sich beispielsweise über einen 
-Client über RPC aufrufen.
-
-Ein Überladen von Funktionen ist durch in der Ladenreihenfolge weiter hinten
-angeordnete Plugins möglich. Bei Bedarf lassen sich die Funktionen also
-überschreiben.
-
-Ausführbar sind diese Funktionen, wenn die Zugriffsrichtlinien das X-Flag 
-für diese Funktion vorsehen. Eine Ausführung durch berechtigte Personen
-wird damit gewährleistet.
+The *gosa.common* component is the base library which is providing common
+functionality to agents and clients.
 
 
-Plugins
-^^^^^^^
+gosa.agent
+----------
 
-Plugins sind Module die die GOsa-Funktionalität um bestimmte Aspekte erweitern.
-So existiert ein Modul für den LDAP- oder Datenbank-Zugriff. Denkbar wäre z.B.
-ein Modul das sich um Ihre Zeiterfassung kümmert und die Anwesenheitszeiten
-von Benutzern in einer Datenbank pflegt.
+For every domain, you need at least on broker (or a broker federation) and
+at least one *gosa.agent* instance. The agent defines the domain queues and
+puts life to queues by answering to command requests and processing basic
+events.
 
-Plugins können auf Funktionen der \textit{Function Registry} zurückgreifen und
-sind in der Lage GOsa \textit{AMQP-Queues} zu nutzen.
+If you have more than one agent, they share the command queues using a round
+robin method of the AMQP broker - so you've automatic load balancing. Agents
+notify each other on a regular base in order to know each others status (load,
+number of workers, etc.). They also notify each other if they're joining or
+leaving the domain - maybe due to a service restart. Because *gosa.agent*
+instances can have different plugins loaded, they also inform each others
+about their capabilities - so that in case it's needed - commands can be
+forwarded to a capable agent.
 
-Plugins werden beim Start von GOsa eingebunden.
-
+All commands are registered in the CommandRegistry and can be simply accessed
+from there.
 
 ..
+  Command registry
+  ^^^^^^^^^^^^^^^^
+  
+  In der \textit{Function Registry} sind alle aufrufbaren Funktionen hinterlegt.
+  Plugins, die öffentliche Funktionen bereitstellen müssen sie an dieser Stelle
+  registrieren. Öffentliche Funktionen lassen sich beispielsweise über einen 
+  Client über RPC aufrufen.
+  
+  Ein Überladen von Funktionen ist durch in der Ladenreihenfolge weiter hinten
+  angeordnete Plugins möglich. Bei Bedarf lassen sich die Funktionen also
+  überschreiben.
+  
+  Ausführbar sind diese Funktionen, wenn die Zugriffsrichtlinien das X-Flag 
+  für diese Funktion vorsehen. Eine Ausführung durch berechtigte Personen
+  wird damit gewährleistet.
+  
+  
+  Plugins
+  ^^^^^^^
+  
+  Plugins sind Module die die GOsa-Funktionalität um bestimmte Aspekte erweitern.
+  So existiert ein Modul für den LDAP- oder Datenbank-Zugriff. Denkbar wäre z.B.
+  ein Modul das sich um Ihre Zeiterfassung kümmert und die Anwesenheitszeiten
+  von Benutzern in einer Datenbank pflegt.
+  
+  Plugins können auf Funktionen der \textit{Function Registry} zurückgreifen und
+  sind in der Lage GOsa \textit{AMQP-Queues} zu nutzen.
+  
+  Plugins werden beim Start von GOsa eingebunden.
+  
   Scheduler
   ^^^^^^^^^
   

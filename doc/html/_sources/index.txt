@@ -67,5 +67,6 @@ Indices and tables
 
 * :ref:`genindex`
 * :ref:`modindex`
+* :ref:`Command index <cindex>`
 * :ref:`search`
 

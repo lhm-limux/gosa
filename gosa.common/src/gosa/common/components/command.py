@@ -50,9 +50,11 @@ def Command(**d_kwargs):
         doc = getattr(f, '__doc__')
         if doc:
             lines = map(lambda x: x.lstrip(' '), doc.split('\n'))
-            hlp = getattr(f, '__help__')
+            try:
+                hlp = getattr(f, '__help__')
+            except:
+                hlp = "no help available"
             name = getattr(f, '__name__')
-#            setattr(f, '__doc__', ".. note::\n    **This method will be exported by the CommandRegistry.**\n\n%s" % "\n".join(lines))
             setattr(f, '__doc__', ".. command:: %s\n\n    %s\n\n.. note::\n    **This method will be exported by the CommandRegistry.**\n\n%s" % (name, hlp, "\n".join(lines)))
 
         return f
@@ -99,6 +101,7 @@ def NamedArgs(d_collector=None, **d_kwargs):
             return f_result
 
         new_f.__doc__ = f.__doc__
+        new_f.__name__ = f.__name__
         return new_f
 
     return decorate

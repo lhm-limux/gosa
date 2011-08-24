@@ -10,6 +10,7 @@
     <title>Concepts &mdash; GOsa v3.0 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/cindex.css" type="text/css" />
     <link rel="stylesheet" href="_static/requirements.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -169,49 +170,41 @@ the AMQP headers, so that GOsa is able to notice who&#8217;s sending messages.</
 <hr class="docutils" />
 <div class="section" id="gosa-overview">
 <h2>GOsa overview<a class="headerlink" href="#gosa-overview" title="Permalink to this headline">¶</a></h2>
-<p>Dieses Kapitel beschäftigt sich mit den einzelnen GOsa-Komponenten, erklärt
-welche Aufgabe sie im Gesamtkonstrukt haben und setzt sie zu einem grossen
-Ganzen zusammen. Entwickler-Informationen entnehmen Sie bitte der dem Entwickler
-teil dieses Buches.</p>
-<p>Die folgenden Unterkapitel beschäftigen sich allesamt mit dieser Grafik:</p>
-<dl class="docutils">
-<dt>begin{minipage}{linewidth}</dt>
-<dd>centering
-includegraphics[width=1textwidth]{media/gosa-design-overview.pdf}
-figcaption{Komponentenübersicht}
-label{fig:DesignOverview}</dd>
-</dl>
-<p>end{minipage}</p>
-<div class="section" id="core">
-<h3>Core<a class="headerlink" href="#core" title="Permalink to this headline">¶</a></h3>
-<p>Der GOsa-Kern beinhaltet grundlegende Funktionen, die von allen Modulen
-direkt verwendet werden können. Hierbei kann es sich z.B. um das Auflisten
-von verfügbaren Objekt-Typen oder die Authentifizierung handeln.</p>
-<p>Alle vom Kern bereitgestellten Funktionen werden in der textit{Function Registry}
-registriert und können von dort benutzt werden.</p>
-<div class="section" id="function-registry">
-<h4>Function Registry<a class="headerlink" href="#function-registry" title="Permalink to this headline">¶</a></h4>
-<p>In der textit{Function Registry} sind alle aufrufbaren Funktionen hinterlegt.
-Plugins, die öffentliche Funktionen bereitstellen müssen sie an dieser Stelle
-registrieren. Öffentliche Funktionen lassen sich beispielsweise über einen
-Client über RPC aufrufen.</p>
-<p>Ein Überladen von Funktionen ist durch in der Ladenreihenfolge weiter hinten
-angeordnete Plugins möglich. Bei Bedarf lassen sich die Funktionen also
-überschreiben.</p>
-<p>Ausführbar sind diese Funktionen, wenn die Zugriffsrichtlinien das X-Flag
-für diese Funktion vorsehen. Eine Ausführung durch berechtigte Personen
-wird damit gewährleistet.</p>
+<p>This overview should provide a big picture of the GOsa components and describes
+the tasks the components are supposed to do. More detailed information can be
+found in the developer documentation.</p>
+<div class="section" id="domains">
+<h3>Domains<a class="headerlink" href="#domains" title="Permalink to this headline">¶</a></h3>
+<p>Systems connected with GOsa components shape a so called domain. If you like
+the analogy, you can compare a GOsa domain to a Windows domain: it keeps some
+kind of information about a delimited area of an organization (or in your
+opinion the world).</p>
+<p>A domain is basically constructed of a reverse DNS name - i.e. the default
+domain is <em>org.gosa</em>, but it could be <em>de.gonicus</em> or whatever you want it
+to be. AMQP queues are based on the domain, so if you use the default, all
+created queues start with <em>org.gosa.</em> and shape the namespace to use in AMQP.</p>
 </div>
-<div class="section" id="plugins">
-<h4>Plugins<a class="headerlink" href="#plugins" title="Permalink to this headline">¶</a></h4>
-<p>Plugins sind Module die die GOsa-Funktionalität um bestimmte Aspekte erweitern.
-So existiert ein Modul für den LDAP- oder Datenbank-Zugriff. Denkbar wäre z.B.
-ein Modul das sich um Ihre Zeiterfassung kümmert und die Anwesenheitszeiten
-von Benutzern in einer Datenbank pflegt.</p>
-<p>Plugins können auf Funktionen der textit{Function Registry} zurückgreifen und
-sind in der Lage GOsa textit{AMQP-Queues} zu nutzen.</p>
-<p>Plugins werden beim Start von GOsa eingebunden.</p>
+<div class="section" id="gosa-common">
+<h3>gosa.common<a class="headerlink" href="#gosa-common" title="Permalink to this headline">¶</a></h3>
+<p>The <em>gosa.common</em> component is the base library which is providing common
+functionality to agents and clients.</p>
 </div>
+<div class="section" id="gosa-agent">
+<h3>gosa.agent<a class="headerlink" href="#gosa-agent" title="Permalink to this headline">¶</a></h3>
+<p>For every domain, you need at least on broker (or a broker federation) and
+at least one <em>gosa.agent</em> instance. The agent defines the domain queues and
+puts life to queues by answering to command requests and processing basic
+events.</p>
+<p>If you have more than one agent, they share the command queues using a round
+robin method of the AMQP broker - so you&#8217;ve automatic load balancing. Agents
+notify each other on a regular base in order to know each others status (load,
+number of workers, etc.). They also notify each other if they&#8217;re joining or
+leaving the domain - maybe due to a service restart. Because <em>gosa.agent</em>
+instances can have different plugins loaded, they also inform each others
+about their capabilities - so that in case it&#8217;s needed - commands can be
+forwarded to a capable agent.</p>
+<p>All commands are registered in the CommandRegistry and can be simply accessed
+from there.</p>
 </div>
 </div>
 </div>
@@ -235,11 +228,9 @@ sind in der Lage GOsa textit{AMQP-Queues} zu nutzen.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#gosa-overview">GOsa overview</a><ul>
-<li><a class="reference internal" href="#core">Core</a><ul>
-<li><a class="reference internal" href="#function-registry">Function Registry</a></li>
-<li><a class="reference internal" href="#plugins">Plugins</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#domains">Domains</a></li>
+<li><a class="reference internal" href="#gosa-common">gosa.common</a></li>
+<li><a class="reference internal" href="#gosa-agent">gosa.agent</a></li>
 </ul>
 </li>
 </ul>

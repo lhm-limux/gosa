@@ -28,6 +28,11 @@ methods and their signatures. This information is used to locate a
 willing node for methods that the receiving node is not able to
 process.
 
+.. note::
+
+    Please take a look at the :ref:`command index <cindex>` for a list
+    of valid commands.
+
 -------
 """
 import string

@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Installation and configuration guide &mdash; GOsa v3.0 documentation</title>
+    <title>Command index &mdash; GOsa v3.0 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/cindex.css" type="text/css" />
@@ -24,9 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="GOsa v3.0 documentation" href="index.html" />
-    <link rel="next" title="Development documentation" href="development.html" />
-    <link rel="prev" title="Introduction" href="intro.html" /> 
+    <link rel="top" title="GOsa v3.0 documentation" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -38,12 +36,6 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="development.html" title="Development documentation"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="intro.html" title="Introduction"
-             accesskey="P">previous</a> |</li>
         <li><a href="index.html">GOsa v3.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -53,12 +45,76 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="installation-and-configuration-guide">
-<h1>Installation and configuration guide<a class="headerlink" href="#installation-and-configuration-guide" title="Permalink to this headline">¶</a></h1>
-<div class="admonition-requirement admonition " id="req-0">
-<p class="first admonition-title">Requirement</p>
-<p class="last"><em class="status todo">todo</em> Create brief documentation for installing and setup</p>
-</div>
+  <div class="section" id="command-index">
+<span id="cindex"></span><h1>Command index<a class="headerlink" href="#command-index" title="Permalink to this headline">¶</a></h1>
+<table border="1" class="docutils">
+<colgroup>
+<col class="rst-raw" width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Method</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="agent/jsonrpc.html#cmd-0">closeObject</a></td>
+<td><div class="first last container">
+Close object and remove it from stack</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="agent/jsonrpc.html#cmd-1">dispatchObjectMethod</a></td>
+<td><div class="first last container">
+Call method from object on stack</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="agent/command.html#cmd-0">getMethods</a></td>
+<td><div class="first last container">
+List available methods that are registered on the bus.</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="client/command.html#cmd-0">getMethods</a></td>
+<td><div class="first last container">
+no help available</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="agent/command.html#cmd-1">getNodes</a></td>
+<td><div class="first last container">
+List available service nodes on the bus.</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="agent/jsonrpc.html#cmd-2">getObjectProperty</a></td>
+<td><div class="first last container">
+Get property from object on stack</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="plugins/agent/samba.html#cmd-0">mksmbhash</a></td>
+<td><div class="first last container">
+Generate samba lm:nt hash combination from the supplied password.</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="agent/jsonrpc.html#cmd-3">openObject</a></td>
+<td><div class="first last container">
+Instantiate object and place it on stack</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="agent/command.html#cmd-2">sendEvent</a></td>
+<td><div class="first last container">
+Send event to the bus.</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="agent/jsonrpc.html#cmd-4">setObjectProperty</a></td>
+<td><div class="first last container">
+Set property for object on stack</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="agent/command.html#cmd-3">shutdown</a></td>
+<td><div class="first last container">
+Shut down the service belonging to the supplied queue. In case of HTTP connections, this command will shut down the node you&#8217;re currently logged in.</div>
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 
 
@@ -67,15 +123,9 @@
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="intro.html"
-                        title="previous chapter">Introduction</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="development.html"
-                        title="next chapter">Development documentation</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="_sources/production.txt"
+    <li><a href="_sources/cindex.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <div id="searchbox" style="display: none">
@@ -104,12 +154,6 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="development.html" title="Development documentation"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="intro.html" title="Introduction"
-             >previous</a> |</li>
         <li><a href="index.html">GOsa v3.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
