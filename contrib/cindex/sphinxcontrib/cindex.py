@@ -150,6 +150,7 @@ def process_cmd_nodes(app, doctree, fromdocname):
         else:
             content.append(nodes.Text(_('No entries')))
 
+        content.append(nodes.paragraph('','\n '));
         node.replace_self(content)
 
 def purge_cmds(app, env, docname):
