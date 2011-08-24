@@ -57,7 +57,10 @@
             
   <div class="section" id="config-management-modules">
 <h1>Config management modules<a class="headerlink" href="#config-management-modules" title="Permalink to this headline">¶</a></h1>
-<p>TODO</p>
+<div class="section" id="config-method">
+<h2>Config method<a class="headerlink" href="#config-method" title="Permalink to this headline">¶</a></h2>
+<p>Modules get registered thru the setuptools <tt class="docutils literal"><span class="pre">[libinst.methods]</span></tt> section
+and are available automatically.</p>
 <hr class="docutils" />
 <dl class="class">
 <dt id="libinst.methods.InstallMethod">
@@ -271,6 +274,55 @@ path information.</p>
 
 </dd></dl>
 
+</div>
+<div class="section" id="config-items">
+<h2>Config items<a class="headerlink" href="#config-items" title="Permalink to this headline">¶</a></h2>
+<p><em>InstallItem</em> is part of <a class="reference internal" href="#libinst.methods.InstallMethod" title="libinst.methods.InstallMethod"><tt class="xref py py-class docutils literal"><span class="pre">libinst.methods.InstallMethod</span></tt></a> and is
+used to describe a config management system. An implementator has to
+define a structure of several items types that can be used by an
+administrator to define the target system - independently of what
+config mangement backend is used.</p>
+<p>Lets discuss items by looking at the way <a class="reference external" href="http://www.fai.org">FAI</a> is
+configured. They basically have this structure:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Class
+* Template
+* Script
+* Hook
+* Variables
+* Partitioning</li>
+</ul>
+</div></blockquote>
+<p>So a <em>Class</em> can contains each of the subentries <em>Template</em>, <em>Script</em>,
+<em>Hook</em>, <em>Variables</em> and <em>Partitioning</em>. Partitioning is not a
+config management task, it&#8217;s under the hood of
+<a class="reference internal" href="baseinstall.html#libinst.methods.BaseInstallMethod" title="libinst.methods.BaseInstallMethod"><tt class="xref py py-class docutils literal"><span class="pre">libinst.methods.BaseInstallMethod</span></tt></a> - so, if someone want&#8217;s
+to implement FAI completely, there&#8217;s the need to implement a base
+install method for that, too.</p>
+<p>Every other item type has to be implemented - and needs to be able
+to determine if it&#8217;s assigneable to a client:</p>
+<div class="highlight-python"><pre>class FAIClass(InstallItem):
+    _name = "FAIClass"
+    _description = "A FAI class"
+    _container = ["FAITemplate", "FAIScript", "FAIVariable", "FAIHook"]
+    _prefix = "classes"
+    _icon = "module"
+    _options = {
+            "name": {
+                "display": "Class name",
+                "description": "The name of the FAI class",
+                "type": "string",
+                "syntax": r"^[a-zA-Z0-9_+.-]+$",
+                "required": True,
+                "value": None,
+                "default": None,
+                },
+    ...</pre>
+</div>
+<p>Defining all the required item types make the final FAI config
+management work. The good thing about it: the potential GUI does
+not need to know about FAI and it&#8217;s items directly.</p>
 <hr class="docutils" />
 <dl class="class">
 <dt id="libinst.methods.InstallItem">
@@ -315,6 +367,7 @@ path information.</p>
 </dd></dl>
 
 </div>
+</div>
 
 
           </div>
@@ -322,6 +375,15 @@ path information.</p>
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Config management modules</a><ul>
+<li><a class="reference internal" href="#config-method">Config method</a></li>
+<li><a class="reference internal" href="#config-items">Config items</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>Previous topic</h4>
   <p class="topless"><a href="baseinstall.html"
                         title="previous chapter">Base install modules</a></p>

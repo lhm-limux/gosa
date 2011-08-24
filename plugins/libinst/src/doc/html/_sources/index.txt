@@ -37,6 +37,10 @@ lifecycle.
 
 *libinst* replaces the old FAI/opsi processes used withing gosa-si.
 
+.. warning::
+
+   This document is incomplete. Please check back later.
+
 ---------------------
 
 **Documentation TODO list:**
