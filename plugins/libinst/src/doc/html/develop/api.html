@@ -1,0 +1,2401 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Libinst API &mdash; libinst v3.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/cindex.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/requirements.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="libinst v3.0 documentation" href="../index.html" />
+    <link rel="up" title="Development" href="index.html" />
+    <link rel="next" title="Repository modules" href="repository.html" />
+    <link rel="prev" title="Development" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="repository.html" title="Repository modules"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Development"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">libinst v3.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Development</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-libinst.manage">
+<span id="libinst-api"></span><span id="concepts"></span><h1>Libinst API<a class="headerlink" href="#module-libinst.manage" title="Permalink to this headline">¶</a></h1>
+<p>The <em>LibinstManager</em> proxies the complete repository, base installation and
+config management process to the target plugins. It is the abstraction layer
+to be used from your frontend - shell, GUI or whatever you tend to use.</p>
+<hr class="docutils" />
+<dl class="class">
+<dt id="libinst.manage.LibinstManager">
+<em class="property">class </em><tt class="descclassname">libinst.manage.</tt><tt class="descname">LibinstManager</tt><a class="headerlink" href="#libinst.manage.LibinstManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Manage repositories, base install and configuration of clients.</p>
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.addKeys">
+<tt class="descname">addKeys</tt><big>(</big><em>keys</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.addKeys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add keys for repository validation.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="38%" />
+<col width="62%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>key</td>
+<td>GPG private key block</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">keyring</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;-----BEGIN PGP PRIVATE KEY BLOCK-----</span>
+<span class="gp">... </span><span class="s">Version: GnuPG v1.4.10 (GNU/Linux)</span>
+<span class="gp">...</span><span class="s"></span>
+<span class="gp">... </span><span class="s">lQHYBEx2RJ8BBADGAvwUiutOLO+OgkpWmOfNczRcEWZSja8jfZJFAHkSknq7t9lM</span>
+<span class="gp">... </span><span class="s">FD0qYkjxnmGvi44cPmKu7Z2xkBxljyKK5pDOkCqB2QBUrXSnb3rg6/w9gX8Mh1er</span>
+<span class="gp">... </span><span class="s">e8VZ/45sjxqwoUIPWWsrmEotQ9388KbEhdw14FQj/rai/Xa7rqYI6nVQSQARAQAB</span>
+<span class="gp">... </span><span class="s">AAP6AyHggTljDsfnvu3ZQj/ihdj27A056XmOJ4elkobqNpfsdI9l8t3fy4dFvy28</span>
+<span class="gp">... </span><span class="s">8gKvnzG08uG1iyD1mnBho/sdytTKe7GMLDcHyWWBOl31WLKUzQFTOpQ6EjzKNyNl</span>
+<span class="gp">... </span><span class="s">CGvwSKBm8u81BfNi7FpfgnVI733jdqZ8Lvq5znKRrK4WJdECANOaZn78oghTONUQ</span>
+<span class="gp">... </span><span class="s">1Fo6PgrjFkD337TR3Dm5tllp0Mlly9C9/N5CiTZj/0VLNyzT0tHVik8WEmF37bgY</span>
+<span class="gp">... </span><span class="s">Zd2gA9kCAO+Oj6k9Bqs6uTjHFmT5NEGvoJVSd4Q+F4jDmT+U2yJEBUk1dHiRAcEr</span>
+<span class="gp">... </span><span class="s">NcRU5VMbpBk9rbsmikX0oA1gavaNmfECAJi9uX99nb+dNWpqFqHxuDKaHapG9cKv</span>
+<span class="gp">... </span><span class="s">AlI+btxIAzPFvqMuHMjFKn6T57D8QpIz1f7LdmlYKKOr3DRmaYOaJBClOrQ2QXV0</span>
+<span class="gp">... </span><span class="s">b2dlbmVyYXRlZCBLZXkgKEdlbmVyYXRlZCBieSBnbnVwZy5weSkgPGphbndAaG9t</span>
+<span class="gp">... </span><span class="s">ZXI+iLgEEwECACIFAkx2RJ8CGy8GCwkIBwMCBhUIAgkKCwQWAgMBAh4BAheAAAoJ</span>
+<span class="gp">... </span><span class="s">ELxLvnLaEqJwX2oD/2wAOYbZG68k7iDOqFI1TpQjlgRQKHNuvindjWrPjfgsDfZH</span>
+<span class="gp">... </span><span class="s">kEhidYX1IRzgyhhLjrPDcB0RTcnjlXm9xOXJb3tcuyKWxi2CHMstdgTMHt6xb37o</span>
+<span class="gp">... </span><span class="s">LcWMU6gayNYj7eMgCOFM6ywySRS81FC+PPnr147xbp5FwgmoPRK52MURsHJ+</span>
+<span class="gp">... </span><span class="s">=RwlJ</span>
+<span class="gp">... </span><span class="s">-----END PGP PRIVATE KEY BLOCK-----&quot;&quot;&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">manager</span> <span class="o">=</span> <span class="n">LibinstManager</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">manager</span><span class="o">.</span><span class="n">addKeys</span><span class="p">(</span><span class="n">keyring</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.addMirrorProperty">
+<tt class="descname">addMirrorProperty</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.addMirrorProperty" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-0">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Add properties to an existing distribution mirror definition.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="41%" />
+<col width="59%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>distribution</td>
+<td>The distribution name</td>
+</tr>
+<tr><td>arch</td>
+<td>List of architectures</td>
+</tr>
+<tr><td>component</td>
+<td>List of components</td>
+</tr>
+<tr><td>mirror_sources</td>
+<td>Flag to mirror sources</td>
+</tr>
+<tr><td>origin</td>
+<td>TODO</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">addMirrorProperty</span><span class="p">(</span><span class="n">distribution</span><span class="o">=</span><span class="s">&quot;debian&quot;</span><span class="p">,</span> <span class="n">arch</span><span class="o">=</span><span class="s">&quot;i386&quot;</span><span class="p">,</span> <span class="n">component</span><span class="o">=</span><span class="s">&quot;main&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.addPackage">
+<tt class="descname">addPackage</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.addPackage" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-1">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Add one package to a distribution.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>url</td>
+<td>Local or remote path to package file (supported remote protocols: http/https/ftp)</td>
+</tr>
+<tr><td>release</td>
+<td>(optional) add package to specified release</td>
+</tr>
+<tr><td>distribution</td>
+<td>(optional) add package to specified distribution</td>
+</tr>
+<tr><td>component</td>
+<td>(optional) override component for package</td>
+</tr>
+<tr><td>updateInventory</td>
+<td>rebuild packages list after adding package</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">addPackage</span><span class="p">(</span>
+<span class="gp">... </span>  <span class="s">&quot;http://ftp.de.debian.org/debian/pool/main/j/jaaa/jaaa_0.4.2-1.dsc&quot;</span><span class="p">,</span>
+<span class="gp">... </span>  <span class="p">{</span><span class="s">&quot;release&quot;</span><span class="p">:</span> <span class="s">&quot;squeeze/1.0&quot;</span><span class="p">})</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.createDistribution">
+<tt class="descname">createDistribution</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.createDistribution" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-2">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Create a new distribution based on type, mirror and installation method. This
+is the first step to be done before creating releases - because releases depend
+on distributions.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="72%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>The distribution name</td>
+</tr>
+<tr><td>type</td>
+<td>Repository type</td>
+</tr>
+<tr><td>install_method</td>
+<td>Method to be used for this distribution</td>
+</tr>
+<tr><td>mirror</td>
+<td>Optional source for this distribution</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">createDistribution</span><span class="p">(</span><span class="s">&#39;debian&#39;</span><span class="p">,</span> <span class="s">&#39;deb&#39;</span><span class="p">,</span>
+<span class="gp">... </span>      <span class="p">{</span><span class="s">&#39;install_method&#39;</span><span class="p">:</span> <span class="s">&#39;puppet&#39;</span><span class="p">,</span> <span class="s">&#39;mirror&#39;</span><span class="p">:</span> <span class="s">&#39;http://ftp.de.debian.org/debian&#39;</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">updateMirror</span><span class="p">(</span><span class="n">distribution</span><span class="o">=</span><span class="s">&quot;debian&quot;</span><span class="p">,</span> <span class="n">components</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;main&quot;</span><span class="p">],</span> <span class="n">sections</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;shells&quot;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">createRelease</span><span class="p">(</span><span class="s">&quot;debian&quot;</span><span class="p">,</span> <span class="s">&quot;squeeze&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.createRelease">
+<tt class="descname">createRelease</tt><big>(</big><em>distribution</em>, <em>name</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.createRelease" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-3">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Create a new release belonging to a distribution. It
+can optionally have a parent release. Parent releases are specified
+using the name field: i.e. name = &#8216;lenny/5.0.4&#8217;</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="41%" />
+<col width="59%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>distribution</td>
+<td>The distribution name</td>
+</tr>
+<tr><td>name</td>
+<td>The release name</td>
+</tr>
+</tbody>
+</table>
+<p>An usage example can be found at <tt class="xref py py-meth docutils literal"><span class="pre">libinst.manage.LibinstManger.createDistribution()</span></tt>.</p>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.getArchitectures">
+<tt class="descname">getArchitectures</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getArchitectures" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-4">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>List available architectures per release, distribution or global.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="84%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>m_hash</td>
+<td>Dictionary with release name or distribution name</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">getArchitectures</span><span class="p">({</span><span class="s">&#39;release&#39;</span><span class="p">:</span> <span class="s">&#39;squeeze/1.0&#39;</span><span class="p">})</span>
+<span class="go">[{&#39;name&#39;: &#39;amd64&#39;, &#39;description&#39;: None}]</span>
+</pre></div>
+</div>
+<p>The resulting dictionary contains this information:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="27%" />
+<col width="73%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>Release name</td>
+</tr>
+<tr><td>description</td>
+<td>Description</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict describing the archtiectures</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.getConfigItem">
+<tt class="descname">getConfigItem</tt><big>(</big><em>release</em>, <em>path</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getConfigItem" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-5">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Get a dict describing the addressed config item.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>release</td>
+<td>Release name</td>
+</tr>
+<tr><td>path</td>
+<td>Path to the item</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">getConfigItem</span><span class="p">(</span><span class="s">&#39;squeeze/1.0&#39;</span><span class="p">,</span> <span class="s">&#39;/gon-base&#39;</span><span class="p">)</span>
+<span class="go">{&#39;dependency&#39;: [], &#39;version&#39;: &#39;11&#39;, &#39;name&#39;: &#39;gon-base&#39;, &#39;description&#39;: None}</span>
+</pre></div>
+</div>
+<p>The resulting dict depends on the parameters that are possible
+for the defined item.</p>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.getDistribution">
+<tt class="descname">getDistribution</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getDistribution" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-6">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Return information about the named distribution.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="21%" />
+<col width="79%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>m_hash</td>
+<td>Dictionary with distribution name</td>
+</tr>
+</tbody>
+</table>
+<p>For information about the returned dict, please see
+<a class="reference internal" href="#libinst.manage.LibinstManager.getDistributions" title="libinst.manage.LibinstManager.getDistributions"><tt class="xref py py-meth docutils literal"><span class="pre">libinst.manage.LibinstManager.getDistributions()</span></tt></a>.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">getDistribution</span><span class="p">({</span><span class="s">&#39;distribution&#39;</span><span class="p">:</span> <span class="s">&#39;debian&#39;</span><span class="p">})</span>
+<span class="go">{&#39;origin&#39;: None, &#39;installation_method&#39;: &#39;puppet&#39;, &#39;last_updated&#39;: None, &#39;name&#39;: &#39;debian&#39;, &#39;releases&#39;: [{&#39;origin&#39;: None, &#39;codename&#39;: None, &#39;name&#39;: &#39;squeeze&#39;, &#39;parent&#39;: None}, {&#39;origin&#39;: None, &#39;codename&#39;: None, &#39;name&#39;: &#39;squeeze/1.0&#39;, &#39;parent&#39;: {&#39;origin&#39;: None, &#39;codename&#39;: None, &#39;name&#39;: &#39;squeeze&#39;, &#39;parent&#39;: None}}], &#39;sections&#39;: [{&#39;name&#39;: &#39;sound&#39;, &#39;description&#39;: None}, {&#39;name&#39;: &#39;kernel&#39;, &#39;description&#39;: None}, {&#39;name&#39;: &#39;debug&#39;, &#39;description&#39;: None}], &#39;type&#39;: {&#39;name&#39;: &#39;deb&#39;, &#39;description&#39;: &#39;&#39;}, &#39;debian_volatile&#39;: None, &#39;debian_security&#39;: None, &#39;architectures&#39;: [{&#39;name&#39;: &#39;i386&#39;, &#39;description&#39;: None}, {&#39;name&#39;: &#39;amd64&#39;, &#39;description&#39;: None}, {&#39;name&#39;: &#39;source&#39;, &#39;description&#39;: None}], &#39;components&#39;: [{&#39;name&#39;: &#39;main&#39;, &#39;description&#39;: None}], &#39;path&#39;: &#39;/srv/repository/data/debian&#39;, &#39;mirror_sources&#39;: False, &#39;managed&#39;: True}</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dictionary describing the distribution</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.getDistributions">
+<tt class="descname">getDistributions</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getDistributions" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-7">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Return a list of distribution descriptions from the database.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">getDistributions</span><span class="p">()</span>
+<span class="go">[{&#39;origin&#39;: None, &#39;installation_method&#39;: &#39;puppet&#39;, &#39;last_updated&#39;: None, &#39;name&#39;: &#39;debian&#39;, &#39;releases&#39;: [{&#39;origin&#39;: None, &#39;codename&#39;: None, &#39;name&#39;: &#39;squeeze&#39;, &#39;parent&#39;: None}, {&#39;origin&#39;: None, &#39;codename&#39;: None, &#39;name&#39;: &#39;squeeze/1.0&#39;, &#39;parent&#39;: {&#39;origin&#39;: None, &#39;codename&#39;: None, &#39;name&#39;: &#39;squeeze&#39;, &#39;parent&#39;: None}}], &#39;sections&#39;: [{&#39;name&#39;: &#39;sound&#39;, &#39;description&#39;: None}, {&#39;name&#39;: &#39;kernel&#39;, &#39;description&#39;: None}, {&#39;name&#39;: &#39;debug&#39;, &#39;description&#39;: None}], &#39;type&#39;: {&#39;name&#39;: &#39;deb&#39;, &#39;description&#39;: &#39;&#39;}, &#39;debian_volatile&#39;: None, &#39;debian_security&#39;: None, &#39;architectures&#39;: [{&#39;name&#39;: &#39;i386&#39;, &#39;description&#39;: None}, {&#39;name&#39;: &#39;amd64&#39;, &#39;description&#39;: None}, {&#39;name&#39;: &#39;source&#39;, &#39;description&#39;: None}], &#39;components&#39;: [{&#39;name&#39;: &#39;main&#39;, &#39;description&#39;: None}], &#39;path&#39;: &#39;/srv/repository/data/debian&#39;, &#39;mirror_sources&#39;: False, &#39;managed&#39;: True}]</span>
+</pre></div>
+</div>
+<p>Every list element is a dictionary with these keys:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="27%" />
+<col width="73%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>Distribution name</td>
+</tr>
+<tr><td>origin</td>
+<td>TODO</td>
+</tr>
+<tr><td>installation_method</td>
+<td>Method to be used for this distribution</td>
+</tr>
+<tr><td>last_updated</td>
+<td>Timestamp of last update</td>
+</tr>
+<tr><td>releases</td>
+<td>List of releases the use this distribution as parent</td>
+</tr>
+<tr><td>sections</td>
+<td>List of sections in this distribution</td>
+</tr>
+<tr><td>components</td>
+<td>List of components in this distribution</td>
+</tr>
+<tr><td>architectures</td>
+<td>List of supported architectures</td>
+</tr>
+<tr><td>path</td>
+<td>Local mirror path</td>
+</tr>
+<tr><td>mirror_sources</td>
+<td>Flag whether to mirror sources or not</td>
+</tr>
+<tr><td>managed</td>
+<td>TODO</td>
+</tr>
+</tbody>
+</table>
+<p>The list of releases contains descriptive dicts, too:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="27%" />
+<col width="73%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>Name of the release</td>
+</tr>
+<tr><td>codename</td>
+<td>Codename of the release</td>
+</tr>
+<tr><td>parent</td>
+<td>TODO</td>
+</tr>
+<tr><td>origin</td>
+<td>TODO</td>
+</tr>
+</tbody>
+</table>
+<p>In the debian way of packaging, sections are something like <em>sound</em>, <em>net</em>, etc.
+The list of sections contains descriptive dicts, too:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="27%" />
+<col width="73%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>Name of the section</td>
+</tr>
+<tr><td>description</td>
+<td>Descriptive text</td>
+</tr>
+</tbody>
+</table>
+<p>In the debian way of packaging, components are something like <em>main</em>, <em>contrib</em>, etc.
+The list of components contains descriptive dicts, too:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="27%" />
+<col width="73%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>Name of the component</td>
+</tr>
+<tr><td>description</td>
+<td>Descriptive text</td>
+</tr>
+</tbody>
+</table>
+<p>The list of architectures contains descriptive dicts, too:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="27%" />
+<col width="73%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>Name of the architecture</td>
+</tr>
+<tr><td>description</td>
+<td>Descriptive text</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> list of dicts</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.getKernelPackages">
+<tt class="descname">getKernelPackages</tt><big>(</big><em>release</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getKernelPackages" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-8">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Get a dict describing the available kernel packages for a release.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>release</td>
+<td>Release name</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">getKernelPackages</span><span class="p">(</span><span class="s">&#39;squeeze/1.0&#39;</span><span class="p">)</span>
+<span class="go">[{&#39;files&#39;: [{&#39;md5sum&#39;: &#39;4b827524cf3d3c77e91f4afa089cf196&#39;, &#39;name&#39;: &#39;linux-image-2.6.32-5-xen-amd64_2.6.32-31_amd64.deb&#39;, &#39;size&#39;: &#39;28592546&#39;}], &#39;origin&#39;: &#39;http://ftp.de.debian.org/debian/pool/main/l/linux-2.6/linux-image-2.6.32-5-xen-amd64_2.6.32-31_amd64.deb&#39;, &#39;recommends&#39;: &#39;firmware-linux-free (&gt;= 2.6.32)&#39;, &#39;maintainer&#39;: &#39;Debian Kernel Team &lt;debian-kernel@lists.debian.org&gt;&#39;, &#39;description&#39;: &#39;Linux 2.6.32 for 64-bit PCs, Xen dom0 support&#39;, &#39;format&#39;: None, &#39;type&#39;: &#39;deb&#39;, &#39;section&#39;: &#39;kernel&#39;, &#39;suggests&#39;: &#39;linux-doc-2.6.32, grub&#39;, &#39;component&#39;: &#39;main&#39;, &#39;standards_version&#39;: &#39;2.0&#39;, &#39;priority&#39;: &#39;optional&#39;, &#39;source&#39;: &#39;linux-2.6&#39;, &#39;depends&#39;: &#39;module-init-tools, linux-base (&gt;= 2.6.32-31), initramfs-tools (&gt;= 0.55)&#39;, &#39;version&#39;: &#39;2.6.32-31&#39;, &#39;build_depends&#39;: None, &#39;provides&#39;: &#39;linux-image, linux-image-2.6, linux-modules-2.6.32-5-xen-amd64&#39;, &#39;installed_size&#39;: &#39;97340&#39;, &#39;arch&#39;: &#39;amd64&#39;, &#39;long_description&#39;: &#39;  The Linux kernel 2.6.32 and modules for use on PCs with AMD64 or Intel 64</span>
+<span class="go">processors.</span>
+<span class="go">.</span>
+<span class="go">This kernel also runs on a Xen hypervisor.  It supports both privileged</span>
+<span class="go">(dom0) and unprivileged (domU) operation.&#39;, &#39;name&#39;: &#39;linux-image-2.6.32-5-xen-amd64&#39;}]</span>
+</pre></div>
+</div>
+<p>The result is a package list like delivered by
+<a class="reference internal" href="#libinst.manage.LibinstManager.getPackages" title="libinst.manage.LibinstManager.getPackages"><tt class="xref py py-meth docutils literal"><span class="pre">libinst.manage.LibinstManager.getPackages()</span></tt></a>.</p>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.getKeyboardModels">
+<tt class="descname">getKeyboardModels</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getKeyboardModels" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-9">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>List available keyboard models.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">getKeyboardModels</span><span class="p">()</span>
+<span class="go">{&#39;gr&#39;: [&#39;Greek&#39;, &#39;gr,us&#39;, &#39;pc105&#39;, &#39;&#39;, &#39;grp:shifts_toggle,grp_led:scroll&#39;], ... }</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.getMirrorURL">
+<tt class="descname">getMirrorURL</tt><big>(</big><em>release</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getMirrorURL" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-10">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Return the URL to an external repository for the provided release.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">getMirrorURL</span><span class="p">(</span><span class="s">&quot;squeeze&quot;</span><span class="p">)</span>
+<span class="go">&#39;http://mirror.example.net/debian/squeeze&#39;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="21%" />
+<col width="79%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>release</td>
+<td>Target release to query for mirror</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> mirror URL</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.getPackageInformation">
+<tt class="descname">getPackageInformation</tt><big>(</big><em>release</em>, <em>arch</em>, <em>package</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getPackageInformation" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-11">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>getPackageInformation returns a dictionary containing package information.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.getPackages">
+<tt class="descname">getPackages</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getPackages" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-12">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>List available packages using the specified criteria.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>release</td>
+<td>Optional release instance or release name</td>
+</tr>
+<tr><td>arch</td>
+<td>Optional name or instance of architecture (i.e. &#8216;i386&#8217;, &#8216;amd64&#8217;)</td>
+</tr>
+<tr><td>component</td>
+<td>Optional name or instance of component (i.e. &#8216;main&#8217;, &#8216;contrib&#8217;)</td>
+</tr>
+<tr><td>section</td>
+<td>Optional name or instance of section (i.e. &#8216;text&#8217;, &#8216;utils&#8217;)</td>
+</tr>
+<tr><td>custom_filter</td>
+<td>TODO</td>
+</tr>
+<tr><td>offset</td>
+<td>Offset to begin with, starting with 0</td>
+</tr>
+<tr><td>limit</td>
+<td>Limit result entries</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">getPackages</span><span class="p">({</span><span class="s">&#39;releases&#39;</span><span class="p">:</span><span class="s">&quot;sqeeze/1.0&quot;</span><span class="p">,</span> <span class="s">&#39;section&#39;</span><span class="p">:</span><span class="s">&#39;kernel&#39;</span><span class="p">})</span>
+<span class="gp">...</span>
+</pre></div>
+</div>
+<p>The result list consists of hashes with these keys:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="27%" />
+<col width="73%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>Package name</td>
+</tr>
+<tr><td>files</td>
+<td>List of files that belong to this package</td>
+</tr>
+<tr><td>arch</td>
+<td>Package architecture</td>
+</tr>
+<tr><td>long_description</td>
+<td>Description</td>
+</tr>
+<tr><td>description</td>
+<td>Package description</td>
+</tr>
+<tr><td>origin</td>
+<td>Source URL</td>
+</tr>
+<tr><td>recommends</td>
+<td>List of recommended packages</td>
+</tr>
+<tr><td>suggests</td>
+<td>List of dependency suggestsions</td>
+</tr>
+<tr><td>depends</td>
+<td>List of dependencies</td>
+</tr>
+<tr><td>build_depends</td>
+<td>List of build dependencies</td>
+</tr>
+<tr><td>provides</td>
+<td>List of alias names</td>
+</tr>
+<tr><td>maintainer</td>
+<td>Contact of the package maintainers</td>
+</tr>
+<tr><td>format</td>
+<td>TODO</td>
+</tr>
+<tr><td>type</td>
+<td>Package type (i.e. deb)</td>
+</tr>
+<tr><td>section</td>
+<td>Section this package is part of</td>
+</tr>
+<tr><td>component</td>
+<td>Component this package is part of</td>
+</tr>
+<tr><td>standards_version</td>
+<td>Standards version for this package</td>
+</tr>
+<tr><td>priority</td>
+<td>Package priority</td>
+</tr>
+<tr><td>source</td>
+<td>Source URL</td>
+</tr>
+<tr><td>installed_size</td>
+<td>Number of bytes that will be used on the harddisk</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> list of package names</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.getPackagesInformation">
+<tt class="descname">getPackagesInformation</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getPackagesInformation" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-13">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Like getPackages, but returns a complete dictionary with package information.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.getRelease">
+<tt class="descname">getRelease</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getRelease" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-14">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Returns information about the privided release.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="76%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>m_hash</td>
+<td>Dictionary with release name</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">getRelease</span><span class="p">({</span><span class="s">&#39;release&#39;</span><span class="p">:</span> <span class="s">&#39;squeeze/1.0&#39;</span><span class="p">})</span>
+<span class="go">{&#39;origin&#39;: None, &#39;codename&#39;: None, &#39;name&#39;: &#39;squeeze/1.0&#39;, &#39;parent&#39;: {&#39;origin&#39;: None, &#39;codename&#39;: None, &#39;name&#39;: &#39;squeeze&#39;, &#39;parent&#39;: None}}</span>
+</pre></div>
+</div>
+<p>The resulting dictionary contains this information:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="27%" />
+<col width="73%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>Release name</td>
+</tr>
+<tr><td>codename</td>
+<td>Code name</td>
+</tr>
+<tr><td>origin</td>
+<td>TODO</td>
+</tr>
+<tr><td>parent</td>
+<td>Parent release information</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict with information</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.getReleases">
+<tt class="descname">getReleases</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getReleases" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-15">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>List releases by distribution or all.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">getReleases</span><span class="p">({</span><span class="s">&#39;distribution&#39;</span><span class="p">:</span> <span class="s">&#39;debian&#39;</span><span class="p">})</span>
+<span class="go">[{&#39;origin&#39;: None, &#39;codename&#39;: None, &#39;name&#39;: &#39;squeeze&#39;, &#39;parent&#39;: None}, {&#39;origin&#39;: None, &#39;codename&#39;: None, &#39;name&#39;: &#39;squeeze/1.0&#39;, &#39;parent&#39;: {&#39;origin&#39;: None, &#39;codename&#39;: None, &#39;name&#39;: &#39;squeeze&#39;, &#39;parent&#39;: None}}]</span>
+</pre></div>
+</div>
+<p>A release dict contains the following keys:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="27%" />
+<col width="73%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>Name of the release</td>
+</tr>
+<tr><td>codename</td>
+<td>Codename of the release</td>
+</tr>
+<tr><td>origin</td>
+<td>TODO</td>
+</tr>
+<tr><td>parent</td>
+<td>TODO</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> list of dicts</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.getRepositoryTypes">
+<tt class="descname">getRepositoryTypes</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getRepositoryTypes" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-16">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>List used repository types from the database including their description:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">getRepositoryTypes</span><span class="p">()</span>
+<span class="go">[&#39;deb&#39;: &#39;&#39;, &#39;dsc&#39;: &#39;&#39;]</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> Dictionary pairing name with description</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.getSections">
+<tt class="descname">getSections</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getSections" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-17">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>List available sections per release, distribution or global.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="84%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>m_hash</td>
+<td>Dictionary with release name or distribution name</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">getSections</span><span class="p">({</span><span class="s">&#39;release&#39;</span><span class="p">:</span> <span class="s">&#39;squeeze/1.0&#39;</span><span class="p">})</span>
+<span class="go">[{&#39;name&#39;: &#39;kernel&#39;, &#39;description&#39;: None}, {&#39;name&#39;: &#39;sound&#39;, &#39;description&#39;: None}]</span>
+</pre></div>
+</div>
+<p>The resulting dictionary contains this information:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="27%" />
+<col width="73%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>Release name</td>
+</tr>
+<tr><td>description</td>
+<td>Description</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict describing the sections</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.getSupportedBaseInstallMethods">
+<tt class="descname">getSupportedBaseInstallMethods</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getSupportedBaseInstallMethods" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-18">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>List the registered <a class="reference internal" href="repository.html#libinst.methods.BaseInstallMethod" title="libinst.methods.BaseInstallMethod"><tt class="xref py py-class docutils literal"><span class="pre">libinst.methods.BaseInstallMethod</span></tt></a> methods.
+Registration works by specifying a setuptools <tt class="docutils literal"><span class="pre">[libinst.base_methods]</span></tt>
+entrypoint.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">getSupportedBaseInstallMethods</span><span class="p">()</span>
+<span class="go">{&#39;preseed&#39;: {&#39;title&#39;: &#39;Debian preseed installation method&#39;,</span>
+<span class="go">&#39;repositories&#39;: [&#39;deb&#39;], &#39;methods&#39;: [&#39;puppet&#39;], &#39;name&#39;: &#39;Preseed&#39;,</span>
+<span class="go">&#39;description&#39;: &#39;Base installation using the debian installer&#39;}}</span>
+</pre></div>
+</div>
+<p>The returned dictionary has the install method name as the key and
+these information keys:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>Symbolic name of the method</td>
+</tr>
+<tr><td>title</td>
+<td>Short description</td>
+</tr>
+<tr><td>description</td>
+<td>Long description</td>
+</tr>
+<tr><td>repositories</td>
+<td>List of supported repositories</td>
+</tr>
+<tr><td>methods</td>
+<td>List of supported configuration methods</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dictionary</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.getSupportedInstallMethods">
+<tt class="descname">getSupportedInstallMethods</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getSupportedInstallMethods" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-19">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>List the registered <a class="reference internal" href="repository.html#libinst.methods.InstallMethod" title="libinst.methods.InstallMethod"><tt class="xref py py-class docutils literal"><span class="pre">libinst.methods.InstallMethod</span></tt></a> methods.
+Registration works by specifying a setuptools <tt class="docutils literal"><span class="pre">[libinst.methods]</span></tt>
+entrypoint.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">getSupportedInstallMethods</span><span class="p">()</span>
+<span class="go">{&#39;puppet&#39;: ....}</span>
+</pre></div>
+</div>
+<p>The returned dictionary has the install method name as the key and
+these information keys:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>Display name of the method</td>
+</tr>
+<tr><td>description</td>
+<td>Long description</td>
+</tr>
+<tr><td>title</td>
+<td>Short description</td>
+</tr>
+<tr><td>items</td>
+<td>Symbolic name of the method</td>
+</tr>
+<tr><td>repositories</td>
+<td>List of supported repositories</td>
+</tr>
+</tbody>
+</table>
+<p>The items are a dictionary by themselves, where the key is the item name:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>Display name of the item</td>
+</tr>
+<tr><td>description</td>
+<td>Long description of the item</td>
+</tr>
+<tr><td>container</td>
+<td>List of sub-items this item can contain</td>
+</tr>
+<tr><td>options</td>
+<td>Description of supported item options</td>
+</tr>
+</tbody>
+</table>
+<p>The item options are a dictionary by themselves, where the key is the option name:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="76%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>display</td>
+<td>Display label</td>
+</tr>
+<tr><td>description</td>
+<td>Long description</td>
+</tr>
+<tr><td>default</td>
+<td>Default value</td>
+</tr>
+<tr><td>required</td>
+<td>Flag if option is mandatory</td>
+</tr>
+<tr><td>value</td>
+<td>Current value (if applicable)</td>
+</tr>
+<tr><td>type</td>
+<td>Option type (file, string, bool, integer)</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dictionary</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.getSupportedRepositoryTypes">
+<tt class="descname">getSupportedRepositoryTypes</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getSupportedRepositoryTypes" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-20">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>List registered <tt class="xref py py-class docutils literal"><span class="pre">libinst.interface.DistributionHandler</span></tt> objects.
+Registration works by specifying a setuptools <tt class="docutils literal"><span class="pre">[libinst.repository]</span></tt>
+entrypoint.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">getSupportedRepositoryTypes</span><span class="p">()</span>
+<span class="go">[&#39;deb&#39;, &#39;udeb&#39;, &#39;dsc&#39;]</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> list</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.getSystemLocales">
+<tt class="descname">getSystemLocales</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getSystemLocales" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-21">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>List available system locales.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">getSystemLocales</span><span class="p">()</span>
+<span class="go">{&#39;sk_SK.UTF-8&#39;: &#39;Slovak&#39;, &#39;ml_IN.UTF-8&#39;: &#39;Malayalam (India)&#39;, &#39;ar_QA.UTF-8&#39;: &#39;Arabic (Qatar)&#39;, ...}</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.getTimezones">
+<tt class="descname">getTimezones</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.getTimezones" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-22">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>List available timezones.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">getTimezones</span><span class="p">()</span>
+<span class="go">[&#39;Africa/Abidjan&#39;, &#39;Africa/Accra&#39;, &#39;Africa/Addis_Ababa&#39;, ...]</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> list</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.initializeDatabase">
+<tt class="descname">initializeDatabase</tt><big>(</big><em>engine</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.initializeDatabase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the database by dropping everything and recreating the
+table schema.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.installGetTemplate">
+<tt class="descname">installGetTemplate</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.installGetTemplate" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-23">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Get template by name</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="44%" />
+<col width="56%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>Template name</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">agent</span><span class="o">.</span><span class="n">installGetTemplate</span><span class="p">(</span><span class="s">&#39;debian-test&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+</pre></div>
+</div>
+<p>Please take a look at
+<a class="reference internal" href="#libinst.manage.LibinstManager.installSetTemplate" title="libinst.manage.LibinstManager.installSetTemplate"><tt class="xref py py-meth docutils literal"><span class="pre">libinst.manage.LibinstManager.installSetTemplate()</span></tt></a>
+for more information about the returned properties.</p>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict describing template</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.installListTemplates">
+<tt class="descname">installListTemplates</tt><big>(</big><em>method=None</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.installListTemplates" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-24">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>List available templates - optionally by method.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>method</td>
+<td>Optional method to filter for</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">agent</span><span class="o">.</span><span class="n">installListTemplates</span><span class="p">()</span>
+<span class="go">{&#39;test&#39;: {&#39;description&#39;: &#39;test&#39;, &#39;method&#39;: &#39;preseed&#39;}, &#39;debian-test&#39;: {&#39;description&#39;: &#39;Test&#39;, &#39;method&#39;: &#39;preseed&#39;}}</span>
+</pre></div>
+</div>
+<p>The resulting dict has the template name as key and a property
+dict with these keys:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>method</td>
+<td>Name of the assigned template method</td>
+</tr>
+<tr><td>description</td>
+<td>Description of the template</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict describing templates</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.installRemoveTemplate">
+<tt class="descname">installRemoveTemplate</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.installRemoveTemplate" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-25">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Remove existing template by name.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="44%" />
+<col width="56%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>Template name</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.installSetTemplate">
+<tt class="descname">installSetTemplate</tt><big>(</big><em>name</em>, <em>data</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.installSetTemplate" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-26">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Set template by name and data.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="44%" />
+<col width="56%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>Template name</td>
+</tr>
+<tr><td>data</td>
+<td>Template data</td>
+</tr>
+</tbody>
+</table>
+<p><em>data</em> is a dictionary with these keys:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>method</td>
+<td>Name of the assigned template method</td>
+</tr>
+<tr><td>description</td>
+<td>Description of the template</td>
+</tr>
+<tr><td>data</td>
+<td>The template string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.listAssignableElements">
+<tt class="descname">listAssignableElements</tt><big>(</big><em>release</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.listAssignableElements" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-27">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>List items that can be assigned to a client for a specific release.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>release</td>
+<td>Name of the release to list config items of</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">listAssignableElements</span><span class="p">(</span><span class="s">&#39;squeeze/1.0&#39;</span><span class="p">)</span>
+<span class="go">{&#39;gon-base::users&#39;: {&#39;parameter&#39;: {&#39;starting_uid&#39;: &#39;this global variable is used to set the minimum uid used for our users</span>
+</pre></div>
+</div>
+<p>&#8216;}, &#8216;description&#8217;: &#8216;This class installs our default set of users in our servers&#8217;}, &#8216;gon-base::sudo&#8217;: {&#8216;parameter&#8217;: {}, &#8216;description&#8217;: &#8216;This class installs our default sudoers file.&#8217;}}</p>
+<p>The resulting dictionary contains the assignable object name as the key and
+potential parameter descriptions as a nested dict:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="27%" />
+<col width="73%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>parameter</td>
+<td>Parameter dictionary</td>
+</tr>
+<tr><td>description</td>
+<td>Item description</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.listConfigItems">
+<tt class="descname">listConfigItems</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.listConfigItems" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-28">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>List configuration items for given release</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>release</td>
+<td>Name of the release to list config items of</td>
+</tr>
+<tr><td>item_type</td>
+<td>Filter items by type</td>
+</tr>
+<tr><td>path</td>
+<td>Filter items by path</td>
+</tr>
+<tr><td>children</td>
+<td>Filter items by children</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">listConfigItems</span><span class="p">(</span><span class="s">&#39;squeeze/1.0&#39;</span><span class="p">)</span>
+<span class="go">{&#39;/gon-base/sudoers&#39;: &#39;PuppetFile&#39;, &#39;/gon-base&#39;: &#39;PuppetModule&#39;, &#39;/gon-base/users&#39;: &#39;PuppetManifest&#39;, &#39;/gon-base/sudo&#39;: &#39;PuppetManifest&#39;, &#39;/&#39;: &#39;PuppetRoot&#39;}</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict path/type pair</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.listKeys">
+<tt class="descname">listKeys</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.listKeys" title="Permalink to this definition">¶</a></dt>
+<dd><p>List available keys.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">manager</span> <span class="o">=</span> <span class="n">LibinstManager</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">manager</span><span class="o">.</span><span class="n">listKeys</span><span class="p">()</span>
+<span class="go">[]</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> list of key_id/key pairs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.prepareSystem">
+<tt class="descname">prepareSystem</tt><big>(</big><em>device_uuid</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.prepareSystem" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-29">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Prepare a client device for beeing managed by the
+configured config management method. This may create
+some account or install a daemon - or whatever is needed
+to manage it.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="32%" />
+<col width="68%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>device_uuid</td>
+<td>Unique ID of the device</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.removeBaseInstallParameters">
+<tt class="descname">removeBaseInstallParameters</tt><big>(</big><em>device_uuid</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.removeBaseInstallParameters" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-30">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Disable device base install capabilities.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>device_uuid</td>
+<td>Unique identifier of a device</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.removeConfigItem">
+<tt class="descname">removeConfigItem</tt><big>(</big><em>release</em>, <em>path</em>, <em>children=None</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.removeConfigItem" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-31">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Remove specified item.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>release</td>
+<td>Release name</td>
+</tr>
+<tr><td>path</td>
+<td>Path to the item</td>
+</tr>
+<tr><td>children</td>
+<td>Remove children</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">removeConfigItem</span><span class="p">(</span><span class="s">&#39;squeeze&#39;</span><span class="p">,</span> <span class="s">&#39;/module&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.removeConfigParameters">
+<tt class="descname">removeConfigParameters</tt><big>(</big><em>device_uuid</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.removeConfigParameters" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-32">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Disable device configuration managmenet.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>device_uuid</td>
+<td>Unique identifier of a device</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.removeDistribution">
+<tt class="descname">removeDistribution</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.removeDistribution" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-33">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Remove an existing distribution. It checks the dependencies and will
+not remove a parent distribution until the recursive parameter is specified.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="32%" />
+<col width="68%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>distribution</td>
+<td>The distribution name</td>
+</tr>
+<tr><td>recursive</td>
+<td>Remove all release children, too</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.removeKey">
+<tt class="descname">removeKey</tt><big>(</big><em>key_id</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.removeKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove key with given fingerprint.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="38%" />
+<col width="62%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>key_id</td>
+<td>Key fingerprint</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">manager</span> <span class="o">=</span> <span class="n">LibinstManager</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">manager</span><span class="o">.</span><span class="n">removeKey</span><span class="p">(</span><span class="s">&quot;BC4BBE72DA12A270&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.removeMirrorProperty">
+<tt class="descname">removeMirrorProperty</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.removeMirrorProperty" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-34">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Remove properties of an existing distribution mirror definition.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="42%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>distribution</td>
+<td>The distribution name</td>
+</tr>
+<tr><td>arch</td>
+<td>List of architectures</td>
+</tr>
+<tr><td>component</td>
+<td>List of components</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.removePackage">
+<tt class="descname">removePackage</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.removePackage" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-35">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Removes a package from a release.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="38%" />
+<col width="62%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>package</td>
+<td>Package name</td>
+</tr>
+<tr><td>release</td>
+<td>Name of the release</td>
+</tr>
+<tr><td>distribution</td>
+<td>Name of the distribution</td>
+</tr>
+<tr><td>arch</td>
+<td>Architecture</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">removePackage</span><span class="p">(</span><span class="s">&quot;jaaa&quot;</span><span class="p">,</span> <span class="n">release</span><span class="o">=</span><span class="s">&quot;squeeze/1.0&quot;</span><span class="p">,</span> <span class="n">arch</span><span class="o">=</span><span class="s">&quot;source&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.removeRelease">
+<tt class="descname">removeRelease</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.removeRelease" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-36">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Remove an existing release. It checks the dependencies and will
+not remove a parent release until the recursive parameter is specified.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="32%" />
+<col width="68%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>release</td>
+<td>The release name</td>
+</tr>
+<tr><td>recursive</td>
+<td>Remove all release children, too</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">removeRelease</span><span class="p">(</span><span class="n">release</span><span class="o">=</span><span class="s">&quot;squeeze&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.renameRelease">
+<tt class="descname">renameRelease</tt><big>(</big><em>source</em>, <em>target</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.renameRelease" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-37">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>renameRelease changes the name from source to target.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="44%" />
+<col width="56%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>source</td>
+<td>Source release name</td>
+</tr>
+<tr><td>target</td>
+<td>Target release name</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">renameRelease</span><span class="p">(</span><span class="s">&quot;squeeze&quot;</span><span class="p">,</span> <span class="s">&quot;wheezy&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.setConfigItem">
+<tt class="descname">setConfigItem</tt><big>(</big><em>release</em>, <em>path</em>, <em>item_type</em>, <em>data</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.setConfigItem" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-38">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Create or update item by setting specified parameters.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>release</td>
+<td>Release name</td>
+</tr>
+<tr><td>path</td>
+<td>Path to the item</td>
+</tr>
+<tr><td>item_type</td>
+<td>Type of the target item</td>
+</tr>
+<tr><td>data</td>
+<td>Parameter dict containing item information</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">setConfigItem</span><span class="p">(</span><span class="s">&#39;wheezy&#39;</span><span class="p">,</span> <span class="s">&#39;/module&#39;</span><span class="p">,</span> <span class="s">&#39;PuppetModule&#39;</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">{</span><span class="s">&#39;dependency&#39;</span><span class="p">:</span> <span class="p">[],</span>
+<span class="gp">... </span> <span class="s">&#39;version&#39;</span><span class="p">:</span> <span class="s">&#39;42&#39;</span><span class="p">,</span>
+<span class="gp">... </span> <span class="s">&#39;description&#39;</span><span class="p">:</span> <span class="s">&#39;A senseles puppet module&#39;</span><span class="p">})</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.setDistribution">
+<tt class="descname">setDistribution</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.setDistribution" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-39">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Modify properties of an existing distribution.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="41%" />
+<col width="59%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>distribution</td>
+<td>The distribution name</td>
+</tr>
+<tr><td>arch</td>
+<td>List of architectures</td>
+</tr>
+<tr><td>component</td>
+<td>List of components</td>
+</tr>
+<tr><td>mirror_sources</td>
+<td>Flag to mirror sources</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">..</span><span class="n">setDistribution</span><span class="p">(</span>
+<span class="gp">... </span><span class="p">{</span>
+<span class="gp">... </span>    <span class="s">&#39;component&#39;</span><span class="p">:</span> <span class="p">[],</span>
+<span class="gp">... </span>    <span class="s">&#39;distribution&#39;</span><span class="p">:</span> <span class="s">&#39;debian&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s">&#39;arch&#39;</span><span class="p">:</span> <span class="p">[],</span>
+<span class="gp">... </span>    <span class="s">&#39;mirror_sources&#39;</span><span class="p">:</span> <span class="bp">False</span>
+<span class="gp">... </span><span class="p">})</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.systemGetBaseInstallMethod">
+<tt class="descname">systemGetBaseInstallMethod</tt><big>(</big><em>device_uuid</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.systemGetBaseInstallMethod" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-40">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Return the systems base install method.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>device_uuid</td>
+<td>Unique identifier of a device</td>
+</tr>
+<tr><td>data</td>
+<td><em>Reserved for internal use</em></td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">systemGetBaseInstallMethod</span><span class="p">(</span><span class="s">&#39;2daf7cbf-75c2-4ea3-bfec-606fe9f07051&#39;</span><span class="p">)</span>
+<span class="go">&#39;preseed&#39;</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> String describing the base install method</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.systemGetBaseInstallParameters">
+<tt class="descname">systemGetBaseInstallParameters</tt><big>(</big><em>device_uuid</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.systemGetBaseInstallParameters" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-41">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Return the systems base install parameters that are used
+to fill up the template.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>device_uuid</td>
+<td>Optional unique identifier of a device</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">systemGetBaseInstallParameters</span><span class="p">(</span><span class="s">&#39;2daf7cbf-75c2-4ea3-bfec-606fe9f07051&#39;</span><span class="p">)</span>
+<span class="go">{&#39;utc&#39;: [&#39;TRUE&#39;], &#39;ntp-servers&#39;: [&#39;1.2.3.4&#39;], &#39;kernel&#39;: [&#39;linux-image-2.6.32-5-xen-amd64&#39;], &#39;root-hash&#39;: [&#39;{CRYPT}&#39;], &#39;root-user&#39;: [&#39;TRUE&#39;], &#39;disk-setup&#39;: [&#39;disk sda --initlabel --none;part pv.00 --size 1000 --ondisk sda;volgroup Kaese --format pv.00;&#39;], &#39;template&#39;: &#39;&lt;snip&gt;&#39;, &#39;system-locale&#39;: [&#39;de_DE.UTF-8&#39;], &#39;release&#39;: [&#39;debian/squeeze/1.0&#39;], &#39;timezone&#39;: [&#39;Europe/Berlin&#39;], &#39;keyboard-layout&#39;: [&#39;de-latin1-nodeadkeys&#39;]}</span>
+</pre></div>
+</div>
+<p>Please take a look at
+<a class="reference internal" href="#libinst.manage.LibinstManager.systemSetBaseInstallParameters" title="libinst.manage.LibinstManager.systemSetBaseInstallParameters"><tt class="xref py py-meth docutils literal"><span class="pre">libinst.manage.LibinstManager.systemSetBaseInstallParameters()</span></tt></a>
+for more information about the returned properties.</p>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict of properties</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.systemGetBootConfiguration">
+<tt class="descname">systemGetBootConfiguration</tt><big>(</big><em>device_uuid</em>, <em>mac=None</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.systemGetBootConfiguration" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-42">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Return the systems base install template based on either the
+device UUID or the MAC address.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>device_uuid</td>
+<td>Optional unique identifier of a device</td>
+</tr>
+<tr><td>mac</td>
+<td>Optional MAC</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">systemGetTemplate</span><span class="p">(</span><span class="s">&#39;2daf7cbf-75c2-4ea3-bfec-606fe9f07051&#39;</span><span class="p">)</span>
+<span class="go">&#39;the template code&#39;</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> Template as a string</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.systemGetBootParams">
+<tt class="descname">systemGetBootParams</tt><big>(</big><em>device_uuid</em>, <em>mac=None</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.systemGetBootParams" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-43">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Return the systems PXE boot string based on either the
+device UUID or the MAC address.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>device_uuid</td>
+<td>Optional unique identifier of a device</td>
+</tr>
+<tr><td>mac</td>
+<td>Optional MAC</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">systemGetBootParams</span><span class="p">(</span><span class="s">&#39;2daf7cbf-75c2-4ea3-bfec-606fe9f07051&#39;</span><span class="p">)</span>
+<span class="go">&#39;vga=normal initrd=debian-installer/i386/initrd.gz netcfg/choose_interface=eth0 locale=de_DE debian-installer/country=DE debian-installer/language=de debian-installer/keymap=de-latin1-nodeadkeys console-keymaps-at/keymap=de-latin1-nodeadkeys auto-install/enable=false preseed/url=https://amqp.example.net:8080/preseed/de-ad-d9-57-56-d5 debian/priority=critical hostname=test domain=example.net DEBCONF_DEBUG=5 svc_key=f1p8zRBGrUA26Nn+2qBS/JC8KOXHTEfgIEq5Le2WC4jW2xUuVzzHnO9LYiH8hYLNXHo7V9+2Aiz8</span>
+<span class="go">/XU6xxcusWUiMjXgdZcDe8wJtXR5krg=&#39;</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> Template as a string</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.systemGetConfigMethod">
+<tt class="descname">systemGetConfigMethod</tt><big>(</big><em>device_uuid</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.systemGetConfigMethod" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-44">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Return the systems configuration method.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>device_uuid</td>
+<td>Unique identifier of a device</td>
+</tr>
+<tr><td>data</td>
+<td><em>Reserved for internal use</em></td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">systemGetConfigMethod</span><span class="p">(</span><span class="s">&#39;2daf7cbf-75c2-4ea3-bfec-606fe9f07051&#39;</span><span class="p">)</span>
+<span class="go">&#39;puppet&#39;</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> Template as a string</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.systemGetConfigParameters">
+<tt class="descname">systemGetConfigParameters</tt><big>(</big><em>device_uuid</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.systemGetConfigParameters" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-45">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Return the systems config parameters that are used
+to provision the config management system.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>device_uuid</td>
+<td>Optional unique identifier of a device</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">systemGetConfigParameters</span><span class="p">(</span><span class="s">&#39;2daf7cbf-75c2-4ea3-bfec-606fe9f07051&#39;</span><span class="p">)</span>
+<span class="go">{&#39;var&#39;: {&#39;starting_uid&#39;: &#39;&#39;}, &#39;item&#39;: [&#39;gon-base::sudo&#39;, &#39;gon-base::users&#39;], &#39;method&#39;: &#39;puppet&#39;}</span>
+</pre></div>
+</div>
+<p>Please take a look at
+<a class="reference internal" href="#libinst.manage.LibinstManager.systemSetConfigParameters" title="libinst.manage.LibinstManager.systemSetConfigParameters"><tt class="xref py py-meth docutils literal"><span class="pre">libinst.manage.LibinstManager.systemSetConfigParameters()</span></tt></a>
+for more information about the returned properties.</p>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict of properties</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.systemSetBaseInstallParameters">
+<tt class="descname">systemSetBaseInstallParameters</tt><big>(</big><em>device_uuid</em>, <em>data</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.systemSetBaseInstallParameters" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-46">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Set the system base install parameters that are used
+to fill up the template.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>device_uuid</td>
+<td>Unique device identifier</td>
+</tr>
+<tr><td>data</td>
+<td>Dictionary specifying the properties</td>
+</tr>
+</tbody>
+</table>
+<p>The data dictionary has the following property keys (<strong>values are
+always lists</strong>):</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="78%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>utc</td>
+<td>Flag to specify if system uses UTC</td>
+</tr>
+<tr><td>timezone</td>
+<td>String to specify time zone</td>
+</tr>
+<tr><td>ntp-servers</td>
+<td>List of time server names/IPs</td>
+</tr>
+<tr><td>kernel</td>
+<td>The boot kernel package name</td>
+</tr>
+<tr><td>root-hash</td>
+<td>Hashed version of the root password</td>
+</tr>
+<tr><td>root-user</td>
+<td>Flag to decide if there&#8217;s a root user</td>
+</tr>
+<tr><td>disk-setup</td>
+<td>String oriented at the RedHat kickstart device string</td>
+</tr>
+<tr><td>template</td>
+<td>String containing the system template</td>
+</tr>
+<tr><td>system-locale</td>
+<td>Locale definition for the system</td>
+</tr>
+<tr><td>release</td>
+<td>Release to install on the system</td>
+</tr>
+<tr><td>keyboard-layout</td>
+<td>Keyboard layout to use</td>
+</tr>
+</tbody>
+</table>
+<p>These are the absolute base settings needed to install a device,
+additional stuff is done by configuration methods.</p>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.systemSetConfigParameters">
+<tt class="descname">systemSetConfigParameters</tt><big>(</big><em>device_uuid</em>, <em>data</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.systemSetConfigParameters" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-47">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Set the system config parameters that are used
+provision the config management system.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>device_uuid</td>
+<td>Unique device identifier</td>
+</tr>
+<tr><td>data</td>
+<td>Dictionary specifying the properties</td>
+</tr>
+</tbody>
+</table>
+<p>The data dictionary has the following property keys:
+always lists**):</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>item</td>
+<td>List of assigned items</td>
+</tr>
+<tr><td>method</td>
+<td>Config management method to use</td>
+</tr>
+<tr><td>var</td>
+<td>Dict of variables and their values</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True no success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.manage.LibinstManager.updateMirror">
+<tt class="descname">updateMirror</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#libinst.manage.LibinstManager.updateMirror" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-48">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Initially download or update a distribution from a mirror.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="31%" />
+<col width="69%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>distribution</td>
+<td>The distribution name</td>
+</tr>
+<tr><td>releases</td>
+<td>TODO</td>
+</tr>
+<tr><td>components</td>
+<td>List of components to download</td>
+</tr>
+<tr><td>architectures</td>
+<td>List of architectures to download</td>
+</tr>
+<tr><td>sections</td>
+<td>List of sections to download</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">updateMirror</span><span class="p">(</span><span class="n">distribution</span><span class="o">=</span><span class="s">&quot;debian&quot;</span><span class="p">,</span> <span class="n">components</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;main&quot;</span><span class="p">],</span> <span class="n">sections</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;shells&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Development</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="repository.html"
+                        title="next chapter">Repository modules</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/develop/api.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="repository.html" title="Repository modules"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Development"
+             >previous</a> |</li>
+        <li><a href="../index.html">libinst v3.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Development</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Cajus Pollmeier.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,323 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Repository modules &mdash; libinst v3.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/cindex.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/requirements.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="libinst v3.0 documentation" href="../index.html" />
+    <link rel="up" title="Development" href="index.html" />
+    <link rel="next" title="Base install modules" href="baseinstall.html" />
+    <link rel="prev" title="Libinst API" href="api.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="baseinstall.html" title="Base install modules"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="Libinst API"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">libinst v3.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Development</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-libinst.methods">
+<span id="repository-modules"></span><h1>Repository modules<a class="headerlink" href="#module-libinst.methods" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="libinst.methods.BaseInstallMethod">
+<em class="property">class </em><tt class="descclassname">libinst.methods.</tt><tt class="descname">BaseInstallMethod</tt><a class="headerlink" href="#libinst.methods.BaseInstallMethod" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the base install method interface class. It defines all relevant methods
+needed to interact with any install method. Implementations of this interface
+must implement all methods.</p>
+<dl class="method">
+<dt id="libinst.methods.BaseInstallMethod.getBootConfiguration">
+<tt class="descname">getBootConfiguration</tt><big>(</big><em>device_uuid</em>, <em>mac=None</em><big>)</big><a class="headerlink" href="#libinst.methods.BaseInstallMethod.getBootConfiguration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the complete boot configuration file needed to do a base
+bootstrapping.</p>
+<p>&#64;rtype: string
+&#64;return: multi line text</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.methods.BaseInstallMethod.getBootParams">
+<tt class="descname">getBootParams</tt><big>(</big><em>device_uuid</em>, <em>mac=None</em><big>)</big><a class="headerlink" href="#libinst.methods.BaseInstallMethod.getBootParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return boot parameters needed for that install method.</p>
+<p>&#64;rtype: list
+&#64;return: list of boot parameters</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="libinst.methods.BaseInstallMethod.getInfo">
+<em class="property">static </em><tt class="descname">getInfo</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.BaseInstallMethod.getInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get information for the current install method implementation.</p>
+<p>&#64;rtype: dict
+&#64;return: A dict containing name, title and description</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="libinst.methods.InstallMethod">
+<em class="property">class </em><tt class="descclassname">libinst.methods.</tt><tt class="descname">InstallMethod</tt><big>(</big><em>manager</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the install method interface class. It defines all relevant methods
+needed to interact with any install method. Implementations of this interface
+must implement all methods.</p>
+<dl class="method">
+<dt id="libinst.methods.InstallMethod.createRelease">
+<tt class="descname">createRelease</tt><big>(</big><em>name</em>, <em>parent=None</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.createRelease" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes the specified release available in the config
+management system.</p>
+<p>&#64;type name: string
+&#64;param name: release path</p>
+<p>&#64;type parent: string
+&#64;param parent: path of the optional</p>
+<blockquote>
+<div>parent release. Data from the parent release gets
+duplicated for the new one.</div></blockquote>
+<p>&#64;rtype: bool
+&#64;return: True - success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.methods.InstallMethod.getBaseDir">
+<tt class="descname">getBaseDir</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.getBaseDir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the methods &#8220;working&#8221; directory</p>
+<p>&#64;rtype: string
+&#64;return: Working directory</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.methods.InstallMethod.getBootParams">
+<tt class="descname">getBootParams</tt><big>(</big><em>device_uuid</em>, <em>mac=None</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.getBootParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return boot parameters needed for that install method.</p>
+<p>&#64;rtype: list
+&#64;return: list of boot parameters</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="libinst.methods.InstallMethod.getInfo">
+<em class="property">static </em><tt class="descname">getInfo</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.getInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get information for the current install method implementation.</p>
+<p>&#64;rtype: dict
+&#64;return: A dict containing name, title and description</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.methods.InstallMethod.getItem">
+<tt class="descname">getItem</tt><big>(</big><em>release</em>, <em>path</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.getItem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the data of specified item.</p>
+<p>&#64;type release: string
+&#64;param release: release path</p>
+<p>&#64;type path: string
+&#64;param path: item path inside of the structure</p>
+<p>&#64;rtype: json-string
+&#64;return: the encoded data of the item, depending on the format</p>
+<blockquote>
+<div>definition.</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.methods.InstallMethod.getItemTypes">
+<tt class="descname">getItemTypes</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.getItemTypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dict of name/description pairs for the
+current backend.</p>
+<p>&#64;rtype: dict
+&#64;return: dict of name/info pairs</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>&#8216;name&#8217; <span class="classifier-delimiter">:</span> <span class="classifier">{</span></dt>
+<dd>&#8216;description&#8217;: &#8216;text&#8217;,
+&#8216;container&#8217;: [item_type,...],
+&#8216;interface&#8217;: &#8220;text&#8221;,
+}</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.methods.InstallMethod.getSupportedTypes">
+<tt class="descname">getSupportedTypes</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.getSupportedTypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the list of supported repository types.</p>
+<p>&#64;rtype: list
+&#64;return: List of repository types</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.methods.InstallMethod.listItems">
+<tt class="descname">listItems</tt><big>(</big><em>release</em>, <em>item_type=None</em>, <em>path=None</em>, <em>children=None</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.listItems" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of items of item_type (if given) for
+the specified release - or all.</p>
+<p>&#64;type release: string
+&#64;param release: release path</p>
+<p>&#64;type item_type: string
+&#64;param item_type: type of item to list, None for all</p>
+<p>&#64;type path: string
+&#64;param path: path to list items on</p>
+<p>&#64;rtype: dict
+&#64;return: dictionary of name/item_type pairs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.methods.InstallMethod.removeItem">
+<tt class="descname">removeItem</tt><big>(</big><em>release</em>, <em>path</em>, <em>children=None</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.removeItem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove the specified item and it&#8217;s children.</p>
+<p>&#64;type release: string
+&#64;param release: release path</p>
+<p>&#64;type path: string
+&#64;param path: item path inside of the structure, including</p>
+<blockquote>
+<div>the name as last element of the path.</div></blockquote>
+<p>&#64;rtype: bool
+&#64;return: True = success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.methods.InstallMethod.removeRelease">
+<tt class="descname">removeRelease</tt><big>(</big><em>name</em>, <em>recursive=False</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.removeRelease" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes the specified release available from the config
+management system.</p>
+<p>&#64;type name: string
+&#64;param name: release path</p>
+<p>&#64;type recursive: bool
+&#64;param recursive: Remove child releases, too.</p>
+<p>&#64;rtype: bool
+&#64;return: True - success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.methods.InstallMethod.renameRelease">
+<tt class="descname">renameRelease</tt><big>(</big><em>old_name</em>, <em>new_name</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.renameRelease" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rename a release inside the config management
+system. Subreleases will be renamed, too.</p>
+<p>&#64;type old_name: string
+&#64;param old_name: release path</p>
+<p>&#64;type new_name: string
+&#64;param new_name: release path</p>
+<p>&#64;rtype: bool
+&#64;return: True - success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.methods.InstallMethod.scan">
+<tt class="descname">scan</tt><big>(</big><em>release</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.scan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Re-scan the specified release and update the database stored
+path information.</p>
+<p>&#64;type release: string
+&#64;param release: release path</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.methods.InstallMethod.setItem">
+<tt class="descname">setItem</tt><big>(</big><em>release</em>, <em>path</em>, <em>item_type</em>, <em>data</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.setItem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the data for the specified item.</p>
+<p>&#64;type release: string
+&#64;param release: release path</p>
+<p>&#64;type path: string
+&#64;param path: item path inside of the structure, including</p>
+<blockquote>
+<div>the name as last element of the path.</div></blockquote>
+<p>&#64;type item_type: string
+&#64;param item_type: the item type to create</p>
+<p>&#64;type data: json-string
+&#64;param data: the encoded data item</p>
+<p>&#64;rtype: bool
+&#64;return: True = success</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="api.html"
+                        title="previous chapter">Libinst API</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="baseinstall.html"
+                        title="next chapter">Base install modules</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/develop/repository.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="baseinstall.html" title="Base install modules"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="Libinst API"
+             >previous</a> |</li>
+        <li><a href="../index.html">libinst v3.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Development</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Cajus Pollmeier.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>
