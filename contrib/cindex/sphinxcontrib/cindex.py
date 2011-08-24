@@ -18,14 +18,19 @@ class program_output(nodes.Element): pass
 
 class CmdlistDirective(Directive):
 
+    has_content = True
+    required_arguments = 1
+
     def run(self):
-        return [cmdlist('')]
+        node = cmdlist('')
+        node.section = self.arguments[0]
+        return [node]
 
 class CmdDirective(Directive):
 
     # this enables content in the directive
     has_content = True
-    required_arguments = 1
+    required_arguments = 2
 
     option_spec = {
         'parameter': unicode
@@ -36,26 +41,29 @@ class CmdDirective(Directive):
     def run(self):
         env = self.state.document.settings.env
 
+        # Create a target node to be able to jump to it later.
         targetid = "cmd-%d" % env.new_serialno('cmd')
         targetnode = nodes.target('', '', ids=[targetid])
 
+        # Return target node and the node itself.
         node = cmd_node('')
-        node.title_str = self.arguments[0]
+
+        node.section_str = self.arguments[0]
+        node.title_str = self.arguments[1]
         node.desc_str = "".join(self.content[0::])
+
         ret = [targetnode] + [node]
         return ret
 
 
 def process_cmds(app, doctree):
+
     # collect all cmds in the environment
-    # this is not done in the directive itself because it some transformations
-    # must have already been run, e.g. substitutions
     env = app.builder.env
     if not hasattr(env, 'cmds_all_cmds'):
         env.cmds_all_cmds = []
+
     for node in doctree.traverse(cmd_node):
-
-
         try:
             targetnode = node.parent[node.parent.index(node) - 1]
             if not isinstance(targetnode, nodes.target):
@@ -67,6 +75,7 @@ def process_cmds(app, doctree):
             'docname': env.docname,
             'lineno': node.line,
             'cmd': node.deepcopy(),
+            'section': node.section_str,
             'title': node.title_str,
             'desc': node.desc_str,
             'target': targetnode,
@@ -83,11 +92,22 @@ def process_cmd_nodes(app, doctree, fromdocname):
     # Sort list of commands
     l = sorted(env.cmds_all_cmds, key=lambda cmd: cmd['title'])
 
+    # Iterate through all found cmdlist directives.
     for node in doctree.traverse(cmdlist):
         content = []
         tbody = nodes.tbody('');
 
+        # Get the current cmdlist-section for the node.
+        section = node.section
+
+        cmds_found = 0
         for cmd_info in l:
+
+            # Skip entries that do not match our section
+            if cmd_info['section'] != section:
+                continue
+
+            cmds_found = cmds_found + 1
 
             # (Recursively) resolve references in the cmd content
             cmd_entry = cmd_info['cmd']
@@ -114,18 +134,21 @@ def process_cmd_nodes(app, doctree, fromdocname):
             tbody+=row
 
         # create the resulting table
-        t=nodes.table('',
-            nodes.tgroup('',
-                nodes.colspec(colwidth=5,classes=['rst-raw']),
-                nodes.colspec(colwidth=5),
-                nodes.thead('',
-                    nodes.row('',
-                        nodes.entry('',
-                            nodes.paragraph('',_('Method'))),
-                        nodes.entry('',
-                            nodes.paragraph('',_('Description'))))),
-                tbody));
-        content.append(t)
+        if cmds_found != 0:
+            t=nodes.table('',
+                nodes.tgroup('',
+                    nodes.colspec(colwidth=5,classes=['rst-raw']),
+                    nodes.colspec(colwidth=5),
+                    nodes.thead('',
+                        nodes.row('',
+                            nodes.entry('',
+                                nodes.paragraph('',_('Method'))),
+                            nodes.entry('',
+                                nodes.paragraph('',_('Description'))))),
+                    tbody));
+            content.append(t)
+        else:
+            content.append(nodes.Text(_('No entries')))
 
         node.replace_self(content)
 
