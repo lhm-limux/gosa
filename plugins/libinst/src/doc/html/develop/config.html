@@ -57,6 +57,10 @@
             
   <div class="section" id="config-management-modules">
 <h1>Config management modules<a class="headerlink" href="#config-management-modules" title="Permalink to this headline">¶</a></h1>
+<p>The config management modules are meant to manage a device after it has
+a base installation. The target for that are methods like
+<a class="reference external" href="http://www.puppetlabs.com">Puppet</a>, <a class="reference external" href="http://fai-project.org">FAI</a>
+or whatever you can imagine.</p>
 <div class="section" id="config-method">
 <h2>Config method<a class="headerlink" href="#config-method" title="Permalink to this headline">¶</a></h2>
 <p>Modules get registered thru the setuptools <tt class="docutils literal"><span class="pre">[libinst.methods]</span></tt> section
@@ -71,7 +75,24 @@ must implement all methods.</p>
 <dl class="method">
 <dt id="libinst.methods.InstallMethod.addClient">
 <tt class="descname">addClient</tt><big>(</big><em>device_uuid</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.addClient" title="Permalink to this definition">¶</a></dt>
-<dd><p>TODO</p>
+<dd><p>Add a client to the config management implementation.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="47%" />
+<col width="53%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>device_uuid</td>
+<td>Unique device ID</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
 </dd></dl>
 
 <dl class="method">
@@ -79,97 +100,257 @@ must implement all methods.</p>
 <tt class="descname">createRelease</tt><big>(</big><em>name</em>, <em>parent=None</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.createRelease" title="Permalink to this definition">¶</a></dt>
 <dd><p>Makes the specified release available in the config
 management system.</p>
-<p>&#64;type name: string
-&#64;param name: release path</p>
-<p>&#64;type parent: string
-&#64;param parent: path of the optional</p>
-<blockquote>
-<div>parent release. Data from the parent release gets
-duplicated for the new one.</div></blockquote>
-<p>&#64;rtype: bool
-&#64;return: True - success</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>Release path</td>
+</tr>
+<tr><td>parent</td>
+<td>Path of the optional parent release</td>
+</tr>
+</tbody>
+</table>
+<p>Data from the parent release gets duplicated for the new one.</p>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="libinst.methods.InstallMethod.getBaseDir">
 <tt class="descname">getBaseDir</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.getBaseDir" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the methods &#8220;working&#8221; directory</p>
-<p>&#64;rtype: string
-&#64;return: Working directory</p>
+<dd><p>Return the methods &#8220;working&#8221; directory.</p>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> string</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="libinst.methods.InstallMethod.getBootParams">
 <tt class="descname">getBootParams</tt><big>(</big><em>device_uuid</em>, <em>mac=None</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.getBootParams" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return boot parameters needed for that install method.</p>
-<p>&#64;rtype: list
-&#64;return: list of boot parameters</p>
+<dd><p>Return list of boot parameters needed for that install method.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="43%" />
+<col width="57%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>device_uuid</td>
+<td>Optional device_uuid</td>
+</tr>
+<tr><td>mac</td>
+<td>Optional MAC</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> list</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="libinst.methods.InstallMethod.getConfigParameters">
 <tt class="descname">getConfigParameters</tt><big>(</big><em>device_uuid</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.getConfigParameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>TODO</p>
+<dd><p>Return the systems config parameters that are used
+to provision the config management system.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>device_uuid</td>
+<td>Optional unique identifier of a device</td>
+</tr>
+</tbody>
+</table>
+<p>Please take a look at
+<a class="reference internal" href="#libinst.methods.InstallMethod.setConfigParameters" title="libinst.methods.InstallMethod.setConfigParameters"><tt class="xref py py-meth docutils literal"><span class="pre">libinst.methods.InstallMethod.setConfigParameters()</span></tt></a>
+for more information about the returned properties.</p>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict of properties</p>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="libinst.methods.InstallMethod.getInfo">
 <em class="property">static </em><tt class="descname">getInfo</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.getInfo" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get information for the current install method implementation.</p>
-<p>&#64;rtype: dict
-&#64;return: A dict containing name, title and description</p>
+<dd><p>Get information for the current install method implementation. Returns
+a dictionary with these keys:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="38%" />
+<col width="62%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>Method name</td>
+</tr>
+<tr><td>title</td>
+<td>Method display name</td>
+</tr>
+<tr><td>description</td>
+<td>Method description</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="libinst.methods.InstallMethod.getItem">
 <tt class="descname">getItem</tt><big>(</big><em>release</em>, <em>path</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.getItem" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the data of specified item.</p>
-<p>&#64;type release: string
-&#64;param release: release path</p>
-<p>&#64;type path: string
-&#64;param path: item path inside of the structure</p>
-<p>&#64;rtype: json-string
-&#64;return: the encoded data of the item, depending on the format</p>
-<blockquote>
-<div>definition.</div></blockquote>
+<table border="1" class="docutils">
+<colgroup>
+<col width="31%" />
+<col width="69%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>release</td>
+<td>Release path</td>
+</tr>
+<tr><td>path</td>
+<td>Item path inside of the structure</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> the encoded data of the item, depending on the format definition.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="libinst.methods.InstallMethod.getItemTypes">
 <tt class="descname">getItemTypes</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.getItemTypes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a dict of name/description pairs for the
-current backend.</p>
-<p>&#64;rtype: dict
-&#64;return: dict of name/info pairs</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>&#8216;name&#8217; <span class="classifier-delimiter">:</span> <span class="classifier">{</span></dt>
-<dd>&#8216;description&#8217;: &#8216;text&#8217;,
-&#8216;container&#8217;: [item_type,...],
-&#8216;interface&#8217;: &#8220;text&#8221;,
-}</dd>
-</dl>
-</div></blockquote>
+current backend:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>Item name</td>
+</tr>
+<tr><td>description</td>
+<td>Item description</td>
+</tr>
+<tr><td>container</td>
+<td>Allowed containments</td>
+</tr>
+<tr><td>options</td>
+<td>Dict of item properties</td>
+</tr>
+</tbody>
+</table>
+<p>For options format, consult the <a class="reference internal" href="#libinst.methods.InstallItem" title="libinst.methods.InstallItem"><tt class="xref py py-class docutils literal"><span class="pre">libinst.methods.InstallItem</span></tt></a>
+documentation.</p>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="libinst.methods.InstallMethod.getItemsAssignableElements">
 <tt class="descname">getItemsAssignableElements</tt><big>(</big><em>release</em>, <em>item</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.getItemsAssignableElements" title="Permalink to this definition">¶</a></dt>
-<dd><p>TODO</p>
+<dd><p>Let the given item search for assigneable elements.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="29%" />
+<col width="71%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>release</td>
+<td>Release path to work on</td>
+</tr>
+<tr><td>item</td>
+<td><a class="reference internal" href="#libinst.methods.InstallItem" title="libinst.methods.InstallItem"><tt class="xref py py-class docutils literal"><span class="pre">libinst.methods.InstallItem</span></tt></a></td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="libinst.methods.InstallMethod.getSupportedTypes">
 <tt class="descname">getSupportedTypes</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.getSupportedTypes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the list of supported repository types.</p>
-<p>&#64;rtype: list
-&#64;return: List of repository types</p>
+<dd><p>Return the list of supported repository types. This allows to check
+if the current repository/method combination is supported.</p>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> list</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="libinst.methods.InstallMethod.listAssignableElements">
 <tt class="descname">listAssignableElements</tt><big>(</big><em>release</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.listAssignableElements" title="Permalink to this definition">¶</a></dt>
-<dd><p>TODO</p>
+<dd><p>List items that can be assigned to a client for a specific
+release.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>release</td>
+<td>Release to be inspected</td>
+</tr>
+</tbody>
+</table>
+<p>The resulting dictionary contains the assignable object name as the key and
+potential parameter descriptions as a nested dict:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="27%" />
+<col width="73%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>parameter</td>
+<td>Parameter dictionary</td>
+</tr>
+<tr><td>description</td>
+<td>Item description</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> Dict</p>
 </dd></dl>
 
 <dl class="method">
@@ -177,40 +358,107 @@ current backend.</p>
 <tt class="descname">listItems</tt><big>(</big><em>release</em>, <em>item_type=None</em>, <em>path=None</em>, <em>children=None</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.listItems" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of items of item_type (if given) for
 the specified release - or all.</p>
-<p>&#64;type release: string
-&#64;param release: release path</p>
-<p>&#64;type item_type: string
-&#64;param item_type: type of item to list, None for all</p>
-<p>&#64;type path: string
-&#64;param path: path to list items on</p>
-<p>&#64;rtype: dict
-&#64;return: dictionary of name/item_type pairs</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>release</td>
+<td>Name of the release to list config items of</td>
+</tr>
+<tr><td>item_type</td>
+<td>Filter items by type</td>
+</tr>
+<tr><td>path</td>
+<td>Filter items by path</td>
+</tr>
+<tr><td>children</td>
+<td>Filter items by children</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="libinst.methods.InstallMethod.removeClient">
 <tt class="descname">removeClient</tt><big>(</big><em>device_uuid</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.removeClient" title="Permalink to this definition">¶</a></dt>
-<dd><p>TODO</p>
+<dd><p>Remove a client from the config management implementation.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="47%" />
+<col width="53%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>device_uuid</td>
+<td>Unique device ID</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="libinst.methods.InstallMethod.removeConfigParameters">
 <tt class="descname">removeConfigParameters</tt><big>(</big><em>device_uuid</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.removeConfigParameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>TODO</p>
+<dd><p>Disable device configuration managmenet.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>device_uuid</td>
+<td>Unique identifier of a device</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="libinst.methods.InstallMethod.removeItem">
 <tt class="descname">removeItem</tt><big>(</big><em>release</em>, <em>path</em>, <em>children=None</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.removeItem" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove the specified item and it&#8217;s children.</p>
-<p>&#64;type release: string
-&#64;param release: release path</p>
-<p>&#64;type path: string
-&#64;param path: item path inside of the structure, including</p>
-<blockquote>
-<div>the name as last element of the path.</div></blockquote>
-<p>&#64;rtype: bool
-&#64;return: True = success</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="84%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>release</td>
+<td>Release path</td>
+</tr>
+<tr><td>path</td>
+<td>Item path inside of the structure, including the name as last element of the path</td>
+</tr>
+<tr><td>children</td>
+<td>List of children to remove</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
 </dd></dl>
 
 <dl class="method">
@@ -218,12 +466,26 @@ the specified release - or all.</p>
 <tt class="descname">removeRelease</tt><big>(</big><em>name</em>, <em>recursive=False</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.removeRelease" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes the specified release available from the config
 management system.</p>
-<p>&#64;type name: string
-&#64;param name: release path</p>
-<p>&#64;type recursive: bool
-&#64;param recursive: Remove child releases, too.</p>
-<p>&#64;rtype: bool
-&#64;return: True - success</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>Release path</td>
+</tr>
+<tr><td>recursive</td>
+<td>Remove child releases, too</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
 </dd></dl>
 
 <dl class="method">
@@ -231,12 +493,26 @@ management system.</p>
 <tt class="descname">renameRelease</tt><big>(</big><em>old_name</em>, <em>new_name</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.renameRelease" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rename a release inside the config management
 system. Subreleases will be renamed, too.</p>
-<p>&#64;type old_name: string
-&#64;param old_name: release path</p>
-<p>&#64;type new_name: string
-&#64;param new_name: release path</p>
-<p>&#64;rtype: bool
-&#64;return: True - success</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>old_name</td>
+<td>Current release path</td>
+</tr>
+<tr><td>new_name</td>
+<td>New release path</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
 </dd></dl>
 
 <dl class="method">
@@ -244,32 +520,105 @@ system. Subreleases will be renamed, too.</p>
 <tt class="descname">scan</tt><big>(</big><em>release</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.scan" title="Permalink to this definition">¶</a></dt>
 <dd><p>Re-scan the specified release and update the database stored
 path information.</p>
-<p>&#64;type release: string
-&#64;param release: release path</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="47%" />
+<col width="53%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>release</td>
+<td>Release path</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="libinst.methods.InstallMethod.setConfigParameters">
 <tt class="descname">setConfigParameters</tt><big>(</big><em>device_uuid</em>, <em>data</em>, <em>current_data=None</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.setConfigParameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>TODO</p>
+<dd><p>Set the system config parameters that are used
+provision the config management system.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>device_uuid</td>
+<td>Unique device identifier</td>
+</tr>
+<tr><td>data</td>
+<td>Dictionary specifying the properties</td>
+</tr>
+</tbody>
+</table>
+<p>The data dictionary has the following property keys:
+always lists**):</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>item</td>
+<td>List of assigned items</td>
+</tr>
+<tr><td>method</td>
+<td>Config management method to use</td>
+</tr>
+<tr><td>var</td>
+<td>Dict of variables and their values</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True no success</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="libinst.methods.InstallMethod.setItem">
 <tt class="descname">setItem</tt><big>(</big><em>release</em>, <em>path</em>, <em>item_type</em>, <em>data</em><big>)</big><a class="headerlink" href="#libinst.methods.InstallMethod.setItem" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the data for the specified item.</p>
-<p>&#64;type release: string
-&#64;param release: release path</p>
-<p>&#64;type path: string
-&#64;param path: item path inside of the structure, including</p>
-<blockquote>
-<div>the name as last element of the path.</div></blockquote>
-<p>&#64;type item_type: string
-&#64;param item_type: the item type to create</p>
-<p>&#64;type data: json-string
-&#64;param data: the encoded data item</p>
-<p>&#64;rtype: bool
-&#64;return: True = success</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="31%" />
+<col width="69%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>release</td>
+<td>Release path</td>
+</tr>
+<tr><td>path</td>
+<td>Item path inside of the structure</td>
+</tr>
+<tr><td>item_type</td>
+<td>The item type to create</td>
+</tr>
+<tr><td>data</td>
+<td>The JSON encoded data item</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
 </dd></dl>
 
 </dd></dl>
@@ -282,7 +631,7 @@ used to describe a config management system. An implementator has to
 define a structure of several items types that can be used by an
 administrator to define the target system - independently of what
 config mangement backend is used.</p>
-<p>Lets discuss items by looking at the way <a class="reference external" href="http://www.fai.org">FAI</a> is
+<p>Lets discuss items by looking at the way <a class="reference external" href="http://fai-project.org">FAI</a> is
 configured. They basically have this structure:</p>
 <blockquote>
 <div><ul>
@@ -309,7 +658,7 @@ install method for that, too.</p>
 <p>Every other item type has to be implemented - and needs to be able
 to determine if it&#8217;s assigneable to a client:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">FAIClass</span><span class="p">(</span><span class="n">InstallItem</span><span class="p">):</span>
-    <span class="n">_name</span> <span class="o">=</span> <span class="s">&quot;FAIClass&quot;</span>
+    <span class="n">_name</span> <span class="o">=</span> <span class="s">&quot;Class&quot;</span>
     <span class="n">_description</span> <span class="o">=</span> <span class="s">&quot;A FAI class&quot;</span>
     <span class="n">_container</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;FAITemplate&quot;</span><span class="p">,</span> <span class="s">&quot;FAIScript&quot;</span><span class="p">,</span> <span class="s">&quot;FAIVariable&quot;</span><span class="p">,</span> <span class="s">&quot;FAIHook&quot;</span><span class="p">]</span>
     <span class="n">_prefix</span> <span class="o">=</span> <span class="s">&quot;classes&quot;</span>

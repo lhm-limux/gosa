@@ -1,6 +1,12 @@
 Config management modules
 =========================
 
+The config management modules are meant to manage a device after it has
+a base installation. The target for that are methods like
+`Puppet <http://www.puppetlabs.com>`_, `FAI <http://fai-project.org>`_
+or whatever you can imagine.
+
+
 Config method
 -------------
 
@@ -21,7 +27,7 @@ define a structure of several items types that can be used by an
 administrator to define the target system - independently of what
 config mangement backend is used.
 
-Lets discuss items by looking at the way `FAI <http://www.fai.org>`_ is
+Lets discuss items by looking at the way `FAI <http://fai-project.org>`_ is
 configured. They basically have this structure:
 
  * Class
@@ -42,7 +48,7 @@ Every other item type has to be implemented - and needs to be able
 to determine if it's assigneable to a client::
 
     class FAIClass(InstallItem):
-        _name = "FAIClass"
+        _name = "Class"
         _description = "A FAI class"
         _container = ["FAITemplate", "FAIScript", "FAIVariable", "FAIHook"]
         _prefix = "classes"

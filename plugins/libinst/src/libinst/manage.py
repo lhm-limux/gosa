@@ -1723,7 +1723,7 @@ class LibinstManager(Plugin):
     @NamedArgs("m_hash")
     def listConfigItems(self, release, m_hash=None, item_type=None, path=None, children=None):
         """
-        List configuration items for given release
+        List configuration items for given release.
 
         =============== =================================================================
         Parameter       Description

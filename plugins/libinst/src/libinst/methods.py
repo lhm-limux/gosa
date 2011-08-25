@@ -343,19 +343,27 @@ class InstallMethod(object):
     @staticmethod
     def getInfo():
         """
-        Get information for the current install method implementation.
+        Get information for the current install method implementation. Returns
+        a dictionary with these keys:
 
-        @rtype: dict
-        @return: A dict containing name, title and description
+        =============== ========================
+        Key             Description
+        =============== ========================
+        name            Method name
+        title           Method display name
+        description     Method description
+        =============== ========================
+
+        ``Return:`` dict
         """
         return None
 
     def getSupportedTypes(self):
         """
-        Return the list of supported repository types.
+        Return the list of supported repository types. This allows to check
+        if the current repository/method combination is supported.
 
-        @rtype: list
-        @return: List of repository types
+        ``Return:`` list
         """
         return self._supportedTypes
 
@@ -364,16 +372,16 @@ class InstallMethod(object):
         Makes the specified release available in the config
         management system.
 
-        @type name: string
-        @param name: release path
+        =============== ===================================
+        Parameter       Description
+        =============== ===================================
+        name            Release path
+        parent          Path of the optional parent release
+        =============== ===================================
 
-        @type parent: string
-        @param parent: path of the optional
-            parent release. Data from the parent release gets
-            duplicated for the new one.
+        Data from the parent release gets duplicated for the new one.
 
-        @rtype: bool
-        @return: True - success
+        ``Return:`` True on success
         """
         session = None
 
@@ -404,14 +412,14 @@ class InstallMethod(object):
         Removes the specified release available from the config
         management system.
 
-        @type name: string
-        @param name: release path
+        =============== ===================================
+        Parameter       Description
+        =============== ===================================
+        name            Release path
+        recursive       Remove child releases, too
+        =============== ===================================
 
-        @type recursive: bool
-        @param recursive: Remove child releases, too.
-
-        @rtype: bool
-        @return: True - success
+        ``Return:`` True on success
         """
         self.env.log.info("Removing release '%s'" % name)
 
@@ -420,14 +428,14 @@ class InstallMethod(object):
         Rename a release inside the config management
         system. Subreleases will be renamed, too.
 
-        @type old_name: string
-        @param old_name: release path
+        =============== ===================================
+        Parameter       Description
+        =============== ===================================
+        old_name        Current release path
+        new_name        New release path
+        =============== ===================================
 
-        @type new_name: string
-        @param new_name: release path
-
-        @rtype: bool
-        @return: True - success
+        ``Return:`` True on success
         """
 
         # Only allow renaming of the latter part
@@ -439,17 +447,21 @@ class InstallMethod(object):
     def getItemTypes(self):
         """
         Returns a dict of name/description pairs for the
-        current backend.
+        current backend:
 
-        @rtype: dict
-        @return: dict of name/info pairs
+        =============== ===================================
+        Key             Description
+        =============== ===================================
+        name            Item name
+        description     Item description
+        container       Allowed containments
+        options         Dict of item properties
+        =============== ===================================
 
-            'name' : {
-                'description': 'text',
-                'container': [item_type,...],
-                'interface': "text",
-                }
+        For options format, consult the :class:`libinst.methods.InstallItem`
+        documentation.
 
+        ``Return:`` True on success
         """
         res = {}
 
@@ -471,7 +483,26 @@ class InstallMethod(object):
 
     def listAssignableElements(self, release):
         """
-        TODO
+        List items that can be assigned to a client for a specific
+        release.
+
+        =============== ===================================
+        Parameter       Description
+        =============== ===================================
+        release         Release to be inspected
+        =============== ===================================
+
+        The resulting dictionary contains the assignable object name as the key and
+        potential parameter descriptions as a nested dict:
+
+        =================== ====================================================
+        Key                 Description
+        =================== ====================================================
+        parameter           Parameter dictionary
+        description         Item description
+        =================== ====================================================
+
+        ``Return:`` Dict
         """
         res = {}
         for item in self._manager._getAssignableElements(release):
@@ -483,17 +514,16 @@ class InstallMethod(object):
         Returns a list of items of item_type (if given) for
         the specified release - or all.
 
-        @type release: string
-        @param release: release path
+        =============== =================================================================
+        Parameter       Description
+        =============== =================================================================
+        release         Name of the release to list config items of
+        item_type       Filter items by type
+        path            Filter items by path
+        children        Filter items by children
+        =============== =================================================================
 
-        @type item_type: string
-        @param item_type: type of item to list, None for all
-
-        @type path: string
-        @param path: path to list items on
-
-        @rtype: dict
-        @return: dictionary of name/item_type pairs
+        ``Return:`` dict
         """
         res = {}
         session = None
@@ -542,15 +572,14 @@ class InstallMethod(object):
         """
         Return the data of specified item.
 
-        @type release: string
-        @param release: release path
+        =============== =================================
+        Parameter       Description
+        =============== =================================
+        release         Release path
+        path            Item path inside of the structure
+        =============== =================================
 
-        @type path: string
-        @param path: item path inside of the structure
-
-        @rtype: json-string
-        @return: the encoded data of the item, depending on the format
-            definition.
+        ``Return:`` the encoded data of the item, depending on the format definition.
         """
         pass
 
@@ -558,21 +587,16 @@ class InstallMethod(object):
         """
         Set the data for the specified item.
 
-        @type release: string
-        @param release: release path
+        =============== =================================
+        Parameter       Description
+        =============== =================================
+        release         Release path
+        path            Item path inside of the structure
+        item_type       The item type to create
+        data            The JSON encoded data item
+        =============== =================================
 
-        @type path: string
-        @param path: item path inside of the structure, including
-            the name as last element of the path.
-
-        @type item_type: string
-        @param item_type: the item type to create
-
-        @type data: json-string
-        @param data: the encoded data item
-
-        @rtype: bool
-        @return: True = success
+        ``Return:`` True on success
         """
         result = None
         session = None
@@ -651,19 +675,44 @@ class InstallMethod(object):
 
     def getItemsAssignableElements(self, release, item):
         """
-        TODO
+        Let the given item search for assigneable elements.
+
+        =============== ====================================
+        Parameter       Description
+        =============== ====================================
+        release         Release path to work on
+        item            :class:`libinst.methods.InstallItem`
+        =============== ====================================
+
+        ``Return:`` dict
         """
         return {}
 
     def addClient(self, device_uuid):
         """
-        TODO
+        Add a client to the config management implementation.
+
+        =============== =================
+        Parameter       Description
+        =============== =================
+        device_uuid     Unique device ID
+        =============== =================
+
+        ``Return:`` True on success
         """
         pass
 
     def removeClient(self, device_uuid):
         """
-        TODO
+        Remove a client from the config management implementation.
+
+        =============== =================
+        Parameter       Description
+        =============== =================
+        device_uuid     Unique device ID
+        =============== =================
+
+        ``Return:`` True on success
         """
         pass
 
@@ -671,15 +720,15 @@ class InstallMethod(object):
         """
         Remove the specified item and it's children.
 
-        @type release: string
-        @param release: release path
+        =============== =================================================================================
+        Parameter       Description
+        =============== =================================================================================
+        release         Release path
+        path            Item path inside of the structure, including the name as last element of the path
+        children        List of children to remove
+        =============== =================================================================================
 
-        @type path: string
-        @param path: item path inside of the structure, including
-            the name as last element of the path.
-
-        @rtype: bool
-        @return: True = success
+        ``Return:`` True on success
         """
         session = None
         result = None
@@ -730,8 +779,11 @@ class InstallMethod(object):
         Re-scan the specified release and update the database stored
         path information.
 
-        @type release: string
-        @param release: release path
+        =============== =================
+        Parameter       Description
+        =============== =================
+        release         Release path
+        =============== =================
         """
         path = "/"
         # pylint: disable-msg=E1101
@@ -745,7 +797,7 @@ class InstallMethod(object):
 
     def _scan(self, path, abs_path, containers):
         """
-        Internal helper function for 'scan' method.
+        Internal recursive helper function for 'scan' method.
         """
         res = {}
         for container in containers:
@@ -763,19 +815,24 @@ class InstallMethod(object):
 
     def getBaseDir(self):
         """
-        Return the methods "working" directory
+        Return the methods "working" directory.
 
-        @rtype: string
-        @return: Working directory
+        ``Return:`` string
         """
         return None
 
     def getBootParams(self, device_uuid, mac=None):
         """
-        Return boot parameters needed for that install method.
+        Return list of boot parameters needed for that install method.
 
-        @rtype: list
-        @return: list of boot parameters
+        =============== ====================
+        Parameter       Description
+        =============== ====================
+        device_uuid     Optional device_uuid
+        mac             Optional MAC
+        =============== ====================
+
+        ``Return:`` list
         """
         return []
 
@@ -783,16 +840,6 @@ class InstallMethod(object):
         """
         Internal function to evaluate the relative path for
         an item in the filesystem.
-
-        @type release: string
-        @param release: release path
-
-        @type path: string
-        @param path: item path inside of the structure, including
-            the name as last element of the path.
-
-        @rtype: string
-        @return: relative path
         """
         relative_path = ""
         current_path = ""
@@ -824,16 +871,6 @@ class InstallMethod(object):
     def _get_item(self, release, path, children=None, path_level=1):
         """
         Internal function to return the item specified by 'path'.
-
-        @type release: string
-        @param release: release path
-
-        @type path: string
-        @param path: item path inside of the structure, including
-            the name as last element of the path.
-
-        @rtype: ConfigItem
-        @return: The item specified by 'path'
         """
         result = None
         session = None
@@ -891,7 +928,20 @@ class InstallMethod(object):
 
     def getConfigParameters(self, device_uuid, data=None):
         """
-        TODO
+        Return the systems config parameters that are used
+        to provision the config management system.
+
+        =========== ===========================================
+        Parameter   Description
+        =========== ===========================================
+        device_uuid Optional unique identifier of a device
+        =========== ===========================================
+
+        Please take a look at
+        :meth:`libinst.methods.InstallMethod.setConfigParameters`
+        for more information about the returned properties.
+
+        ``Return:`` dict of properties
         """
         res = {}
         if not data:
@@ -913,7 +963,28 @@ class InstallMethod(object):
 
     def setConfigParameters(self, device_uuid, data, current_data=None):
         """
-        TODO
+        Set the system config parameters that are used
+        provision the config management system.
+
+        =========== ===========================================
+        Parameter   Description
+        =========== ===========================================
+        device_uuid Unique device identifier
+        data        Dictionary specifying the properties
+        =========== ===========================================
+
+        The data dictionary has the following property keys:
+        always lists**):
+
+        ====== ===================================
+        Key    Description
+        ====== ===================================
+        item    List of assigned items
+        method  Config management method to use
+        var     Dict of variables and their values
+        ====== ===================================
+
+        ``Return:`` True no success
         """
         if not current_data:
             current_data = load_system(device_uuid, None, False)
@@ -967,7 +1038,15 @@ class InstallMethod(object):
 
     def removeConfigParameters(self, device_uuid, data=None):
         """
-        TODO
+        Disable device configuration managmenet.
+
+        =========== ===========================================
+        Parameter   Description
+        =========== ===========================================
+        device_uuid Unique identifier of a device
+        =========== ===========================================
+
+        ``Return:`` True on success
         """
         if not data:
             data = load_system(device_uuid)
@@ -983,6 +1062,19 @@ class InstallMethod(object):
 
 
 def load_system(device_uuid, mac=None, inherit=True):
+    """
+    Disable device configuration managmenet.
+
+    =========== ===========================================
+    Parameter   Description
+    =========== ===========================================
+    device_uuid Optional device ID if MAC is not known
+    mac         Optional MAC, if device_uuid is not known
+    inherit     Enable information inherit mechanism
+    =========== ===========================================
+
+    ``Return:`` True on success
+    """
     result = {}
 
     # Potentially fix mac
