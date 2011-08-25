@@ -60,68 +60,82 @@
 <p>TODO</p>
 <hr class="docutils" />
 <dl class="class">
-<dt id="libinst.methods.BaseInstallMethod">
-<em class="property">class </em><tt class="descclassname">libinst.methods.</tt><tt class="descname">BaseInstallMethod</tt><a class="headerlink" href="#libinst.methods.BaseInstallMethod" title="Permalink to this definition">¶</a></dt>
+<dt id="libinst.interface.BaseInstallMethod">
+<em class="property">class </em><tt class="descclassname">libinst.interface.</tt><tt class="descname">BaseInstallMethod</tt><a class="headerlink" href="#libinst.interface.BaseInstallMethod" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is the base install method interface class. It defines all relevant methods
 needed to interact with any install method. Implementations of this interface
 must implement all methods.</p>
 <dl class="method">
-<dt id="libinst.methods.BaseInstallMethod.addClient">
-<tt class="descname">addClient</tt><big>(</big><em>device_uuid</em><big>)</big><a class="headerlink" href="#libinst.methods.BaseInstallMethod.addClient" title="Permalink to this definition">¶</a></dt>
+<dt id="libinst.interface.BaseInstallMethod.addClient">
+<tt class="descname">addClient</tt><big>(</big><em>device_uuid</em><big>)</big><a class="headerlink" href="#libinst.interface.BaseInstallMethod.addClient" title="Permalink to this definition">¶</a></dt>
 <dd><p>TODO</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="libinst.methods.BaseInstallMethod.getBaseInstallParameters">
-<tt class="descname">getBaseInstallParameters</tt><big>(</big><em>device_uuid</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#libinst.methods.BaseInstallMethod.getBaseInstallParameters" title="Permalink to this definition">¶</a></dt>
+<dt id="libinst.interface.BaseInstallMethod.getBaseInstallParameters">
+<tt class="descname">getBaseInstallParameters</tt><big>(</big><em>device_uuid</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#libinst.interface.BaseInstallMethod.getBaseInstallParameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>TODO</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="libinst.methods.BaseInstallMethod.getBootConfiguration">
-<tt class="descname">getBootConfiguration</tt><big>(</big><em>device_uuid</em>, <em>mac=None</em><big>)</big><a class="headerlink" href="#libinst.methods.BaseInstallMethod.getBootConfiguration" title="Permalink to this definition">¶</a></dt>
+<dt id="libinst.interface.BaseInstallMethod.getBootConfiguration">
+<tt class="descname">getBootConfiguration</tt><big>(</big><em>device_uuid</em>, <em>mac=None</em><big>)</big><a class="headerlink" href="#libinst.interface.BaseInstallMethod.getBootConfiguration" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the complete boot configuration file needed to do a base
 bootstrapping.</p>
 <p>TODO</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="libinst.methods.BaseInstallMethod.getBootParams">
-<tt class="descname">getBootParams</tt><big>(</big><em>device_uuid</em>, <em>mac=None</em><big>)</big><a class="headerlink" href="#libinst.methods.BaseInstallMethod.getBootParams" title="Permalink to this definition">¶</a></dt>
+<dt id="libinst.interface.BaseInstallMethod.getBootParams">
+<tt class="descname">getBootParams</tt><big>(</big><em>device_uuid</em>, <em>mac=None</em><big>)</big><a class="headerlink" href="#libinst.interface.BaseInstallMethod.getBootParams" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return boot parameters needed for that install method.</p>
 <p>TODO</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="libinst.methods.BaseInstallMethod.getBootString">
-<tt class="descname">getBootString</tt><big>(</big><em>device_uuid</em>, <em>mac=None</em><big>)</big><a class="headerlink" href="#libinst.methods.BaseInstallMethod.getBootString" title="Permalink to this definition">¶</a></dt>
+<dt id="libinst.interface.BaseInstallMethod.getBootString">
+<tt class="descname">getBootString</tt><big>(</big><em>device_uuid</em>, <em>mac=None</em><big>)</big><a class="headerlink" href="#libinst.interface.BaseInstallMethod.getBootString" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return boot parameters needed for that install method.</p>
 <p>TODO</p>
 </dd></dl>
 
 <dl class="staticmethod">
-<dt id="libinst.methods.BaseInstallMethod.getInfo">
-<em class="property">static </em><tt class="descname">getInfo</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.methods.BaseInstallMethod.getInfo" title="Permalink to this definition">¶</a></dt>
+<dt id="libinst.interface.BaseInstallMethod.getInfo">
+<em class="property">static </em><tt class="descname">getInfo</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.interface.BaseInstallMethod.getInfo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get information for the current install method implementation.</p>
 <p>TODO</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="libinst.methods.BaseInstallMethod.removeBaseInstallParameters">
-<tt class="descname">removeBaseInstallParameters</tt><big>(</big><em>device_uuid</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#libinst.methods.BaseInstallMethod.removeBaseInstallParameters" title="Permalink to this definition">¶</a></dt>
+<dt id="libinst.interface.BaseInstallMethod.removeBaseInstallParameters">
+<tt class="descname">removeBaseInstallParameters</tt><big>(</big><em>device_uuid</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#libinst.interface.BaseInstallMethod.removeBaseInstallParameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>TODO</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="libinst.methods.BaseInstallMethod.removeClient">
-<tt class="descname">removeClient</tt><big>(</big><em>device_uuid</em><big>)</big><a class="headerlink" href="#libinst.methods.BaseInstallMethod.removeClient" title="Permalink to this definition">¶</a></dt>
+<dt id="libinst.interface.BaseInstallMethod.removeClient">
+<tt class="descname">removeClient</tt><big>(</big><em>device_uuid</em><big>)</big><a class="headerlink" href="#libinst.interface.BaseInstallMethod.removeClient" title="Permalink to this definition">¶</a></dt>
 <dd><p>TODO</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="libinst.methods.BaseInstallMethod.setBaseInstallParameters">
-<tt class="descname">setBaseInstallParameters</tt><big>(</big><em>device_uuid</em>, <em>data</em>, <em>current_data=None</em><big>)</big><a class="headerlink" href="#libinst.methods.BaseInstallMethod.setBaseInstallParameters" title="Permalink to this definition">¶</a></dt>
+<dt id="libinst.interface.BaseInstallMethod.setBaseInstallParameters">
+<tt class="descname">setBaseInstallParameters</tt><big>(</big><em>device_uuid</em>, <em>data</em>, <em>current_data=None</em><big>)</big><a class="headerlink" href="#libinst.interface.BaseInstallMethod.setBaseInstallParameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>TODO</p>
+</dd></dl>
+
+</dd></dl>
+
+<hr class="docutils" />
+<dl class="class">
+<dt id="libinst.interface.DiskDefinition">
+<em class="property">class </em><tt class="descclassname">libinst.interface.</tt><tt class="descname">DiskDefinition</tt><big>(</big><em>definition=None</em><big>)</big><a class="headerlink" href="#libinst.interface.DiskDefinition" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO</p>
+<dl class="method">
+<dt id="libinst.interface.DiskDefinition.addDisk">
+<tt class="descname">addDisk</tt><big>(</big><em>device</em>, <em>initLabel=True</em>, <em>removeParts=None</em><big>)</big><a class="headerlink" href="#libinst.interface.DiskDefinition.addDisk" title="Permalink to this definition">¶</a></dt>
+<dd><p>removeParts: None, LINUX, ALL</p>
+<p>device cciss/c0d0 , sda, hda, etc.</p>
 </dd></dl>
 
 </dd></dl>

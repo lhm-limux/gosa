@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import os, shutil
 from gosa.common import Environment
-from libinst.manage import LibinstManager
+from libinst import LibinstManager
 
 def main():
     Environment.config="tests/test-libinst.conf"

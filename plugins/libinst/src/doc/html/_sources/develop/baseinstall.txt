@@ -5,5 +5,10 @@ TODO
 
 ---------------
 
-.. autoclass:: libinst.methods.BaseInstallMethod
+.. autoclass:: libinst.interface.BaseInstallMethod
+   :members:
+
+---------------
+
+.. autoclass:: libinst.interface.DiskDefinition
    :members:

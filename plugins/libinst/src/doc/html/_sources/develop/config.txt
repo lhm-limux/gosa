@@ -15,7 +15,7 @@ and are available automatically.
 
 -----
 
-.. autoclass:: libinst.methods.InstallMethod
+.. autoclass:: libinst.interface.InstallMethod
    :members:
 
 Config items
@@ -102,5 +102,5 @@ default        Default value if not explicitly set
 
 ---------
 
-.. autoclass:: libinst.methods.InstallItem
+.. autoclass:: libinst.interface.InstallItem
    :members:

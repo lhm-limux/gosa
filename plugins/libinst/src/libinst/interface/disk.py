@@ -8,6 +8,9 @@ ALL = 2 ** 1
 
 
 class DiskDefinition(object):
+    """
+    TODO
+    """
     supportedFsTypes = []
     supportedRaidLevels = [0, 1, 5]
     supportedDeviceTypes = []

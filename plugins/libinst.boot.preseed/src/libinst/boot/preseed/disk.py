@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from gosa.common.components import PluginRegistry
-from libinst.disk import DiskDefinition
+from libinst.interface import DiskDefinition
 
 
 class DebianDiskDefinition(DiskDefinition):
