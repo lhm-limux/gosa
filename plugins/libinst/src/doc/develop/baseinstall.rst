@@ -5,5 +5,5 @@ TODO
 
 ---------------
 
-.. autoclass:: libinst.methods.BaseInstallMethod
+.. autoclass:: libinst.interface.BaseInstallMethod
    :members:

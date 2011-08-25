@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Repository modules are used to deliver a unique API for managing
+Distribution modules are used to deliver a unique API for managing
 various repositories. This can be a Debian repository, RPM repository
 or i.e. a set of OPSI products.
 

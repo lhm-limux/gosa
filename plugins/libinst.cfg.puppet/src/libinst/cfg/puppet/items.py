@@ -2,7 +2,7 @@
 import os
 import re
 import shutil
-from libinst.methods import InstallItem
+from libinst.interface import InstallItem
 from gosa.common import Environment
 
 

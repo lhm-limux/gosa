@@ -1,7 +1,7 @@
 Repository modules
 ==================
 
-.. automodule:: libinst.interface
+.. automodule:: libinst.interface.distribution
 
 ----------
 

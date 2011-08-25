@@ -2,8 +2,8 @@
 from urlparse import urlparse
 from gosa.common import Environment
 from gosa.common.components.registry import PluginRegistry
-from libinst.methods import load_system
-from libinst.methods import BaseInstallMethod
+from libinst.utils import load_system
+from libinst.interface import BaseInstallMethod
 from webob import exc, Request, Response
 from libinst.boot.preseed.disk import DebianDiskDefinition
 

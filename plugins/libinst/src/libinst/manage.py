@@ -42,7 +42,7 @@ from libinst.entities.section import Section
 from libinst.entities.type import Type
 from libinst.system_locale import locale_map
 from libinst.keyboard_models import KeyboardModels
-from libinst.methods import load_system
+from libinst.utils import load_system
 
 from gosa.common import Environment
 from gosa.common.components.command import Command, NamedArgs

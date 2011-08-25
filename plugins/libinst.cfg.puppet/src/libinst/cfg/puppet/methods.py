@@ -8,7 +8,7 @@ import ConfigParser
 import ldap
 import ldap.filter
 from datetime import datetime
-from libinst.methods import InstallMethod
+from libinst.interface import InstallMethod
 from git import Repo
 from git.cmd import Git, GitCommandError
 from subprocess import Popen, PIPE
