@@ -66,10 +66,14 @@ As a non-root user, initialize the virtual environment::
 Obtaining the source
 """"""""""""""""""""
 
-For now, please use the tar or git::
+For now, please use git::
 
    $ cd 'the place where you created the gosa-ng virtualenv'
    $ git clone git://oss.gonicus.de/git/gosa.git src
+
+Additionally, you can get some stripped of GOsa 2.7 sources from here::
+
+   $ git clone git://oss.gonicus.de/git/gosa-gui.git
 
 This will place all relevant files inside the 'src' directory.
 

@@ -47,6 +47,154 @@
             
   <div class="section" id="goto">
 <h1>GOto<a class="headerlink" href="#goto" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="powermanagement">
+<h2>Powermanagement<a class="headerlink" href="#powermanagement" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="gosa.client.plugins.powermanagement.utils.PowerManagement">
+<em class="property">class </em><tt class="descclassname">gosa.client.plugins.powermanagement.utils.</tt><tt class="descname">PowerManagement</tt><a class="headerlink" href="#gosa.client.plugins.powermanagement.utils.PowerManagement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility class that contains methods needed to handle shutdown
+functionality.</p>
+<dl class="method">
+<dt id="gosa.client.plugins.powermanagement.utils.PowerManagement.hibernate">
+<tt class="descname">hibernate</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.client.plugins.powermanagement.utils.PowerManagement.hibernate" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-0">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Execute a hibernation of the client.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.client.plugins.powermanagement.utils.PowerManagement.reboot">
+<tt class="descname">reboot</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.client.plugins.powermanagement.utils.PowerManagement.reboot" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-1">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Execute a reboot of the client.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.client.plugins.powermanagement.utils.PowerManagement.setpowersave">
+<tt class="descname">setpowersave</tt><big>(</big><em>enable</em><big>)</big><a class="headerlink" href="#gosa.client.plugins.powermanagement.utils.PowerManagement.setpowersave" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-2">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Set powersave mode of the client.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.client.plugins.powermanagement.utils.PowerManagement.shutdown">
+<tt class="descname">shutdown</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.client.plugins.powermanagement.utils.PowerManagement.shutdown" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-3">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Execute a shutdown of the client.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.client.plugins.powermanagement.utils.PowerManagement.suspend">
+<tt class="descname">suspend</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.client.plugins.powermanagement.utils.PowerManagement.suspend" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-4">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Execute a suspend of the client.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="wake-on-lan">
+<h2>Wake on LAN<a class="headerlink" href="#wake-on-lan" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="gosa.client.plugins.wakeonlan.utils.WakeOnLan">
+<em class="property">class </em><tt class="descclassname">gosa.client.plugins.wakeonlan.utils.</tt><tt class="descname">WakeOnLan</tt><a class="headerlink" href="#gosa.client.plugins.wakeonlan.utils.WakeOnLan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility class that contains methods needed to handle WakeOnLAN
+functionality.</p>
+<dl class="method">
+<dt id="gosa.client.plugins.wakeonlan.utils.WakeOnLan.wakeonlan">
+<tt class="descname">wakeonlan</tt><big>(</big><em>macaddr</em><big>)</big><a class="headerlink" href="#gosa.client.plugins.wakeonlan.utils.WakeOnLan.wakeonlan" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-5">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Sent a WakeOnLAN paket to the given MAC address.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sessions">
+<h2>Sessions<a class="headerlink" href="#sessions" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="gosa.client.plugins.sessions.main.SessionKeeper">
+<em class="property">class </em><tt class="descclassname">gosa.client.plugins.sessions.main.</tt><tt class="descname">SessionKeeper</tt><a class="headerlink" href="#gosa.client.plugins.sessions.main.SessionKeeper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility class that contains methods needed to handle WakeOnLAN
+functionality.</p>
+<dl class="method">
+<dt id="gosa.client.plugins.sessions.main.SessionKeeper.getSessions">
+<tt class="descname">getSessions</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.client.plugins.sessions.main.SessionKeeper.getSessions" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-6">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Return the list of active sessions</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="notify">
+<h2>Notify<a class="headerlink" href="#notify" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="gosa.client.plugins.notify.utils.Notify">
+<em class="property">class </em><tt class="descclassname">gosa.client.plugins.notify.utils.</tt><tt class="descname">Notify</tt><a class="headerlink" href="#gosa.client.plugins.notify.utils.Notify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility class that contains methods needed to handle WakeOnLAN
+notification functionality.</p>
+<dl class="method">
+<dt id="gosa.client.plugins.notify.utils.Notify.notify">
+<tt class="descname">notify</tt><big>(</big><em>user</em>, <em>title</em>, <em>message</em>, <em>timeout=0</em>, <em>urgency='normal'</em>, <em>icon='dialog-information'</em>, <em>actions=''</em>, <em>recurrence=60</em><big>)</big><a class="headerlink" href="#gosa.client.plugins.notify.utils.Notify.notify" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-7">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Sent a notification to a given user</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.client.plugins.notify.utils.Notify.notify_all">
+<tt class="descname">notify_all</tt><big>(</big><em>title</em>, <em>message</em>, <em>timeout=0</em>, <em>urgency='normal'</em>, <em>icon='dialog-information'</em>, <em>actions=''</em>, <em>recurrence=60</em><big>)</big><a class="headerlink" href="#gosa.client.plugins.notify.utils.Notify.notify_all" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-8">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Sent a notification to all users on a machine</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 </div>
 
 
@@ -55,6 +203,17 @@
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">GOto</a><ul>
+<li><a class="reference internal" href="#powermanagement">Powermanagement</a></li>
+<li><a class="reference internal" href="#wake-on-lan">Wake on LAN</a></li>
+<li><a class="reference internal" href="#sessions">Sessions</a></li>
+<li><a class="reference internal" href="#notify">Notify</a></li>
+</ul>
+</li>
+</ul>
+
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../../_sources/plugins/client/goto.txt"
