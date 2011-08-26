@@ -55,9 +55,191 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="repository-modules">
-<h1>Repository modules<a class="headerlink" href="#repository-modules" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-libinst.interface.distribution">
+<span id="repository-modules"></span><h1>Repository modules<a class="headerlink" href="#module-libinst.interface.distribution" title="Permalink to this headline">¶</a></h1>
+<p>Distribution modules are used to deliver a unique API for managing
+various repositories. This can be a Debian repository, RPM repository
+or i.e. a set of OPSI products.</p>
+<p>Modules get registered thru the setuptools <tt class="docutils literal"><span class="pre">[libinst.repository]</span></tt> section
+and are available automatically.</p>
 <hr class="docutils" />
+<dl class="class">
+<dt id="libinst.interface.DistributionHandler">
+<em class="property">class </em><tt class="descclassname">libinst.interface.</tt><tt class="descname">DistributionHandler</tt><a class="headerlink" href="#libinst.interface.DistributionHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the interface class for handling repositories.</p>
+<dl class="method">
+<dt id="libinst.interface.DistributionHandler.addPackage">
+<tt class="descname">addPackage</tt><big>(</big><em>session</em>, <em>url</em>, <em>distribution=None</em>, <em>release=None</em><big>)</big><a class="headerlink" href="#libinst.interface.DistributionHandler.addPackage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a local or remote specified package to the given distribution or release.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="89%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>session</td>
+<td>The sqlalchemy session to use.</td>
+</tr>
+<tr><td>url</td>
+<td>URL of package, can be a local or remote path (supported are ftp/http/https URLs).</td>
+</tr>
+<tr><td>distribution</td>
+<td>The name of the distribution to which this package should be added (adds the package to all releases&nbsp;of the distribution)</td>
+</tr>
+<tr><td>release</td>
+<td>The name of the release to which this package should be added.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.interface.DistributionHandler.createDistribution">
+<tt class="descname">createDistribution</tt><big>(</big><em>session</em>, <em>name</em>, <em>mirror=None</em><big>)</big><a class="headerlink" href="#libinst.interface.DistributionHandler.createDistribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new distribution with a specific name.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="18%" />
+<col width="82%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>session</td>
+<td>The sqlalchemy session to use.</td>
+</tr>
+<tr><td>name</td>
+<td>The name of the new distribution (i.e. debian)</td>
+</tr>
+<tr><td>mirror</td>
+<td>Specifies an optional mirror origin, distribution will be unmanaged</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.interface.DistributionHandler.createRelease">
+<tt class="descname">createRelease</tt><big>(</big><em>session</em>, <em>distribution</em>, <em>name</em><big>)</big><a class="headerlink" href="#libinst.interface.DistributionHandler.createRelease" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new release in the given distribution.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>session</td>
+<td>The sqlalchemy session to use.</td>
+</tr>
+<tr><td>distribution</td>
+<td>The name of the distribution this release belongs to.</td>
+</tr>
+<tr><td>name</td>
+<td>The name for the new release, parent releases are prepended with slashes (i.e. &#8220;lenny/production&#8221;)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.interface.DistributionHandler.removeDistribution">
+<tt class="descname">removeDistribution</tt><big>(</big><em>session</em>, <em>name</em>, <em>recursive=False</em><big>)</big><a class="headerlink" href="#libinst.interface.DistributionHandler.removeDistribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes specified distribution (must not have any releases), removal of releases has to be forced.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="84%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>session</td>
+<td>The sqlalchemy session to use.</td>
+</tr>
+<tr><td>name</td>
+<td>The name of the distribution to be removed.</td>
+</tr>
+<tr><td>recursive</td>
+<td>Choose whether to force removal of all releases depending on this distribution.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.interface.DistributionHandler.removeRelease">
+<tt class="descname">removeRelease</tt><big>(</big><em>session</em>, <em>release</em>, <em>recursive=False</em><big>)</big><a class="headerlink" href="#libinst.interface.DistributionHandler.removeRelease" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes specified release (removal of child releases needs to be forced).</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>session</td>
+<td>The sqlalchemy session to use.</td>
+</tr>
+<tr><td>release</td>
+<td>The name of the release to remove.</td>
+</tr>
+<tr><td>recursive</td>
+<td>Choose whether method should remove child releases.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.interface.DistributionHandler.renameRelease">
+<tt class="descname">renameRelease</tt><big>(</big><em>session</em>, <em>source</em>, <em>target</em><big>)</big><a class="headerlink" href="#libinst.interface.DistributionHandler.renameRelease" title="Permalink to this definition">¶</a></dt>
+<dd><p>Renames specified release.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="76%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>session</td>
+<td>The sqlalchemy session to use.</td>
+</tr>
+<tr><td>source</td>
+<td>The name of the release that should be renamed.</td>
+</tr>
+<tr><td>target</td>
+<td>The new name for the release</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
