@@ -79,6 +79,11 @@ The following list collects the system requirements for a gosa.client which can 
 * gosa user with disabled password
 * server must add ssh key auth via clientDispatch.puppetAddKey()
 
+----
+
+.. autoclass:: libinst.cfg.puppet.client.main.PuppetClient
+   :members:
+
 Handling of puppet recipes within the release management
 --------------------------------------------------------
 

@@ -111,6 +111,125 @@ the client is able to collect and evaluate the log information and sends a corre
 <li>gosa user with disabled password</li>
 <li>server must add ssh key auth via clientDispatch.puppetAddKey()</li>
 </ul>
+<hr class="docutils" />
+<dl class="class">
+<dt id="libinst.cfg.puppet.client.main.PuppetClient">
+<em class="property">class </em><tt class="descclassname">libinst.cfg.puppet.client.main.</tt><tt class="descname">PuppetClient</tt><a class="headerlink" href="#libinst.cfg.puppet.client.main.PuppetClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class provides the client side of being puppet enabled. That
+is mainly</p>
+<blockquote>
+<div><ul class="simple">
+<li>provide a git data store</li>
+<li>provide an update hook to move the changes to the target dir</li>
+<li>add ssh keys that are allowed to push config data</li>
+</ul>
+</div></blockquote>
+<dl class="method">
+<dt id="libinst.cfg.puppet.client.main.PuppetClient.puppetAddKey">
+<tt class="descname">puppetAddKey</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#libinst.cfg.puppet.client.main.PuppetClient.puppetAddKey" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-0">
+</div>
+<p>Client command with no help</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Add SSH key to the list of puppet keys</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.cfg.puppet.client.main.PuppetClient.puppetDelKey">
+<tt class="descname">puppetDelKey</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#libinst.cfg.puppet.client.main.PuppetClient.puppetDelKey" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-1">
+</div>
+<p>Client command with no help</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Delete SSH key from the list of puppet keys</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.cfg.puppet.client.main.PuppetClient.puppetGetPushPath">
+<tt class="descname">puppetGetPushPath</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.cfg.puppet.client.main.PuppetClient.puppetGetPushPath" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-2">
+</div>
+<p>Client command with no help</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Get path where the configuration has to be pushed to</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.cfg.puppet.client.main.PuppetClient.puppetGetReleaseInfo">
+<tt class="descname">puppetGetReleaseInfo</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.cfg.puppet.client.main.PuppetClient.puppetGetReleaseInfo" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-3">
+</div>
+<p>Client command with no help</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Retrieve clients release info</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.cfg.puppet.client.main.PuppetClient.puppetInitialize">
+<tt class="descname">puppetInitialize</tt><big>(</big><em>purge=False</em><big>)</big><a class="headerlink" href="#libinst.cfg.puppet.client.main.PuppetClient.puppetInitialize" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-4">
+</div>
+<p>Client command with no help</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>(Re-) initialize client side puppet data stores</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.cfg.puppet.client.main.PuppetClient.puppetIsInitialized">
+<tt class="descname">puppetIsInitialized</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.cfg.puppet.client.main.PuppetClient.puppetIsInitialized" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-5">
+</div>
+<p>Client command with no help</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Check if client is initialized</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.cfg.puppet.client.main.PuppetClient.puppetListKeys">
+<tt class="descname">puppetListKeys</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.cfg.puppet.client.main.PuppetClient.puppetListKeys" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-6">
+</div>
+<p>Client command with no help</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>List available puppet keys</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="libinst.cfg.puppet.client.main.PuppetClient.puppetRun">
+<tt class="descname">puppetRun</tt><big>(</big><big>)</big><a class="headerlink" href="#libinst.cfg.puppet.client.main.PuppetClient.puppetRun" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-7">
+</div>
+<p>Client command with no help</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Perform a manual puppet run</p>
+</dd></dl>
+
+</dd></dl>
+
 <div class="section" id="handling-of-puppet-recipes-within-the-release-management">
 <h3>Handling of puppet recipes within the release management<a class="headerlink" href="#handling-of-puppet-recipes-within-the-release-management" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="implementation-for-installationitems">
