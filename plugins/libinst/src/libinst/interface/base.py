@@ -32,29 +32,64 @@ class BaseInstallMethod(object):
     @staticmethod
     def getInfo():
         """
-        Get information for the current install method implementation.
+        Static method to get information for the current install method implementation.
 
-        TODO
+        The result is a dictionary with the following keys:
+
+        ============== ========================================
+        Key            Description
+        ============== ========================================
+        name            Display name of the method
+        title           Short description of the method
+        description     Description of the method
+        repositories    List of supported repository types
+        methods         List of supported configuration methods
+        ============== ========================================
+
+        ``Return:`` dict
         """
         raise NotImplementedError("%s is not implemented" % stack()[0][3])
 
     def addClient(self, device_uuid):
         """
-        TODO
+        Add a client to the base install implementation.
+
+        =============== =================
+        Parameter       Description
+        =============== =================
+        device_uuid     Unique device ID
+        =============== =================
+
+        ``Return:`` True on success
         """
         raise NotImplementedError("%s is not implemented" % stack()[0][3])
 
     def removeClient(self, device_uuid):
         """
-        TODO
+        Remove a client from the base install implementation.
+
+        =============== =================
+        Parameter       Description
+        =============== =================
+        device_uuid     Unique device ID
+        =============== =================
+
+        ``Return:`` True on success
         """
         raise NotImplementedError("%s is not implemented" % stack()[0][3])
 
     def getBootString(self, device_uuid, mac=None):
         """
-        Return boot parameters needed for that install method.
+        Generate the boot string for that system when running from PXE.
 
-        TODO
+        =============== =================
+        Parameter       Description
+        =============== =================
+        device_uuid     Optional device_uuid
+        mac             Optional MAC
+        =============== =================
+
+        ``Return:`` string
         """
         return ""
 
@@ -62,22 +97,48 @@ class BaseInstallMethod(object):
         """
         Return boot parameters needed for that install method.
 
-        TODO
+        =============== ====================
+        Parameter       Description
+        =============== ====================
+        device_uuid     Optional device_uuid
+        mac             Optional MAC
+        =============== ====================
+
+        ``Return:`` list
         """
         return []
 
     def getBootConfiguration(self, device_uuid, mac=None):
         """
-        Return the complete boot configuration file needed to do a base
+        Return the complete boot configuration file (template) needed to do a base
         bootstrapping.
 
-        TODO
+        =============== ====================
+        Parameter       Description
+        =============== ====================
+        device_uuid     Optional device_uuid
+        mac             Optional MAC
+        =============== ====================
+
+        ``Return:`` string
         """
         return None
 
     def getBaseInstallParameters(self, device_uuid, data=None):
         """
-        TODO
+        Return parameters used to bootstrap a device.
+
+        =============== ====================
+        Parameter       Description
+        =============== ====================
+        device_uuid     Unique device ID
+        =============== ====================
+
+        Please take a look at
+        :meth:`libinst.interface.BaseInstallMethod.setBaseInstallParameters`
+        for more information about the returned properties.
+
+        ``Return:`` dict
         """
         res = {}
         if not data:
@@ -99,7 +160,35 @@ class BaseInstallMethod(object):
 
     def setBaseInstallParameters(self, device_uuid, data, current_data=None):
         """
-        TODO
+        Set the system base install parameters that are used
+        to fill up the template.
+
+        =============== ==============================
+        Parameter       Description
+        =============== ==============================
+        device_uuid     Unique device ID
+        data            Hash describing the parameters
+        =============== ==============================
+
+        The return parameters are encoded as a dictionary with these keys:
+
+        =============== ======================================================
+        Key             Description
+        =============== ======================================================
+        utc             Flag to specify if system uses UTC
+        timezone        String to specify time zone
+        ntp-servers     List of time server names/IPs
+        kernel          The boot kernel package name
+        root-hash       Hashed version of the root password
+        root-user       Flag to decide if there's a root user
+        disk-setup      String oriented at the RedHat kickstart device string
+        template        String containing the system template
+        system-locale   Locale definition for the system
+        release         Release to install on the system
+        keyboard-layout Keyboard layout to use
+        =============== ======================================================
+
+        ``Return:`` dict
         """
         # Load device
         if not current_data:
@@ -159,7 +248,13 @@ class BaseInstallMethod(object):
 
     def removeBaseInstallParameters(self, device_uuid, data=None):
         """
-        TODO
+        Disable device base install capabilities.
+
+        =========== ===========================================
+        Parameter   Description
+        =========== ===========================================
+        device_uuid Unique identifier of a device
+        =========== ===========================================
         """
         if not data:
             data = load_system(device_uuid)

@@ -9,8 +9,20 @@ ALL = 2 ** 1
 
 class DiskDefinition(object):
     """
-    TODO
+    The disk definition base class provides the mechanism to
+    manage disk setups for clients. Implementators of the
+    interface can concentrate on the conversation to the
+    desired format.
+
+    =========== ==================================
+    Parameter   Description
+    =========== ==================================
+    definition  Partition scheme definition string
+    =========== ==================================
     """
+
+    #TODO: move to ENBF for parsing and and use _repr instead
+    #      of custom strings that look like kickstart defs.
     supportedFsTypes = []
     supportedRaidLevels = [0, 1, 5]
     supportedDeviceTypes = []
@@ -150,18 +162,42 @@ class DiskDefinition(object):
 
 
     def dump(self):
+        """
+        Dump the current partitioning configuration in the curent format.
+
+        ``Return:`` string
+        """
         return self._dumpDisk() + self._dumpPartition() + \
             self._dumpRaidDevice() + self._dumpVolumeGroup() + \
             self._dumpVolume()
 
     def getDisks(self):
+        """
+        List the currently configured disks.
+
+        >>> o = DebianDiskDefinition()
+        >>> o.addDisk("sda")
+        >>> o.getDisks()
+        [{'device': 'sda', 'initlabel': True, 'removeParts': None}]
+
+        The returned list consists of hashes. For details, please see
+        :meth:`libinst.interface.disk.DiskDefinition.addDisk`.
+
+        ``Return:`` list of hashes
+        """
         return self._disks
 
     def addDisk(self, device, initLabel=True, removeParts=None):
         """
-        removeParts: None, LINUX, ALL
+        Add a new disk to the partitioning scheme.
 
-        device cciss/c0d0 , sda, hda, etc.
+        ============ ====================================================
+        Parameter    Description
+        ============ ====================================================
+        device       Device string without /dev/ (i.e. sda or cciss/c0d0)
+        initlabel    Use labels
+        removeParts  Remove partitions of type LINUX/ALL or None
+        ============ ====================================================
         """
         self.checkDevice(device)
 
@@ -175,6 +211,15 @@ class DiskDefinition(object):
             'removeParts': removeParts})
 
     def delDisk(self, diskId):
+        """
+        Delete an existing disk.
+
+        ============ ========================
+        Parameter    Description
+        ============ ========================
+        diskId       Disk index
+        ============ ========================
+        """
         # Check if it is used
         if self._disks[diskId]['device'] in [p['onDisk'] for p in self._parts]:
             raise ValueError("disk still in use")
@@ -197,12 +242,47 @@ class DiskDefinition(object):
         return res
 
     def getPartitions(self):
+        """
+        List defined partitions.
+
+        ============ ========================
+        Parameter    Description
+        ============ ========================
+        diskId       Disk index
+        ============ ========================
+        """
         return self._parts
 
     def addPartition(self, target, size, maxSize=None, grow=False,
         formatPartition=True, boot=False, primary=False, fsType=None,
         fsOptions=None, encrypted=False, passphrase=None,
         onDisk=None):
+        """
+        Add a partition to the partitioning scheme.
+
+        ================ ==================================================
+        Parameter        Description
+        ================ ==================================================
+        target           Filesystem target i.e. /, raid.01, swap, pv.01
+        size             Size of the partition
+        maxSize          Maximum size of the partition (used with *grow*)
+        grow             Grow partition from *size* to *maxSize*
+        formatPartition  Do format the partition
+        boot             Mark it as boot partition
+        primary          Create a primary partition
+        fsType           Set filesystem type (i.e. ext4)
+        fsOptions        Set filesystem options for the formatting process
+        encrypted        Create an encrypted partition
+        passphrase       Passphrase for encrypted partition
+        onDisk           Place partition on a special disk
+        ================ ==================================================
+
+        Example:
+
+        >>> o.addPartition('/', 100, onDisk='sda')
+        >>> o.getPartitions()
+        [{'onDisk': 'sda', 'format': True, 'encrypted': False, 'primary': False, 'maxSize': None, 'passphrase': None, 'grow': False, 'size': 100, 'target': '/', 'bootable': False, 'fsType': None, 'fsOptions': None}]
+        """
 
         # Check target
         pt = re.compile(r"^(raid.[0-9][0-9]|swap|/.*|pv.[0-9][0-9])$")
@@ -251,6 +331,9 @@ class DiskDefinition(object):
             "onDisk": onDisk})
 
     def delPartition(self, partitionId):
+        """
+        TODO
+        """
         devs = []
         vgs = []
         if len(self._raids):
@@ -296,10 +379,16 @@ class DiskDefinition(object):
         return res
 
     def getRaidDevices(self):
+        """
+        TODO
+        """
         return self._raids
 
     def addRaidDevice(self, target, name, level="0", spares="0", fsType=None,
         fsOptions=None, formatDevice=True, useExisting=False, devices=None):
+        """
+        TODO
+        """
 
         # Check target
         pt = re.compile(r"^(swap|/[^/].*[^/]|pv.[0-9][0-9])$")
@@ -367,6 +456,9 @@ class DiskDefinition(object):
             "devices": devices})
 
     def delRaidDevice(self, raidId):
+        """
+        TODO
+        """
         # Check for usage
         if self._volgroups and self._raids[raidId]['target'] in [part for part in [v['partitions'] \
             for v in self._volgroups]][0]:
@@ -390,10 +482,16 @@ class DiskDefinition(object):
         return res
 
     def getVolumeGroups(self):
+        """
+        TODO
+        """
         return self._volgroups
 
     def addVolumeGroup(self, name, partitions, formatGroup=True,
         useExisting=False, peSize=None):
+        """
+        TODO
+        """
 
         # Check name
         pt = re.compile(r"^[a-zA-Z0-9_+-]+$")
@@ -423,6 +521,9 @@ class DiskDefinition(object):
             "peSize": None if not peSize else peSize})
 
     def delVolumeGroup(self, groupId):
+        """
+        TODO
+        """
         # Check for usage
         if self._volgroups[groupId]['name'] in [v['volGroup'] \
             for v in self._vols]:
@@ -445,11 +546,17 @@ class DiskDefinition(object):
         return res
 
     def getVolumes(self):
+        """
+        TODO
+        """
         return self._vols
 
     def addVolume(self, target, name, volGroup, size=None, maxSize=None,
         grow=False, formatVolume=True, useExisting=False,
         fsType=None, fsOptions=None):
+        """
+        TODO
+        """
 
         # Check target
         pt = re.compile(r"^(swap|/.*)$")
@@ -520,30 +627,51 @@ class DiskDefinition(object):
         return res
 
     def delVolume(self, volumeId):
+        """
+        TODO
+        """
         del self._vols[volumeId]
 
     def checkDevice(self, device):
+        """
+        TODO
+        """
         pt = re.compile(r"^(%s)$" % "|".join(self.supportedDeviceTypes))
         if not pt.match(device):
             raise ValueError("device %s is not supported" % device)
 
     def checkFsType(self, fsType):
+        """
+        TODO
+        """
         pt = re.compile(r"^(%s)$" % "|".join(self.supportedFsTypes))
         if not pt.match(fsType):
             raise ValueError("fsType %s is not supported" % fsType)
 
     def checkFsOptions(self, fsOptions):
+        """
+        TODO
+        """
         pt = re.compile(r"[a-zA-Z0-9=,.+_-]+")
         if not pt.match(fsOptions):
             raise ValueError("fsOptions %s are not valid" % fsOptions)
 
     def getFsTypes(self):
+        """
+        TODO
+        """
         return self.supportedFsTypes
 
     def getRaidLevels(self):
+        """
+        TODO
+        """
         return self.supportedRaidLevels
 
     def getUnassignedRaidPartitions(self):
+        """
+        TODO
+        """
         available = [part['target'] for part in self._parts if part['target'].startswith("raid.")]
         used = filter(lambda x: x.startswith('raid.'),
                 list(itertools.chain(*[vg['partitions'] for vg in
@@ -551,6 +679,9 @@ class DiskDefinition(object):
         return list(set(available) - set(used))
 
     def getUnassignedPhysicalVolumes(self):
+        """
+        TODO
+        """
         used = filter(lambda x: x.startswith('pv.'),
             list(itertools.chain(*[vg['partitions'] for vg in self._volgroups])))
         onpart = [part['target'] for part in self._parts if part['target'].startswith("pv.")]
@@ -558,14 +689,23 @@ class DiskDefinition(object):
         return list(set(onpart + onraid) - set(used))
 
     def getNextRaidName(self):
+        """
+        TODO
+        """
         current = [part['target'] for part in self._parts if part['target'].startswith("raid.")]
         return self.__next_value("raid.", current, fmt="%s%02d")
 
     def getNextRaidDevice(self):
+        """
+        TODO
+        """
         current = [raid['device'] for raid in self._raids if raid['device'].startswith("md")]
         return self.__next_value("md", current)
 
     def getNextPhysicalVolumeName(self):
+        """
+        TODO
+        """
         current = [raid['target'] for raid in self._raids if raid['target'].startswith("pv.")]
         current += [part['target'] for part in self._parts if part['target'].startswith("pv.")]
         return self.__next_value("pv.", current, fmt="%s%02d")
@@ -578,6 +718,9 @@ class DiskDefinition(object):
             list(set(range(start, limit)) - set(current))[0])
 
     def getDeviceUsage(self):
+        """
+        TODO
+        """
         #TODO: take from inventory instead of hard coded values
         available_disks = {"sda": 20000, "sdb": 100000}
 
