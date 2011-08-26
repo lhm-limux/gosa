@@ -250,6 +250,16 @@ class DiskDefinition(object):
         ============ ========================
         diskId       Disk index
         ============ ========================
+
+        Example:
+
+        >>> o.addPartition('/', 100, onDisk='sda')
+        >>> o.getPartitions()
+        [{'onDisk': 'sda', 'format': True, 'encrypted': False, 'primary': False, 'maxSize': None, 'passphrase': None, 'grow': False, 'size': 100, 'target': '/', 'bootable': False, 'fsType': None, 'fsOptions': None}]
+
+        For information about the keys, please see :meth:`libinst.instance.disk.DiskDefinition.addPartition`
+
+        ``Return:`` dict
         """
         return self._parts
 
@@ -276,12 +286,6 @@ class DiskDefinition(object):
         passphrase       Passphrase for encrypted partition
         onDisk           Place partition on a special disk
         ================ ==================================================
-
-        Example:
-
-        >>> o.addPartition('/', 100, onDisk='sda')
-        >>> o.getPartitions()
-        [{'onDisk': 'sda', 'format': True, 'encrypted': False, 'primary': False, 'maxSize': None, 'passphrase': None, 'grow': False, 'size': 100, 'target': '/', 'bootable': False, 'fsType': None, 'fsOptions': None}]
         """
 
         # Check target
@@ -332,7 +336,15 @@ class DiskDefinition(object):
 
     def delPartition(self, partitionId):
         """
-        TODO
+        Delete a partition with the partitionId - that's the index
+        delivered by
+        :meth:`libinst.interface.disk.DiskDefinition.getPartitions`.
+
+        ============ ========================
+        Parameter    Description
+        ============ ========================
+        partitionId  Partition index
+        ============ ========================
         """
         devs = []
         vgs = []
@@ -380,14 +392,32 @@ class DiskDefinition(object):
 
     def getRaidDevices(self):
         """
-        TODO
+        List RAID defined devices.
+
+        For information about the keys, please see :meth:`libinst.instance.disk.DiskDefinition.addRaidDevice`
+
+        ``Return:`` list of dicts
         """
         return self._raids
 
     def addRaidDevice(self, target, name, level="0", spares="0", fsType=None,
         fsOptions=None, formatDevice=True, useExisting=False, devices=None):
         """
-        TODO
+        Add a RAID device to the current disk setup.
+
+        ============ =======================================================
+        Parameter    Description
+        ============ =======================================================
+        target       Filesystem target, i.e. /, swap, pv.01
+        name         Name of the RAID device, i.e. md0
+        devices      List of devices (disks, partitions) to make the RAID
+        level        RAID level to implement
+        spares       Number of hot spares
+        useExisting  Try to reuse existing RAID
+        format       Flag to indicate a formatted RAID
+        fsType       Set filesystem type (i.e. ext4)
+        fsOptions    Set filesystem options for the formatting process
+        ============ =======================================================
         """
 
         # Check target
@@ -457,7 +487,15 @@ class DiskDefinition(object):
 
     def delRaidDevice(self, raidId):
         """
-        TODO
+        Delete a partition with the partitionId - that's the index
+        delivered by
+        :meth:`libinst.interface.disk.DiskDefinition.getRaidDevices`.
+
+        ============ ========================
+        Parameter    Description
+        ============ ========================
+        raidId       RAID index
+        ============ ========================
         """
         # Check for usage
         if self._volgroups and self._raids[raidId]['target'] in [part for part in [v['partitions'] \
@@ -483,14 +521,28 @@ class DiskDefinition(object):
 
     def getVolumeGroups(self):
         """
-        TODO
+        List defined volume groups.
+
+        For information about the keys, please see :meth:`libinst.instance.disk.DiskDefinition.addVolumeGroup`.
+
+        ``Return:`` list of dicts
         """
         return self._volgroups
 
     def addVolumeGroup(self, name, partitions, formatGroup=True,
         useExisting=False, peSize=None):
         """
-        TODO
+        Add a volume group to the current disk setup.
+
+        ============ =======================================================
+        Parameter    Description
+        ============ =======================================================
+        name         Name of the volume group device, i.e. 'system'
+        partitions   List of physical volumes to combine i.e. [pv.01, pv.02]
+        formatGroup  Format the volume group
+        useExisting  Try to reuse existing volume group
+        peSize       Size of the physical extend
+        ============ =======================================================
         """
 
         # Check name
@@ -522,7 +574,15 @@ class DiskDefinition(object):
 
     def delVolumeGroup(self, groupId):
         """
-        TODO
+        Delete a volume with the groupId - that's the index
+        delivered by
+        :meth:`libinst.interface.disk.DiskDefinition.getVolumeGroups`.
+
+        ============ ========================
+        Parameter    Description
+        ============ ========================
+        groupId      Volume group index
+        ============ ========================
         """
         # Check for usage
         if self._volgroups[groupId]['name'] in [v['volGroup'] \
@@ -547,7 +607,11 @@ class DiskDefinition(object):
 
     def getVolumes(self):
         """
-        TODO
+        List defined volumes.
+
+        For information about the keys, please see :meth:`libinst.instance.disk.DiskDefinition.addVolume`.
+
+        ``Return:`` list of dicts
         """
         return self._vols
 
@@ -555,7 +619,22 @@ class DiskDefinition(object):
         grow=False, formatVolume=True, useExisting=False,
         fsType=None, fsOptions=None):
         """
-        TODO
+        Add a volume to the current disk setup.
+
+        ============ =======================================================
+        Parameter    Description
+        ============ =======================================================
+        target       Target for that volume i.e. / or swap
+        name         Symbolic name of the volume
+        volGroup     Name of the volume group to use
+        size         Size of the volume
+        maxSize      Maximum size of the volume (used with *grow*)
+        grow         Grow volume from *size* to *maxSize*
+        formatVolume Do format the volume
+        useExisting  Use existing volume setup
+        fsType       Set filesystem type (i.e. ext4)
+        fsOptions    Set filesystem options for the formatting process
+        ============ =======================================================
         """
 
         # Check target
@@ -628,13 +707,29 @@ class DiskDefinition(object):
 
     def delVolume(self, volumeId):
         """
-        TODO
+        Delete a volume with the volume id - that's the index
+        delivered by
+        :meth:`libinst.interface.disk.DiskDefinition.getVolumes`.
+
+        ============ ========================
+        Parameter    Description
+        ============ ========================
+        volimeId     Volume index
+        ============ ========================
         """
         del self._vols[volumeId]
 
     def checkDevice(self, device):
         """
-        TODO
+        Check if the provided device is valid.
+
+        ============ ========================
+        Parameter    Description
+        ============ ========================
+        device       Name of the device
+        ============ ========================
+
+        ``Return::`` True on success
         """
         pt = re.compile(r"^(%s)$" % "|".join(self.supportedDeviceTypes))
         if not pt.match(device):
@@ -642,7 +737,15 @@ class DiskDefinition(object):
 
     def checkFsType(self, fsType):
         """
-        TODO
+        Check if the provided filesystem type is valid.
+
+        ============ ========================
+        Parameter    Description
+        ============ ========================
+        fsType       Filesystem type
+        ============ ========================
+
+        ``Return::`` True on success
         """
         pt = re.compile(r"^(%s)$" % "|".join(self.supportedFsTypes))
         if not pt.match(fsType):
@@ -650,7 +753,15 @@ class DiskDefinition(object):
 
     def checkFsOptions(self, fsOptions):
         """
-        TODO
+        Check if the provided filesystem options are valid.
+
+        ============ ========================
+        Parameter    Description
+        ============ ========================
+        fsOptions    Filesystem options
+        ============ ========================
+
+        ``Return::`` True on success
         """
         pt = re.compile(r"[a-zA-Z0-9=,.+_-]+")
         if not pt.match(fsOptions):
@@ -658,19 +769,25 @@ class DiskDefinition(object):
 
     def getFsTypes(self):
         """
-        TODO
+        Get supported filesystem types.
+
+        ``Return::`` list of strings
         """
         return self.supportedFsTypes
 
     def getRaidLevels(self):
         """
-        TODO
+        Get supported RAID levels.
+
+        ``Return::`` list of strings
         """
         return self.supportedRaidLevels
 
     def getUnassignedRaidPartitions(self):
         """
-        TODO
+        List all unassigned RAID partitions
+
+        ``Return::`` list of RAID names
         """
         available = [part['target'] for part in self._parts if part['target'].startswith("raid.")]
         used = filter(lambda x: x.startswith('raid.'),
@@ -680,7 +797,9 @@ class DiskDefinition(object):
 
     def getUnassignedPhysicalVolumes(self):
         """
-        TODO
+        List all unassigned physical volumes.
+
+        ``Return::`` list of volume names
         """
         used = filter(lambda x: x.startswith('pv.'),
             list(itertools.chain(*[vg['partitions'] for vg in self._volgroups])))
@@ -690,21 +809,27 @@ class DiskDefinition(object):
 
     def getNextRaidName(self):
         """
-        TODO
+        Get next available RAID device name
+
+        ``Return::`` string
         """
         current = [part['target'] for part in self._parts if part['target'].startswith("raid.")]
         return self.__next_value("raid.", current, fmt="%s%02d")
 
     def getNextRaidDevice(self):
         """
-        TODO
+        Get next available RAID device name
+
+        ``Return::`` string
         """
         current = [raid['device'] for raid in self._raids if raid['device'].startswith("md")]
         return self.__next_value("md", current)
 
     def getNextPhysicalVolumeName(self):
         """
-        TODO
+        Get next available physical volume name
+
+        ``Return::`` string
         """
         current = [raid['target'] for raid in self._raids if raid['target'].startswith("pv.")]
         current += [part['target'] for part in self._parts if part['target'].startswith("pv.")]
@@ -719,7 +844,13 @@ class DiskDefinition(object):
 
     def getDeviceUsage(self):
         """
-        TODO
+        Estimate the potential free space of the devices, partitions,
+        volume groups and RAIDs.
+
+        Returns a dict of dicts, with the keys 'disk', 'part', 'raid' and
+        'vg' each containing dicts with device names and *size*/*usage* dicts.
+
+        ``Return::`` string
         """
         #TODO: take from inventory instead of hard coded values
         available_disks = {"sda": 20000, "sdb": 100000}

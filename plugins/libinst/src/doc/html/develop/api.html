@@ -125,8 +125,8 @@ to be used from your frontend - shell, GUI or whatever you tend to use.</p>
 <p>Add properties to an existing distribution mirror definition.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="41%" />
-<col width="59%" />
+<col width="34%" />
+<col width="66%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Parameter</th>
@@ -147,12 +147,12 @@ to be used from your frontend - shell, GUI or whatever you tend to use.</p>
 <td>Flag to mirror sources</td>
 </tr>
 <tr><td>origin</td>
-<td>TODO</td>
+<td>The URL of the mirrors origin</td>
 </tr>
 </tbody>
 </table>
 <p>Example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">addMirrorProperty</span><span class="p">(</span><span class="n">distribution</span><span class="o">=</span><span class="s">&quot;debian&quot;</span><span class="p">,</span> <span class="n">arch</span><span class="o">=</span><span class="s">&quot;i386&quot;</span><span class="p">,</span> <span class="n">component</span><span class="o">=</span><span class="s">&quot;main&quot;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">addMirrorProperty</span><span class="p">(</span><span class="n">distribution</span><span class="o">=</span><span class="s">&quot;debian&quot;</span><span class="p">,</span> <span class="n">arch</span><span class="o">=</span><span class="s">&quot;i386&quot;</span><span class="p">,</span> <span class="n">component</span><span class="o">=</span><span class="s">&quot;main&quot;</span><span class="p">,</span> <span class="n">mirror_sources</span><span class="o">=</span><span class="n">TRUE</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s">&quot;http://ftp.debian.org/debian/dists/lenny/&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
@@ -338,7 +338,7 @@ using the name field: i.e. name = &#8216;lenny/5.0.4&#8217;</p>
 </tr>
 </tbody>
 </table>
-<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict describing the archtiectures</p>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> dict describing the architectures</p>
 </dd></dl>
 
 <dl class="method">
@@ -433,8 +433,8 @@ for the defined item.</p>
 <p>Every list element is a dictionary with these keys:</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="27%" />
-<col width="73%" />
+<col width="26%" />
+<col width="74%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Key</th>
@@ -446,7 +446,7 @@ for the defined item.</p>
 <td>Distribution name</td>
 </tr>
 <tr><td>origin</td>
-<td>TODO</td>
+<td>Filter by mirror origin</td>
 </tr>
 <tr><td>installation_method</td>
 <td>Method to be used for this distribution</td>
@@ -473,15 +473,15 @@ for the defined item.</p>
 <td>Flag whether to mirror sources or not</td>
 </tr>
 <tr><td>managed</td>
-<td>TODO</td>
+<td>Flag whether mirrored distributions are listed or not</td>
 </tr>
 </tbody>
 </table>
 <p>The list of releases contains descriptive dicts, too:</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="27%" />
-<col width="73%" />
+<col width="23%" />
+<col width="77%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Key</th>
@@ -496,10 +496,10 @@ for the defined item.</p>
 <td>Codename of the release</td>
 </tr>
 <tr><td>parent</td>
-<td>TODO</td>
+<td>Name of the parent release</td>
 </tr>
 <tr><td>origin</td>
-<td>TODO</td>
+<td>Name of the origin if release belongs to a mirror distribution</td>
 </tr>
 </tbody>
 </table>
@@ -762,14 +762,14 @@ The list of components contains descriptive dicts, too:</p>
 <tr><td>build_depends</td>
 <td>List of build dependencies</td>
 </tr>
+<tr><td>format</td>
+<td>Format of source package</td>
+</tr>
 <tr><td>provides</td>
 <td>List of alias names</td>
 </tr>
 <tr><td>maintainer</td>
 <td>Contact of the package maintainers</td>
-</tr>
-<tr><td>format</td>
-<td>TODO</td>
 </tr>
 <tr><td>type</td>
 <td>Package type (i.e. deb)</td>
@@ -859,7 +859,7 @@ The list of components contains descriptive dicts, too:</p>
 <td>Code name</td>
 </tr>
 <tr><td>origin</td>
-<td>TODO</td>
+<td>URL of the origin</td>
 </tr>
 <tr><td>parent</td>
 <td>Parent release information</td>
@@ -903,10 +903,10 @@ The list of components contains descriptive dicts, too:</p>
 <td>Codename of the release</td>
 </tr>
 <tr><td>origin</td>
-<td>TODO</td>
+<td>Origin of the release</td>
 </tr>
 <tr><td>parent</td>
-<td>TODO</td>
+<td>Name of the parent release</td>
 </tr>
 </tbody>
 </table>
@@ -1153,7 +1153,7 @@ these information keys:</p>
 <p class="first admonition-title">Note</p>
 <p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
 </div>
-<p>List registered <a class="reference internal" href="repository.html#libinst.interface.DistributionHandler" title="libinst.interface.DistributionHandler"><tt class="xref py py-class docutils literal"><span class="pre">libinst.interface.DistributionHandler</span></tt></a> objects.
+<p>List registered <a class="reference external" href="http://amqp.intranet.gonicus.de:8082/develop/repository.html#libinst.interface.DistributionHandler" title="(in libinst v1.0)"><tt class="xref py py-class docutils literal"><span class="pre">libinst.interface.DistributionHandler</span></tt></a> objects.
 Registration works by specifying a setuptools <tt class="docutils literal"><span class="pre">[libinst.repository]</span></tt>
 entrypoint.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">getSupportedRepositoryTypes</span><span class="p">()</span>
@@ -2317,9 +2317,6 @@ always lists**):</p>
 <tbody valign="top">
 <tr><td>distribution</td>
 <td>The distribution name</td>
-</tr>
-<tr><td>releases</td>
-<td>TODO</td>
 </tr>
 <tr><td>components</td>
 <td>List of components to download</td>
