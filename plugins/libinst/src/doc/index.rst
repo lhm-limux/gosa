@@ -39,7 +39,7 @@ lifecycle.
 
 .. warning::
 
-   This document is incomplete. Please check back later.
+   This document is in the works.
 
 ---------------------
 
