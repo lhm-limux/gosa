@@ -130,11 +130,14 @@ class LDAPHandler(object):
                     self.env.log.debug("starting simple bind using '%s'" %
                         self.__bind_dn)
                     conn.simple_bind_s(self.__bind_dn, self.__bind_secret)
-                else:
+                elif self.__bind_user:
                     self.env.log.debug("starting SASL bind using '%s'" %
                         self.__bind_user)
                     auth_tokens = ldap.sasl.digest_md5(self.__bind_user, self.__bind_secret)
                     conn.sasl_interactive_bind_s("", auth_tokens)
+                else:
+                    self.env.log.debug("starting anonymous bind")
+                    conn.simple_bind_s()
 
             except ldap.INVALID_CREDENTIALS as detail:
                 self.env.log.error("LDAP authentication failed: %s" %
