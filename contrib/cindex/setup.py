@@ -38,4 +38,5 @@ setup(
     include_package_data=True,
     install_requires=requires,
     namespace_packages=['sphinxcontrib'],
+    package_data={'sphinxcontrib': ['cindex.css']},
 )
