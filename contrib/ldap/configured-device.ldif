@@ -1,0 +1,51 @@
+#
+################################################################################
+#
+dn: cn=configured-device,cn=schema,cn=config
+objectClass: olcSchemaConfig
+cn: configured-device
+#
+################################################################################
+#
+olcAttributeTypes: (
+  1.3.6.1.4.1.10098.3.2.1.50
+  NAME 'configVariable'
+  DESC 'Parameter assignement for installation'
+  EQUALITY caseIgnoreIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  )
+#
+################################################################################
+#
+olcAttributeTypes: (
+  1.3.6.1.4.1.10098.3.2.1.51
+  NAME 'configItem'
+  DESC 'An assigned configItem'
+  EQUALITY caseIgnoreIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  )
+#
+################################################################################
+#
+olcAttributeTypes: (
+  1.3.6.1.4.1.10098.3.2.1.52
+  NAME 'configMethod'
+  DESC 'Stores the desired configuration method'
+  EQUALITY caseIgnoreIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  )
+#
+################################################################################
+#
+olcObjectClasses: (
+  1.3.6.1.4.1.10098.3.2.1.1.50
+  NAME 'configRecipe'
+  DESC 'Puppet Client objectclass'
+  SUP top
+  AUXILIARY
+  MUST configMethod
+  MAY ( configItem $ configVariable )
+  )
+#
+################################################################################
+#

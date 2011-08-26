@@ -1,0 +1,243 @@
+#
+################################################################################
+#
+dn: cn=installed-device,cn=schema,cn=config
+objectClass: olcSchemaConfig
+cn: installed-device
+#
+################################################################################
+#
+olcAttributeTypes: (
+  1.3.6.1.4.1.10098.3.2.1.5
+  NAME 'installTemplateDN'
+  DESC 'DN that points to the installation installTemplate'
+  SUP distinguishedName
+  SINGLE-VALUE
+  )
+#
+################################################################################
+#
+olcAttributeTypes: (
+  1.3.6.1.4.1.10098.3.2.1.6
+  NAME 'installKeyboardLayout'
+  DESC 'Keyboard map is defined like in RFC 1766 [2]'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{64}
+  SINGLE-VALUE
+  )
+#
+################################################################################
+#
+olcAttributeTypes: (
+  1.3.6.1.4.1.10098.3.2.1.7
+  NAME 'installSystemLocale'
+  DESC 'Language code like defined in RFC 1766 [2]'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{16}
+  SINGLE-VALUE
+  )
+#
+################################################################################
+#
+olcAttributeTypes: (
+  1.3.6.1.4.1.10098.3.2.1.8
+  NAME 'installTimezone'
+  DESC 'Timezone string defined in zoneinfo description'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{64}
+  SINGLE-VALUE
+  )
+#
+################################################################################
+#
+olcAttributeTypes: (
+  1.3.6.1.4.1.10098.3.2.1.9
+  NAME 'installTimeUTC'
+  DESC 'Bool flag to determine if we system time is in UTC'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE
+  )
+#
+################################################################################
+#
+olcAttributeTypes: (
+  1.3.6.1.4.1.10098.3.2.1.10
+  NAME 'installNTPServer'
+  DESC 'List of NTP servers that should be used'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{255}
+  )
+#
+################################################################################
+#
+olcAttributeTypes: (
+  1.3.6.1.4.1.10098.3.2.1.11
+  NAME 'installMirrorPoolDN'
+  DESC 'DN that points to the mirror pool to be used'
+  SUP distinguishedName
+  SINGLE-VALUE
+  )
+#
+################################################################################
+#
+olcAttributeTypes: (
+  1.3.6.1.4.1.10098.3.2.1.12
+  NAME 'installRootEnabled'
+  DESC 'Bool flag to tetermin if the root account is enabled'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE
+  )
+#
+################################################################################
+#
+olcAttributeTypes: (
+  1.3.6.1.4.1.10098.3.2.1.13
+  NAME 'installRootPasswordHash'
+  DESC 'Hash to be placed in the systems shadow file'
+  EQUALITY caseIgnoreMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{255}
+  SINGLE-VALUE
+  )
+#
+################################################################################
+#
+olcAttributeTypes: (
+  1.3.6.1.4.1.10098.3.2.1.14
+  NAME 'installKernelPackage'
+  DESC 'Name of the kernel package that should be installed'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{255}
+  SINGLE-VALUE
+  )
+#
+################################################################################
+#
+olcAttributeTypes: (
+  1.3.6.1.4.1.10098.3.2.1.15
+  NAME 'installPartitionTable'
+  DESC 'Name of the kernel package that should be installed'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE
+  )
+#
+################################################################################
+#
+olcAttributeTypes: (
+  1.3.6.1.4.1.10098.3.2.1.16
+  NAME 'installRecipeDN'
+  DESC 'DN that points to a instalRecipe object'
+  SUP distinguishedName
+  SINGLE-VALUE
+  )
+#
+################################################################################
+#
+olcAttributeTypes: (
+  1.3.6.1.4.1.10098.3.2.1.17
+  NAME 'installMirrorDN'
+  DESC 'DN that points to the mirror pool to be used'
+  SUP distinguishedName
+  )
+#
+################################################################################
+#
+olcAttributeTypes: (
+  1.3.6.1.4.1.10098.3.2.1.18
+  NAME 'installMethod'
+  DESC 'Method to be used for client / with template'
+  EQUALITY caseIgnoreMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE
+  )
+#
+################################################################################
+#
+olcAttributeTypes: (
+  1.3.6.1.4.1.10098.3.2.1.19
+  NAME 'installRelease'
+  DESC 'Release to be used for client / with template'
+  EQUALITY caseIgnoreMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE
+  )
+#
+################################################################################
+#
+olcAttributeTypes: (
+  1.3.6.1.4.1.10098.3.2.1.20
+  NAME 'templateData'
+  DESC 'The template used for kickstarting'
+  EQUALITY caseIgnoreMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE
+  )
+#
+################################################################################
+#
+olcAttributeTypes: (
+  1.3.6.1.4.1.10098.3.2.1.21
+  NAME 'installArchitecture'
+  DESC 'Architecture to be used for client'
+  EQUALITY caseIgnoreMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE
+  )
+#
+################################################################################
+#
+olcObjectClasses: (
+  1.3.6.1.4.1.10098.3.2.1.1.11
+  NAME 'installProfile'
+  DESC 'Objectclass for bundeling installation reciepes'
+  SUP top
+  STRUCTURAL
+  MUST ( cn )
+  MAY ( manager $ description )
+  )
+#
+################################################################################
+#
+olcObjectClasses: (
+  1.3.6.1.4.1.10098.3.2.1.1.12
+  NAME 'installRecipe'
+  DESC 'Objectclass for bundeling installation reciepes'
+  SUP top
+  AUXILIARY
+  MAY ( installTemplateDN $ installNTPServer $ installRootEnabled $ installRootPasswordHash $ installKeyboardlayout $ installSystemLocale $ installTimezone $ installMirrorDN $ installTimeUTC $ installMirrorPoolDN $ installKernelPackage $ installPartitionTable $ installRecipeDN $ installRelease $ installArchitecture )
+  )
+#
+################################################################################
+#
+olcObjectClasses: (
+  1.3.6.1.4.1.10098.3.2.1.1.13
+  NAME 'installTemplate'
+  DESC 'Kickstart template definition'
+  SUP top
+  AUXILIARY
+  MUST ( cn $ installMethod )
+  MAY ( description $ templateData )
+  )
+#
+################################################################################
+#
+olcObjectClasses: (
+  1.3.6.1.4.1.10098.3.2.1.1.14
+  NAME 'installMirrorPool'
+  DESC 'Kickstart template definition'
+  SUP top
+  AUXILIARY
+  MUST ( cn )
+  MAY ( description $ installMirrorDN )
+  )
+#
+################################################################################
+#
