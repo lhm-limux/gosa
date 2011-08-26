@@ -338,7 +338,7 @@ class LibinstManager(Plugin):
         Key                 Description
         =================== ====================================================
         name                Distribution name
-        origin              TODO
+        origin              Filter by mirror origin
         installation_method Method to be used for this distribution
         last_updated        Timestamp of last update
         releases            List of releases the use this distribution as parent
@@ -347,7 +347,7 @@ class LibinstManager(Plugin):
         architectures       List of supported architectures
         path                Local mirror path
         mirror_sources      Flag whether to mirror sources or not
-        managed             TODO
+        managed             Flag whether mirrored distributions are listed or not
         =================== ====================================================
 
         The list of releases contains descriptive dicts, too:
@@ -357,8 +357,8 @@ class LibinstManager(Plugin):
         =================== ====================================================
         name                Name of the release
         codename            Codename of the release
-        parent              TODO
-        origin              TODO
+        parent              Name of the parent release
+        origin              Name of the origin if release belongs to a mirror distribution
         =================== ====================================================
 
         In the debian way of packaging, sections are something like *sound*, *net*, etc.
@@ -474,8 +474,8 @@ class LibinstManager(Plugin):
         =================== ====================================================
         name                Name of the release
         codename            Codename of the release
-        origin              TODO
-        parent              TODO
+        origin              Origin of the release
+        parent              Name of the parent release
         =================== ====================================================
 
         ``Return:`` list of dicts
@@ -531,7 +531,7 @@ class LibinstManager(Plugin):
         =================== ====================================================
         name                Release name
         codename            Code name
-        origin              TODO
+        origin              URL of the origin
         parent              Parent release information
         =================== ====================================================
 
@@ -586,7 +586,7 @@ class LibinstManager(Plugin):
         description         Description
         =================== ====================================================
 
-        ``Return:`` dict describing the archtiectures
+        ``Return:`` dict describing the architectures
         """
         #TODO: reason for m_hash?
         result = None
@@ -1085,12 +1085,12 @@ class LibinstManager(Plugin):
         arch            List of architectures
         component       List of components
         mirror_sources  Flag to mirror sources
-        origin          TODO
+        origin          The URL of the mirrors origin
         =============== ============
 
         Example:
 
-        >>> proxy.addMirrorProperty(distribution="debian", arch="i386", component="main")
+        >>> proxy.addMirrorProperty(distribution="debian", arch="i386", component="main", mirror_sources=TRUE, origin="http://ftp.debian.org/debian/dists/lenny/")
 
         ``Return:`` True on success
         """
@@ -1206,7 +1206,7 @@ class LibinstManager(Plugin):
 
     @Command(__help__=N_("Update a local mirror"))
     @NamedArgs("m_hash")
-    def updateMirror(self, m_hash=None, distribution=None, releases=None, components=None, architectures=None, sections=None):
+    def updateMirror(self, m_hash=None, distribution=None, components=None, architectures=None, sections=None):
         """
         Initially download or update a distribution from a mirror.
 
@@ -1214,7 +1214,6 @@ class LibinstManager(Plugin):
         Parameter       Description
         =============== ============
         distribution    The distribution name
-        releases        TODO
         components      List of components to download
         architectures   List of architectures to download
         sections        List of sections to download
@@ -1251,7 +1250,7 @@ class LibinstManager(Plugin):
                 else:
                     raise ValueError(N_("Distribution %s has no releases", distribution.name))
             else:
-                raise ValueError(N_("Need a distribution to update"))
+                raise ValueError(N_("Need either a distribution or a list of releases to update"))
             session.commit()
         except:
             session.rollback()
@@ -1317,9 +1316,9 @@ class LibinstManager(Plugin):
         suggests            List of dependency suggestsions
         depends             List of dependencies
         build_depends       List of build dependencies
+        format              Format of source package
         provides            List of alias names
         maintainer          Contact of the package maintainers
-        format              TODO
         type                Package type (i.e. deb)
         section             Section this package is part of
         component           Component this package is part of
