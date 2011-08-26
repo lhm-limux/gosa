@@ -10,7 +10,7 @@ class Component(Base, UseInnoDB):
     id = Column(Integer, Sequence('component_id_seq'), primary_key=True)
     name = Column(String(255), nullable=False, unique=True)
     description = Column(String(255))
-    discriminator = Column(Integer(50))
+    discriminator = Column(Integer())
     __mapper_args__ = {'polymorphic_on': discriminator}
 
     def __init__(self, name):
