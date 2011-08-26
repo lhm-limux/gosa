@@ -13,8 +13,9 @@ There are additional modules to be installed that are not part of
 distributions - usually. Please install them via 'pip' into your virtual
 environment:
 
-$ pip install sphinxcontrib-spelling sphinxcontrib-email \
-      sphinxcontrib-programoutput sphinxcontrib-requirements
+$ easy_install sphinxcontrib-spelling sphinxcontrib-email \
+      sphinxcontrib-programoutput sphinxcontrib-requirements \
+      pyenchant
 
 For the command index, you need the custom **cindex** module from the
 contrib directory:
