@@ -137,9 +137,9 @@ of.</p>
 <h4>Adding the AMQP repository<a class="headerlink" href="#adding-the-amqp-repository" title="Permalink to this headline">¶</a></h4>
 <p>In Debian, the simpliest way to get qpid running would be the use
 of an existing repository. Include it in your configuration like this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c"># wget -O - http://apt.naasa.net/archive.key | apt-key add -</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># wget -O - http://apt.gonicus.de/debian/archive.key | apt-key add -</span>
 <span class="c"># [ -d /etc/apt/sources.d ] || mkdir /etc/apt/sources.d</span>
-<span class="c"># echo &quot;deb http://apt.naasa.net/debian/ lenny main&quot; &gt; /etc/apt/sources.d/qpid.list</span>
+<span class="c"># echo &quot;deb http://apt.gonicus.de/debian/ squeeze main&quot; &gt; /etc/apt/sources.d/gonicus.list</span>
 <span class="c"># apt-get update</span>
 </pre></div>
 </div>
@@ -489,12 +489,12 @@ There are two ways to do so, the first is to update the GOsa 2.7 configuration f
 </div>
 <p>The other way would be to configure these properties inside of GOsa using the <tt class="docutils literal"><span class="pre">preferences</span></tt> plugin.</p>
 <p>Select the <tt class="docutils literal"><span class="pre">preferences</span></tt> plugin from the menu and then read and accept the warning message.</p>
-<img alt="_images/gosa_setup_rpc_11.png" src="_images/gosa_setup_rpc_11.png" />
+<img alt="_images/gosa_setup_rpc_12.png" src="_images/gosa_setup_rpc_12.png" />
 <p>Then click on the filter rules and select &#8220;All properties&#8221; to show all properties, even unused.
 Then enter <tt class="docutils literal"><span class="pre">rpc</span></tt> in the search-filter input box, to only show rpc related options, only three options should
 be left in the list below.
 Now adjust the values of these properties to match your setup and click <tt class="docutils literal"><span class="pre">apply</span></tt> on the bottom of the page.</p>
-<img alt="_images/gosa_setup_rpc_21.png" src="_images/gosa_setup_rpc_21.png" />
+<img alt="_images/gosa_setup_rpc_22.png" src="_images/gosa_setup_rpc_22.png" />
 <p>That is all, you may only need to relog into the GOsa gui.</p>
 </div>
 <div class="section" id="design-overview">
