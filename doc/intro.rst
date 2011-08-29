@@ -106,9 +106,9 @@ Adding the AMQP repository
 In Debian, the simpliest way to get qpid running would be the use
 of an existing repository. Include it in your configuration like this::
 
-  # wget -O - http://apt.naasa.net/archive.key | apt-key add -
+  # wget -O - http://apt.gonicus.de/debian/archive.key | apt-key add -
   # [ -d /etc/apt/sources.d ] || mkdir /etc/apt/sources.d
-  # echo "deb http://apt.naasa.net/debian/ lenny main" > /etc/apt/sources.d/qpid.list
+  # echo "deb http://apt.gonicus.de/debian/ squeeze main" > /etc/apt/sources.d/gonicus.list
   # apt-get update
 
 
