@@ -110,7 +110,9 @@ $ source bin/activate</pre>
 $ git clone git://oss.gonicus.de/git/gosa.git src</pre>
 </div>
 <p>Additionally, you can get some stripped of GOsa 2.7 sources from here:</p>
-<div class="highlight-python"><pre>$ git clone git://oss.gonicus.de/git/gosa-gui.git</pre>
+<div class="highlight-python"><pre>$ git clone git://oss.gonicus.de/git/gosa-gui.git
+$ git submodule init
+$ git submodule update</pre>
 </div>
 <p>This will place all relevant files inside the &#8216;src&#8217; directory.</p>
 <div class="admonition warning">
@@ -172,9 +174,65 @@ the certificates is shown here:</p>
 </div>
 <div class="section" id="install-ldap-service">
 <h4>Install LDAP service<a class="headerlink" href="#install-ldap-service" title="Permalink to this headline">¶</a></h4>
-<div class="admonition-requirement admonition " id="req-0">
-<p class="first admonition-title">Requirement</p>
-<p class="last"><em class="status todo">todo</em> Describe the basic LDAP setup.</p>
+<p>To use the LDAP service, a couple of schema files have to be added to
+your configuration. The following text assumes that you&#8217;ve a plain / empty
+stock debian configuration on your system. If it&#8217;s not the case, you&#8217;ve to
+know what to do yourself.</p>
+<p>First, install the provided schema files. These commands have to be executed
+with <em>root</em> power by default, so feel free to use sudo and find the schema
+<em>LDIF</em> files in the <tt class="docutils literal"><span class="pre">contrib/ldap</span></tt> directory of your GOsa checkout. Install
+these schema files like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># ldapadd -Y EXTERNAL -H ldapi:/// -f gosa-core.ldif</span>
+<span class="c"># ldapadd -Y EXTERNAL -H ldapi:/// -f registered-device.ldif</span>
+<span class="c"># ldapadd -Y EXTERNAL -H ldapi:/// -f installed-device.ldif</span>
+<span class="c"># ldapadd -Y EXTERNAL -H ldapi:/// -f configured-device.ldif</span>
+</pre></div>
+</div>
+<p>If you use the PHP GUI, you also need to install the &#8220;old&#8221; schema files, because
+the GOsa GUI and gosa.agent service are meant to coexist until everything is cleanly
+migrated.</p>
+<p>After you&#8217;ve optionally done that, find out which base is configured for your system:</p>
+<div class="highlight-python"><pre>manager@ldap:~$ sudo ldapsearch -LLL -Y EXTERNAL -H ldapi:/// -b cn=config olcSuffix=* olcSuffix
+SASL/EXTERNAL authentication started
+SASL username: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
+SASL SSF: 0
+dn: olcDatabase={1}hdb,cn=config
+olcSuffix: dc=example,dc=net</pre>
+</div>
+<p>In this case, you&#8217;ll see the configured suffix as <strong>dc=example,dc=net</strong> in the
+result set. Your milieage may vary.</p>
+<p>Based on the suffix, create a <em>LDIF</em> file containing an updated index - on top with
+the <em>DN</em> shown in the result of the search above:</p>
+<div class="highlight-python"><pre>dn: olcDatabase={1}hdb,cn=config
+changetype: modify
+replace: olcDbIndex
+olcDbIndex: default sub
+olcDbIndex: objectClass pres,eq
+olcDbIndex: cn pres,eq,sub
+olcDbIndex: uid eq,sub
+olcDbIndex: uidNumber eq
+olcDbIndex: gidNumber eq
+olcDbIndex: mail eq,sub
+olcDbIndex: deviceStatus pres,sub
+olcDbIndex: deviceType pres,eq
+olcDbIndex: sn pres,eq,sub
+olcDbIndex: givenName pres,eq,sub
+olcDbIndex: ou pres,eq,sub
+olcDbIndex: memberUid eq
+olcDbIndex: uniqueMember eq
+olcDbIndex: deviceUUID pres,eq</pre>
+</div>
+<p>Save that file to <em>index-update.ldif</em> and add it to your LDAP using:</p>
+<div class="highlight-python"><pre>manager@ldap:~$ sudo ldapmodify -Y EXTERNAL -H ldapi:/// -f index-update.ldif</pre>
+</div>
+<p>Your LDAP now has the required schema files and an updated index to perform
+searches in reliable speed.</p>
+<p>Later in this document, you&#8217;ll need the <em>DN</em> and the <em>credentials</em> of the LDAP administrator
+which has been created during the setup process. For Debian, this is <em>cn=admin,&lt;your base here&gt;</em>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Hopefully, you remember the credentials you&#8217;ve assigned during LDAP
+installation, because you&#8217;ll need them later on ;-)</p>
 </div>
 </div>
 <div class="section" id="amqp-ldap-authentication">
@@ -431,12 +489,12 @@ There are two ways to do so, the first is to update the GOsa 2.7 configuration f
 </div>
 <p>The other way would be to configure these properties inside of GOsa using the <tt class="docutils literal"><span class="pre">preferences</span></tt> plugin.</p>
 <p>Select the <tt class="docutils literal"><span class="pre">preferences</span></tt> plugin from the menu and then read and accept the warning message.</p>
-<img alt="_images/gosa_setup_rpc_1.png" src="_images/gosa_setup_rpc_1.png" />
+<img alt="_images/gosa_setup_rpc_11.png" src="_images/gosa_setup_rpc_11.png" />
 <p>Then click on the filter rules and select &#8220;All properties&#8221; to show all properties, even unused.
 Then enter <tt class="docutils literal"><span class="pre">rpc</span></tt> in the search-filter input box, to only show rpc related options, only three options should
 be left in the list below.
 Now adjust the values of these properties to match your setup and click <tt class="docutils literal"><span class="pre">apply</span></tt> on the bottom of the page.</p>
-<img alt="_images/gosa_setup_rpc_2.png" src="_images/gosa_setup_rpc_2.png" />
+<img alt="_images/gosa_setup_rpc_21.png" src="_images/gosa_setup_rpc_21.png" />
 <p>That is all, you may only need to relog into the GOsa gui.</p>
 </div>
 <div class="section" id="design-overview">
