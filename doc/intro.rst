@@ -74,6 +74,8 @@ For now, please use git::
 Additionally, you can get some stripped of GOsa 2.7 sources from here::
 
    $ git clone git://oss.gonicus.de/git/gosa-gui.git
+   $ git submodule init
+   $ git submodule update
 
 This will place all relevant files inside the 'src' directory.
 
