@@ -117,7 +117,7 @@ Install qpid broker and clients
 
 ::
 
-  # apt-get install qpid-broker qpid-client qpid-utils qpid-specs
+  # apt-get install qpid-broker qpid-client qpid-tools
 
 Add a user for playing with the current development snapshot::
 
