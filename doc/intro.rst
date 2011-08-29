@@ -150,10 +150,73 @@ http://rajith.2rlabs.com/2010/03/01/apache-qpid-securing-connections-with-ssl/
 Install LDAP service
 """"""""""""""""""""
 
-.. requirement::
-   :status: todo
+To use the LDAP service, a couple of schema files have to be added to
+your configuration. The following text assumes that you've a plain / empty
+stock debian configuration on your system. If it's not the case, you've to
+know what to do yourself.
 
-   Describe the basic LDAP setup.
+First, install the provided schema files. These commands have to be executed
+with *root* power by default, so feel free to use sudo and find the schema
+*LDIF* files in the ``contrib/ldap`` directory of your GOsa checkout. Install
+these schema files like this::
+
+	# ldapadd -Y EXTERNAL -H ldapi:/// -f gosa-core.ldif
+	# ldapadd -Y EXTERNAL -H ldapi:/// -f registered-device.ldif
+	# ldapadd -Y EXTERNAL -H ldapi:/// -f installed-device.ldif
+	# ldapadd -Y EXTERNAL -H ldapi:/// -f configured-device.ldif
+
+If you use the PHP GUI, you also need to install the "old" schema files, because
+the GOsa GUI and gosa.agent service are meant to coexist until everything is cleanly
+migrated.
+
+After you've optionally done that, find out which base is configured for your system::
+
+	manager@ldap:~$ sudo ldapsearch -LLL -Y EXTERNAL -H ldapi:/// -b cn=config olcSuffix=* olcSuffix
+	SASL/EXTERNAL authentication started
+	SASL username: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
+	SASL SSF: 0
+	dn: olcDatabase={1}hdb,cn=config
+	olcSuffix: dc=example,dc=net
+
+In this case, you'll see the configured suffix as **dc=example,dc=net** in the
+result set. Your milieage may vary.
+
+Based on the suffix, create a *LDIF* file containing an updated index - on top with
+the *DN* shown in the result of the search above::
+
+	dn: olcDatabase={1}hdb,cn=config
+	changetype: modify
+	replace: olcDbIndex
+	olcDbIndex: default sub
+	olcDbIndex: objectClass pres,eq
+	olcDbIndex: cn pres,eq,sub
+	olcDbIndex: uid eq,sub
+	olcDbIndex: uidNumber eq
+	olcDbIndex: gidNumber eq
+	olcDbIndex: mail eq,sub
+	olcDbIndex: deviceStatus pres,sub
+	olcDbIndex: deviceType pres,eq
+	olcDbIndex: sn pres,eq,sub
+	olcDbIndex: givenName pres,eq,sub
+	olcDbIndex: ou pres,eq,sub
+	olcDbIndex: memberUid eq
+	olcDbIndex: uniqueMember eq
+	olcDbIndex: deviceUUID pres,eq
+
+Save that file to *index-update.ldif* and add it to your LDAP using::
+
+	manager@ldap:~$ sudo ldapmodify -Y EXTERNAL -H ldapi:/// -f index-update.ldif
+
+Your LDAP now has the required schema files and an updated index to perform
+searches in reliable speed.
+
+Later in this document, you'll need the *DN* and the *credentials* of the LDAP administrator
+which has been created during the setup process. For Debian, this is *cn=admin,<your base here>*.
+
+.. note::
+
+	Hopefully, you remember the credentials you've assigned during LDAP
+	installation, because you'll need them later on ;-)
 
 
 AMQP LDAP-Authentication
