@@ -1,11 +1,9 @@
-# GOsa #
+# GOsa README #
 
-stuff
+For more information please consult:
 
-**test**
-*Test*
-#Test#
-`Test`
-[@test](http://www.heise.de/newsticker)
+* [@GOsa website](https://oss.gonicus.de/labs/gosa/)
+* [@GOsa documentation](http://oss.gonicus.de/docs/gosa-ng/)
+* [@libinst documentation](http://oss.gonicus.de/docs/libinst/)
 
-![LOGO](https://oss.gonicus.de/labs/gosa/chrome/theme/logo.png LOGO)
+Have fun!
