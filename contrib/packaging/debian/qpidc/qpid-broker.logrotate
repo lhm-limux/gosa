@@ -1,7 +1,0 @@
-/var/log/qpidd.log {
-    weekly
-    rotate 4
-    compress
-    missingok
-}
-
