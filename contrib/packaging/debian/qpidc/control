@@ -25,7 +25,7 @@ Description: Apache qpid AMQP client
  .
  This package contains the AMQP client support.
 
-Package: libqmf2
+Package: libqmf
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Apache qpid AMQP libraries
@@ -33,6 +33,25 @@ Description: Apache qpid AMQP libraries
  http://amqp.org/
  .
  This package contains the QMF libraries.
+
+Package: libqmf-dev
+Architecture: any
+Section: libdevel
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Apache qpid AMQP develpment files
+ Qpid/C++ is a C++ implementation of the AMQP protocol described at
+ http://amqp.org/
+ .
+ This package contains the QMF development files.
+
+Package: libqmf2
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Apache qpid AMQP libraries
+ Qpid/C++ is a C++ implementation of the AMQP protocol described at
+ http://amqp.org/
+ .
+ This package contains the QMF2 libraries.
 
 Package: libqmf2-dev
 Architecture: any
@@ -42,7 +61,7 @@ Description: Apache qpid AMQP develpment files
  Qpid/C++ is a C++ implementation of the AMQP protocol described at
  http://amqp.org/
  .
- This package contains the QMF development files.
+ This package contains the QMF2 development files.
 
 Package: libqmfconsole2
 Architecture: any
