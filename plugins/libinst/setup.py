@@ -50,6 +50,6 @@ for various systems in your setup.
         gosa-agent.libinst = libinst.manage:LibinstManager
 
         [gosa.objects]
-        libinst.diskdefinition = libinst.disk:DiskDefinition
+        libinst.diskdefinition = libinst.interface.disk:DiskDefinition
     """
 )
