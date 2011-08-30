@@ -53,6 +53,34 @@ Description: Apache qpid AMQP libraries
  .
  This package contains the AMQP libraries.
 
+Package: libqpidmessaging2
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Apache qpid AMQP libraries
+ Qpid/C++ is a C++ implementation of the AMQP protocol described at
+ http://amqp.org/
+ .
+ This package contains the AMQP messaging libraries.
+
+Package: libqpidmessaging2-dev
+Architecture: any
+Section: libdevel
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Apache qpid AMQP develpment files
+ Qpid/C++ is a C++ implementation of the AMQP protocol described at
+ http://amqp.org/
+ .
+ This package contains the AMQP messaging development files.
+
+Package: libsslcommon2
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Apache qpid AMQP libraries
+ Qpid/C++ is a C++ implementation of the AMQP protocol described at
+ http://amqp.org/
+ .
+ This package contains the AMQP libraries.
+
 Package: libsslcommon2-dev
 Architecture: any
 Section: libdevel
