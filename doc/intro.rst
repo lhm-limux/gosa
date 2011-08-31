@@ -525,7 +525,7 @@ To do that, run ::
 
   $ sudo -s
   # cd 'wherever your gosa-ng virtual environment is'
-  # source/bin activate
+  # source bin/activate
   # gosa-join
 
 on the client you're going to join. In the development case, this may be the
@@ -552,7 +552,7 @@ the gosa-dbus component in daemon or foreground mode::
 
   $ sudo -s
   # cd 'wherever your gosa-ng virtual environment is'
-  # source/bin activate
+  # source bin/activate
   # gosa-dbus -f
 
 
