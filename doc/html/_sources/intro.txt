@@ -46,7 +46,8 @@ the following packages in your system::
   $ sudo apt-get install python2.6-dev python-dumbnet python-avahi python-virtualenv \
          libavahi-compat-libdnssd-dev python-openssl python-dbus libssl-dev python-gtk2 \
          python-lxml python-libxml2 python-dmidecode python-ldap python-nose \
-         python-kid python-coverage python-dateutil python-smbpasswd python-netifaces
+         python-kid python-coverage python-dateutil python-smbpasswd python-netifaces \
+         sasl2-bin
 
 .. note::
       On MS Windows systems, only the client is supposed to work. Please install the
@@ -74,6 +75,7 @@ For now, please use git::
 Additionally, you can get some stripped of GOsa 2.7 sources from here::
 
    $ git clone git://oss.gonicus.de/git/gosa-gui.git
+   $ cd gosa-gui
    $ git submodule init
    $ git submodule update
 
@@ -106,9 +108,9 @@ Adding the AMQP repository
 In Debian, the simpliest way to get qpid running would be the use
 of an existing repository. Include it in your configuration like this::
 
-  # wget -O - http://apt.gonicus.de/debian/archive.key | apt-key add -
-  # [ -d /etc/apt/sources.d ] || mkdir /etc/apt/sources.d
-  # echo "deb http://apt.gonicus.de/debian/ squeeze main" > /etc/apt/sources.d/gonicus.list
+  # wget -O - http://apt.gonicus.de/archive.key | apt-key add -
+  # [ -d /etc/apt/sources.list.d ] || mkdir /etc/apt/sources.list.d
+  # echo "deb http://apt.gonicus.de/debian/ squeeze main" > /etc/apt/sources.list.d/gonicus.list
   # apt-get update
 
 
@@ -117,11 +119,7 @@ Install qpid broker and clients
 
 ::
 
-  # apt-get install qpid-broker qpid-client qpid-utils qpid-specs
-
-Add a user for playing with the current development snapshot::
-
-  # saslpasswd2 -f /var/lib/qpidd/qpidd.sasldb -u QPID admin
+  # apt-get install qpidd qpid-client qpid-tools
 
 Maybe set the access policy for the admin. Not directly needed for non-production,
 but a definitive must on ordinary systems::
@@ -131,12 +129,9 @@ but a definitive must on ordinary systems::
   |acl allow admin all
   |
   |# Deny everything else by default
-  |acl allow all deny
+  |acl allow all all
   |:wq
 
-Check if it works::
-
-  # qpid-config -a admin/secret@hostname queues
 
 Now the broker aka bus is up and running on the host.
 
@@ -285,7 +280,7 @@ AMQP LDAP-Authentication
 
   ldap_servers: ldap://ldap.your.domain
   ldap_search_base: dc=example,dc=com
-  ldap_filter: (|(&(objectClass=gosaAccount)(uid=%U))(&(objectClass=registeredDevice)(deviceUUID=%U)))
+  ldap_filter: (|(&(objectClass=simpleSecurityObject)(cn=%U))(&(objectClass=gosaAccount)(uid=%U))(&(objectClass=registeredDevice)(deviceUUID=%U)))
   ldap_scope: sub
   ldap_size_limit: 0
   ldap_time_limit: 15
@@ -308,8 +303,11 @@ Test::
 Start up service::
 
   # adduser qpidd sasl
-  # /etc/init.d/qpid-broker restart
+  # /etc/init.d/qpidd restart
 
+Check if it works::
+
+  # qpid-config -a admin/secret@hostname queues
 
 Prepare DNS-Zone for zeroconf
 """""""""""""""""""""""""""""
