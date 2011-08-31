@@ -75,73 +75,7 @@ def main():
         env.log.critical("GOsa DBUS must be run as root")
         exit(1)
 
-    # Configured in daemon mode?
-    if not env.config.get('dbus.foreground', default=env.config.get('core.foreground')):
-        import signal
-        import daemon
-        import lockfile
-        from lockfile import AlreadyLocked, LockFailed
-
-        pidfile = None
-
-        try:
-            pidfile = env.config.get("dbus.pidfile",
-                default="/var/run/gosa/gosa-dbus.pid")
-
-            # Check if pid path if writable for us
-            piddir = os.path.dirname(pidfile)
-            os.stat(piddir)
-
-            context = daemon.DaemonContext(
-                working_directory=env.config.get("dbus.workdir",
-                    default=env.config.get("core.workdir")),
-                umask=int(env.config.get("dbus.umask", default="2")),
-                pidfile=lockfile.FileLock(pidfile),
-            )
-
-            context.signal_map = {
-                signal.SIGTERM: shutdown,
-                signal.SIGHUP: shutdown,
-            }
-
-            context.uid = 0
-            context.gid = 0
-
-        except AlreadyLocked:
-            env.log.critical("pid file '%s' is already in use" % pidfile)
-            exit(1)
-
-        except LockFailed:
-            env.log.critical("cannot aquire lock '%s'" % pidfile)
-            exit(1)
-
-        else:
-
-            try:
-                with context:
-                    # Write out pid to allow clean shutdown
-                    pid = os.getpid()
-                    env.log.debug("forked process with pid %s" % pid)
-
-                    try:
-                        pid_file = open(env.config.get('dbus.pidfile', default="/var/run/gosa/gosa-dbus.pid"), 'w')
-                        try:
-                            pid_file.write(str(pid))
-                        finally:
-                            pid_file.close()
-                    except IOError:
-                        env.log.error("cannot write pid file %s" %
-                                env.config.get('dbus.pidfile', default="/var/run/gosa/gosa-dbus.pid"))
-                        exit(1)
-
-                    mainLoop(env)
-
-            except daemon.daemon.DaemonOSEnvironmentError as detail:
-                env.log.critical("error while daemonizing: " + str(detail))
-                exit(1)
-
-    else:
-        mainLoop(env)
+    mainLoop(env)
 
 
 if __name__ == '__main__':

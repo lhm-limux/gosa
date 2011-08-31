@@ -38,7 +38,7 @@ case "$1" in
     start)
         log_daemon_msg "Starting $DESC" "$NAME"
         start-stop-daemon --start --quiet --pidfile /var/run/gosa/$NAME.pid \
-            --exec $DAEMON -- $DAEMON_OPTS
+            --background --exec $DAEMON -- $DAEMON_OPTS
         log_end_msg $?
         ;;
     stop)
@@ -49,7 +49,7 @@ case "$1" in
     restart|force-reload)
         log_daemon_msg "Restarting $DESC" "$NAME"
 	start-stop-daemon --stop --oknodo --quiet --pidfile /var/run/gosa/$NAME.pid
-	start-stop-daemon --start --quiet --pidfile /var/run/gosa/$NAME.pid \
+	start-stop-daemon --background --start --quiet --pidfile /var/run/gosa/$NAME.pid \
             --exec $DAEMON -- $DAEMON_OPTS
         log_end_msg $?
         ;;
