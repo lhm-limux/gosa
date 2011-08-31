@@ -542,7 +542,7 @@ interface.
 
 To use the dbus-component, you've to allow the gosa system user (or whatever user
 the gosa-client is running later on) to use certain dbus services. Copy and eventually
-adapt the file src/contrib/dbus/com.gonicus.gosa.conf to /etc/dbus/service.d and
+adapt the file src/contrib/dbus/com.gonicus.gosa.conf to /etc/dbus-1/system.d/ and
 reload your dbus service. ::
 
   $ sudo service dbus reload
