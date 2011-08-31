@@ -344,26 +344,112 @@ GOsa\ NG\ Service._gosa._tcp     SRV 0 0 5671 amqp.example.org.
 <p>To deploy the agent, please run these commands inside the activated
 virtual environment:</p>
 <div class="highlight-python"><pre>$ pushd .; cd gosa.common &amp;&amp; ./setup.py develop; popd
-$ pushd .; cd gosa.agent &amp;&amp; ./setup.py develop; popd</pre>
+$ pushd .; cd gosa.agent &amp;&amp; ./setup.py develop; popd
+
+
+Alternatively you can build the complete package using::
+
+$ ./setup.py develop</pre>
 </div>
-<p>Alternatively you can build the complete package using:</p>
-<div class="highlight-python"><pre>$ ./setup.py develop</pre>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>Using the above command to build the complete package will also build
+additional modules like libinst, amires, ...</p>
+<p class="last">This will increase the configuration effort drastically, which is not
+recommended during the quickstart quide.</p>
 </div>
 </div>
 <div class="section" id="starting-the-service">
 <h4>Starting the service<a class="headerlink" href="#starting-the-service" title="Permalink to this headline">¶</a></h4>
 <p>In a productive environment, everything should be defined in the configuration
-file, so take a look at the agent.conf present in the src/gosa/agent/data directory
-and adapt it to your needs. Fire up the daemon in foreground mode:</p>
-<div class="highlight-python"><pre>$ gosa-agent -f --config=src/gosa/agent/data/agent.conf</pre>
+file, so copy the configuration file to the place where gosa expects it:</p>
+<div class="highlight-python"><pre>$ mkdir -p /etc/gosa
+$ cp ./src/gosa.agent/src/gosa/agent/data/agent.conf /etc/gosa/config</pre>
 </div>
-<p>If you want to run the agent in a more productive manner, you can use the
-daemon mode and start it as root. It will then fork to the configured user
-and run as a daemon.</p>
+<p>Now take a look at the config file and adapt it to your needs.</p>
+<p>You can start the daemon in foreground like this:</p>
+<div class="highlight-python"><pre>$ gosa-agent -f</pre>
+</div>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">Make sure, you&#8217;ve entered the virtual environment using &#8220;source bin/activate&#8221;
 from inside the gosa-ng directory.</p>
+</div>
+<p>If you want to run the agent in a more productive manner, you can use the
+daemon mode and start it as root. It will then fork to the configured user
+and run as a daemon.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">status:</th><td class="field-body">todo
+Describe how to secure the communication between the gosa-agent and used services.</td>
+</tr>
+</tbody>
+</table>
+<p>Here is an example config file for a non-secured service. (A HowTo about securing the service will follow soon!):</p>
+<div class="highlight-python"><pre>[core]
+
+# Keyword loglevel: ALL/DEBUG, INFO, WARNING, ERROR, CRITICAL
+loglevel = DEBUG
+
+# Keyword syslog: file, stderr, syslog
+log = stderr
+
+# Keyword logfile: full path to log to if log = file
+#logfile = /var/log/gosa/agent.log
+
+# Keyword id: name of this gosa-agent node
+id = gosa-agent
+
+# Keyword user: username to run the daemon as
+#user = gosa
+
+# Keyword group: groupname to run the daemon as
+#group = gosa
+
+# Keyword pidfile: where to place the pid in daemon mode
+#pidfile = /var/run/gosa/gosa.pid
+
+# Keyword profile: for debugging, only
+profile = False
+
+[amqp]
+
+# Keyword url: URL to one of your AMQP servers
+#
+# Examples:
+#
+# amqp://amqp.example.net:5671
+# amqps://amqp.example.net:5671
+#
+# Secured services listing on 5672!
+# This example uses an unsecured amqp service
+url = amqp://localhost:5672
+
+# Keyword id:
+id = admin
+key = tester
+
+[http]
+host = localhost
+port = 8080
+#sslpemfile = /etc/gosa/host.pem
+
+[goto]
+oui-db = /usr/share/gosa/oui.txt
+
+[repository]
+database = mysql+mysqldb://libinst:secret@localhost/libinst?charset=utf8&amp;use_unicode=0
+http_base_url = http://localhost/debian
+db_purge = False
+path = /srv/repository/data
+
+[ldap]
+url = ldap://localhost/dc=example,dc=net
+bind_dn = cn=admin,dc=example,dc=net
+bind_secret = secret
+pool_size = 10</pre>
 </div>
 </div>
 </div>
@@ -487,12 +573,12 @@ There are two ways to do so, the first is to update the GOsa 2.7 configuration f
 </div>
 <p>The other way would be to configure these properties inside of GOsa using the <tt class="docutils literal"><span class="pre">preferences</span></tt> plugin.</p>
 <p>Select the <tt class="docutils literal"><span class="pre">preferences</span></tt> plugin from the menu and then read and accept the warning message.</p>
-<img alt="_images/gosa_setup_rpc_14.png" src="_images/gosa_setup_rpc_14.png" />
+<img alt="_images/gosa_setup_rpc_17.png" src="_images/gosa_setup_rpc_17.png" />
 <p>Then click on the filter rules and select &#8220;All properties&#8221; to show all properties, even unused.
 Then enter <tt class="docutils literal"><span class="pre">rpc</span></tt> in the search-filter input box, to only show rpc related options, only three options should
 be left in the list below.
 Now adjust the values of these properties to match your setup and click <tt class="docutils literal"><span class="pre">apply</span></tt> on the bottom of the page.</p>
-<img alt="_images/gosa_setup_rpc_24.png" src="_images/gosa_setup_rpc_24.png" />
+<img alt="_images/gosa_setup_rpc_27.png" src="_images/gosa_setup_rpc_27.png" />
 <p>That is all, you may only need to relog into the GOsa gui.</p>
 </div>
 <div class="section" id="design-overview">

@@ -341,27 +341,114 @@ virtual environment::
   $ pushd .; cd gosa.common && ./setup.py develop; popd
   $ pushd .; cd gosa.agent && ./setup.py develop; popd
 
-Alternatively you can build the complete package using::
+
+  Alternatively you can build the complete package using::
 
   $ ./setup.py develop
+
+
+.. warning:: 
+	Using the above command to build the complete package will also build
+	additional modules like libinst, amires, ... 
+
+     	This will increase the configuration effort drastically, which is not 
+	recommended during the quickstart quide.
 
 
 Starting the service
 """"""""""""""""""""
 
 In a productive environment, everything should be defined in the configuration
-file, so take a look at the agent.conf present in the src/gosa/agent/data directory
-and adapt it to your needs. Fire up the daemon in foreground mode::
+file, so copy the configuration file to the place where gosa expects it::
 
-  $ gosa-agent -f --config=src/gosa/agent/data/agent.conf
+  $ mkdir -p /etc/gosa
+  $ cp ./src/gosa.agent/src/gosa/agent/data/agent.conf /etc/gosa/config
+
+Now take a look at the config file and adapt it to your needs.
+
+You can start the daemon in foreground like this::
+
+  $ gosa-agent -f
+
+.. warning::
+    Make sure, you've entered the virtual environment using "source bin/activate"
+    from inside the gosa-ng directory.
+
 
 If you want to run the agent in a more productive manner, you can use the
 daemon mode and start it as root. It will then fork to the configured user
 and run as a daemon.
 
-.. warning::
-    Make sure, you've entered the virtual environment using "source bin/activate"
-    from inside the gosa-ng directory.
+
+:status: todo
+	Describe how to secure the communication between the gosa-agent and used services.
+
+
+Here is an example config file for a non-secured service. (A HowTo about securing the service will follow soon!)::
+
+    [core]
+    
+    # Keyword loglevel: ALL/DEBUG, INFO, WARNING, ERROR, CRITICAL
+    loglevel = DEBUG
+    
+    # Keyword syslog: file, stderr, syslog
+    log = stderr
+    
+    # Keyword logfile: full path to log to if log = file
+    #logfile = /var/log/gosa/agent.log
+    
+    # Keyword id: name of this gosa-agent node
+    id = gosa-agent
+    
+    # Keyword user: username to run the daemon as
+    #user = gosa
+    
+    # Keyword group: groupname to run the daemon as
+    #group = gosa
+    
+    # Keyword pidfile: where to place the pid in daemon mode
+    #pidfile = /var/run/gosa/gosa.pid
+    
+    # Keyword profile: for debugging, only
+    profile = False
+    
+    [amqp]
+    
+    # Keyword url: URL to one of your AMQP servers
+    #
+    # Examples:
+    #
+    # amqp://amqp.example.net:5671
+    # amqps://amqp.example.net:5671
+    #
+    # Secured services listing on 5672!
+    # This example uses an unsecured amqp service
+    url = amqp://localhost:5672
+    
+    # Keyword id:
+    id = admin
+    key = tester
+    
+    [http]
+    host = localhost
+    port = 8080
+    #sslpemfile = /etc/gosa/host.pem
+    
+    [goto]
+    oui-db = /usr/share/gosa/oui.txt
+    
+    [repository]
+    database = mysql+mysqldb://libinst:secret@localhost/libinst?charset=utf8&use_unicode=0
+    http_base_url = http://localhost/debian
+    db_purge = False
+    path = /srv/repository/data
+    
+    [ldap]
+    url = ldap://localhost/dc=example,dc=net
+    bind_dn = cn=admin,dc=example,dc=net
+    bind_secret = secret
+    pool_size = 10
+
 
 
 The gosa-ng shell
