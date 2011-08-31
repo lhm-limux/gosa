@@ -74,6 +74,7 @@ For now, please use git::
 Additionally, you can get some stripped of GOsa 2.7 sources from here::
 
    $ git clone git://oss.gonicus.de/git/gosa-gui.git
+   $ cd gosa-gui
    $ git submodule init
    $ git submodule update
 
