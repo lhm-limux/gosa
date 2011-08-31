@@ -508,7 +508,7 @@ credentials for that, you&#8217;ve to &#8220;announce&#8221; or &#8220;join&#822
 <p>To do that, run</p>
 <div class="highlight-python"><pre>$ sudo -s
 # cd 'wherever your gosa-ng virtual environment is'
-# source/bin activate
+# source bin/activate
 # gosa-join</pre>
 </div>
 <p>on the client you&#8217;re going to join. In the development case, this may be the
@@ -522,7 +522,7 @@ can be extended by simple plugins and registers the resulting methods in the dbu
 interface.</p>
 <p>To use the dbus-component, you&#8217;ve to allow the gosa system user (or whatever user
 the gosa-client is running later on) to use certain dbus services. Copy and eventually
-adapt the file src/contrib/dbus/com.gonicus.gosa.conf to /etc/dbus/service.d and
+adapt the file src/contrib/dbus/com.gonicus.gosa.conf to /etc/dbus-1/system.d/ and
 reload your dbus service.</p>
 <div class="highlight-python"><pre>$ sudo service dbus reload</pre>
 </div>
@@ -530,7 +530,7 @@ reload your dbus service.</p>
 the gosa-dbus component in daemon or foreground mode:</p>
 <div class="highlight-python"><pre>$ sudo -s
 # cd 'wherever your gosa-ng virtual environment is'
-# source/bin activate
+# source bin/activate
 # gosa-dbus -f</pre>
 </div>
 </div>
@@ -573,12 +573,12 @@ There are two ways to do so, the first is to update the GOsa 2.7 configuration f
 </div>
 <p>The other way would be to configure these properties inside of GOsa using the <tt class="docutils literal"><span class="pre">preferences</span></tt> plugin.</p>
 <p>Select the <tt class="docutils literal"><span class="pre">preferences</span></tt> plugin from the menu and then read and accept the warning message.</p>
-<img alt="_images/gosa_setup_rpc_17.png" src="_images/gosa_setup_rpc_17.png" />
+<img alt="_images/gosa_setup_rpc_18.png" src="_images/gosa_setup_rpc_18.png" />
 <p>Then click on the filter rules and select &#8220;All properties&#8221; to show all properties, even unused.
 Then enter <tt class="docutils literal"><span class="pre">rpc</span></tt> in the search-filter input box, to only show rpc related options, only three options should
 be left in the list below.
 Now adjust the values of these properties to match your setup and click <tt class="docutils literal"><span class="pre">apply</span></tt> on the bottom of the page.</p>
-<img alt="_images/gosa_setup_rpc_27.png" src="_images/gosa_setup_rpc_27.png" />
+<img alt="_images/gosa_setup_rpc_28.png" src="_images/gosa_setup_rpc_28.png" />
 <p>That is all, you may only need to relog into the GOsa gui.</p>
 </div>
 <div class="section" id="design-overview">

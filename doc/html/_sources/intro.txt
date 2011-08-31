@@ -525,7 +525,7 @@ To do that, run ::
 
   $ sudo -s
   # cd 'wherever your gosa-ng virtual environment is'
-  # source/bin activate
+  # source bin/activate
   # gosa-join
 
 on the client you're going to join. In the development case, this may be the
@@ -542,7 +542,7 @@ interface.
 
 To use the dbus-component, you've to allow the gosa system user (or whatever user
 the gosa-client is running later on) to use certain dbus services. Copy and eventually
-adapt the file src/contrib/dbus/com.gonicus.gosa.conf to /etc/dbus/service.d and
+adapt the file src/contrib/dbus/com.gonicus.gosa.conf to /etc/dbus-1/system.d/ and
 reload your dbus service. ::
 
   $ sudo service dbus reload
@@ -552,7 +552,7 @@ the gosa-dbus component in daemon or foreground mode::
 
   $ sudo -s
   # cd 'wherever your gosa-ng virtual environment is'
-  # source/bin activate
+  # source bin/activate
   # gosa-dbus -f
 
 
