@@ -121,10 +121,6 @@ Install qpid broker and clients
 
   # apt-get install qpidd qpid-client qpid-tools
 
-Add a user for playing with the current development snapshot::
-
-  # saslpasswd2 -f /var/lib/qpidd/qpidd.sasldb -u QPID admin
-
 Maybe set the access policy for the admin. Not directly needed for non-production,
 but a definitive must on ordinary systems::
 
@@ -133,12 +129,9 @@ but a definitive must on ordinary systems::
   |acl allow admin all
   |
   |# Deny everything else by default
-  |acl allow all deny
+  |acl allow all all
   |:wq
 
-Check if it works::
-
-  # qpid-config -a admin/secret@hostname queues
 
 Now the broker aka bus is up and running on the host.
 
@@ -287,7 +280,7 @@ AMQP LDAP-Authentication
 
   ldap_servers: ldap://ldap.your.domain
   ldap_search_base: dc=example,dc=com
-  ldap_filter: (|(&(objectClass=gosaAccount)(uid=%U))(&(objectClass=registeredDevice)(deviceUUID=%U)))
+  ldap_filter: (|(&(objectClass=simpleSecurityObject)(cn=%U))(&(objectClass=gosaAccount)(uid=%U))(&(objectClass=registeredDevice)(deviceUUID=%U)))
   ldap_scope: sub
   ldap_size_limit: 0
   ldap_time_limit: 15
@@ -310,8 +303,11 @@ Test::
 Start up service::
 
   # adduser qpidd sasl
-  # /etc/init.d/qpid-broker restart
+  # /etc/init.d/qpidd restart
 
+Check if it works::
+
+  # qpid-config -a admin/secret@hostname queues
 
 Prepare DNS-Zone for zeroconf
 """""""""""""""""""""""""""""
