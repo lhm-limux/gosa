@@ -1,20 +1,24 @@
-#
-"""
-Wer dn=cn=cajus,dc=gonicus,dc=de,
-    group=cn=alle,ou=groups,dc=gonicus,dc=de
-    peername.ip=192.168.1.16%255.255.255.240{9009}
-
-Was gosa.scheduler.cancelEvent{x};owner=%uid;tag=r"^client(Start|Restart|Shutdown)"
-
-Wo  dc=gonicus,c=de
-    (sub|psub|reset|)
-
-
-"""
 import re
 
-class AclSet(list):
 
+
+"""
+This is a collection of classes that can manager Access control lists.
+
+AclSet      - Is a container class for Acl objects. An AclSet-object can be attached
+              to ldap organizationalUnits to restrict permissions for a set of
+              users.
+Acl         - This class represent a single ACL rule, these Acl objects can be
+              bundled in an AclSet object.
+
+AclResoler  - This class is used to manage all Acl- and AclSets objects.
+
+"""
+
+class AclSet(list):
+    """
+    This is a container for ACL entries.
+    """
     location = None
 
     def __init__(self, location):
@@ -23,7 +27,7 @@ class AclSet(list):
     def add(self, item):
         if not isinstance(item, Acl):
             raise TypeError, 'item is not of type %s' % Acl
-######i
+
         if item.priority == None:
             item.priority = len(self)
 
