@@ -10,12 +10,12 @@ import os
 import sys
 import inspect
 
-from apscheduler.util import *
-from apscheduler.triggers import SimpleTrigger, IntervalTrigger, CronTrigger
-from apscheduler.jobstores.ram_store import RAMJobStore
-from apscheduler.job import Job, MaxInstancesReachedError, JOB_RUNNING, JOB_ERROR, JOB_DONE, JOB_WAITING
-from apscheduler.events import *
-from apscheduler.threadpool import ThreadPool
+from gosa.common.components.scheduler.util import *
+from gosa.common.components.scheduler.triggers import SimpleTrigger, IntervalTrigger, CronTrigger
+from gosa.common.components.scheduler.jobstores.ram_store import RAMJobStore
+from gosa.common.components.scheduler.job import Job, MaxInstancesReachedError, JOB_RUNNING, JOB_ERROR, JOB_DONE, JOB_WAITING
+from gosa.common.components.scheduler.events import *
+from gosa.common.components.scheduler.threadpool import ThreadPool
 
 logger = getLogger(__name__)
 
@@ -48,9 +48,6 @@ class Scheduler(object):
         self._pending_jobs = []
         self.configure(gconfig, **options)
 
-        # Add migration job to clean up left over jobs.
-        self.add_interval_job(self.migrate_jobs, minutes=1)
-
     def configure(self, gconfig={}, **options):
         """
         Reconfigures the scheduler with the given options. Can only be done
@@ -60,7 +57,7 @@ class Scheduler(object):
             raise SchedulerAlreadyRunningError
 
         # Set general options
-        config = combine_opts(gconfig, 'apscheduler.', options)
+        config = combine_opts(gconfig, 'gosa.common.components.scheduler.', options)
         self.misfire_grace_time = int(config.pop('misfire_grace_time', 1))
         self.coalesce = asbool(config.pop('coalesce', True))
         self.daemonic = asbool(config.pop('daemonic', True))
@@ -142,7 +139,7 @@ class Scheduler(object):
         :param alias: alias for the job store
         :param quiet: True to suppress scheduler thread wakeup
         :type jobstore: instance of
-            :class:`~apscheduler.jobstores.base.JobStore`
+            :class:`~gosa.common.components.scheduler.jobstores.base.JobStore`
         :type alias: str
         """
         self._jobstores_lock.acquire()
@@ -260,7 +257,7 @@ class Scheduler(object):
         :param args: list of positional arguments to call func with
         :param kwargs: dict of keyword arguments to call func with
         :param jobstore: alias of the job store to store the job in
-        :rtype: :class:`~apscheduler.job.Job`
+        :rtype: :class:`~gosa.common.components.scheduler.job.Job`
         """
         job = Job(trigger, func, args or [], kwargs or {},
                   options.pop('misfire_grace_time', self.misfire_grace_time),
@@ -293,7 +290,7 @@ class Scheduler(object):
         :param misfire_grace_time: seconds after the designated run time that
             the job is still allowed to be run
         :type date: :class:`datetime.date`
-        :rtype: :class:`~apscheduler.job.Job`
+        :rtype: :class:`~gosa.common.components.scheduler.job.Job`
         """
         trigger = SimpleTrigger(date)
         return self.add_job(trigger, func, args, kwargs, **options)
@@ -318,7 +315,7 @@ class Scheduler(object):
         :param jobstore: alias of the job store to add the job to
         :param misfire_grace_time: seconds after the designated run time that
             the job is still allowed to be run
-        :rtype: :class:`~apscheduler.job.Job`
+        :rtype: :class:`~gosa.common.components.scheduler.job.Job`
         """
         interval = timedelta(weeks=weeks, days=days, hours=hours,
                              minutes=minutes, seconds=seconds)
@@ -347,7 +344,7 @@ class Scheduler(object):
         :param misfire_grace_time: seconds after the designated run time that
             the job is still allowed to be run
         :return: the scheduled job
-        :rtype: :class:`~apscheduler.job.Job`
+        :rtype: :class:`~gosa.common.components.scheduler.job.Job`
         """
         trigger = CronTrigger(year=year, month=month, day=day, week=week,
                               day_of_week=day_of_week, hour=hour,
@@ -383,7 +380,7 @@ class Scheduler(object):
         """
         Returns a list of locally scheduled jobs.
 
-        :return: list of :class:`~apscheduler.job.Job` objects
+        :return: list of :class:`~gosa.common.components.scheduler.job.Job` objects
         """
         self._jobstores_lock.acquire()
         try:
@@ -542,9 +539,11 @@ class Scheduler(object):
                 if job.coalesce:
                     break
 
-    def migrate_jobs(self):
+    def migrate_job(self, job):
         for alias, jobstore in iteritems(self._jobstores):
-            jobstore.migrate_jobs(self.origin)
+            if jobstore.jobs and job in jobstore.jobs:
+                job.origin = self.origin
+                jobstore.update_job(job)
 
         self.reschedule()
 

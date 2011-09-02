@@ -5,7 +5,7 @@ import uuid
 from threading import Lock
 from datetime import timedelta
 
-from apscheduler.util import to_unicode, ref_to_obj, get_callable_name,\
+from gosa.common.components.scheduler.util import to_unicode, ref_to_obj, get_callable_name,\
     obj_to_ref
 
 # Status constants

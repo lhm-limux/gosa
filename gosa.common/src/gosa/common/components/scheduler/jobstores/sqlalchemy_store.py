@@ -4,8 +4,8 @@ Stores jobs in a database table using SQLAlchemy.
 import pickle
 import logging
 
-from apscheduler.jobstores.base import JobStore
-from apscheduler.job import Job
+from gosa.common.components.scheduler.jobstores.base import JobStore
+from gosa.common.components.scheduler.job import Job
 
 try:
     from sqlalchemy import *
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 class SQLAlchemyJobStore(JobStore):
-    def __init__(self, url=None, engine=None, tablename='apscheduler_jobs',
+    def __init__(self, url=None, engine=None, tablename='gosa.common.components.scheduler_jobs',
                  metadata=None, pickle_protocol=pickle.HIGHEST_PROTOCOL):
         self.jobs = []
         self.pickle_protocol = pickle_protocol
@@ -94,10 +94,6 @@ class SQLAlchemyJobStore(JobStore):
             values(next_run_time=job_dict['next_run_time'],
                    runs=job_dict['runs'])
         self.engine.execute(update)
-
-    def migrate_jobs(self, origin):
-        print "analyze all jobs that are not ours and check if they should have been executed"
-        print "-> we're on %s" % origin
 
     def close(self):
         self.engine.dispose()

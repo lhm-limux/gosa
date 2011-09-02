@@ -2,13 +2,13 @@
 Stores jobs in an array in RAM. Provides no persistence support.
 """
 
-from apscheduler.jobstores.base import JobStore
+from gosa.common.components.scheduler.jobstores.base import JobStore
 
 
 class RAMJobStore(JobStore):
     def __init__(self):
         self.jobs = []
-    
+
     def add_job(self, job):
         self.jobs.append(job)
 
@@ -19,9 +19,6 @@ class RAMJobStore(JobStore):
         self.jobs.remove(job)
 
     def load_jobs(self):
-        pass
-
-    def migrate_jobs(self, origin):
         pass
 
     def __repr__(self):
