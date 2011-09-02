@@ -1,6 +1,11 @@
 import re
 
 
+#TODO: The permission types (rwcdm) are not checked yet.
+#TODO: The permission options (onwer=cajus) are not checked yet.
+#TODO: Think about ldap relations, how to store and load objects.
+
+
 
 """
 This is a collection of classes that can manager Access control lists.
