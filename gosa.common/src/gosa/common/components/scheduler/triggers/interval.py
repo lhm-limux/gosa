@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from math import ceil
 
-from apscheduler.util import convert_to_datetime, timedelta_seconds
+from gosa.common.components.scheduler.util import convert_to_datetime, timedelta_seconds
 
 
 class IntervalTrigger(object):

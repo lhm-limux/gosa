@@ -5,7 +5,7 @@ This module contains the expressions applicable for CronTrigger's fields.
 from calendar import monthrange
 import re
 
-from apscheduler.util import asint
+from gosa.common.components.scheduler.util import asint
 
 __all__ = ('AllExpression', 'RangeExpression', 'WeekdayRangeExpression',
            'WeekdayPositionExpression')

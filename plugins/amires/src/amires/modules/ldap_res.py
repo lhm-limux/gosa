@@ -23,7 +23,7 @@ class LDAPNumberResolver(PhoneNumberResolver):
     def resolve(self, number):
         number = self.replaceNumber(number)
 
-        filtr = "(&(uid=*)(telephoneNumber=%s))" % str(number)
+        filtr = ldap.filter.filter_format("(&(uid=*)(telephoneNumber=%s))", str(number))
         attrs = ['cn', 'uid', 'telephoneNumber']
 
         # search ldap

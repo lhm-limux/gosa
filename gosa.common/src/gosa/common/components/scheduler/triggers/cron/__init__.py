@@ -1,7 +1,7 @@
 from datetime import date, datetime
 
-from apscheduler.triggers.cron.fields import *
-from apscheduler.util import datetime_ceil, convert_to_datetime, iteritems
+from gosa.common.components.scheduler.triggers.cron.fields import *
+from gosa.common.components.scheduler.util import datetime_ceil, convert_to_datetime, iteritems
 
 
 class CronTrigger(object):

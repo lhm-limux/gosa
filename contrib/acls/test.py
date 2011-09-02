@@ -105,7 +105,7 @@ class AclResolver(object):
     aclSets = []
 
     def __init__(self):
-        self.refreshAcls();
+        self.refreshAcls()
 
     def addAclSet(self, acl):
         self.aclSets.append(acl)
@@ -122,7 +122,7 @@ class AclResolver(object):
             for aclSet in self.aclSets:
 
                 if location != aclSet.location:
-                    continue;
+                    continue
 
                 for acl in aclSet:
                     if acl.match(member, action, options):
