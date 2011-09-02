@@ -4,6 +4,8 @@ import re
 #TODO: The permission types (rwcdm) are not checked yet.
 #TODO: The permission options (onwer=cajus) are not checked yet.
 #TODO: Think about ldap relations, how to store and load objects.
+#TODO: Groups are not supported yet
+#TODO: What about object groups, to be able to inlcude clients?
 
 
 
