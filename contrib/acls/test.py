@@ -23,7 +23,7 @@ class AclSet(list):
     def add(self, item):
         if not isinstance(item, Acl):
             raise TypeError, 'item is not of type %s' % Acl
-
+######i
         if item.priority == None:
             item.priority = len(self)
 
@@ -71,7 +71,6 @@ class Acl(object):
             self.addMember(member)
 
     def addAction(self, action, acls, options):
-
         acl = { 'action': action,
                 'acls': acls,
                 'options': options}
@@ -82,10 +81,17 @@ class Acl(object):
 
     def match(self, member, action, options):
         allowd = False
+
         if member in self.members:
             for act in self.actions:
 
-                if act['action'] == action:
+                # check for # and * placeholders
+                test_act = re.escape(act['action'])
+                test_act = re.sub(r'(^|\\.)(\\\*)(\\.|$)', '\\1.*\\3', test_act)
+                test_act = re.sub(r'(^|\\.)(\\#)(\\.|$)', '\\1[^\.]*\\3', test_act)
+
+                # Check if the action string matches the acl-action definition
+                if re.match(test_act, action):
                     return True
 
         return False
@@ -135,17 +141,16 @@ class AclResolver(object):
 
 acl1 = Acl(Acl.SUB)
 acl1.addMembers(['cajus', 'hickert'])
-acl1.addAction('gosa.scheduler.cancelEvent', ['r','w','x'], {})
+acl1.addAction('gosa.*.cancelEvent', ['r','w','x'], {})
+aclSet1 = AclSet("dc=gonicus,dc=de")
+aclSet1.add(acl1)
+
 acl2 = Acl(Acl.RESET)
 acl2.addMembers(['hickert'])
 acl2.addAction('gosa.scheduler.cancelEvent', ['r','w','x'], {})
 acl3 = Acl(Acl.SUB)
 acl3.addMembers(['cajus'])
-acl3.addAction('gosa.scheduler.startEvent', ['r','w','x'], {})
-
-aclSet1 = AclSet("dc=gonicus,dc=de")
-aclSet1.add(acl1)
-
+acl3.addAction('gosa.scheduler.cancelEvent', ['r','w','x'], {})
 aclSet2 = AclSet("ou=technik,dc=intranet,dc=gonicus,dc=de")
 aclSet2.add(acl2)
 aclSet2.add(acl3)
@@ -160,7 +165,8 @@ deps = [
         'dc=intranet,dc=gonicus,dc=de',
         'dc=gonicus,dc=de']
 
-actions = ["gosa.*.cancelEvent", "gosa.scheduler.startEvent", "gosa.object.Person"]
+actions = ["gosa.scheduler.cancelEvent"]
+
 for dep in deps:
     print ""
     print dep
@@ -169,6 +175,8 @@ for dep in deps:
         for action in actions:
             if(resolver.getPermissions(user,dep,action)):
                 print " >%s darf %s" % (user,action)
+                pass
             else:
                 print " >%s darf %s nicht!!!" % (user,action)
+                pass
 
