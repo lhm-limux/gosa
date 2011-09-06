@@ -70,7 +70,7 @@ class AMQPServiceProxy(object):
                 AMQPServiceProxy.worker[self.__serviceAddress][i] = {
                         'ssn': ssn,
                         'sender': ssn.sender(self.__serviceAddress),
-                        'receiver': ssn.receiver('reply-%s; {create:always, delete:always}' % ssn.name),
+                        'receiver': ssn.receiver('reply-%s; {create:always, delete:always, node: { type: queue, durable: False, x-declare: { exclusive: False, auto-delete: True } }}' % ssn.name),
                         'locked': False}
 
         # Store connection
@@ -107,7 +107,7 @@ class AMQPServiceProxy(object):
                                 'ssn': ssn,
                                 'sender': ssn.sender("%s.command.%s" %
                                     (AMQPServiceProxy.domain, queue)),
-                                'receiver': ssn.receiver('reply-%s; {create:always, delete:always}' % ssn.name),
+                                'receiver': ssn.receiver('reply-%s; {create:always, delete:always, node: { type: queue, durable: False, x-declare: { exclusive: False, auto-delete: True } }}' % ssn.name),
                                 'locked': False}
 
 
@@ -268,6 +268,12 @@ class AMQPEventConsumer(object):
         address = """%s; {
             create: always,
             delete:always,
+            node: {
+                durable: False,
+                x-declare: {
+                    exclusive: True,
+                    auto-delete: True }
+            },
             link: {
                 x-bindings: [
                         {

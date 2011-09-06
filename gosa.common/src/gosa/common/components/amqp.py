@@ -290,6 +290,12 @@ class EventConsumer(object):
         address = """%s; {
             create: always,
             delete:always,
+            node: {
+                durable: False,
+                x-declare: {
+                    exclusive: True,
+                    auto-delete: True }
+            },
             link: {
                 x-bindings: [
                         {

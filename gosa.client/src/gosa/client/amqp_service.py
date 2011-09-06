@@ -69,6 +69,10 @@ class AMQPClientService(object):
                     create:always,
                     node:{
                         type:queue,
+                        durable:false,
+                        x-declare: {
+                            exclusive: True,
+                            auto-delete: True },
                         x-bindings:[ {
                                 exchange:"amq.direct",
                                 queue:"%s.client.%s" } ]
