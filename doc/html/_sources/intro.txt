@@ -121,17 +121,71 @@ Install qpid broker and clients
 
   # apt-get install qpidd qpid-client qpid-tools
 
-Maybe set the access policy for the admin. Not directly needed for non-production,
-but a definitive must on ordinary systems::
+After qpid has been installed, you may modify the access policy
+to fit the gosa-agent needs::
 
-  # vi /etc/qpid/qpidd.policy
-  |# Admin is allowed to do everything
-  |acl allow admin all
-  |
-  |# Deny everything else by default
-  |acl allow all all
-  |:wq
+	# Group definitions
+	group admins admin@QPID cajus@QPID
+	group agents amqp@QPID
 
+	#TODO: this does not work in current versions of qpid
+	#group event-publisher agents admins
+	#group event-consumer agents admins
+	group event-consumer amqp@QPID
+	group event-publisher amqp@QPID
+	
+	# Admin is allowed to do everything
+	acl allow admins all
+	
+	# Reply queue handling
+	acl allow all access exchange name=reply-*
+	acl allow all access queue name=reply-* owner=self
+	acl allow all create queue name=reply-* durable=false autodelete=true
+	acl allow all consume queue name=reply-* owner=self
+	acl allow agents publish exchange routingkey=reply-*
+	
+	# Event producer
+	acl allow event-publisher all     queue    name=org.gosa
+	acl allow event-publisher all     exchange name=org.gosa
+	
+	# Event consumer
+	#TODO: replace "all" by "event-consumer" later on, there's no
+	#      wildcard possible in current versions of qpid
+	acl allow all create  queue    name=event-listener-*
+	acl allow all delete  queue    name=event-listener-* owner=self
+	acl allow all consume queue    name=event-listener-* owner=self
+	acl allow all access  queue    name=event-listener-* owner=self
+	acl allow all purge   queue    name=event-listener-* owner=self
+	acl allow all access  queue    name=org.gosa
+	acl allow all access  exchange name=org.gosa
+	acl allow all access  exchange name=event-listener-* owner=self
+	acl allow all bind    exchange name=org.gosa queuename=event-listener-* routingkey=event
+	acl allow all unbind  exchange name=org.gosa queuename=event-listener-* routingkey=event
+	acl allow all publish exchange name=org.gosa routingkey=event
+	
+	# Let agents do everything with the org.gosa queues and exchanges, agents itself
+	# are trusted by now.
+	acl allow agents all queue name=org.gosa.*
+	acl allow agents all exchange name=org.gosa.*
+	acl allow agents all exchange name=amq.direct queuename=org.gosa.*
+	
+	# Let every authenticated instance publish to the command queues
+	acl allow all access   queue    name=org.gosa.command.*
+	acl allow all publish  queue    name=org.gosa.command.*
+	acl allow all publish  exchange routingkey=org.gosa.command.*
+	acl allow all access   exchange name=org.gosa.command.*
+	
+	# Let clients create their own queue to listen on
+	acl allow all access  queue    name=org.gosa
+	acl allow all access  queue    name=org.gosa.client.* owner=self
+	acl allow all consume queue    name=org.gosa.client.* owner=self
+	acl allow all create  queue    name=org.gosa.client.* exclusive=true autodelete=true durable=false
+	acl allow all access  exchange name=org.gosa
+	acl allow all access  exchange name=org.gosa.client.* owner=self
+	acl allow all bind    exchange name=amq.direct queuename=org.gosa.client.*
+	
+	# By default, drop everything else
+	acl deny all all
 
 Now the broker aka bus is up and running on the host.
 

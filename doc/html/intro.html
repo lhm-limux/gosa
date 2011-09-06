@@ -151,15 +151,70 @@ of an existing repository. Include it in your configuration like this:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># apt-get install qpidd qpid-client qpid-tools</span>
 </pre></div>
 </div>
-<p>Maybe set the access policy for the admin. Not directly needed for non-production,
-but a definitive must on ordinary systems:</p>
-<div class="highlight-python"><pre># vi /etc/qpid/qpidd.policy
-|# Admin is allowed to do everything
-|acl allow admin all
-|
-|# Deny everything else by default
-|acl allow all all
-|:wq</pre>
+<p>After qpid has been installed, you may modify the access policy
+to fit the gosa-agent needs:</p>
+<div class="highlight-python"><pre># Group definitions
+group admins admin@QPID cajus@QPID
+group agents amqp@QPID
+
+#TODO: this does not work in current versions of qpid
+#group event-publisher agents admins
+#group event-consumer agents admins
+group event-consumer amqp@QPID
+group event-publisher amqp@QPID
+
+# Admin is allowed to do everything
+acl allow admins all
+
+# Reply queue handling
+acl allow all access exchange name=reply-*
+acl allow all access queue name=reply-* owner=self
+acl allow all create queue name=reply-* durable=false autodelete=true
+acl allow all consume queue name=reply-* owner=self
+acl allow agents publish exchange routingkey=reply-*
+
+# Event producer
+acl allow event-publisher all     queue    name=org.gosa
+acl allow event-publisher all     exchange name=org.gosa
+
+# Event consumer
+#TODO: replace "all" by "event-consumer" later on, there's no
+#      wildcard possible in current versions of qpid
+acl allow all create  queue    name=event-listener-*
+acl allow all delete  queue    name=event-listener-* owner=self
+acl allow all consume queue    name=event-listener-* owner=self
+acl allow all access  queue    name=event-listener-* owner=self
+acl allow all purge   queue    name=event-listener-* owner=self
+acl allow all access  queue    name=org.gosa
+acl allow all access  exchange name=org.gosa
+acl allow all access  exchange name=event-listener-* owner=self
+acl allow all bind    exchange name=org.gosa queuename=event-listener-* routingkey=event
+acl allow all unbind  exchange name=org.gosa queuename=event-listener-* routingkey=event
+acl allow all publish exchange name=org.gosa routingkey=event
+
+# Let agents do everything with the org.gosa queues and exchanges, agents itself
+# are trusted by now.
+acl allow agents all queue name=org.gosa.*
+acl allow agents all exchange name=org.gosa.*
+acl allow agents all exchange name=amq.direct queuename=org.gosa.*
+
+# Let every authenticated instance publish to the command queues
+acl allow all access   queue    name=org.gosa.command.*
+acl allow all publish  queue    name=org.gosa.command.*
+acl allow all publish  exchange routingkey=org.gosa.command.*
+acl allow all access   exchange name=org.gosa.command.*
+
+# Let clients create their own queue to listen on
+acl allow all access  queue    name=org.gosa
+acl allow all access  queue    name=org.gosa.client.* owner=self
+acl allow all consume queue    name=org.gosa.client.* owner=self
+acl allow all create  queue    name=org.gosa.client.* exclusive=true autodelete=true durable=false
+acl allow all access  exchange name=org.gosa
+acl allow all access  exchange name=org.gosa.client.* owner=self
+acl allow all bind    exchange name=amq.direct queuename=org.gosa.client.*
+
+# By default, drop everything else
+acl deny all all</pre>
 </div>
 <p>Now the broker aka bus is up and running on the host.</p>
 <p>For production use, you should enable SSL for the broker and for GOsa core. Generating
@@ -573,12 +628,12 @@ There are two ways to do so, the first is to update the GOsa 2.7 configuration f
 </div>
 <p>The other way would be to configure these properties inside of GOsa using the <tt class="docutils literal"><span class="pre">preferences</span></tt> plugin.</p>
 <p>Select the <tt class="docutils literal"><span class="pre">preferences</span></tt> plugin from the menu and then read and accept the warning message.</p>
-<img alt="_images/gosa_setup_rpc_18.png" src="_images/gosa_setup_rpc_18.png" />
+<img alt="_images/gosa_setup_rpc_15.png" src="_images/gosa_setup_rpc_15.png" />
 <p>Then click on the filter rules and select &#8220;All properties&#8221; to show all properties, even unused.
 Then enter <tt class="docutils literal"><span class="pre">rpc</span></tt> in the search-filter input box, to only show rpc related options, only three options should
 be left in the list below.
 Now adjust the values of these properties to match your setup and click <tt class="docutils literal"><span class="pre">apply</span></tt> on the bottom of the page.</p>
-<img alt="_images/gosa_setup_rpc_28.png" src="_images/gosa_setup_rpc_28.png" />
+<img alt="_images/gosa_setup_rpc_25.png" src="_images/gosa_setup_rpc_25.png" />
 <p>That is all, you may only need to relog into the GOsa gui.</p>
 </div>
 <div class="section" id="design-overview">
