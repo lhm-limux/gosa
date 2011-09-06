@@ -465,6 +465,9 @@ Here is an example config file for a non-secured service. (A HowTo about securin
     
     # Keyword profile: for debugging, only
     profile = False
+
+    [scheduler]
+    database = sqlite://
     
     [amqp]
     

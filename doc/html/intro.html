@@ -469,6 +469,9 @@ id = gosa-agent
 # Keyword profile: for debugging, only
 profile = False
 
+[scheduler]
+database = sqlite://
+
 [amqp]
 
 # Keyword url: URL to one of your AMQP servers
@@ -628,12 +631,12 @@ There are two ways to do so, the first is to update the GOsa 2.7 configuration f
 </div>
 <p>The other way would be to configure these properties inside of GOsa using the <tt class="docutils literal"><span class="pre">preferences</span></tt> plugin.</p>
 <p>Select the <tt class="docutils literal"><span class="pre">preferences</span></tt> plugin from the menu and then read and accept the warning message.</p>
-<img alt="_images/gosa_setup_rpc_15.png" src="_images/gosa_setup_rpc_15.png" />
+<img alt="_images/gosa_setup_rpc_16.png" src="_images/gosa_setup_rpc_16.png" />
 <p>Then click on the filter rules and select &#8220;All properties&#8221; to show all properties, even unused.
 Then enter <tt class="docutils literal"><span class="pre">rpc</span></tt> in the search-filter input box, to only show rpc related options, only three options should
 be left in the list below.
 Now adjust the values of these properties to match your setup and click <tt class="docutils literal"><span class="pre">apply</span></tt> on the bottom of the page.</p>
-<img alt="_images/gosa_setup_rpc_25.png" src="_images/gosa_setup_rpc_25.png" />
+<img alt="_images/gosa_setup_rpc_26.png" src="_images/gosa_setup_rpc_26.png" />
 <p>That is all, you may only need to relog into the GOsa gui.</p>
 </div>
 <div class="section" id="design-overview">
