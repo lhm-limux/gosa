@@ -268,6 +268,7 @@ class Scheduler(object):
                         'scheduled when the scheduler starts')
         else:
             self._real_add_job(job, jobstore, True)
+
         return job
 
     def _remove_job(self, job, alias, jobstore):
