@@ -28,20 +28,18 @@ deps = [
         'dc=gonicus,dc=de']
 
 actions = ["gosa.scheduler.cancelEvent"]
+options = {'owner': 'hickert'}
+acls = ['r','w']
 
 for dep in deps:
     for user in ('cajus','hickert'):
 
-        options = {'owner': 'hickert'}
-        acls = ['r','w']
         for action in actions:
             if(resolver.getPermissions(user, dep, action, acls, options)):
-                print "|"
                 print "|---> %s darf %s in %s" % (user, action, dep)
                 print ""
                 pass
             else:
-                print "|"
                 print "|---> %s darf NICHT %s in %s" % (user, action, dep)
                 print ""
                 pass

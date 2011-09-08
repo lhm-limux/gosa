@@ -215,10 +215,10 @@ class AclResolver(object):
                             reset = True
                         elif acl.getType() == Acl.PSUB:
                             print "ACL:  Found permanent acl for action '%s'!" % (action)
-                            allowed = True
+                            return True
                         elif acl.getType() in (Acl.SUB, ) and not reset:
                             print "ACL:  Found acl for action '%s'!" % (action)
-                            allowed = True
+                            return True
 
             # Remove the first part of the dn
             location = ','.join(ldap.dn.explode_dn(location)[1::])
