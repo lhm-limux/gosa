@@ -20,6 +20,7 @@ AclResoler  - This class is used to manage all Acl- and AclSets objects.
 
 """
 
+
 class AclSet(list):
     """
     This is a container for ACL entries.
@@ -34,7 +35,7 @@ class AclSet(list):
         Adds a new acl object to this aclSet.
         """
         if not isinstance(item, Acl):
-            raise TypeError, 'item is not of type %s' % Acl
+            raise TypeError('item is not of type %s' % Acl)
 
         if item.priority == None:
             item.priority = len(self)
@@ -94,7 +95,8 @@ class Acl(object):
         """
         Adds a new action to this acl.
         """
-        acl = { 'action': action,
+        acl = {
+                'action': action,
                 'acls': acls,
                 'options': options}
         self.actions.append(acl)
@@ -105,7 +107,7 @@ class Acl(object):
         """
         return(self.member)
 
-    def match(self, user, action, acls, options = {}):
+    def match(self, user, action, acls, options={}):
         """
         Check of the requested user, action and the action options match this
         acl-object.
@@ -131,18 +133,18 @@ class Acl(object):
 
                     # Check for missing options
                     if entry not in options:
-                        print "Option '%s' is missing" % entry
+                        print "ACL:   Option '%s' is missing" % entry
                         continue
 
                     # Simply match string options.
                     if type(act['options'][entry]) == str and not re.match(act['options'][entry], options[entry]):
-                        print "Option '%s' with value '%s' does not match '%s'!" % (entry,
+                        print "ACL:   Option '%s' with value '%s' does not match '%s'!" % (entry,
                                 act['options'][entry], options[entry])
                         continue
 
                     # Simply match string options.
                     elif act['options'][entry] != options[entry]:
-                        print "Option '%s' with value '%s' does not match '%s'!" % (entry,
+                        print "ACL:   Option '%s' with value '%s' does not match '%s'!" % (entry,
                                 act['options'][entry], options[entry])
                         continue
 
@@ -166,7 +168,7 @@ class AclResolver(object):
     ldapBase = ""
 
     def __init__(self, ldapBase):
-        self.ldapBase = ldapBase;
+        self.ldapBase = ldapBase
 
     def addAclSet(self, acl):
         """
@@ -183,7 +185,7 @@ class AclResolver(object):
         """
         pass
 
-    def getPermissions(self, user, location, action, acls, options= {}):
+    def getPermissions(self, user, location, action, acls, options={}):
         """
         Check permissions for a given user and a location.
         """
@@ -192,7 +194,7 @@ class AclResolver(object):
         allowed = False
         reset = False
 
-        print "ACL: Checking acl for %s/%s/%s" % (user, location,str(action))
+        print "ACL: Checking acl for %s/%s/%s" % (user, location, str(action))
 
         # Remove the first part of the dn, until we reach the ldap base.
         while self.ldapBase in location:
@@ -214,11 +216,11 @@ class AclResolver(object):
                         elif acl.getType() == Acl.PSUB:
                             print "ACL:  Found permanent acl for action '%s'!" % (action)
                             allowed = True
-                        elif acl.getType() in (Acl.SUB,) and not reset:
+                        elif acl.getType() in (Acl.SUB, ) and not reset:
                             print "ACL:  Found acl for action '%s'!" % (action)
                             allowed = True
 
             # Remove the first part of the dn
-            location =  ','.join(ldap.dn.explode_dn(location)[1::])
+            location = ','.join(ldap.dn.explode_dn(location)[1::])
 
         return(allowed)
