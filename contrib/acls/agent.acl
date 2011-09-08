@@ -1,0 +1,63 @@
+{
+  "dc=gonicus,dc=de": [
+    {
+      "priority": 0, 
+      "scope": 2, 
+      "members": [
+        "cajus", 
+        "hickert"
+      ], 
+      "actions": [
+        {
+          "acls": [
+            "r", 
+            "w", 
+            "x"
+          ], 
+          "target": "gosa.*.cancelEvent", 
+          "options": {}
+        }
+      ]
+    }
+  ], 
+  "ou=technik,dc=intranet,dc=gonicus,dc=de": [
+    {
+      "priority": 0, 
+      "scope": 4, 
+      "members": [
+        "hickert"
+      ], 
+      "actions": [
+        {
+          "acls": [
+            "r", 
+            "w", 
+            "x"
+          ], 
+          "target": "gosa.scheduler.cancelEvent", 
+          "options": {
+            "owner": "hickert"
+          }
+        }
+      ]
+    }, 
+    {
+      "priority": 1, 
+      "scope": 2, 
+      "members": [
+        "cajus"
+      ], 
+      "actions": [
+        {
+          "acls": [
+            "r", 
+            "w", 
+            "x"
+          ], 
+          "target": "gosa.scheduler.cancelEvent", 
+          "options": {}
+        }
+      ]
+    }
+  ]
+}
