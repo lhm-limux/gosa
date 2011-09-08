@@ -71,14 +71,17 @@ class SchedulerService(object):
         """
         self.env.log.debug("scheduler: looking for stale jobs")
         grace = datetime.now() + timedelta(seconds=int(self.env.config.get('scheduler.gracetime', default='30')))
+        count = 0
 
         # Find jobs that are expired for a defined grace time.
         for job in self.sched.get_jobs():
             if job.origin != self.env.id and job.next_run_time and job.next_run_time < grace:
                 self.sched.migrate_job(job)
+                count += 1
 
         # Tell others to reload their jobs
-        self.__notify()
+        if count:
+            self.__notify()
 
     @Command(__help__=N_("Return scheduler information for a specific job."))
     def schedulerGetJob(self, job_id):
