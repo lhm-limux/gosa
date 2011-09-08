@@ -167,19 +167,21 @@ class Acl(object):
 
 
 class AclResolver(object):
+    instance = None
+    acl_sets = []
 
-    aclSets = []
-    ldapBase = ""
+    def __init__(self):
+        # from config later on:
+        self.base = "dc=gonicus,dc=de"
+        self.acl_file = "agent.acl"
 
-    def __init__(self, ldapBase):
-        self.ldapBase = ldapBase
-        do_whatever = self.load('agent.acl')
+        do_whatever = self.load(self.acl_file)
 
     def addAclSet(self, acl):
         """
         Adds an aclSet object to the list of active-acl rules.
         """
-        self.aclSets.append(acl)
+        self.acl_sets.append(acl)
 
 
     def save(self):
@@ -232,10 +234,10 @@ class AclResolver(object):
         print "ACL: Checking acl for %s/%s/%s" % (user, location, str(action))
 
         # Remove the first part of the dn, until we reach the ldap base.
-        while self.ldapBase in location:
+        while self.base in location:
 
             # Check acls for each acl set.
-            for aclSet in self.aclSets:
+            for aclSet in self.acl_sets:
 
                 # Skip acls that do not match the current ldap location.
                 if location != aclSet.location:
@@ -259,3 +261,10 @@ class AclResolver(object):
             location = ','.join(ldap.dn.explode_dn(location)[1::])
 
         return(allowed)
+
+    @staticmethod
+    def getInstance():
+        if not AclResolver.instance:
+            AclResolver.instance = AclResolver()
+
+        return AclResolver.instance

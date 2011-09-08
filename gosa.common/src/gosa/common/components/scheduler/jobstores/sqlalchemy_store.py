@@ -89,10 +89,11 @@ class SQLAlchemyJobStore(JobStore):
         self.jobs = jobs
 
     def migrate_jobs(self, job, origin):
-        #TODO
-        # ändere origin des jobs auf den neuen, aber nur wenn current.origin ==
-        # job.origin ist.
-        pass
+        # Migrate job only if it still has it's original origin, elseways
+        # someone else already migrated it...
+        update = self.jobs_t.update().where(and_(self.jobs_t.c.origin ==
+            job.origin, self.jobs_t.c.id == job.id)).values(origin=origin)
+        self.engine.execute(update)
 
     def update_job(self, job):
         job_dict = job.__getstate__()
