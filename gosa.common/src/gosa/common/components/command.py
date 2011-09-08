@@ -19,6 +19,7 @@ def Command(**d_kwargs):
     Parameter  Description
     ========== ============
     needsQueue indicates if the decorated function needs a queue parameter
+    needsUser  indicates if the decorated function needs a user parameter
     type       describes the function type
     ========== ============
 

@@ -120,8 +120,8 @@ class SchedulerService(object):
 
         return res
 
-    @Command(needsUser=True, __help__=N_("Add a new date based job to the scheduler."))
-    def schedulerAddDateJob(self, user, func, args, kwargs, date, **options):
+    @Command(needsQueue=True, needsUser=True, __help__=N_("Add a new date based job to the scheduler."))
+    def schedulerAddDateJob(self, user, queue, func, args, kwargs, date, **options):
         """
         Add a new job triggered at a specified date.
 
@@ -155,14 +155,16 @@ class SchedulerService(object):
         """
         options['owner'] = user
 
-        #TODO: resolve func -> it's a string
+        # Load CommandRegistry dispatcher to schedule with that method
+        cr = PluginRegistry.getInstance("CommandRegistry")
+        args = [user, queue, func] + args
 
         trigger = SimpleTrigger(date)
-        job = self.sched.add_job(trigger, func, args, kwargs, **options)
+        job = self.sched.add_job(trigger, cr.dispatch, args, kwargs, **options)
         return job.uuid
 
-    @Command(needsUser=True, __help__=N_("Add a new cron based job to the scheduler."))
-    def schedulerCronDateJob(self, user, func, args, kwargs, year=None, month=None,
+    @Command(needsQueue=True, needsUser=True, __help__=N_("Add a new cron based job to the scheduler."))
+    def schedulerCronDateJob(self, user, queue, func, args, kwargs, year=None, month=None,
             day=None, week=None, day_of_week=None, hour=None, minute=None, second=None,
             start_date=None, **options):
         """
@@ -189,17 +191,20 @@ class SchedulerService(object):
         `Return:` Job ID
         """
         options['owner'] = user
-        #TODO: resolve func -> it's a string
+
+        # Load CommandRegistry dispatcher to schedule with that method
+        cr = PluginRegistry.getInstance("CommandRegistry")
+        args = [user, queue, func] + args
 
         trigger = CronTrigger(year=year, month=month, day=day, week=week,
                 day_of_week=day_of_week, hour=hour,
                 minute=minute, second=second,
                 start_date=start_date)
-        jod = self.sched.add_job(trigger, func, args, kwargs, **options)
+        jod = self.sched.add_job(trigger, cr.dispatch, args, kwargs, **options)
         return job.uuid
 
-    @Command(needsUser=True, __help__=N_("Add a new interval job to the scheduler."))
-    def schedulerIntervalJob(self, user, func, args, kwargs, weeks=0, days=0, hours=0,
+    @Command(needsQueue=True, needsUser=True, __help__=N_("Add a new interval job to the scheduler."))
+    def schedulerIntervalJob(self, user, queue, func, args, kwargs, weeks=0, days=0, hours=0,
             minutes=0, seconds=0, start_date=None, **options):
         """
         Add a new job triggered in a specified interval.
@@ -224,12 +229,15 @@ class SchedulerService(object):
         `Return:` Job ID
         """
         options['owner'] = user
-        #TODO: resolve func -> it's a string
+
+        # Load CommandRegistry dispatcher to schedule with that method
+        cr = PluginRegistry.getInstance("CommandRegistry")
+        args = [user, queue, func] + args
 
         interval = timedelta(weeks=weeks, days=days, hours=hours,
                 minutes=minutes, seconds=seconds)
         trigger = IntervalTrigger(interval, start_date)
-        job = self.sched.add_job(trigger, func, args, kwargs, **options)
+        job = self.sched.add_job(trigger, cr.dispatch, args, kwargs, **options)
         return job.uuid
 
     @Command(needsUser=True, __help__=N_("Remove job from the scheduler."))
