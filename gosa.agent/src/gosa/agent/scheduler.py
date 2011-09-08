@@ -7,9 +7,13 @@ from datetime import datetime, timedelta
 from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
 from gosa.common.utils import N_
+from gosa.common.event import EventMaker
+from gosa.common.components import Command, PluginRegistry
 from gosa.common.components.scheduler import Scheduler, set_job_property
 from gosa.common.components.scheduler.jobstores.sqlalchemy_store import SQLAlchemyJobStore
 from gosa.common.components.scheduler.triggers import SimpleTrigger, IntervalTrigger, CronTrigger
+from gosa.common.components.scheduler.events import EVENT_JOBSTORE_JOB_REMOVED, EVENT_JOBSTORE_JOB_ADDED, EVENT_JOB_EXECUTED
+from gosa.common.components.amqp import EventConsumer
 
 
 class SchedulerService(object):
@@ -39,9 +43,23 @@ class SchedulerService(object):
         self.sched.start()
 
         # Start migration job
-        self.sched.add_interval_job(self.migrate, seconds=60)
+        self.sched.add_interval_job(self.migrate, seconds=60, tag='_internal')
 
-        #TODO: add event listener for remote schedulers
+        # Notify others about local scheduler job changes
+        self.sched.add_listener(self.__notify, EVENT_JOBSTORE_JOB_REMOVED |
+                EVENT_JOBSTORE_JOB_ADDED | EVENT_JOB_EXECUTED)
+
+        # Get notified by others about remote job changes
+        amqp = PluginRegistry.getInstance("AMQPHandler")
+        EventConsumer(self.env,
+            amqp.getConnection(),
+            xquery="""
+                declare namespace f='http://www.gonicus.de/Events';
+                let $e := ./f:Event
+                return $e/f:SchedulerUpdate
+                    and $e/f:Id != '%s'
+            """ % self.env.id,
+            callback=self.__eventProcessor)
 
     def stop(self):
         """ Stop scheduler service. """
@@ -56,11 +74,11 @@ class SchedulerService(object):
 
         # Find jobs that are expired for a defined grace time.
         for job in self.sched.get_jobs():
-            if job.origin != self.origin and job.next_run_time and job.next_run_time < grace:
-                self.sched.migrate_job(job):
+            if job.origin != self.env.id and job.next_run_time and job.next_run_time < grace:
+                self.sched.migrate_job(job)
 
-        # Notify others
-        #TODO: send scheduler notification
+        # Tell others to reload their jobs
+        self.__notify()
 
     @Command(__help__=N_("Return scheduler information for a specific job."))
     def schedulerGetJob(self, job_id):
@@ -212,3 +230,16 @@ class SchedulerService(object):
         """
         job = self.sched.get_job_by_id(job_id)
         self.sched.unschedule_job(job)
+
+    def __notify(self, event=None):
+        # Don't send events for internal job changes
+        if event and event.job.tag == '_internal':
+            return
+
+        e = EventMaker()
+        notify = e.Event(e.SchedulerUpdate(e.Id(self.env.id)))
+        amqp = PluginRegistry.getInstance("AMQPHandler")
+        amqp.sendEvent(notify)
+
+    def __eventProcessor(self, data):
+        self.sched.refresh()

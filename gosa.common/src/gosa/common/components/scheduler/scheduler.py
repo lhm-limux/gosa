@@ -161,6 +161,12 @@ class Scheduler(object):
     def reschedule(self):
         self._wakeup.set()
 
+    def refresh(self):
+        for jobstore in itervalues(self._jobstores):
+            jobstore.load_jobs()
+
+        self._wakeup.set()
+
     def remove_jobstore(self, alias):
         """
         Removes the job store by the given alias from this scheduler.
