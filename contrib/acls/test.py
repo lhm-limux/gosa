@@ -16,7 +16,7 @@ aclSet2 = AclSet("ou=technik,dc=intranet,dc=gonicus,dc=de")
 aclSet2.add(acl2)
 aclSet2.add(acl3)
 
-resolver = AclResolver("dc=gonicus,dc=de")
+resolver = AclResolver.getInstance()
 resolver.addAclSet(aclSet1)
 resolver.addAclSet(aclSet2)
 
