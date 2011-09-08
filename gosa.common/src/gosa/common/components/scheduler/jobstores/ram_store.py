@@ -21,5 +21,8 @@ class RAMJobStore(JobStore):
     def load_jobs(self):
         pass
 
+    def migrate_jobs(self, job, origin):
+        pass
+
     def __repr__(self):
         return '<%s>' % (self.__class__.__name__)
