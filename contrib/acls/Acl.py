@@ -30,6 +30,9 @@ class AclSet(list):
     def __init__(self, location):
         self.location = location
 
+    def getLocation(self):
+        return(self.location)
+
     def add(self, item):
         """
         Adds a new acl object to this aclSet.
@@ -175,6 +178,24 @@ class AclResolver(object):
         Adds an aclSet object to the list of active-acl rules.
         """
         self.aclSets.append(acl)
+
+
+    def save(self):
+
+        ret = {}
+        for aclSet in self.aclSets:
+            ret[aclSet.location] = []
+            for acl in aclSet:
+                entry = {'actions': acl.actions,
+                         'members': acl.members,
+                         'priority': acl.priority,
+                         'acl_type': acl.acl_type}
+                ret[aclSet.location]. append(entry)
+
+        with open('acl.json', 'w') as f:
+            import json
+            json.dump(ret, f, indent=2)
+
 
     def refreshAcls(self):
         """

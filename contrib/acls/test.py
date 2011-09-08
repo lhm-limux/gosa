@@ -21,6 +21,8 @@ resolver.addAclSet(aclSet1)
 resolver.addAclSet(aclSet2)
 
 
+
+
 deps = [
         'ou=1,ou=technik,dc=intranet,dc=gonicus,dc=de',
         'ou=technik,dc=intranet,dc=gonicus,dc=de',
@@ -44,3 +46,6 @@ for dep in deps:
                 print ""
                 pass
 
+
+
+resolver.save()
