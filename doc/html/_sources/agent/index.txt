@@ -12,6 +12,7 @@ Agent
    :maxdepth: 2
 
    command
+   scheduler
    amqp
    http
    ldap

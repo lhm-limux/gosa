@@ -1,6 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-TODO: docs
+The scheduler service can be used to do time based - time-phased, periodic, single shot - tasks
+which may be scheduled by a user or by indirectly by a script or the web frontend.
+
+Example::
+
+    TODO
+
+------
 """
 from zope.interface import implements
 from datetime import datetime, timedelta
@@ -17,9 +24,7 @@ from gosa.common.components.amqp import EventConsumer
 
 
 class SchedulerService(object):
-    """
-    TODO: docs
-    """
+
     implements(IInterfaceHandler)
     _priority_ = 0
 
@@ -149,6 +154,9 @@ class SchedulerService(object):
         `Return:` Job ID
         """
         options['owner'] = user
+
+        #TODO: resolve func -> it's a string
+
         trigger = SimpleTrigger(date)
         job = self.sched.add_job(trigger, func, args, kwargs, **options)
         return job.uuid
@@ -181,6 +189,8 @@ class SchedulerService(object):
         `Return:` Job ID
         """
         options['owner'] = user
+        #TODO: resolve func -> it's a string
+
         trigger = CronTrigger(year=year, month=month, day=day, week=week,
                 day_of_week=day_of_week, hour=hour,
                 minute=minute, second=second,
@@ -189,7 +199,7 @@ class SchedulerService(object):
         return job.uuid
 
     @Command(needsUser=True, __help__=N_("Add a new interval job to the scheduler."))
-    def schedulerInterval(self, user, func, args, kwargs, weeks=0, days=0, hours=0,
+    def schedulerIntervalJob(self, user, func, args, kwargs, weeks=0, days=0, hours=0,
             minutes=0, seconds=0, start_date=None, **options):
         """
         Add a new job triggered in a specified interval.
@@ -214,6 +224,8 @@ class SchedulerService(object):
         `Return:` Job ID
         """
         options['owner'] = user
+        #TODO: resolve func -> it's a string
+
         interval = timedelta(weeks=weeks, days=days, hours=hours,
                 minutes=minutes, seconds=seconds)
         trigger = IntervalTrigger(interval, start_date)
