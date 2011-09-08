@@ -1,4 +1,4 @@
-from Acl import Acl, AclSet, AclResolver
+from acl import Acl, AclSet, AclResolver
 
 acl1 = Acl(Acl.SUB)
 acl1.addMembers(['cajus', 'hickert'])

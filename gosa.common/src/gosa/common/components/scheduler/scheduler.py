@@ -543,8 +543,8 @@ class Scheduler(object):
     def migrate_job(self, job):
         for alias, jobstore in iteritems(self._jobstores):
             if jobstore.jobs and job in jobstore.jobs:
-                job.origin = self.origin
-                jobstore.update_job(job)
+                jobstore.migrate_job(job, self.origin)
+                break
 
         self.reschedule()
 

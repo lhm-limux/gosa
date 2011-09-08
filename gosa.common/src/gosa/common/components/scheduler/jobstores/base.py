@@ -21,5 +21,9 @@ class JobStore(object):
         """Loads jobs from this store into memory."""
         raise NotImplementedError
 
+    def migrate_jobs(self, job, origin):
+        """Migrate job to new origin."""
+        raise NotImplementedError
+
     def close(self):
         """Frees any resources still bound to this job store."""

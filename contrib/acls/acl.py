@@ -1,4 +1,5 @@
 import re
+import json
 import ldap
 
 
@@ -43,7 +44,7 @@ class AclSet(list):
         if item.priority == None:
             item.priority = len(self)
 
-        super(AclSet, self).append(item)
+        self.append(item)
 
         # Sort Acl items by id
         sorted(self, key=lambda item: item.priority)
@@ -172,6 +173,7 @@ class AclResolver(object):
 
     def __init__(self, ldapBase):
         self.ldapBase = ldapBase
+        do_whatever = self.load('agent.acl')
 
     def addAclSet(self, acl):
         """
@@ -205,6 +207,18 @@ class AclResolver(object):
         objects. Which can then be used by this class.
         """
         pass
+
+    def load(self, filename):
+        try:
+            return json.loads(open(filename).read())
+
+        except IOError:
+            return {}
+
+
+    def save(self, filename, acl):
+        with open(filename, 'w') as f:
+            f.write(json.dumps(acl, indent=4))
 
     def getPermissions(self, user, location, action, acls, options={}):
         """

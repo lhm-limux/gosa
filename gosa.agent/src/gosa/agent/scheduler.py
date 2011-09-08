@@ -3,6 +3,7 @@
 TODO: docs
 """
 from zope.interface import implements
+from datetime import datetime, timedelta
 from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
 from gosa.common.utils import N_
@@ -51,8 +52,15 @@ class SchedulerService(object):
         Migration "cron" job.
         """
         self.env.log.debug("scheduler: looking for stale jobs")
-        #TODO: realy look for stale jobs
-        #self.sched.reschedule()
+        grace = datetime.now() + timedelta(seconds=int(self.env.config.get('scheduler.gracetime', default='30')))
+
+        # Find jobs that are expired for a defined grace time.
+        for job in self.sched.get_jobs():
+            if job.origin != self.origin and job.next_run_time and job.next_run_time < grace:
+                self.sched.migrate_job(job):
+
+        # Notify others
+        #TODO: send scheduler notification
 
     @Command(__help__=N_("Return scheduler information for a specific job."))
     def schedulerGetJob(self, job_id):
@@ -109,6 +117,7 @@ class SchedulerService(object):
         name                Job name
         description         Description of the job
         tag                 Free choosable text tag to make it easier to find jobs
+        progress            Automatically maintained
         misfire_grace_time  seconds after the designated run time that the job is still allowed to be run
         coalesce            Roll several pending executions of jobs into one
         max_runs            Maximum number of times this job is allowed to be triggered
@@ -190,10 +199,16 @@ class SchedulerService(object):
         job = self.sched.add_job(trigger, func, args, kwargs, **options)
         return job.uuid
 
-    @Command(needsUser=True, __help__=N_("Add a new job to the scheduler."))
-    def schedulerUpdateJob(self, user, job_id):
-        pass
-
     @Command(needsUser=True, __help__=N_("Remove job from the scheduler."))
     def schedulerRemoveJob(self, user, job_id):
-        pass
+        """
+        Remove a job by it's job ID.
+
+        =========== =======================================
+        Parameter   Description
+        =========== =======================================
+        job_id      The job ID
+        =========== =======================================
+        """
+        job = self.sched.get_job_by_id(job_id)
+        self.sched.unschedule_job(job)
