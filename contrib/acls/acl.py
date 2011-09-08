@@ -31,7 +31,7 @@ class AclSet(list):
     def __init__(self, location):
         self.location = location
 
-    def getLocation(self):
+    def get_location(self):
         return(self.location)
 
     def add(self, item):
@@ -65,27 +65,27 @@ class Acl(object):
 
     members = None
     actions = None
-    acl_type = None
+    scope = None
 
-    def __init__(self, acl_type):
+    def __init__(self, scope):
 
-        if acl_type not in (Acl.ONE, Acl.SUB, Acl.PSUB, Acl.RESET):
+        if scope not in (Acl.ONE, Acl.SUB, Acl.PSUB, Acl.RESET):
             raise(Exception("Invalid ACL type given"))
 
         self.actions = []
         self.locations = []
         self.members = []
-        self.acl_type = acl_type
+        self.scope = scope
 
-    def addMember(self, member):
+    def add_member(self, member):
         """
         Adds a new member to this acl.
         """
-        if type(member) != str:
+        if type(member) != unicode:
             raise(Exception("Member should be of type str!"))
         self.members.append(member)
 
-    def addMembers(self, members):
+    def add_members(self, members):
         """
         Adds a list of new members to this acl.
         """
@@ -93,19 +93,19 @@ class Acl(object):
             raise(Exception("Requires a list of members!"))
 
         for member in members:
-            self.addMember(member)
+            self.add_member(member)
 
-    def addAction(self, action, acls, options):
+    def add_action(self, target, acls, options):
         """
         Adds a new action to this acl.
         """
         acl = {
-                'action': action,
+                'target': target,
                 'acls': acls,
                 'options': options}
         self.actions.append(acl)
 
-    def getMembers(self):
+    def get_members(self):
         """
         Returns the list of members this ACL is valid for.
         """
@@ -120,7 +120,7 @@ class Acl(object):
             for act in self.actions:
 
                 # check for # and * placeholders
-                test_act = re.escape(act['action'])
+                test_act = re.escape(act['target'])
                 test_act = re.sub(r'(^|\\.)(\\\*)(\\.|$)', '\\1.*\\3', test_act)
                 test_act = re.sub(r'(^|\\.)(\\#)(\\.|$)', '\\1[^\.]*\\3', test_act)
 
@@ -158,12 +158,12 @@ class Acl(object):
         # Nothing matched!
         return False
 
-    def getType(self):
+    def get_type(self):
         """
         Returns the type of an ACL.
         SUB, PSUB, RESET, ...
         """
-        return(self.acl_type)
+        return(self.scope)
 
 
 class AclResolver(object):
@@ -175,54 +175,58 @@ class AclResolver(object):
         self.base = "dc=gonicus,dc=de"
         self.acl_file = "agent.acl"
 
-        do_whatever = self.load(self.acl_file)
+        self.load_from_file()
 
-    def addAclSet(self, acl):
+    def add_acl_set(self, acl):
         """
         Adds an aclSet object to the list of active-acl rules.
         """
         self.acl_sets.append(acl)
 
-
-    def save(self):
-
-        ret = {}
-        for aclSet in self.aclSets:
-            ret[aclSet.location] = []
-            for acl in aclSet:
-                entry = {'actions': acl.actions,
-                         'members': acl.members,
-                         'priority': acl.priority,
-                         'acl_type': acl.acl_type}
-                ret[aclSet.location]. append(entry)
-
-        with open('acl.json', 'w') as f:
-            import json
-            json.dump(ret, f, indent=2)
-
-
-    def refreshAcls(self):
+    def load_from_file(self):
         """
-        Re-reads the permission settings from the ldap server.
-
-        It resolves ACL roles and transforms acl-definitions into AclSet and Acl
-        objects. Which can then be used by this class.
+        Save acl definition into a file
         """
-        pass
-
-    def load(self, filename):
+        self.acl_sets = []
         try:
-            return json.loads(open(filename).read())
+            data = json.loads(open(self.acl_file).read())
+            for location in data:
+                acls = AclSet(location)
+                for acl_entry in data[location]:
+
+                    acl = Acl(acl_entry['scope'])
+                    acl.add_members(acl_entry['members'])
+
+                    for action in acl_entry['actions']:
+                        acl.add_action(action['target'], action['acls'], action['options'])
+
+                    acls.add(acl)
+                self.add_acl_set(acls)
+
 
         except IOError:
             return {}
 
+    def save_to_file(self):
+        """
+        Save acl definition into a file
+        """
+        ret = {}
+        for acl_set in self.acl_sets:
+            ret[acl_set.location] = []
+            for acl in acl_set:
+                entry = {'actions': acl.actions,
+                         'members': acl.members,
+                         'priority': acl.priority,
+                         'scope': acl.scope}
+                ret[acl_set.location]. append(entry)
 
-    def save(self, filename, acl):
-        with open(filename, 'w') as f:
-            f.write(json.dumps(acl, indent=4))
+        with open(self.acl_file, 'w') as f:
+            import json
+            json.dump(ret, f, indent=2)
 
-    def getPermissions(self, user, location, action, acls, options={}):
+
+    def get_permissions(self, user, location, action, acls, options={}):
         """
         Check permissions for a given user and a location.
         """
@@ -237,23 +241,23 @@ class AclResolver(object):
         while self.base in location:
 
             # Check acls for each acl set.
-            for aclSet in self.acl_sets:
+            for acl_set in self.acl_sets:
 
                 # Skip acls that do not match the current ldap location.
-                if location != aclSet.location:
+                if location != acl_set.location:
                     continue
 
                 # Resolve ACLs.
-                for acl in aclSet:
+                for acl in acl_set:
                     if acl.match(user, action, acls, options):
                         print "ACL: Found matching acl in '%s'!" % location
-                        if acl.getType() == Acl.RESET:
+                        if acl.get_type() == Acl.RESET:
                             print "ACL:  Acl reset for action '%s'!" % (action)
                             reset = True
-                        elif acl.getType() == Acl.PSUB:
+                        elif acl.get_type() == Acl.PSUB:
                             print "ACL:  Found permanent acl for action '%s'!" % (action)
                             return True
-                        elif acl.getType() in (Acl.SUB, ) and not reset:
+                        elif acl.get_type() in (Acl.SUB, ) and not reset:
                             print "ACL:  Found acl for action '%s'!" % (action)
                             return True
 
@@ -263,7 +267,7 @@ class AclResolver(object):
         return(allowed)
 
     @staticmethod
-    def getInstance():
+    def get_instance():
         if not AclResolver.instance:
             AclResolver.instance = AclResolver()
 

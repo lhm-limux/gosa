@@ -1,30 +1,35 @@
 from acl import Acl, AclSet, AclResolver
+import os
 
-acl1 = Acl(Acl.SUB)
-acl1.addMembers(['cajus', 'hickert'])
-acl1.addAction('gosa.*.cancelEvent', ['r','w','x'], {})
-aclSet1 = AclSet("dc=gonicus,dc=de")
-aclSet1.add(acl1)
+fname = "agent.acl"
 
-acl2 = Acl(Acl.RESET)
-acl2.addMembers(['hickert'])
-acl2.addAction('gosa.scheduler.cancelEvent', ['r','w','x'], {'owner': 'hickert'})
-acl3 = Acl(Acl.SUB)
-acl3.addMembers(['cajus'])
-acl3.addAction('gosa.scheduler.cancelEvent', ['r','w','x'], {})
-aclSet2 = AclSet("ou=technik,dc=intranet,dc=gonicus,dc=de")
-aclSet2.add(acl2)
-aclSet2.add(acl3)
+if not os.path.exists(fname):
+    acl1 = Acl(Acl.SUB)
+    acl1.add_members([u'cajus', u'hickert'])
+    acl1.add_action(u'gosa.*.cancelEvent', ['r','w','x'], {})
+    aclSet1 = AclSet(u"dc=gonicus,dc=de")
+    aclSet1.add(acl1)
 
-resolver = AclResolver.getInstance()
-resolver.addAclSet(aclSet1)
-resolver.addAclSet(aclSet2)
+    acl2 = Acl(Acl.RESET)
+    acl2.add_members([u'hickert'])
+    acl2.add_action(u'gosa.scheduler.cancelEvent', ['r','w','x'], {'owner': 'hickert'})
+    acl3 = Acl(Acl.SUB)
+    acl3.add_members([u'cajus'])
+    acl3.add_action(u'gosa.scheduler.cancelEvent', ['r','w','x'], {})
+    aclSet2 = AclSet(u"ou=technik,dc=intranet,dc=gonicus,dc=de")
+    aclSet2.add(acl2)
+    aclSet2.add(acl3)
 
+    resolver = AclResolver.get_instance()
+    resolver.add_acl_set(aclSet1)
+    resolver.add_acl_set(aclSet2)
 
+    resolver.save_to_file()
 
+# Load definition from file
+resolver = AclResolver.get_instance()
 
-deps = [
-        'ou=1,ou=technik,dc=intranet,dc=gonicus,dc=de',
+deps = ['ou=1,ou=technik,dc=intranet,dc=gonicus,dc=de',
         'ou=technik,dc=intranet,dc=gonicus,dc=de',
         'dc=intranet,dc=gonicus,dc=de',
         'dc=gonicus,dc=de']
@@ -37,7 +42,7 @@ for dep in deps:
     for user in ('cajus','hickert'):
 
         for action in actions:
-            if(resolver.getPermissions(user, dep, action, acls, options)):
+            if(resolver.get_permissions(user, dep, action, acls, options)):
                 print "|---> %s darf %s in %s" % (user, action, dep)
                 print ""
                 pass
@@ -45,7 +50,3 @@ for dep in deps:
                 print "|---> %s darf NICHT %s in %s" % (user, action, dep)
                 print ""
                 pass
-
-
-
-resolver.save()
