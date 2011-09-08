@@ -188,13 +188,20 @@ class AclResolver(object):
         Save acl definition into a file
         """
         self.acl_sets = []
+
+        acl_scope_map = {}
+        acl_scope_map['one'] = Acl.ONE
+        acl_scope_map['sub'] = Acl.SUB
+        acl_scope_map['psub']= Acl.PSUB
+        acl_scope_map['reset']= Acl.RESET
+
         try:
             data = json.loads(open(self.acl_file).read())
             for location in data:
                 acls = AclSet(location)
                 for acl_entry in data[location]:
 
-                    acl = Acl(acl_entry['scope'])
+                    acl = Acl(acl_scope_map[acl_entry['scope']])
                     acl.add_members(acl_entry['members'])
 
                     for action in acl_entry['actions']:
@@ -212,13 +219,20 @@ class AclResolver(object):
         Save acl definition into a file
         """
         ret = {}
+
+        acl_scope_map = {}
+        acl_scope_map[Acl.ONE] = 'one'
+        acl_scope_map[Acl.SUB] = 'sub'
+        acl_scope_map[Acl.PSUB] = 'psub'
+        acl_scope_map[Acl.RESET] = 'reset'
+
         for acl_set in self.acl_sets:
             ret[acl_set.location] = []
             for acl in acl_set:
                 entry = {'actions': acl.actions,
                          'members': acl.members,
                          'priority': acl.priority,
-                         'scope': acl.scope}
+                         'scope': acl_scope_map[acl.scope]}
                 ret[acl_set.location]. append(entry)
 
         with open(self.acl_file, 'w') as f:
