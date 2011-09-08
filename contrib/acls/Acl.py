@@ -7,7 +7,6 @@ import ldap
 #TODO: Groups are not supported yet
 
 
-
 """
 This is a collection of classes that can manager Access control lists.
 
@@ -62,7 +61,6 @@ class Acl(object):
     members = None
     actions = None
     acl_type = None
-
 
     def __init__(self, acl_type):
 
@@ -179,6 +177,9 @@ class AclResolver(object):
     def refreshAcls(self):
         """
         Re-reads the permission settings from the ldap server.
+
+        It resolves ACL roles and transforms acl-definitions into AclSet and Acl
+        objects. Which can then be used by this class.
         """
         pass
 
