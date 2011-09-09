@@ -50,6 +50,16 @@ class AclSet(list):
         sorted(self, key=lambda item: item.priority)
 
 
+class AclRole(AclSet):
+    """
+    This is a container for ACL entries that should act like an acl role.
+    """
+    name = None
+
+    def __init__(self, name):
+        self.name = name
+
+
 class Acl(object):
     """
     The Acl class contains list of action for a set of members.
@@ -197,9 +207,9 @@ class AclResolver(object):
 
         try:
             data = json.loads(open(self.acl_file).read())
-            for location in data:
+            for location in data['acl']:
                 acls = AclSet(location)
-                for acl_entry in data[location]:
+                for acl_entry in data['acl'][location]:
 
                     acl = Acl(acl_scope_map[acl_entry['scope']])
                     acl.add_members(acl_entry['members'])
@@ -218,7 +228,7 @@ class AclResolver(object):
         """
         Save acl definition into a file
         """
-        ret = {}
+        ret = {'acl': {}, 'roles':  {}}
 
         acl_scope_map = {}
         acl_scope_map[Acl.ONE] = 'one'
@@ -227,13 +237,13 @@ class AclResolver(object):
         acl_scope_map[Acl.RESET] = 'reset'
 
         for acl_set in self.acl_sets:
-            ret[acl_set.location] = []
+            ret['acl'][acl_set.location] = []
             for acl in acl_set:
                 entry = {'actions': acl.actions,
                          'members': acl.members,
                          'priority': acl.priority,
                          'scope': acl_scope_map[acl.scope]}
-                ret[acl_set.location]. append(entry)
+                ret['acl'][acl_set.location]. append(entry)
 
         with open(self.acl_file, 'w') as f:
             import json
