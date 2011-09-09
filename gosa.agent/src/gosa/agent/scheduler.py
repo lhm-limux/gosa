@@ -5,7 +5,15 @@ which may be scheduled by a user or by indirectly by a script or the web fronten
 
 Example::
 
-    TODO
+    >>> proxy.schedulerGetJobs()
+    {u'b4b54880-dac9-11e0-b58e-5452005f1250': {u'next_run_time':
+    u'20110909115527', u'name': u'SchedulerService.migrate',
+    u'misfire_grace_time': 1, u'job_type': None, u'max_instances': 1,
+    u'max_runs': None, u'coalesce': True, u'tag': u'_internal', u'owner': None,
+    u'description': None}}
+
+    >>> proxy.schedulerGetJobs({'tag':'service'})
+    {}
 
 ------
 """
@@ -17,6 +25,7 @@ from gosa.common.utils import N_
 from gosa.common.event import EventMaker
 from gosa.common.components import Command, PluginRegistry
 from gosa.common.components.scheduler import Scheduler, set_job_property
+from gosa.common.components.scheduler.job import JOB_RUNNING
 from gosa.common.components.scheduler.jobstores.sqlalchemy_store import SQLAlchemyJobStore
 from gosa.common.components.scheduler.triggers import SimpleTrigger, IntervalTrigger, CronTrigger
 from gosa.common.components.scheduler.events import EVENT_JOBSTORE_JOB_REMOVED, EVENT_JOBSTORE_JOB_ADDED, EVENT_JOB_EXECUTED
@@ -97,7 +106,7 @@ class SchedulerService(object):
         res = {}
 
         for job in self.sched.get_jobs():
-            job_dict = dict([(key, getattr(f, key)) for key in [
+            job_dict = dict([(key, getattr(job, key)) for key in [
                 'misfire_grace_time',
                 'coalesce',
                 'name',
@@ -105,7 +114,11 @@ class SchedulerService(object):
                 'max_instances',
                 'tag',
                 'owner',
+                'job_type',
                 'description']])
+
+            # Add next run time if available
+            job_dict['next_run_time'] = job.next_run_time.strftime("%Y%m%d%H%M%S") if job.next_run_time else None
 
             if fltr:
                 hits = 0
@@ -154,6 +167,8 @@ class SchedulerService(object):
         `Return:` Job ID
         """
         options['owner'] = user
+        options['job_type'] = 'date'
+        date = datetime.strptime(date, '%Y%m%d%H%M%S')
 
         # Load CommandRegistry dispatcher to schedule with that method
         cr = PluginRegistry.getInstance("CommandRegistry")
@@ -191,6 +206,8 @@ class SchedulerService(object):
         `Return:` Job ID
         """
         options['owner'] = user
+        options['job_type'] = 'cron'
+        start_date = datetime.strptime(start_date, '%Y%m%d%H%M%S')
 
         # Load CommandRegistry dispatcher to schedule with that method
         cr = PluginRegistry.getInstance("CommandRegistry")
@@ -229,6 +246,8 @@ class SchedulerService(object):
         `Return:` Job ID
         """
         options['owner'] = user
+        options['job_type'] = 'interval'
+        start_date = datetime.strptime(start_date, '%Y%m%d%H%M%S')
 
         # Load CommandRegistry dispatcher to schedule with that method
         cr = PluginRegistry.getInstance("CommandRegistry")
@@ -250,9 +269,15 @@ class SchedulerService(object):
         =========== =======================================
         job_id      The job ID
         =========== =======================================
+
+        ``Return:`` True on success
         """
         job = self.sched.get_job_by_id(job_id)
+        if job.status == JOB_RUNNING:
+            return False
+
         self.sched.unschedule_job(job)
+        return True
 
     def __notify(self, event=None):
         # Don't send events for internal job changes
