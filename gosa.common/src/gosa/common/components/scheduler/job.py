@@ -45,7 +45,7 @@ class Job(object):
     def __init__(self, trigger, func, args, kwargs, misfire_grace_time,
                  coalesce, name=None, max_runs=None, max_instances=1,
                  tag=None, owner=None, origin=None, description=None,
-                 callback=None):
+                 callback=None, job_type=None):
         if not trigger:
             raise ValueError('The trigger must not be None')
         if not hasattr(func, '__call__'):
@@ -75,13 +75,13 @@ class Job(object):
         self.origin = origin
         self.owner = owner
         self.tag = tag
-        self.job_type = None
+        self.job_type = job_type
         self.description = description
         self.callback = callback
         self.progress = 0
         self.runs = 0
         self.instances = 0
-        self.status = JOB_WAITING 
+        self.status = JOB_WAITING
         self.uuid = str(uuid.uuid1())
 
     def compute_next_run_time(self, now):
