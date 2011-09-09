@@ -152,12 +152,38 @@ of an existing repository. Include it in your configuration like this:</p>
 </pre></div>
 </div>
 <p>After qpid has been installed, you may modify the access policy
-to fit the gosa-agent needs:</p>
-<div class="highlight-python"><pre># Group definitions
+to fit the gosa-agent needs a <cite>/etc/qpid/qpidd.acl</cite> containing:</p>
+<div class="highlight-python"><pre># QPID policy file
+#
+# User definition:
+#   user = &lt;user-name&gt;[@domain[/realm]]
+#
+# User/Group lists:
+#   user-list = user1 user2 user3 ...
+#   group-name-list = group1 group2 group3 ...
+#
+# Group definition:
+#   group &lt;group-name&gt; = [user-list] [group-name-list]
+#
+# ACL definition:
+#   permission = [allow|acl|deny|deny-log]
+#   action = [consume|publish|create|access|bind|unbind|delete|purge|update]
+#   object = [virtualhost|queue|exchange|broker|link|route|method]
+#   property = [name|durable|owner|routingkey|passive|autodelete|exclusive|type|alternate|queuename|schemapackage|schemaclass]
+#
+# acl permission {&lt;group-name&gt;|&lt;user-name&gt;|"all"} {action|"all"} [object|"all"] [property=&lt;property-value&gt;]
+#
+# Example:
+#
+# group client = user1@QPID user2@QPID
+# acl allow client publish routingkey=exampleQueue exchange=amq.direct
+#
+# Will allow the group "client" containing of "user1" and "user2" be able to
+# make use of the routing key "exampleQueue" on the "amq.direct" exchange.
+
+# Group definitions
 group admins admin@QPID cajus@QPID
 group agents amqp@QPID
-
-#TODO: this does not work in current versions of qpid
 #group event-publisher agents admins
 #group event-consumer agents admins
 group event-consumer amqp@QPID
@@ -171,15 +197,14 @@ acl allow all access exchange name=reply-*
 acl allow all access queue name=reply-* owner=self
 acl allow all create queue name=reply-* durable=false autodelete=true
 acl allow all consume queue name=reply-* owner=self
-acl allow agents publish exchange routingkey=reply-*
+acl allow all publish exchange routingkey=reply-* owner=self
 
 # Event producer
 acl allow event-publisher all     queue    name=org.gosa
 acl allow event-publisher all     exchange name=org.gosa
 
 # Event consumer
-#TODO: replace "all" by "event-consumer" later on, there's no
-#      wildcard possible in current versions of qpid
+#TODO: replace "all" by "event-consumer" later on
 acl allow all create  queue    name=event-listener-*
 acl allow all delete  queue    name=event-listener-* owner=self
 acl allow all consume queue    name=event-listener-* owner=self
@@ -212,6 +237,9 @@ acl allow all create  queue    name=org.gosa.client.* exclusive=true autodelete=
 acl allow all access  exchange name=org.gosa
 acl allow all access  exchange name=org.gosa.client.* owner=self
 acl allow all bind    exchange name=amq.direct queuename=org.gosa.client.*
+
+# Let agents send to the client queues
+acl allow agents publish  exchange  routingkey=org.gosa.client.*
 
 # By default, drop everything else
 acl deny all all</pre>
@@ -631,12 +659,12 @@ There are two ways to do so, the first is to update the GOsa 2.7 configuration f
 </div>
 <p>The other way would be to configure these properties inside of GOsa using the <tt class="docutils literal"><span class="pre">preferences</span></tt> plugin.</p>
 <p>Select the <tt class="docutils literal"><span class="pre">preferences</span></tt> plugin from the menu and then read and accept the warning message.</p>
-<img alt="_images/gosa_setup_rpc_16.png" src="_images/gosa_setup_rpc_16.png" />
+<img alt="_images/gosa_setup_rpc_17.png" src="_images/gosa_setup_rpc_17.png" />
 <p>Then click on the filter rules and select &#8220;All properties&#8221; to show all properties, even unused.
 Then enter <tt class="docutils literal"><span class="pre">rpc</span></tt> in the search-filter input box, to only show rpc related options, only three options should
 be left in the list below.
 Now adjust the values of these properties to match your setup and click <tt class="docutils literal"><span class="pre">apply</span></tt> on the bottom of the page.</p>
-<img alt="_images/gosa_setup_rpc_26.png" src="_images/gosa_setup_rpc_26.png" />
+<img alt="_images/gosa_setup_rpc_27.png" src="_images/gosa_setup_rpc_27.png" />
 <p>That is all, you may only need to relog into the GOsa gui.</p>
 </div>
 <div class="section" id="design-overview">
