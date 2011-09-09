@@ -137,7 +137,10 @@ class AMQPServiceProxy(object):
         return AMQPServiceProxy(self.__serviceURL, self.__serviceAddress, name,
                 self.__conn, workers=self.__workers)
 
-    def __call__(self, *args):
+    def __call__(self, *args, **kwargs):
+        if len(kwargs) > 0 and len(args) > 0:
+            raise JSONRPCException("JSON-RPC does not support positional and keyword arguments at the same time")
+
         if AMQPServiceProxy.methods[self.__serviceAddress]:
             if not self.__serviceName in AMQPServiceProxy.methods[self.__serviceAddress]:
                 raise NameError("name '%s' not defined" % self.__serviceName)
@@ -165,7 +168,11 @@ class AMQPServiceProxy(object):
             raise Exception('no free session - increase workers')
 
         # Send
-        postdata = dumps({"method": self.__serviceName, 'params': args, 'id': 'jsonrpc'})
+        if len(kwargs):
+            postdata = dumps({"method": self.__serviceName, 'params': kwargs, 'id': 'jsonrpc'})
+        else:
+            postdata = dumps({"method": self.__serviceName, 'params': args, 'id': 'jsonrpc'})
+
         message = Message(postdata)
         message.user_id = self.__URL['user']
         message.reply_to = 'reply-%s' % self.__ssn.name

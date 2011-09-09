@@ -27,9 +27,10 @@ class ObjectFactory(object):
         for prop in properties:
             object.__setattr__(self, "_" + prop, None if not prop in data else data[prop])
 
-    def _call(self, name, *args):
+    def _call(self, name, *args, **kwargs):
         ref = object.__getattribute__(self, "ref")
-        return object.__getattribute__(self, "proxy").dispatchObjectMethod(ref, name, *args)
+        return object.__getattribute__(self, "proxy").dispatchObjectMethod(ref,
+                name, *args, **kwargs)
 
     def __getattribute__(self, name):
         if name in object.__getattribute__(self, "methods"):
@@ -114,8 +115,15 @@ class JSONServiceProxy(object):
 
         return JSONServiceProxy(self.__serviceURL, name, self.__opener)
 
-    def __call__(self, *args):
-        postdata = dumps({"method": self.__serviceName, 'params': args, 'id': 'jsonrpc'})
+    def __call__(self, *args, **kwargs):
+        if len(kwargs) > 0 and len(args) > 0:
+            raise JSONRPCException("JSON-RPC does not support positional and keyword arguments at the same time")
+
+        if len(kwargs):
+            postdata = dumps({"method": self.__serviceName, 'params': kwargs, 'id': 'jsonrpc'})
+        else:
+            postdata = dumps({"method": self.__serviceName, 'params': args, 'id': 'jsonrpc'})
+
         respdata = self.__opener.open(self.__serviceURL, postdata).read()
         resp = loads(respdata)
         if resp['error'] != None:
