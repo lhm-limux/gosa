@@ -122,13 +122,39 @@ Install qpid broker and clients
   # apt-get install qpidd qpid-client qpid-tools
 
 After qpid has been installed, you may modify the access policy
-to fit the gosa-agent needs::
+to fit the gosa-agent needs a `/etc/qpid/qpidd.acl` containing::
 
+	# QPID policy file
+	#
+	# User definition:
+	#   user = <user-name>[@domain[/realm]]
+	#
+	# User/Group lists:
+	#   user-list = user1 user2 user3 ...
+	#   group-name-list = group1 group2 group3 ...
+	#
+	# Group definition:
+	#   group <group-name> = [user-list] [group-name-list]
+	#
+	# ACL definition:
+	#   permission = [allow|acl|deny|deny-log]
+	#   action = [consume|publish|create|access|bind|unbind|delete|purge|update]
+	#   object = [virtualhost|queue|exchange|broker|link|route|method]
+	#   property = [name|durable|owner|routingkey|passive|autodelete|exclusive|type|alternate|queuename|schemapackage|schemaclass]
+	#
+	# acl permission {<group-name>|<user-name>|"all"} {action|"all"} [object|"all"] [property=<property-value>]
+	#
+	# Example:
+	#
+	# group client = user1@QPID user2@QPID
+	# acl allow client publish routingkey=exampleQueue exchange=amq.direct
+	#
+	# Will allow the group "client" containing of "user1" and "user2" be able to
+	# make use of the routing key "exampleQueue" on the "amq.direct" exchange.
+	
 	# Group definitions
 	group admins admin@QPID cajus@QPID
 	group agents amqp@QPID
-
-	#TODO: this does not work in current versions of qpid
 	#group event-publisher agents admins
 	#group event-consumer agents admins
 	group event-consumer amqp@QPID
@@ -142,15 +168,14 @@ to fit the gosa-agent needs::
 	acl allow all access queue name=reply-* owner=self
 	acl allow all create queue name=reply-* durable=false autodelete=true
 	acl allow all consume queue name=reply-* owner=self
-	acl allow agents publish exchange routingkey=reply-*
+	acl allow all publish exchange routingkey=reply-* owner=self
 	
 	# Event producer
 	acl allow event-publisher all     queue    name=org.gosa
 	acl allow event-publisher all     exchange name=org.gosa
 	
 	# Event consumer
-	#TODO: replace "all" by "event-consumer" later on, there's no
-	#      wildcard possible in current versions of qpid
+	#TODO: replace "all" by "event-consumer" later on
 	acl allow all create  queue    name=event-listener-*
 	acl allow all delete  queue    name=event-listener-* owner=self
 	acl allow all consume queue    name=event-listener-* owner=self
@@ -183,6 +208,9 @@ to fit the gosa-agent needs::
 	acl allow all access  exchange name=org.gosa
 	acl allow all access  exchange name=org.gosa.client.* owner=self
 	acl allow all bind    exchange name=amq.direct queuename=org.gosa.client.*
+	
+	# Let agents send to the client queues
+	acl allow agents publish  exchange  routingkey=org.gosa.client.*
 	
 	# By default, drop everything else
 	acl deny all all
