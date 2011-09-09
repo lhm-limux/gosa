@@ -48,7 +48,7 @@ queues:
 
 .. note::
 
-    To learn how to specify the plugin's target queue, please read `Plugins <plugins>`_ 
+    To learn how to specify the plugin's target queue, please read `Plugins <plugins>`_
     for more information.
 
 Last but not least, the *AMQPService* binds to the queues mentioned above
@@ -60,10 +60,9 @@ import sys
 import re
 import traceback
 from zope.interface import implements
-from jsonrpc import loads, dumps
-from jsonrpc.serviceHandler import ServiceRequestNotTranslatable, BadServiceRequest
 from qpid.messaging import *
 
+from gosa.common.json import loads, dumps, ServiceRequestNotTranslatable, BadServiceRequest
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.components import PluginRegistry, AMQPWorker, ZeroconfService
 from gosa.common.utils import parseURL, repr2json

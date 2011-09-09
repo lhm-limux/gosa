@@ -2,7 +2,7 @@
 from qpid.messaging import *
 from types import DictType
 from gosa.common.components.jsonrpc_proxy import JSONRPCException
-from jsonrpc.json import dumps, loads
+from gosa.common.json import dumps, loads
 from gosa.common.components.amqp import AMQPProcessor
 from gosa.common.utils import parseURL, buildXMLSchema
 from lxml import etree, objectify
