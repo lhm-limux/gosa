@@ -282,7 +282,7 @@ class Acl(object):
 class AclRoleEntry(Acl):
 
     def __init__(self, scope=None, role=None):
-        super(AclRoleEntry, self).__init__(scope=scope)
+        super(AclRoleEntry, self).__init__(scope=scope, role=role)
 
     def add_member(self, member):
         """
@@ -321,7 +321,7 @@ class AclResolver(object):
 
     def load_from_file(self):
         """
-        Save acl definition into a file
+        Load acl definitions from a file
         """
         self.acl_sets = []
 
@@ -335,18 +335,21 @@ class AclResolver(object):
             data = json.loads(open(self.acl_file).read())
 
             # Add AclRoles
+            roles = {}
             for name in data['roles']:
-
-                role = AclRole(name)
-
+                roles[name] = AclRole(name)
                 acls = data['roles'][name]
                 for acl_entry in acls:
-                    acl = AclRoleEntry(acl_scope_map[acl_entry['scope']])
-                    for action in acl_entry['actions']:
-                        acl.add_action(action['target'], action['acls'], action['options'])
+                    if 'role' in acl_entry:
+                        role = roles[str(acl_entry['role'])]
+                        acl = AclRoleEntry(role=role)
+                    else:
+                        acl = AclRoleEntry(acl_scope_map[acl_entry['scope']])
+                        for action in acl_entry['actions']:
+                            acl.add_action(action['target'], action['acls'], action['options'])
 
-                    role.add(acl)
-                self.add_acl_role(role)
+                    roles[name].add(acl)
+                self.add_acl_role(roles[name])
 
             # Add AclSets
             for location in data['acl']:
