@@ -17,6 +17,7 @@ from gosa.common.utils import N_
 from gosa.common.event import EventMaker
 from gosa.common.components import Command, PluginRegistry
 from gosa.common.components.scheduler import Scheduler, set_job_property
+from gosa.common.components.scheduler.job import JOB_RUNNING
 from gosa.common.components.scheduler.jobstores.sqlalchemy_store import SQLAlchemyJobStore
 from gosa.common.components.scheduler.triggers import SimpleTrigger, IntervalTrigger, CronTrigger
 from gosa.common.components.scheduler.events import EVENT_JOBSTORE_JOB_REMOVED, EVENT_JOBSTORE_JOB_ADDED, EVENT_JOB_EXECUTED
@@ -105,6 +106,8 @@ class SchedulerService(object):
                 'max_instances',
                 'tag',
                 'owner',
+                'job_type',
+                'next_run_time',
                 'description']])
 
             if fltr:
@@ -154,6 +157,8 @@ class SchedulerService(object):
         `Return:` Job ID
         """
         options['owner'] = user
+        options['job_type'] = 'date'
+        date = datetime.strptime(date, '%Y%m%d%H%M%S')
 
         # Load CommandRegistry dispatcher to schedule with that method
         cr = PluginRegistry.getInstance("CommandRegistry")
@@ -191,6 +196,8 @@ class SchedulerService(object):
         `Return:` Job ID
         """
         options['owner'] = user
+        options['job_type'] = 'cron'
+        start_date = datetime.strptime(start_date, '%Y%m%d%H%M%S')
 
         # Load CommandRegistry dispatcher to schedule with that method
         cr = PluginRegistry.getInstance("CommandRegistry")
@@ -229,6 +236,8 @@ class SchedulerService(object):
         `Return:` Job ID
         """
         options['owner'] = user
+        options['job_type'] = 'interval'
+        start_date = datetime.strptime(start_date, '%Y%m%d%H%M%S')
 
         # Load CommandRegistry dispatcher to schedule with that method
         cr = PluginRegistry.getInstance("CommandRegistry")
@@ -250,9 +259,15 @@ class SchedulerService(object):
         =========== =======================================
         job_id      The job ID
         =========== =======================================
+
+        ``Return:`` True on success
         """
         job = self.sched.get_job_by_id(job_id)
+        if job.status == JOB_RUNNING:
+            return False
+
         self.sched.unschedule_job(job)
+        return True
 
     def __notify(self, event=None):
         # Don't send events for internal job changes
