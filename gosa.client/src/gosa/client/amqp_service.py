@@ -33,9 +33,9 @@ import netifaces
 import traceback
 from netaddr import IPNetwork
 from zope.interface import implements
-from jsonrpc import loads, dumps
-from jsonrpc.serviceHandler import ServiceRequestNotTranslatable, BadServiceRequest
 from qpid.messaging import *
+
+from gosa.common.json import loads, dumps, ServiceRequestNotTranslatable, BadServiceRequest
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.components.registry import PluginRegistry
 from gosa.common.components.amqp import AMQPWorker, EventConsumer

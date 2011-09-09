@@ -13,7 +13,7 @@ import traceback
 import uuid
 from types import MethodType
 from zope.interface import implements
-from jsonrpc import loads, dumps
+from gosa.common.json import loads, dumps
 from webob import exc, Request, Response
 from paste import httpserver, wsgilib, request, response
 from paste.auth.cookie import AuthCookieHandler, AuthCookieSigner
@@ -142,7 +142,7 @@ class JsonRpcApp(object):
                 "Bad method name %s: must not start with _" % method).exception
         if not isinstance(params, list) and not isinstance(params, dict):
             raise ValueError(
-                "Bad params %r: must be a list or dict" % params)
+                "bad params %r: must be a list or dict" % params)
 
         # Create an authentication cookie on login
         if method == 'login':
