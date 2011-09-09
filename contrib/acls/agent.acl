@@ -27,7 +27,16 @@
       {
         "priority": 0, 
         "scope": "sub", 
-        "actions": []
+        "actions": [
+          {
+            "acls": "rwx", 
+            "target": "test.userPassword", 
+            "options": {}
+          }
+        ]
+      }, 
+      {
+        "role": "role1"
       }
     ]
   }, 
