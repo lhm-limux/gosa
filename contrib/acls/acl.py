@@ -344,23 +344,25 @@ class AclResolver(object):
                 if location != acl_set.location:
                     continue
 
-                # Resolve ACLs.
+                # Resolve ACL roles.
                 if acl_set.use_role:
-                    print "Rolooo"
+                    check_acls = self.acl_roles[acl_set.role_name]
                 else:
-                    print "No role"
-                    for acl in acl_set:
-                        if acl.match(user, action, acls, options):
-                            print "ACL: Found matching acl in '%s'!" % location
-                            if acl.get_type() == Acl.RESET:
-                                print "ACL:  Acl reset for action '%s'!" % (action)
-                                reset = True
-                            elif acl.get_type() == Acl.PSUB:
-                                print "ACL:  Found permanent acl for action '%s'!" % (action)
-                                return True
-                            elif acl.get_type() in (Acl.SUB, ) and not reset:
-                                print "ACL:  Found acl for action '%s'!" % (action)
-                                return True
+                    check_acls = acl_set
+
+                # Check ACls
+                for acl in check_acls:
+                    if acl.match(user, action, acls, options):
+                        print "ACL: Found matching acl in '%s'!" % location
+                        if acl.get_type() == Acl.RESET:
+                            print "ACL:  Acl reset for action '%s'!" % (action)
+                            reset = True
+                        elif acl.get_type() == Acl.PSUB:
+                            print "ACL:  Found permanent acl for action '%s'!" % (action)
+                            return True
+                        elif acl.get_type() in (Acl.SUB, ) and not reset:
+                            print "ACL:  Found acl for action '%s'!" % (action)
+                            return True
 
             # Remove the first part of the dn
             location = ','.join(ldap.dn.explode_dn(location)[1::])
