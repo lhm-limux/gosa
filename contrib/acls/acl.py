@@ -56,7 +56,6 @@ AclResoler
 The AclResolver is responsible for loading, saving and resolving permissions.
 
 
-
 How an Acl assigment look could look like
 =========================================
 
@@ -81,6 +80,9 @@ class AclSet(list):
         self.location = location
 
     def get_location(self):
+        """
+        Returns the location for this AclSet.
+        """
         return(self.location)
 
     def add(self, item):
@@ -109,6 +111,12 @@ class AclRole(list):
     def __init__(self, name):
         self.name = name
 
+    def get_name(self):
+        """
+        Returns the name of the role.
+        """
+        return self.name
+
     def add(self, item):
         """
         Adds a new acl object to this aclSet.
@@ -124,11 +132,12 @@ class AclRole(list):
         # Sort Acl items by id
         sorted(self, key=lambda item: item.priority)
 
+
 class Acl(object):
     """
     The Acl class contains list of action for a set of members.
     These Acl classes can then be bundled and attached to a ldap base using
-    the aclSet class.
+    the AclSet class.
     """
     priority = None
 
@@ -161,6 +170,9 @@ class Acl(object):
             self.use_role(role)
 
     def use_role(self, role):
+        """
+        Mark this Acl to use a role instead of direkt permission settings.
+        """
         self.uses_role = True
         self.role = role.name
 
@@ -407,6 +419,7 @@ class AclResolver(object):
                          'scope': acl_scope_map[acl.scope]}
                 ret['roles'][role_name] = entry
 
+        # Store json data into a file
         with open(self.acl_file, 'w') as f:
             import json
             json.dump(ret, f, indent=2)
