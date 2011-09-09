@@ -3,8 +3,6 @@
 The scheduler service can be used to do time based - time-phased, periodic, single shot - tasks
 which may be scheduled by a user or by indirectly by a script or the web frontend.
 
-Example::
-
     >>> proxy.schedulerGetJobs()
     {u'b4b54880-dac9-11e0-b58e-5452005f1250': {u'next_run_time':
     u'20110909115527', u'name': u'SchedulerService.migrate',
@@ -14,6 +12,9 @@ Example::
 
     >>> proxy.schedulerGetJobs({'tag':'service'})
     {}
+
+    >> proxy.schedulerAddDateJob("notifyUser", ["cajus", "test", "test"], None, "20110909131212")
+    u'596b8f2e-dad4-11e0-bcf1-5452005f1250'
 
 ------
 """
@@ -33,6 +34,9 @@ from gosa.common.components.amqp import EventConsumer
 
 
 class SchedulerService(object):
+    """
+    The scheduler service provider.
+    """
 
     implements(IInterfaceHandler)
     _priority_ = 0
@@ -80,9 +84,6 @@ class SchedulerService(object):
         self.sched.shutdown()
 
     def migrate(self):
-        """
-        Migration "cron" job.
-        """
         self.env.log.debug("scheduler: looking for stale jobs")
         grace = datetime.now() + timedelta(seconds=int(self.env.config.get('scheduler.gracetime', default='30')))
         count = 0
@@ -97,12 +98,31 @@ class SchedulerService(object):
         if count:
             self.__notify()
 
-    @Command(__help__=N_("Return scheduler information for a specific job."))
-    def schedulerGetJob(self, job_id):
-        return self.sched.get_job_by_id(job_id)
-
     @Command(__help__=N_("List jobs matchings an optional filter."))
     def schedulerGetJobs(self, fltr=None):
+        """
+        List available jobs with filtering for job properties.
+
+        Example::
+
+            >>> proxy.schedulerGetJobs()
+            {u'b4b54880-dac9-11e0-b58e-5452005f1250': {u'next_run_time':
+            u'20110909115527', u'name': u'SchedulerService.migrate',
+            u'misfire_grace_time': 1, u'job_type': None, u'max_instances': 1,
+            u'max_runs': None, u'coalesce': True, u'tag': u'_internal', u'owner': None,
+            u'description': None}}
+
+            >>> proxy.schedulerGetJobs({'tag':'service'})
+            {}
+
+        =========== ===============================================
+        Parameter   Description
+        =========== ===============================================
+        fltr        Dictionary containing job options to filter for
+        =========== ===============================================
+
+        ``Return:`` Dictionary of jobs, indexed by job id
+        """
         res = {}
 
         for job in self.sched.get_jobs():

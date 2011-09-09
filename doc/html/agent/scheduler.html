@@ -60,11 +60,311 @@
 <span id="scheduler-service"></span><h1>Scheduler service<a class="headerlink" href="#module-gosa.agent.scheduler" title="Permalink to this headline">¶</a></h1>
 <p>The scheduler service can be used to do time based - time-phased, periodic, single shot - tasks
 which may be scheduled by a user or by indirectly by a script or the web frontend.</p>
-<p>Example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">TODO</span>
+<blockquote>
+<div><div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">schedulerGetJobs</span><span class="p">()</span>
+<span class="go">{u&#39;b4b54880-dac9-11e0-b58e-5452005f1250&#39;: {u&#39;next_run_time&#39;:</span>
+<span class="go">u&#39;20110909115527&#39;, u&#39;name&#39;: u&#39;SchedulerService.migrate&#39;,</span>
+<span class="go">u&#39;misfire_grace_time&#39;: 1, u&#39;job_type&#39;: None, u&#39;max_instances&#39;: 1,</span>
+<span class="go">u&#39;max_runs&#39;: None, u&#39;coalesce&#39;: True, u&#39;tag&#39;: u&#39;_internal&#39;, u&#39;owner&#39;: None,</span>
+<span class="go">u&#39;description&#39;: None}}</span>
 </pre></div>
 </div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">schedulerGetJobs</span><span class="p">({</span><span class="s">&#39;tag&#39;</span><span class="p">:</span><span class="s">&#39;service&#39;</span><span class="p">})</span>
+<span class="go">{}</span>
+</pre></div>
+</div>
+<p>&gt;&gt; proxy.schedulerAddDateJob(&#8220;notifyUser&#8221;, [&#8220;cajus&#8221;, &#8220;test&#8221;, &#8220;test&#8221;], None, &#8220;20110909131212&#8221;)
+u&#8216;596b8f2e-dad4-11e0-bcf1-5452005f1250&#8217;</p>
+</div></blockquote>
 <hr class="docutils" />
+<dl class="class">
+<dt id="gosa.agent.scheduler.SchedulerService">
+<em class="property">class </em><tt class="descclassname">gosa.agent.scheduler.</tt><tt class="descname">SchedulerService</tt><a class="headerlink" href="#gosa.agent.scheduler.SchedulerService" title="Permalink to this definition">¶</a></dt>
+<dd><p>The scheduler service provider.</p>
+<dl class="method">
+<dt id="gosa.agent.scheduler.SchedulerService.schedulerAddDateJob">
+<tt class="descname">schedulerAddDateJob</tt><big>(</big><em>user</em>, <em>queue</em>, <em>func</em>, <em>args</em>, <em>kwargs</em>, <em>date</em>, <em>**options</em><big>)</big><a class="headerlink" href="#gosa.agent.scheduler.SchedulerService.schedulerAddDateJob" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-0">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Add a new job triggered at a specified date.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="78%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>func</td>
+<td>Function <em>pointer</em></td>
+</tr>
+<tr><td>args</td>
+<td>Function arguments</td>
+</tr>
+<tr><td>kwargs</td>
+<td>Function keyword arguments</td>
+</tr>
+<tr><td>date</td>
+<td>Execution date of the function</td>
+</tr>
+<tr><td>options</td>
+<td>Set of job options</td>
+</tr>
+</tbody>
+</table>
+<p>A job can have these options:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Option</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>Job name</td>
+</tr>
+<tr><td>description</td>
+<td>Description of the job</td>
+</tr>
+<tr><td>tag</td>
+<td>Free choosable text tag to make it easier to find jobs</td>
+</tr>
+<tr><td>progress</td>
+<td>Automatically maintained</td>
+</tr>
+<tr><td>misfire_grace_time</td>
+<td>seconds after the designated run time that the job is still allowed to be run</td>
+</tr>
+<tr><td>coalesce</td>
+<td>Roll several pending executions of jobs into one</td>
+</tr>
+<tr><td>max_runs</td>
+<td>Maximum number of times this job is allowed to be triggered</td>
+</tr>
+<tr><td>max_instances</td>
+<td>Maximum number of concurrently running instances allowed for this job</td>
+</tr>
+<tr><td>callback</td>
+<td>Function to be called after the job has been done</td>
+</tr>
+</tbody>
+</table>
+<p><cite>Return:</cite> Job ID</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.scheduler.SchedulerService.schedulerCronDateJob">
+<tt class="descname">schedulerCronDateJob</tt><big>(</big><em>user</em>, <em>queue</em>, <em>func</em>, <em>args</em>, <em>kwargs</em>, <em>year=None</em>, <em>month=None</em>, <em>day=None</em>, <em>week=None</em>, <em>day_of_week=None</em>, <em>hour=None</em>, <em>minute=None</em>, <em>second=None</em>, <em>start_date=None</em>, <em>**options</em><big>)</big><a class="headerlink" href="#gosa.agent.scheduler.SchedulerService.schedulerCronDateJob" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-1">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Add a new job triggered in a cron style manner.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="78%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>func</td>
+<td>Function <em>pointer</em></td>
+</tr>
+<tr><td>args</td>
+<td>Function arguments</td>
+</tr>
+<tr><td>kwargs</td>
+<td>Function keyword arguments</td>
+</tr>
+<tr><td>year</td>
+<td>Year to run on</td>
+</tr>
+<tr><td>month</td>
+<td>Month to run on</td>
+</tr>
+<tr><td>day</td>
+<td>Day of month to run on</td>
+</tr>
+<tr><td>week</td>
+<td>Week of the year to run on</td>
+</tr>
+<tr><td>day_of_week</td>
+<td>Weekday to run on (0 = Monday)</td>
+</tr>
+<tr><td>hour</td>
+<td>Hour to run on</td>
+</tr>
+<tr><td>second</td>
+<td>Second to run on</td>
+</tr>
+<tr><td>options</td>
+<td>Set of job options</td>
+</tr>
+</tbody>
+</table>
+<p>For an option description, see <tt class="xref py py-meth docutils literal"><span class="pre">gosa.agent.scheduler.SchedulerService.schedulerDateJob()</span></tt>.</p>
+<p><cite>Return:</cite> Job ID</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.scheduler.SchedulerService.schedulerGetJobs">
+<tt class="descname">schedulerGetJobs</tt><big>(</big><em>fltr=None</em><big>)</big><a class="headerlink" href="#gosa.agent.scheduler.SchedulerService.schedulerGetJobs" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-2">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>List available jobs with filtering for job properties.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">schedulerGetJobs</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>{u&#8217;b4b54880-dac9-11e0-b58e-5452005f1250&#8217;: {u&#8217;next_run_time&#8217;:
+u&#8216;20110909115527&#8217;, u&#8217;name&#8217;: u&#8217;SchedulerService.migrate&#8217;,
+u&#8217;misfire_grace_time&#8217;: 1, u&#8217;job_type&#8217;: None, u&#8217;max_instances&#8217;: 1,
+u&#8217;max_runs&#8217;: None, u&#8217;coalesce&#8217;: True, u&#8217;tag&#8217;: u&#8217;_internal&#8217;, u&#8217;owner&#8217;: None,
+u&#8217;description&#8217;: None}}</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">proxy</span><span class="o">.</span><span class="n">schedulerGetJobs</span><span class="p">({</span><span class="s">&#39;tag&#39;</span><span class="p">:</span><span class="s">&#39;service&#39;</span><span class="p">})</span>
+<span class="go">{}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>fltr</td>
+<td>Dictionary containing job options to filter for</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> Dictionary of jobs, indexed by job id</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.scheduler.SchedulerService.schedulerIntervalJob">
+<tt class="descname">schedulerIntervalJob</tt><big>(</big><em>user</em>, <em>queue</em>, <em>func</em>, <em>args</em>, <em>kwargs</em>, <em>weeks=0</em>, <em>days=0</em>, <em>hours=0</em>, <em>minutes=0</em>, <em>seconds=0</em>, <em>start_date=None</em>, <em>**options</em><big>)</big><a class="headerlink" href="#gosa.agent.scheduler.SchedulerService.schedulerIntervalJob" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-3">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Add a new job triggered in a specified interval.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="78%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>func</td>
+<td>Function <em>pointer</em></td>
+</tr>
+<tr><td>args</td>
+<td>Function arguments</td>
+</tr>
+<tr><td>kwargs</td>
+<td>Function keyword arguments</td>
+</tr>
+<tr><td>weeks</td>
+<td>Number of weeks to wait</td>
+</tr>
+<tr><td>days</td>
+<td>Number of days to wait</td>
+</tr>
+<tr><td>hours</td>
+<td>Number of hours to wait</td>
+</tr>
+<tr><td>minutes</td>
+<td>Number of minutes to wait</td>
+</tr>
+<tr><td>seconds</td>
+<td>Number of seconds to wait</td>
+</tr>
+<tr><td>start_date</td>
+<td>When to first execute the job</td>
+</tr>
+<tr><td>options</td>
+<td>Set of job options</td>
+</tr>
+</tbody>
+</table>
+<p>For an option description, see <tt class="xref py py-meth docutils literal"><span class="pre">gosa.agent.scheduler.SchedulerService.schedulerDateJob()</span></tt>.</p>
+<p><cite>Return:</cite> Job ID</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.scheduler.SchedulerService.schedulerRemoveJob">
+<tt class="descname">schedulerRemoveJob</tt><big>(</big><em>user</em>, <em>job_id</em><big>)</big><a class="headerlink" href="#gosa.agent.scheduler.SchedulerService.schedulerRemoveJob" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-4">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Remove a job by it&#8217;s job ID.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="78%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>job_id</td>
+<td>The job ID</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">Return:</span></tt> True on success</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.scheduler.SchedulerService.serve">
+<tt class="descname">serve</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.agent.scheduler.SchedulerService.serve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the scheduler service.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.scheduler.SchedulerService.stop">
+<tt class="descname">stop</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.agent.scheduler.SchedulerService.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop scheduler service.</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
