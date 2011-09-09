@@ -3,14 +3,20 @@
     "role1": {
       "priority": 0, 
       "scope": "sub", 
-      "members": [
-        "hickert", 
-        "cajus"
-      ], 
       "actions": [
         {
           "acls": "rwx", 
           "target": "gosa.objects.Person.userPassword", 
+          "options": {}
+        }, 
+        {
+          "acls": "rwx", 
+          "target": "gosa.objects.Person.username", 
+          "options": {}
+        }, 
+        {
+          "acls": "rwx", 
+          "target": "gosa.objects.Person.phone", 
           "options": {}
         }
       ]
@@ -72,9 +78,6 @@
             ]
           }
         ]
-      }, 
-      {
-        "role": "role1"
       }
     ]
   }

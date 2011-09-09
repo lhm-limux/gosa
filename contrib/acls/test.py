@@ -1,4 +1,4 @@
-from acl import Acl, AclSet, AclRole, AclResolver
+from acl import Acl, AclSet, AclRole, AclRoleEntry, AclResolver
 import os
 
 if not os.path.exists("agent.acl"):
@@ -7,9 +7,10 @@ if not os.path.exists("agent.acl"):
     resolver = AclResolver.get_instance()
 
     # Create a new AclRole
-    acl = Acl(Acl.SUB)
-    acl.add_members([u'hickert', u'cajus'])
+    acl = AclRoleEntry(Acl.SUB)
     acl.add_action(u'gosa.objects.Person.userPassword', 'rwx', {})
+    acl.add_action(u'gosa.objects.Person.username', 'rwx', {})
+    acl.add_action(u'gosa.objects.Person.phone', 'rwx', {})
     role = AclRole('role1')
     role.add(acl)
     resolver.add_acl_role(role)
@@ -36,9 +37,9 @@ if not os.path.exists("agent.acl"):
     resolver.add_acl_set(aclSet2)
 
     # Use the created ACL role
-    aclSet3 = AclSet(u"ou=technik,dc=intranet,dc=gonicus,dc=de")
-    aclSet3.use_role(role)
-    resolver.add_acl_set(aclSet3)
+    #aclSet3 = AclSet(u"ou=technik,dc=intranet,dc=gonicus,dc=de")
+    #aclSet3.use_role(role)
+    #resolver.add_acl_set(aclSet3)
 
     resolver.save_to_file()
 
