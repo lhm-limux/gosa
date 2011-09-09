@@ -2,12 +2,26 @@ from acl import Acl, AclSet, AclRole, AclResolver
 import os
 
 if not os.path.exists("agent.acl"):
+
+    # Instantiate the ACl resolver
+    resolver = AclResolver.get_instance()
+
+    # Create a new AclRole
+    acl = Acl(Acl.SUB)
+    acl.add_members([u'hickert', u'cajus'])
+    acl.add_action(u'gosa.objects.Person.userPassword', 'rwx', {})
+    role = AclRole('role1')
+    role.add(acl)
+    resolver.add_acl_role(role)
+
+    # Define some ACls 
     acl1 = Acl(Acl.SUB)
     acl1.add_members([u'cajus', u'hickert'])
     acl1.add_action(u'gosa.*.cancelEvent', 'rwx', {})
     aclSet1 = AclSet(u"dc=gonicus,dc=de")
     aclSet1.add(acl1)
 
+    # ...
     acl2 = Acl(Acl.RESET)
     acl2.add_members([u'hickert'])
     acl2.add_action(u'gosa.scheduler.cancelEvent', 'rwx', {'owner': 'hickert'})
@@ -18,19 +32,13 @@ if not os.path.exists("agent.acl"):
     aclSet2.add(acl2)
     aclSet2.add(acl3)
 
-    resolver = AclResolver.get_instance()
     resolver.add_acl_set(aclSet1)
     resolver.add_acl_set(aclSet2)
 
-
-    # Create a new AclRole
-    acl = Acl(Acl.SUB)
-    acl.add_members([u'hickert', u'cajus'])
-    acl.add_action(u'gosa.objects.Person.userPassword', 'rwx', {})
-
-    role = AclRole('role1')
-    role.add(acl)
-    resolver.add_acl_role(role)
+    # Use the created ACL role
+    aclSet3 = AclSet(u"ou=technik,dc=intranet,dc=gonicus,dc=de")
+    aclSet3.use_role(role)
+    resolver.add_acl_set(aclSet3)
 
     resolver.save_to_file()
 
@@ -58,5 +66,9 @@ for dep in deps:
                 print "|---> %s darf NICHT %s in %s" % (user, action, dep)
                 print ""
                 pass
+
+print resolver.get_permissions('cajus',
+    'ou=1,ou=technik,dc=intranet,dc=gonicus,dc=de',
+    'gosa.objects.Person.userPassword', 'rw')
 
 resolver.save_to_file()

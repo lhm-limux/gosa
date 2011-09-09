@@ -1,71 +1,80 @@
 {
   "roles": {
-    "role1": [
-      {
-        "priority": 0, 
-        "scope": "sub", 
-        "members": [
-          "hickert", 
-          "cajus"
-        ], 
-        "actions": [
-          {
-            "acls": "rwx", 
-            "target": "gosa.objects.Person.userPassword", 
-            "options": {}
-          }
-        ]
-      }
-    ]
+    "role1": {
+      "priority": 0, 
+      "scope": "sub", 
+      "members": [
+        "hickert", 
+        "cajus"
+      ], 
+      "actions": [
+        {
+          "acls": "rwx", 
+          "target": "gosa.objects.Person.userPassword", 
+          "options": {}
+        }
+      ]
+    }
   }, 
   "acl": {
     "dc=gonicus,dc=de": [
       {
-        "priority": 0, 
-        "scope": "sub", 
-        "members": [
-          "cajus", 
-          "hickert"
-        ], 
-        "actions": [
+        "acls": [
           {
-            "acls": "rwx", 
-            "target": "gosa.*.cancelEvent", 
-            "options": {}
+            "priority": 0, 
+            "scope": "sub", 
+            "members": [
+              "cajus", 
+              "hickert"
+            ], 
+            "actions": [
+              {
+                "acls": "rwx", 
+                "target": "gosa.*.cancelEvent", 
+                "options": {}
+              }
+            ]
           }
         ]
       }
     ], 
     "ou=technik,dc=intranet,dc=gonicus,dc=de": [
       {
-        "priority": 0, 
-        "scope": "reset", 
-        "members": [
-          "hickert"
-        ], 
-        "actions": [
+        "acls": [
           {
-            "acls": "rwx", 
-            "target": "gosa.scheduler.cancelEvent", 
-            "options": {
-              "owner": "hickert"
-            }
+            "priority": 0, 
+            "scope": "reset", 
+            "members": [
+              "hickert"
+            ], 
+            "actions": [
+              {
+                "acls": "rwx", 
+                "target": "gosa.scheduler.cancelEvent", 
+                "options": {
+                  "owner": "hickert"
+                }
+              }
+            ]
+          }, 
+          {
+            "priority": 1, 
+            "scope": "sub", 
+            "members": [
+              "cajus"
+            ], 
+            "actions": [
+              {
+                "acls": "rwx", 
+                "target": "gosa.scheduler.cancelEvent", 
+                "options": {}
+              }
+            ]
           }
         ]
       }, 
       {
-        "priority": 1, 
-        "scope": "sub", 
-        "members": [
-          "cajus"
-        ], 
-        "actions": [
-          {
-            "acls": "rwx", 
-            "target": "gosa.scheduler.cancelEvent", 
-            "options": {}
-          }
-        ]
+        "role": "role1"
       }
     ]
   }

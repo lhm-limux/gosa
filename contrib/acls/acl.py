@@ -27,12 +27,24 @@ class AclSet(list):
     This is a container for ACL entries.
     """
     location = None
+    use_role = False
+    role_name = None
 
     def __init__(self, location):
         self.location = location
 
     def get_location(self):
         return(self.location)
+
+    def use_role(self, role):
+        """
+        Uses an AclRole for Acl definitions
+        """
+        if not isinstance(role, AclRole):
+            raise TypeError('item is not of type %s' % AclRole)
+
+        self.use_role = True
+        self.role_name = role.name
 
     def add(self, item):
         """
@@ -41,6 +53,7 @@ class AclSet(list):
         if not isinstance(item, Acl):
             raise TypeError('item is not of type %s' % Acl)
 
+        self.use_role = False
         if item.priority == None:
             item.priority = len(self)
 
@@ -55,6 +68,7 @@ class AclRole(AclSet):
     This is a container for ACL entries that should act like an acl role.
     """
     name = None
+    priority = None
 
     def __init__(self, name):
         self.name = name
@@ -178,10 +192,14 @@ class Acl(object):
 
 class AclResolver(object):
     instance = None
-    acl_sets = []
-    acl_roles = []
+    acl_sets = None
+    acl_roles = None
 
     def __init__(self):
+
+        self.acl_sets = []
+        self.acl_roles = {}
+
         # from config later on:
         self.base = "dc=gonicus,dc=de"
         self.acl_file = "agent.acl"
@@ -198,7 +216,7 @@ class AclResolver(object):
         """
         Adds an AclRole object to the list of active-acl roles.
         """
-        self.acl_roles.append(acl)
+        self.acl_roles[acl.name] = acl
 
     def load_from_file(self):
         """
@@ -215,33 +233,45 @@ class AclResolver(object):
         try:
             data = json.loads(open(self.acl_file).read())
 
-            # Add AclSets
-            for location in data['acl']:
-
-                acls = AclSet(location)
-                for acl_entry in data['acl'][location]:
-                    acl = Acl(acl_scope_map[acl_entry['scope']])
-                    acl.add_members(acl_entry['members'])
-
-                    for action in acl_entry['actions']:
-                        acl.add_action(action['target'], action['acls'], action['options'])
-
-                    acls.add(acl)
-                    self.add_acl_set(acls)
-
             # Add AclRoles
             for name in data['roles']:
 
+                acl_entry = data['roles'][name]
                 role = AclRole(name)
-                for acl_entry in data['roles'][name]:
-                    acl = Acl(acl_scope_map[acl_entry['scope']])
-                    acl.add_members(acl_entry['members'])
 
-                    for action in acl_entry['actions']:
-                        acl.add_action(action['target'], action['acls'], action['options'])
+                acl = Acl(acl_scope_map[acl_entry['scope']])
+                acl.add_members(acl_entry['members'])
 
-                    role.add(acl)
-                    self.add_acl_role(role)
+                for action in acl_entry['actions']:
+                    acl.add_action(action['target'], action['acls'], action['options'])
+
+                role.add(acl)
+                self.add_acl_role(role)
+
+            # Add AclSets
+            for location in data['acl']:
+
+                # The Acl defintion is based on an acl role.
+                for acls_data in data['acl'][location]:
+
+                    acls = AclSet(location)
+                    if 'role' in acls_data:
+                        rname = acls_data['role']
+                        acls.use_role(self.acl_roles[rname])
+                        self.add_acl_set(acls)
+
+                    # This is a non-role base acl defintinition
+                    elif 'acls' in acls_data:
+                        for acl_entry in acls_data['acls']:
+
+                            acl = Acl(acl_scope_map[acl_entry['scope']])
+                            acl.add_members(acl_entry['members'])
+
+                            for action in acl_entry['actions']:
+                                acl.add_action(action['target'], action['acls'], action['options'])
+
+                            acls.add(acl)
+                        self.add_acl_set(acls)
 
         except IOError:
             return {}
@@ -260,23 +290,33 @@ class AclResolver(object):
 
         # Save AclSets
         for acl_set in self.acl_sets:
-            ret['acl'][acl_set.location] = []
-            for acl in acl_set:
-                entry = {'actions': acl.actions,
-                         'members': acl.members,
-                         'priority': acl.priority,
-                         'scope': acl_scope_map[acl.scope]}
-                ret['acl'][acl_set.location]. append(entry)
+
+            # Prepare lists
+            if acl_set.location not in ret['acl']:
+                ret['acl'][acl_set.location] = []
+
+            # This AclSet uses a role as acl definition set.
+            if acl_set.use_role:
+                ret['acl'][acl_set.location].append({'role': acl_set.role_name})
+            else:
+                acls = []
+                for acl in acl_set:
+                    entry = {'actions': acl.actions,
+                             'members': acl.members,
+                             'priority': acl.priority,
+                             'scope': acl_scope_map[acl.scope]}
+                    acls.append(entry)
+                ret['acl'][acl_set.location].append({'acls': acls})
 
         # Save AclRoles
-        for acl_role in self.acl_roles:
-            ret['roles'][acl_role.name] = []
-            for acl in acl_role:
+        for role_name in self.acl_roles:
+            ret['roles'][role_name] = []
+            for acl in self.acl_roles[role_name]:
                 entry = {'actions': acl.actions,
                          'members': acl.members,
                          'priority': acl.priority,
                          'scope': acl_scope_map[acl.scope]}
-                ret['roles'][acl_role.name]. append(entry)
+                ret['roles'][role_name] = entry
 
         with open(self.acl_file, 'w') as f:
             import json
@@ -305,18 +345,22 @@ class AclResolver(object):
                     continue
 
                 # Resolve ACLs.
-                for acl in acl_set:
-                    if acl.match(user, action, acls, options):
-                        print "ACL: Found matching acl in '%s'!" % location
-                        if acl.get_type() == Acl.RESET:
-                            print "ACL:  Acl reset for action '%s'!" % (action)
-                            reset = True
-                        elif acl.get_type() == Acl.PSUB:
-                            print "ACL:  Found permanent acl for action '%s'!" % (action)
-                            return True
-                        elif acl.get_type() in (Acl.SUB, ) and not reset:
-                            print "ACL:  Found acl for action '%s'!" % (action)
-                            return True
+                if acl_set.use_role:
+                    print "Rolooo"
+                else:
+                    print "No role"
+                    for acl in acl_set:
+                        if acl.match(user, action, acls, options):
+                            print "ACL: Found matching acl in '%s'!" % location
+                            if acl.get_type() == Acl.RESET:
+                                print "ACL:  Acl reset for action '%s'!" % (action)
+                                reset = True
+                            elif acl.get_type() == Acl.PSUB:
+                                print "ACL:  Found permanent acl for action '%s'!" % (action)
+                                return True
+                            elif acl.get_type() in (Acl.SUB, ) and not reset:
+                                print "ACL:  Found acl for action '%s'!" % (action)
+                                return True
 
             # Remove the first part of the dn
             location = ','.join(ldap.dn.explode_dn(location)[1::])
