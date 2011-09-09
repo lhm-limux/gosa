@@ -92,15 +92,28 @@ class Acl(object):
     actions = None
     scope = None
 
-    def __init__(self, scope):
+    uses_role = False
+    role = None
+
+    def __init__(self, scope=None, role=None):
+
+        if scope == None:
+            scope = Acl.SUB
 
         if scope not in (Acl.ONE, Acl.SUB, Acl.PSUB, Acl.RESET):
             raise(Exception("Invalid ACL type given"))
 
+        self.scope = scope
         self.actions = []
         self.locations = []
         self.members = []
-        self.scope = scope
+
+        if role:
+            self.use_role(role)
+
+    def use_role(self, role):
+        self.uses_role = True
+        self.role = role.name
 
     def add_member(self, member):
         """
@@ -115,6 +128,7 @@ class Acl(object):
         Adds a list of new members to this acl.
         """
         if type(members) != list or len(members) == 0:
+            print  members
             raise(Exception("Requires a list of members!"))
 
         for member in members:
@@ -124,6 +138,10 @@ class Acl(object):
         """
         Adds a new action to this acl.
         """
+        if self.uses_role:
+            raise Exception("Acl classes that use a role cannot define"
+                   " additional costum acls!")
+
         acl = {
                 'target': target,
                 'acls': acls,
@@ -136,49 +154,58 @@ class Acl(object):
         """
         return(self.member)
 
-    def match(self, user, action, acls, options={}):
+    def match(self, user, action, acls, options={}, skip_user_check=False):
         """
         Check of the requested user, action and the action options match this
         acl-object.
         """
-        if user in self.members:
-            for act in self.actions:
+        if user in self.members or skip_user_check:
 
-                # check for # and * placeholders
-                test_act = re.escape(act['target'])
-                test_act = re.sub(r'(^|\\.)(\\\*)(\\.|$)', '\\1.*\\3', test_act)
-                test_act = re.sub(r'(^|\\.)(\\#)(\\.|$)', '\\1[^\.]*\\3', test_act)
+            if self.uses_role:
+                r = AclResolver.get_instance()
+                print "ACL: Checking ACL role entries for role: '%s'!" % self.role
+                for acl in r.acl_roles[self.role]:
+                    if acl.match(user, action, acls, options,skip_user_check=True):
+                        print "ACL:  ACL role entry matched!"
+                        return True
+            else:
+                for act in self.actions:
 
-                # Check if the requested-action matches the acl-action.
-                if not re.match(test_act, action):
-                    continue
+                    # check for # and * placeholders
+                    test_act = re.escape(act['target'])
+                    test_act = re.sub(r'(^|\\.)(\\\*)(\\.|$)', '\\1.*\\3', test_act)
+                    test_act = re.sub(r'(^|\\.)(\\#)(\\.|$)', '\\1[^\.]*\\3', test_act)
 
-                # Check if the required permissions are allowed.
-                if (set(acls) & set(act['acls'])) != set(acls):
-                    continue
-
-                # Check if all required options are given
-                for entry in act['options']:
-
-                    # Check for missing options
-                    if entry not in options:
-                        print "ACL:   Option '%s' is missing" % entry
+                    # Check if the requested-action matches the acl-action.
+                    if not re.match(test_act, action):
                         continue
 
-                    # Simply match string options.
-                    if type(act['options'][entry]) == str and not re.match(act['options'][entry], options[entry]):
-                        print "ACL:   Option '%s' with value '%s' does not match '%s'!" % (entry,
-                                act['options'][entry], options[entry])
+                    # Check if the required permissions are allowed.
+                    if (set(acls) & set(act['acls'])) != set(acls):
                         continue
 
-                    # Simply match string options.
-                    elif act['options'][entry] != options[entry]:
-                        print "ACL:   Option '%s' with value '%s' does not match '%s'!" % (entry,
-                                act['options'][entry], options[entry])
-                        continue
+                    # Check if all required options are given
+                    for entry in act['options']:
 
-                # The acl rule matched!
-                return(True)
+                        # Check for missing options
+                        if entry not in options:
+                            print "ACL:   Option '%s' is missing" % entry
+                            continue
+
+                        # Simply match string options.
+                        if type(act['options'][entry]) == str and not re.match(act['options'][entry], options[entry]):
+                            print "ACL:   Option '%s' with value '%s' does not match '%s'!" % (entry,
+                                    act['options'][entry], options[entry])
+                            continue
+
+                        # Simply match string options.
+                        elif act['options'][entry] != options[entry]:
+                            print "ACL:   Option '%s' with value '%s' does not match '%s'!" % (entry,
+                                    act['options'][entry], options[entry])
+                            continue
+
+                    # The acl rule matched!
+                    return(True)
 
         # Nothing matched!
         return False
@@ -192,6 +219,10 @@ class Acl(object):
 
 
 class AclRoleEntry(Acl):
+
+    def __init__(self, scope=None, role=None):
+        super(AclRoleEntry, self).__init__(scope=scope)
+
     def add_member(self, member):
         """
         Adds a new member to this acl.
@@ -264,13 +295,19 @@ class AclResolver(object):
                     acls = AclSet(location)
                     for acl_entry in acls_data['acls']:
 
-                        acl = Acl(acl_scope_map[acl_entry['scope']])
-                        acl.add_members(acl_entry['members'])
+                        if 'role' in acl_entry:
+                            acl_rule_set = self.acl_roles[acl_entry['role']]
+                            acl = Acl(role=acl_rule_set)
+                            acl.add_members(acl_entry['members'])
+                            acls.add(acl)
+                        else:
+                            acl = Acl(acl_scope_map[acl_entry['scope']])
+                            acl.add_members(acl_entry['members'])
 
-                        for action in acl_entry['actions']:
-                            acl.add_action(action['target'], action['acls'], action['options'])
+                            for action in acl_entry['actions']:
+                                acl.add_action(action['target'], action['acls'], action['options'])
 
-                        acls.add(acl)
+                            acls.add(acl)
                     self.add_acl_set(acls)
 
         except IOError:
@@ -297,10 +334,17 @@ class AclResolver(object):
 
             acls = []
             for acl in acl_set:
-                entry = {'actions': acl.actions,
-                        'members': acl.members,
-                        'priority': acl.priority,
-                        'scope': acl_scope_map[acl.scope]}
+
+                if acl.uses_role:
+                    entry = {'role': acl.role,
+                            'members': acl.members
+                            }
+                else:
+                    entry = {'actions': acl.actions,
+                            'members': acl.members,
+                            'priority': acl.priority,
+                            'scope': acl_scope_map[acl.scope]
+                            }
 
                 acls.append(entry)
             ret['acl'][acl_set.location].append({'acls': acls})
