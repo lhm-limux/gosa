@@ -5,7 +5,15 @@ which may be scheduled by a user or by indirectly by a script or the web fronten
 
 Example::
 
-    TODO
+    >>> proxy.schedulerGetJobs()
+    {u'b4b54880-dac9-11e0-b58e-5452005f1250': {u'next_run_time':
+    u'20110909115527', u'name': u'SchedulerService.migrate',
+    u'misfire_grace_time': 1, u'job_type': None, u'max_instances': 1,
+    u'max_runs': None, u'coalesce': True, u'tag': u'_internal', u'owner': None,
+    u'description': None}}
+
+    >>> proxy.schedulerGetJobs({'tag':'service'})
+    {}
 
 ------
 """
@@ -98,7 +106,7 @@ class SchedulerService(object):
         res = {}
 
         for job in self.sched.get_jobs():
-            job_dict = dict([(key, getattr(f, key)) for key in [
+            job_dict = dict([(key, getattr(job, key)) for key in [
                 'misfire_grace_time',
                 'coalesce',
                 'name',
@@ -107,8 +115,10 @@ class SchedulerService(object):
                 'tag',
                 'owner',
                 'job_type',
-                'next_run_time',
                 'description']])
+
+            # Add next run time if available
+            job_dict['next_run_time'] = job.next_run_time.strftime("%Y%m%d%H%M%S") if job.next_run_time else None
 
             if fltr:
                 hits = 0

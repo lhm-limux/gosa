@@ -75,6 +75,7 @@ class Job(object):
         self.origin = origin
         self.owner = owner
         self.tag = tag
+        self.job_type = None
         self.description = description
         self.callback = callback
         self.progress = 0
