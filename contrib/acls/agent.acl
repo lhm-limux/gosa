@@ -1,5 +1,23 @@
 {
-  "roles": {}, 
+  "roles": {
+    "role1": [
+      {
+        "priority": 0, 
+        "scope": "sub", 
+        "members": [
+          "hickert", 
+          "cajus"
+        ], 
+        "actions": [
+          {
+            "acls": "rwx", 
+            "target": "gosa.objects.Person.userPassword", 
+            "options": {}
+          }
+        ]
+      }
+    ]
+  }, 
   "acl": {
     "dc=gonicus,dc=de": [
       {

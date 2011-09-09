@@ -179,6 +179,7 @@ class Acl(object):
 class AclResolver(object):
     instance = None
     acl_sets = []
+    acl_roles = []
 
     def __init__(self):
         # from config later on:
@@ -189,9 +190,15 @@ class AclResolver(object):
 
     def add_acl_set(self, acl):
         """
-        Adds an aclSet object to the list of active-acl rules.
+        Adds an AclSet object to the list of active-acl rules.
         """
         self.acl_sets.append(acl)
+
+    def add_acl_role(self, acl):
+        """
+        Adds an AclRole object to the list of active-acl roles.
+        """
+        self.acl_roles.append(acl)
 
     def load_from_file(self):
         """
@@ -207,10 +214,12 @@ class AclResolver(object):
 
         try:
             data = json.loads(open(self.acl_file).read())
+
+            # Add AclSets
             for location in data['acl']:
+
                 acls = AclSet(location)
                 for acl_entry in data['acl'][location]:
-
                     acl = Acl(acl_scope_map[acl_entry['scope']])
                     acl.add_members(acl_entry['members'])
 
@@ -218,8 +227,21 @@ class AclResolver(object):
                         acl.add_action(action['target'], action['acls'], action['options'])
 
                     acls.add(acl)
-                self.add_acl_set(acls)
+                    self.add_acl_set(acls)
 
+            # Add AclRoles
+            for name in data['roles']:
+
+                role = AclRole(name)
+                for acl_entry in data['roles'][name]:
+                    acl = Acl(acl_scope_map[acl_entry['scope']])
+                    acl.add_members(acl_entry['members'])
+
+                    for action in acl_entry['actions']:
+                        acl.add_action(action['target'], action['acls'], action['options'])
+
+                    role.add(acl)
+                    self.add_acl_role(role)
 
         except IOError:
             return {}
@@ -236,6 +258,7 @@ class AclResolver(object):
         acl_scope_map[Acl.PSUB] = 'psub'
         acl_scope_map[Acl.RESET] = 'reset'
 
+        # Save AclSets
         for acl_set in self.acl_sets:
             ret['acl'][acl_set.location] = []
             for acl in acl_set:
@@ -244,6 +267,16 @@ class AclResolver(object):
                          'priority': acl.priority,
                          'scope': acl_scope_map[acl.scope]}
                 ret['acl'][acl_set.location]. append(entry)
+
+        # Save AclRoles
+        for acl_role in self.acl_roles:
+            ret['roles'][acl_role.name] = []
+            for acl in acl_role:
+                entry = {'actions': acl.actions,
+                         'members': acl.members,
+                         'priority': acl.priority,
+                         'scope': acl_scope_map[acl.scope]}
+                ret['roles'][acl_role.name]. append(entry)
 
         with open(self.acl_file, 'w') as f:
             import json
