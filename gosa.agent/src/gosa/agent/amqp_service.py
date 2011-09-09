@@ -178,6 +178,9 @@ class AMQPService(object):
             except:
                 err = str(BadServiceRequest(message.content))
 
+        if not isinstance(args, list) and not isinstance(args, dict):
+            raise ValueError("bad params %r: must be a list or dict" % args)
+
         # Extract source queue
         p = re.compile(r';.*$')
         queue = p.sub('', message._receiver.source)
@@ -187,7 +190,10 @@ class AMQPService(object):
         # Try to execute
         if err == None:
             try:
-                res = self.__cr.dispatch(message.user_id, queue, name, *args)
+                if isinstance(args, dict):
+                    res = self.__cr.dispatch(message.user_id, queue, name, **args)
+                else:
+                    res = self.__cr.dispatch(message.user_id, queue, name, *args)
 
             except Exception, e:
                 text = traceback.format_exc()

@@ -129,6 +129,7 @@ class JsonRpcApp(object):
             json = loads(req.body)
         except ValueError, e:
             raise ValueError('Bad JSON: %s' % e)
+
         try:
             method = json['method']
             params = json['params']
@@ -139,9 +140,9 @@ class JsonRpcApp(object):
         if method.startswith('_'):
             raise exc.HTTPForbidden(
                 "Bad method name %s: must not start with _" % method).exception
-        if not isinstance(params, list):
+        if not isinstance(params, list) and not isinstance(params, dict):
             raise ValueError(
-                "Bad params %r: must be a list" % params)
+                "Bad params %r: must be a list or dict" % params)
 
         # Create an authentication cookie on login
         if method == 'login':
@@ -224,9 +225,15 @@ class JsonRpcApp(object):
                 queue= '%s.command.%s.%s' % (self.env.domain,
                     self.dispatcher.capabilities[method]['target'],
                     self.env.id)
-                params.insert(0, queue)
+                if isinstance(params, dict):
+                    params['queue'] = queue
+                else:
+                    params.insert(0, queue)
 
-            result = self.dispatcher.dispatch(user, None, method, *params)
+            if isinstance(params, dict):
+                result = self.dispatcher.dispatch(user, None, method, **params)
+            else:
+                result = self.dispatcher.dispatch(user, None, method, *params)
 
         except JSONRPCException as e:
             exc_value = sys.exc_info()[1]
