@@ -337,14 +337,15 @@ class AclResolver(object):
             # Add AclRoles
             for name in data['roles']:
 
-                acl_entry = data['roles'][name]
                 role = AclRole(name)
-                acl = AclRoleEntry(acl_scope_map[acl_entry['scope']])
 
-                for action in acl_entry['actions']:
-                    acl.add_action(action['target'], action['acls'], action['options'])
+                acls = data['roles'][name]
+                for acl_entry in acls:
+                    acl = AclRoleEntry(acl_scope_map[acl_entry['scope']])
+                    for action in acl_entry['actions']:
+                        acl.add_action(action['target'], action['acls'], action['options'])
 
-                role.add(acl)
+                    role.add(acl)
                 self.add_acl_role(role)
 
             # Add AclSets
@@ -395,7 +396,6 @@ class AclResolver(object):
 
             acls = []
             for acl in acl_set:
-
                 if acl.uses_role:
                     entry = {'role': acl.role,
                             'members': acl.members
@@ -406,7 +406,6 @@ class AclResolver(object):
                             'priority': acl.priority,
                             'scope': acl_scope_map[acl.scope]
                             }
-
                 acls.append(entry)
             ret['acl'][acl_set.location].append({'acls': acls})
 
@@ -414,10 +413,13 @@ class AclResolver(object):
         for role_name in self.acl_roles:
             ret['roles'][role_name] = []
             for acl in self.acl_roles[role_name]:
-                entry = {'actions': acl.actions,
-                         'priority': acl.priority,
-                         'scope': acl_scope_map[acl.scope]}
-                ret['roles'][role_name] = entry
+                if acl.uses_role:
+                    entry = {'role': acl.role}
+                else:
+                    entry = {'actions': acl.actions,
+                             'priority': acl.priority,
+                             'scope': acl_scope_map[acl.scope]}
+                ret['roles'][role_name].append(entry)
 
         # Store json data into a file
         with open(self.acl_file, 'w') as f:
@@ -471,3 +473,44 @@ class AclResolver(object):
             AclResolver.instance = AclResolver()
 
         return AclResolver.instance
+
+    def list_acls(self):
+        """
+        Returns all AclSets attached to the resolver
+        """
+        return(self.acl_sets)
+
+    def list_roles(self):
+        """
+        Returns all AclRoles attached to the resolver
+        """
+        return(self.acl_roles)
+
+    def is_role_used(self, role):
+
+        for aclset in self.acl_sets:
+            if self.__is_role_used(aclset, role):
+                return(True)
+        return(False)
+
+    def __is_role_used(self, aclset, role):
+        for acl in aclset:
+            if acl.uses_role:
+                if acl.role == role.name:
+                    return(True)
+                else:
+                    role_acl_sets = self.acl_roles[acl.role]
+                    if(self.__is_role_used(role_acl_sets, role)):
+                        return(True)
+
+        return(False)
+
+    def remove_role(self, role):
+        if self.is_role_used(role):
+            #raise Exception("The role '%s' cannot be removed, it is still in use!" % role.name)
+            print "In use ", role.name
+        else:
+            print "Removeable ", role.name
+        pass
+
+
