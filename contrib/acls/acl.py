@@ -11,17 +11,66 @@ import ldap
 """
 This is a collection of classes that can manager Access control lists.
 
-AclSet      - Is a container class for Acl objects. An AclSet-object can be attached
-              to ldap organizationalUnits to restrict permissions for a set of
-              users.
-Acl         - This class represents a single ACL rule, Acl-objects can be
-              bundled in an AclSet object.
 
-AclResoler  - This class is used to manage all Acl- and AclSets objects.
+AclSet
+======
+The base class of all ACL assignment is the 'AclSet' class which
+combines a list of 'Acl' entries into a set of effective Acls.
+
+The AclSet has a location property which specifies the location this set of
+acls is valid for, e.g. dc=intranet,dc=gonicus,dc=de
+
+
+Acl
+===
+The Acl class contains information about the acl definition, like
+    |-> the scope
+    |-> the users this acl is valid for
+    |-> the actions described by
+      |-> target    e.g. com.gonicus.objectFactory.Person.*
+      |-> acls      e.g. rwxd
+      |-> options   e.g. uid=hickert
+    OR
+      |-> role      The role to use instead of a direct acls
+
+
+AclRole
+=======
+This class equals the 'AclSet' but in details it does not have a location, it
+has just a name. This name can be used later in 'Acl' classes to reference to
+this acl role.
+
+And it cannot contain 'Acl' objects you've to use 'AclRoleEntry' objects.
+AclRoleEntry objeects simply have no members.
+
+
+AclRoleEntry
+============
+AclRoleEntries are used in 'AclRole' objects to combine several allowed
+actions.
+
+
+==========
+AclResoler
+
+The AclResolver is responsible for loading, saving and resolving permissions.
+
+
+
+How an Acl assigment look could look like
+=========================================
+
+AclRole (test1)
+ |-> AclRoleEntry
+ |-> AclRoleEntry
+
+AclSet
+ |-> Acl
+ |-> Acl
+ |-> AclRole (test1)
+ |-> Acl
 
 """
-
-
 class AclSet(list):
     """
     This is a container for ACL entries.
@@ -38,7 +87,7 @@ class AclSet(list):
         """
         Adds a new acl object to this aclSet.
         """
-        if not isinstance(item, Acl):
+        if type(item) != Acl:
             raise TypeError('item is not of type %s' % Acl)
 
         if item.priority == None:
@@ -64,8 +113,8 @@ class AclRole(list):
         """
         Adds a new acl object to this aclSet.
         """
-        if not isinstance(item, Acl):
-            raise TypeError('item is not of type %s' % Acl)
+        if type(item) != AclRoleEntry:
+            raise TypeError('item is not of type %s' % AclRoleEntry)
 
         if item.priority == None:
             item.priority = len(self)
@@ -278,7 +327,7 @@ class AclResolver(object):
 
                 acl_entry = data['roles'][name]
                 role = AclRole(name)
-                acl = Acl(acl_scope_map[acl_entry['scope']])
+                acl = AclRoleEntry(acl_scope_map[acl_entry['scope']])
 
                 for action in acl_entry['actions']:
                     acl.add_action(action['target'], action['acls'], action['options'])
