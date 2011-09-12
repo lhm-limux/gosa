@@ -444,7 +444,7 @@ class AclResolver(object):
                     # The acl entry refers to another role ebtry.
                     if 'role' in acl_entry:
 
-                        # If the role was'nt loaded yet, the create and attach requested role 
+                        # If the role was'nt loaded yet, the create and attach requested role
                         #  to the list of roles, but mark it as unresolved
                         rn = str(acl_entry['role'])
                         if rn not in roles:
