@@ -5,7 +5,7 @@ class TestGOtoPlugin(unittest.TestCase):
 
     def test_mksmbhash(self):
         #TODO: mockup env
-        network = NetworkUtils(None)
+        network = NetworkUtils()
         #networkCompletion
         #getMacManufacturer
         #self.assertEqual(sambaUtils.mksmbhash('secret'), '552902031BEDE9EFAAD3B435B51404EE:878D8014606CDA29677A44EFA1353FC7')
