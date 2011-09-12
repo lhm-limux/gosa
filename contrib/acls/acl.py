@@ -508,12 +508,13 @@ class AclResolver(object):
 
         return(False)
 
-    def remove_role(self, role):
-        if self.is_role_used(role):
-            #raise Exception("The role '%s' cannot be removed, it is still in use!" % role.name)
-            print "In use ", role.name
+    def remove_role(self, name):
+        if name in self.acl_roles:
+            if self.is_role_used(self.acl_roles[name]):
+                raise Exception("The role '%s' cannot be removed, it is still in use!" % name)
+            else:
+                del(self.acl_roles[name])
+                return True
         else:
-            print "Removeable ", role.name
-        pass
-
-
+            raise Exception("No such role '%s', removal aborted!" % name)
+        return False

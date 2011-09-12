@@ -15,6 +15,15 @@ if not os.path.exists("agent.acl"):
     role.add(acl)
     resolver.add_acl_role(role)
 
+    # Create a new AclRole again
+    acl = AclRoleEntry(scope=Acl.SUB)
+    acl.add_action(u'gosa.objects.Person.userPassword', 'rwx', {})
+    acl.add_action(u'gosa.objects.Person.username', 'rwx', {})
+    acl.add_action(u'gosa.objects.Person.phone', 'rwx', {})
+    role123 = AclRole('role123')
+    role123.add(acl)
+    resolver.add_acl_role(role123)
+
     # Create a new AclRole
     role2 = AclRole('role2')
     acl = AclRoleEntry(scope=Acl.SUB)
@@ -83,13 +92,12 @@ print resolver.get_permissions('cajus',
     'ou=1,ou=technik,dc=intranet,dc=gonicus,dc=de',
     'gosa.objects.Person.userPassword', 'rw')
 
+
+print "#"* 50
+
+resolver.remove_role('role123')
+
 resolver.save_to_file()
 
 
 
-
-print "#"* 50
-
-for rolename, role in resolver.list_roles().items():
-    print rolename, role
-    resolver.remove_role(role)
