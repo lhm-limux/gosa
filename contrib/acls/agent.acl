@@ -66,12 +66,66 @@
   "acl": {
     "dc=gonicus,dc=de": [
       {
-        "acls": []
+        "acls": [
+          {
+            "priority": 0, 
+            "scope": "sub", 
+            "members": [
+              "cajus", 
+              "hickert"
+            ], 
+            "actions": [
+              {
+                "acls": "rwx", 
+                "target": "gosa.*.cancelEvent", 
+                "options": {}
+              }
+            ]
+          }
+        ]
       }
     ], 
     "ou=technik,dc=intranet,dc=gonicus,dc=de": [
       {
-        "acls": []
+        "acls": [
+          {
+            "priority": 0, 
+            "scope": "reset", 
+            "members": [
+              "hickert"
+            ], 
+            "actions": [
+              {
+                "acls": "rwx", 
+                "target": "gosa.scheduler.cancelEvent", 
+                "options": {
+                  "owner": "hickert"
+                }
+              }
+            ]
+          }, 
+          {
+            "priority": 1, 
+            "scope": "sub", 
+            "members": [
+              "cajus"
+            ], 
+            "actions": [
+              {
+                "acls": "rwx", 
+                "target": "gosa.scheduler.cancelEvent", 
+                "options": {}
+              }
+            ]
+          }, 
+          {
+            "role": "role2", 
+            "members": [
+              "cajus", 
+              "Wursty"
+            ]
+          }
+        ]
       }
     ]
   }

@@ -70,6 +70,8 @@ AclSet
  |-> Acl
 
 """
+
+
 class AclSet(list):
     """
     This is a container for ACL entries.
@@ -244,7 +246,7 @@ class Acl(object):
                 r = AclResolver.get_instance()
                 print "ACL: Checking ACL role entries for role: '%s'!" % self.role
                 for acl in r.acl_roles[self.role]:
-                    if acl.match(user, action, acls, options,skip_user_check=True):
+                    if acl.match(user, action, acls, options, skip_user_check=True):
                         print "ACL:  ACL role entry matched!"
                         return True
             else:
@@ -361,8 +363,8 @@ class AclResolver(object):
         acl_scope_map = {}
         acl_scope_map['one'] = Acl.ONE
         acl_scope_map['sub'] = Acl.SUB
-        acl_scope_map['psub']= Acl.PSUB
-        acl_scope_map['reset']= Acl.RESET
+        acl_scope_map['psub'] = Acl.PSUB
+        acl_scope_map['reset'] = Acl.RESET
 
         try:
             data = json.loads(open(self.acl_file).read())
@@ -434,14 +436,12 @@ class AclResolver(object):
             for acl in acl_set:
                 if acl.uses_role:
                     entry = {'role': acl.role,
-                            'members': acl.members
-                            }
+                            'members': acl.members}
                 else:
                     entry = {'actions': acl.actions,
                             'members': acl.members,
                             'priority': acl.priority,
-                            'scope': acl_scope_map[acl.scope]
-                            }
+                            'scope': acl_scope_map[acl.scope]}
                 acls.append(entry)
             ret['acl'][acl_set.location].append({'acls': acls})
 
@@ -461,7 +461,6 @@ class AclResolver(object):
         with open(self.acl_file, 'w') as f:
             import json
             json.dump(ret, f, indent=2)
-
 
     def get_permissions(self, user, location, action, acls, options={}):
         """
@@ -585,17 +584,17 @@ class AclResolver(object):
         for aclset in self.acl_sets:
             if aclset.location == location:
                 self.acl_sets.remove(aclset)
-                found +=1
+                found += 1
 
         # Send a message if there were no AclSets for the given location
         if  not found:
-            raise Exception("No acl definitions for location '%s' were found, removal aborted!");
+            raise Exception("No acl definitions for location '%s' were found, removal aborted!")
 
         pass
 
     def remove_role(self, name):
         """
-        Removes a role.
+        Removes an acl role.
         """
 
         # Allow to remove roles by passing AclRole-objects.

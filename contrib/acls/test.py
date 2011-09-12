@@ -103,14 +103,14 @@ print resolver.get_permissions('cajus',
 #     print "Removing: %s" % role_name
 #     resolver.remove_role(role_name)
 
-print "#"* 50
-print "Remove all acl entries for each AclSet"
-for aclset in resolver.list_acls():
-    aclset.remove_acls_for_user('cajus')
-    while len(aclset):
-        entry = aclset[0]
-        aclset.remove(entry)
-
+# print "#"* 50
+# print "Remove all acl entries for each AclSet"
+# for aclset in resolver.list_acls():
+#     aclset.remove_acls_for_user('cajus')
+#     while len(aclset):
+#         entry = aclset[0]
+#         aclset.remove(entry)
+#
 resolver.save_to_file()
 
 
