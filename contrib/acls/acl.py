@@ -20,18 +20,18 @@ from gosa.common.components import Command, PluginRegistry
 This is a collection of classes that can manage Access control lists.
 
 
-AclSet
+ACLSet
 ======
-The base class of all ACL assignments is the 'AclSet' class which
-combines a list of 'Acl' entries into a set of effective Acls.
+The base class of all ACL assignments is the 'ACLSet' class which
+combines a list of 'ACL' entries into a set of effective ACLs.
 
-The AclSet has a location property which specifies the location, this set of
+The ACLSet has a location property which specifies the location, this set of
 acls, is valid for. E.g. dc=example,dc=net
 
 
-Acl
+ACL
 ===
-The Acl class contains information about the acl definition, like
+The ACL class contains information about the acl definition, like
     |-> the scope
     |-> the users this acl is valid for
     |-> the actions described by
@@ -42,45 +42,45 @@ The Acl class contains information about the acl definition, like
       |-> role      The role to use instead of a direct acls
 
 
-AclRole
+ACLRole
 =======
-This class equals the 'AclSet' but in details it does not have a location, it
-has just a name. This name can be used later in 'Acl' classes to refer to
+This class equals the 'ACLSet' but in details it does not have a location, it
+has just a name. This name can be used later in 'ACL' classes to refer to
 this acl role.
 
-And instead of Acl-objects it uses AclRoleEntry-objects to assemble a set of acls.
-(AclRoleEntry objects have no members)
+And instead of ACL-objects it uses ACLRoleEntry-objects to assemble a set of acls.
+(ACLRoleEntry objects have no members)
 
 
-AclRoleEntry
+ACLRoleEntry
 ============
-AclRoleEntries are used in 'AclRole' objects to combine several allowed
+ACLRoleEntries are used in 'ACLRole' objects to combine several allowed
 actions.
 
 
 ==========
-AclResoler
+ACLResoler
 
-The AclResolver is responsible for loading, saving and resolving permissions.
+The ACLResolver is responsible for loading, saving and resolving permissions.
 
 
-How an Acl assigment look could look like
+How an ACL assigment look could look like
 =========================================
 
-AclRole (test1)
- |-> AclRoleEntry
- |-> AclRoleEntry
+ACLRole (test1)
+ |-> ACLRoleEntry
+ |-> ACLRoleEntry
 
-AclSet
- |-> Acl
- |-> Acl
- |-> AclRole (test1)
- |-> Acl
+ACLSet
+ |-> ACL
+ |-> ACL
+ |-> ACLRole (test1)
+ |-> ACL
 
 """
 
 
-class AclSet(list):
+class ACLSet(list):
     """
     This is a container for ACL entries.
     """
@@ -91,7 +91,7 @@ class AclSet(list):
 
     def get_location(self):
         """
-        Returns the location for this AclSet.
+        Returns the location for this ACLSet.
         """
         return(self.location)
 
@@ -105,7 +105,7 @@ class AclSet(list):
 
     def remove_acl(self, acl):
         """
-        Removes an acl entry fromt this AclSet.
+        Removes an acl entry fromt this ACLSet.
         """
         for cur_acl in self:
             if cur_acl == acl:
@@ -117,15 +117,15 @@ class AclSet(list):
         """
         Adds a new acl object to this aclSet.
         """
-        if type(item) != Acl:
-            raise TypeError('item is not of type %s' % Acl)
+        if type(item) != ACL:
+            raise TypeError('item is not of type %s' % ACL)
 
         if item.priority == None:
             item.priority = len(self)
 
         self.append(item)
 
-        # Sort Acl items by id
+        # Sort ACL items by id
         sorted(self, key=lambda item: item.priority)
 
     def __repr__(self):
@@ -133,18 +133,18 @@ class AclSet(list):
 
     def repr_self(self, entry, indent = 0):
         rstr = ""
-        if type(entry) == AclSet:
-            rstr += "%s<AclSet: %s>" % (" " * indent, entry.location)
+        if type(entry) == ACLSet:
+            rstr += "%s<ACLSet: %s>" % (" " * indent, entry.location)
             for sub_entry in entry:
                 rstr += self.repr_self(sub_entry, indent)
 
-        if type(entry) == Acl:
+        if type(entry) == ACL:
             rstr += entry.repr_self(indent + 1)
 
         return rstr
 
 
-class AclRole(list):
+class ACLRole(list):
     """
     This is a container for ACL entries that should act like an acl role.
     """
@@ -164,15 +164,15 @@ class AclRole(list):
         """
         Adds a new acl object to this aclSet.
         """
-        if type(item) != AclRoleEntry:
-            raise TypeError('item is not of type %s' % AclRoleEntry)
+        if type(item) != ACLRoleEntry:
+            raise TypeError('item is not of type %s' % ACLRoleEntry)
 
         if item.priority == None:
             item.priority = len(self)
 
         self.append(item)
 
-        # Sort Acl items by id
+        # Sort ACL items by id
         sorted(self, key=lambda item: item.priority)
 
     def __repr__(self):
@@ -180,22 +180,22 @@ class AclRole(list):
 
     def repr_self(self, entry, indent = 0):
         rstr = ""
-        if type(entry) == AclRole:
-            rstr += "%s<AclRole: %s>" % (" " * indent, entry.name)
+        if type(entry) == ACLRole:
+            rstr += "%s<ACLRole: %s>" % (" " * indent, entry.name)
             for sub_entry in entry:
                 rstr += self.repr_self(sub_entry, indent)
 
-        if type(entry) == AclRoleEntry:
+        if type(entry) == ACLRoleEntry:
             rstr += entry.repr_self(indent + 1)
 
         return rstr
 
 
-class Acl(object):
+class ACL(object):
     """
-    The Acl class contains list of action for a set of members.
-    These Acl classes can then be bundled and attached to a ldap base using
-    the AclSet class.
+    The ACL class contains list of action for a set of members.
+    These ACL classes can then be bundled and attached to a ldap base using
+    the ACLSet class.
     """
     priority = None
 
@@ -215,9 +215,9 @@ class Acl(object):
         self.env = Environment.getInstance()
 
         if scope == None:
-            scope = Acl.SUB
+            scope = ACL.SUB
 
-        if scope not in (Acl.ONE, Acl.SUB, Acl.PSUB, Acl.RESET):
+        if scope not in (ACL.ONE, ACL.SUB, ACL.PSUB, ACL.RESET):
             raise(Exception("Invalid ACL type given"))
 
         self.scope = scope
@@ -230,7 +230,7 @@ class Acl(object):
 
     def use_role(self, role):
         """
-        Mark this Acl to use a role instead of direkt permission settings.
+        Mark this ACL to use a role instead of direkt permission settings.
         """
         self.uses_role = True
         self.role = role.name
@@ -258,7 +258,7 @@ class Acl(object):
         Adds a new action to this acl.
         """
         if self.uses_role:
-            raise Exception("Acl classes that use a role cannot define"
+            raise Exception("ACL classes that use a role cannot define"
                    " additional costum acls!")
 
         acl = {
@@ -278,12 +278,12 @@ class Acl(object):
         Generates a human readable representation of the acl-object.
         """
         if self.uses_role:
-            r = AclResolver.instance
-            rstr = "\n%s<Acl> %s" % (" " * indent, str(self.members))
+            r = ACLResolver.instance
+            rstr = "\n%s<ACL> %s" % (" " * indent, str(self.members))
             rstr += "\n%s:" %  r.acl_roles[self.role].repr_self(r.acl_roles[self.role], indent + 1)
 
         else:
-            rstr = "\n%s<Acl scope(%s)> %s: " % ((" " * indent), self.scope, str(self.members))
+            rstr = "\n%s<ACL scope(%s)> %s: " % ((" " * indent), self.scope, str(self.members))
             for entry in self.actions:
                 rstr += "\n%s%s:%s %s" % ((" " * (indent+1)), entry['target'], str(entry['acls']), str(entry['options']))
         return rstr
@@ -296,7 +296,7 @@ class Acl(object):
         if user in self.members or skip_user_check:
 
             if self.uses_role:
-                r = AclResolver.instance
+                r = ACLResolver.instance
                 self.env.log.debug("checking ACL role entries for role: %s" % self.role)
                 for acl in r.acl_roles[self.role]:
                     if acl.match(user, action, acls, options, skip_user_check=True):
@@ -352,23 +352,25 @@ class Acl(object):
         return(self.scope)
 
 
-class AclRoleEntry(Acl):
+class ACLRoleEntry(ACL):
 
     def __init__(self, scope=None, role=None):
-        super(AclRoleEntry, self).__init__(scope=scope, role=role)
+        super(ACLRoleEntry, self).__init__(scope=scope, role=role)
 
     def add_member(self, member):
         """
         Adds a new member to this acl.
         """
-        raise Exception("Role Acls do not support direct members")
+        raise Exception("Role ACLs do not support direct members")
 
 
-class AclResolver(object):
+class ACLResolver(object):
     implements(IInterfaceHandler)
     instance = None
     acl_sets = None
     acl_roles = None
+
+    _priority_ = 0
 
     def __init__(self):
         self.env = Environment.getInstance()
@@ -381,13 +383,13 @@ class AclResolver(object):
         self.base = lh.get_base()
         self.acl_file = os.path.join(self.env.config.getBaseDir(), "agent.acl")
 
-        self.env.log.info("initializing ACL resolver")
+        self.env.log.debug("initializing ACL resolver")
         self.load_from_file()
-        AclResolver.instance = self
+        ACLResolver.instance = self
 
     def add_acl_set(self, acl):
         """
-        Adds an AclSet object to the list of active-acl rules.
+        Adds an ACLSet object to the list of active-acl rules.
         """
         if not self.aclset_exists_by_location(acl.location):
             self.acl_sets.append(acl)
@@ -408,7 +410,7 @@ class AclResolver(object):
 
     def add_acl_role(self, acl):
         """
-        Adds an AclRole object to the list of active-acl roles.
+        Adds an ACLRole object to the list of active-acl roles.
         """
         self.acl_roles[acl.name] = acl
 
@@ -419,28 +421,28 @@ class AclResolver(object):
         self.acl_sets = []
 
         acl_scope_map = {}
-        acl_scope_map['one'] = Acl.ONE
-        acl_scope_map['sub'] = Acl.SUB
-        acl_scope_map['psub'] = Acl.PSUB
-        acl_scope_map['reset'] = Acl.RESET
+        acl_scope_map['one'] = ACL.ONE
+        acl_scope_map['sub'] = ACL.SUB
+        acl_scope_map['psub'] = ACL.PSUB
+        acl_scope_map['reset'] = ACL.RESET
 
         try:
             data = json.loads(open(self.acl_file).read())
 
-            # Add AclRoles
+            # Add ACLRoles
             roles = {}
             unresolved = []
             for name in data['roles']:
 
                 # Create a new role object on demand.
                 if name not in roles:
-                    roles[name] = AclRole(name)
+                    roles[name] = ACLRole(name)
 
                 # Check if this role was referenced before but not initialized
                 if name in unresolved:
                     unresolved.remove(name)
 
-                # Append the role acls to the AclRole object
+                # Append the role acls to the ACLRole object
                 acls = data['roles'][name]
                 for acl_entry in acls:
 
@@ -452,18 +454,18 @@ class AclResolver(object):
                         rn = str(acl_entry['role'])
                         if rn not in roles:
                             unresolved.append(rn)
-                            roles[rn] = AclRole(rn)
+                            roles[rn] = ACLRole(rn)
                             self.add_acl_role(roles[rn])
 
                         # Add the acl entry entry which refers to the role.
-                        acl = AclRoleEntry(role=roles[rn])
+                        acl = ACLRoleEntry(role=roles[rn])
                         acl.use_role(roles[rn])
                         roles[name].add(acl)
                         self.add_acl_role(roles[name])
                     else:
 
                         # Add a normal (non-role) base acl entry
-                        acl = AclRoleEntry(acl_scope_map[acl_entry['scope']])
+                        acl = ACLRoleEntry(acl_scope_map[acl_entry['scope']])
                         for action in acl_entry['actions']:
                             acl.add_action(action['target'], action['acls'], action['options'])
                         roles[name].add(acl)
@@ -476,22 +478,22 @@ class AclResolver(object):
             for role_name in roles:
                 self.add_acl_role(roles[role_name])
 
-            # Add AclSets
+            # Add ACLSets
             for location in data['acl']:
 
-                # The Acl defintion is based on an acl role.
+                # The ACL defintion is based on an acl role.
                 for acls_data in data['acl'][location]:
 
-                    acls = AclSet(location)
+                    acls = ACLSet(location)
                     for acl_entry in acls_data['acls']:
 
                         if 'role' in acl_entry:
                             acl_rule_set = self.acl_roles[acl_entry['role']]
-                            acl = Acl(role=acl_rule_set)
+                            acl = ACL(role=acl_rule_set)
                             acl.add_members(acl_entry['members'])
                             acls.add(acl)
                         else:
-                            acl = Acl(acl_scope_map[acl_entry['scope']])
+                            acl = ACL(acl_scope_map[acl_entry['scope']])
                             acl.add_members(acl_entry['members'])
 
                             for action in acl_entry['actions']:
@@ -510,12 +512,12 @@ class AclResolver(object):
         ret = {'acl': {}, 'roles':  {}}
 
         acl_scope_map = {}
-        acl_scope_map[Acl.ONE] = 'one'
-        acl_scope_map[Acl.SUB] = 'sub'
-        acl_scope_map[Acl.PSUB] = 'psub'
-        acl_scope_map[Acl.RESET] = 'reset'
+        acl_scope_map[ACL.ONE] = 'one'
+        acl_scope_map[ACL.SUB] = 'sub'
+        acl_scope_map[ACL.PSUB] = 'psub'
+        acl_scope_map[ACL.RESET] = 'reset'
 
-        # Save AclSets
+        # Save ACLSets
         for acl_set in self.acl_sets:
 
             # Prepare lists
@@ -535,7 +537,7 @@ class AclResolver(object):
                 acls.append(entry)
             ret['acl'][acl_set.location].append({'acls': acls})
 
-        # Save AclRoles
+        # Save ACLRoles
         for role_name in self.acl_roles:
             ret['roles'][role_name] = []
             for acl in self.acl_roles[role_name]:
@@ -578,13 +580,13 @@ class AclResolver(object):
                 for acl in acl_set:
                     if acl.match(user, action, acls, options):
                         self.env.log.debug("found matching ACL in '%s'" % location)
-                        if acl.get_type() == Acl.RESET:
+                        if acl.get_type() == ACL.RESET:
                             self.env.log.debug("found ACL reset for action '%s'" % action)
                             reset = True
-                        elif acl.get_type() == Acl.PSUB:
+                        elif acl.get_type() == ACL.PSUB:
                             self.env.log.debug("found permanent ACL for action '%s'" % action)
                             return True
-                        elif acl.get_type() in (Acl.SUB, ) and not reset:
+                        elif acl.get_type() in (ACL.SUB, ) and not reset:
                             self.env.log.debug("found ACL for action '%s'" % action)
                             return True
 
@@ -595,7 +597,7 @@ class AclResolver(object):
 
     def list_acls(self):
         """
-        Returns all AclSets attached to the resolver
+        Returns all ACLSets attached to the resolver
         """
         return(self.acl_sets)
 
@@ -613,7 +615,7 @@ class AclResolver(object):
 
     def list_roles(self):
         """
-        Returns all AclRoles attached to the resolver
+        Returns all ACLRoles attached to the resolver
         """
         return(self.acl_roles)
 
@@ -649,7 +651,7 @@ class AclResolver(object):
 
     def aclset_exists_by_location(self, location):
         """
-        Checks if a AclSet for the given location exists or not.
+        Checks if a ACLSet for the given location exists or not.
         """
         for aclset in self.acl_sets:
             if aclset.location == location:
@@ -661,7 +663,7 @@ class AclResolver(object):
         Removes a given acl rule.
         """
         if type(location) not in [str, unicode]:
-            raise Exception("AclSets can only be removed by location name, '%s' is an invalid parameter" % location)
+            raise Exception("ACLSets can only be removed by location name, '%s' is an invalid parameter" % location)
 
         # Remove all aclsets for the given location
         found = 0
@@ -670,7 +672,7 @@ class AclResolver(object):
                 self.acl_sets.remove(aclset)
                 found += 1
 
-        # Send a message if there were no AclSets for the given location
+        # Send a message if there were no ACLSets for the given location
         if  not found:
             raise Exception("No acl definitions for location '%s' were found, removal aborted!")
 
@@ -681,8 +683,8 @@ class AclResolver(object):
         Removes an acl role.
         """
 
-        # Allow to remove roles by passing AclRole-objects.
-        if type(name) == AclRole:
+        # Allow to remove roles by passing ACLRole-objects.
+        if type(name) == ACLRole:
             name = name.name
 
         # Check if we've got a valid name type.
