@@ -1,10 +1,16 @@
-from acl import Acl, AclSet, AclRole, AclRoleEntry, AclResolver
 import os
+from acl import Acl, AclSet, AclRole, AclRoleEntry, AclResolver
+
+from gosa.common import Environment
+Environment.config = "test-acl.conf"
+Environment.noargs = True
+
+resolver = None
 
 if not os.path.exists("agent.acl"):
 
     # Instantiate the ACl resolver
-    resolver = AclResolver.get_instance()
+    resolver = AclResolver()
 
     # Create a new AclRole
     acl = AclRoleEntry(scope=Acl.SUB)
@@ -33,7 +39,7 @@ if not os.path.exists("agent.acl"):
     role2.add(acl)
     resolver.add_acl_role(role2)
 
-    # Define some ACls 
+    # Define some ACls
     acl1 = Acl(scope=Acl.SUB)
     acl1.add_members([u'cajus', u'hickert'])
     acl1.add_action(u'gosa.*.cancelEvent', 'rwx', {})
@@ -62,7 +68,8 @@ if not os.path.exists("agent.acl"):
     resolver.save_to_file()
 
 # Load definition from file
-resolver = AclResolver.get_instance()
+if not resolver:
+    resolver = AclResolver()
 
 deps = ['ou=1,ou=technik,dc=intranet,dc=gonicus,dc=de',
         'ou=technik,dc=intranet,dc=gonicus,dc=de',

@@ -1,6 +1,12 @@
+# -*- coding: utf-8 -*-
 import re
 import json
 import ldap
+
+from zope.interface import implements
+from gosa.common.handler import IInterfaceHandler
+from gosa.common import Environment
+from gosa.common.components import Command, PluginRegistry
 
 
 #TODO: Think about ldap relations, how to store and load objects.
@@ -174,6 +180,7 @@ class Acl(object):
     role = None
 
     def __init__(self, scope=None, role=None):
+        self.env = Environment.getInstance()
 
         if scope == None:
             scope = Acl.SUB
@@ -209,7 +216,6 @@ class Acl(object):
         Adds a list of new members to this acl.
         """
         if type(members) != list or len(members) == 0:
-            print  members
             raise(Exception("Requires a list of members!"))
 
         for member in members:
@@ -243,11 +249,11 @@ class Acl(object):
         if user in self.members or skip_user_check:
 
             if self.uses_role:
-                r = AclResolver.get_instance()
-                print "ACL: Checking ACL role entries for role: '%s'!" % self.role
+                r = PluginRegistry.getInstance("AclResolver")
+                self.env.log.debug("checking ACL role entries for role: %s" % self.role)
                 for acl in r.acl_roles[self.role]:
                     if acl.match(user, action, acls, options, skip_user_check=True):
-                        print "ACL:  ACL role entry matched!"
+                        self.env.log.debug("ACL role entry matched for role '%s'" % self.role)
                         return True
             else:
                 for act in self.actions:
@@ -270,19 +276,19 @@ class Acl(object):
 
                         # Check for missing options
                         if entry not in options:
-                            print "ACL:   Option '%s' is missing" % entry
+                            self.env.log.debug("ACL option '%s' is missing" % entry)
                             continue
 
                         # Simply match string options.
                         if type(act['options'][entry]) == str and not re.match(act['options'][entry], options[entry]):
-                            print "ACL:   Option '%s' with value '%s' does not match '%s'!" % (entry,
-                                    act['options'][entry], options[entry])
+                            self.env.log.debug("ACL option '%s' with value '%s' does not match with '%s'" % (entry,
+                                        act['options'][entry], options[entry]))
                             continue
 
                         # Simply match string options.
                         elif act['options'][entry] != options[entry]:
-                            print "ACL:   Option '%s' with value '%s' does not match '%s'!" % (entry,
-                                    act['options'][entry], options[entry])
+                            self.env.log.debug("ACL option '%s' with value '%s' does not match with '%s'" % (entry,
+                                        act['options'][entry], options[entry]))
                             continue
 
                     # The acl rule matched!
@@ -312,11 +318,13 @@ class AclRoleEntry(Acl):
 
 
 class AclResolver(object):
-    instance = None
+    implements(IInterfaceHandler)
+
     acl_sets = None
     acl_roles = None
 
     def __init__(self):
+        self.env = Environment.getInstance()
 
         self.acl_sets = []
         self.acl_roles = {}
@@ -325,6 +333,7 @@ class AclResolver(object):
         self.base = "dc=gonicus,dc=de"
         self.acl_file = "agent.acl"
 
+        self.env.log.info("initializing ACL resolver")
         self.load_from_file()
 
     def add_acl_set(self, acl):
@@ -471,7 +480,8 @@ class AclResolver(object):
         allowed = False
         reset = False
 
-        print "ACL: Checking acl for %s/%s/%s" % (user, location, str(action))
+        self.env.log.debug("checkint ACL for %s/%s/%s" % (user, location,
+            str(action)))
 
         # Remove the first part of the dn, until we reach the ldap base.
         while self.base in location:
@@ -486,28 +496,21 @@ class AclResolver(object):
                 # Check ACls
                 for acl in acl_set:
                     if acl.match(user, action, acls, options):
-                        print "ACL: Found matching acl in '%s'!" % location
+                        self.env.log.debug("found matching ACL in '%s'" % location)
                         if acl.get_type() == Acl.RESET:
-                            print "ACL:  Acl reset for action '%s'!" % (action)
+                            self.env.log.debug("found ACL reset for action '%s'" % action)
                             reset = True
                         elif acl.get_type() == Acl.PSUB:
-                            print "ACL:  Found permanent acl for action '%s'!" % (action)
+                            self.env.log.debug("found permanent ACL for action '%s'" % action)
                             return True
                         elif acl.get_type() in (Acl.SUB, ) and not reset:
-                            print "ACL:  Found acl for action '%s'!" % (action)
+                            self.env.log.debug("found ACL for action '%s'" % action)
                             return True
 
             # Remove the first part of the dn
             location = ','.join(ldap.dn.explode_dn(location)[1::])
 
         return(allowed)
-
-    @staticmethod
-    def get_instance():
-        if not AclResolver.instance:
-            AclResolver.instance = AclResolver()
-
-        return AclResolver.instance
 
     def list_acls(self):
         """
