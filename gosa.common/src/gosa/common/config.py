@@ -34,6 +34,7 @@ if platform.system() != "Windows":
     import pwd
     import grp
 
+
 class ConfigNoFile(Exception):
     """
     Exception to inform about non existing or not accessible
@@ -148,6 +149,13 @@ class Config(object):
         (options, args) = parser.parse_args()
         items = options.__dict__
         self.__registry['core'].update(dict([(k, items[k]) for k in items if items[k] != None]))
+
+    def getBaseDir(self):
+        bd = os.path.basename(self.__registry['core']['config'])
+        if bd == self.__registry['core']['config']:
+            return ""
+
+        return bd
 
     def getSections(self):
         """

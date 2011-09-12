@@ -1,5 +1,5 @@
 import os
-from acl import Acl, AclSet, AclRole, AclRoleEntry, AclResolver
+from acl import ACL, ACLSet, ACLRole, ACLRoleEntry, ACLResolver
 
 from gosa.common import Environment
 Environment.config = "test-acl.conf"
@@ -10,49 +10,45 @@ resolver = None
 if not os.path.exists("agent.acl"):
 
     # Instantiate the ACl resolver
-    resolver = AclResolver()
+    resolver = ACLResolver()
 
-    # Create a new AclRole
-    role = AclRole('role1')
-    acl = AclRoleEntry(scope=Acl.SUB)
-    acl.add_action(u'priority=1', 'rwx', {})
-    role.add(acl)
-    acl = AclRoleEntry(scope=Acl.SUB)
-    acl.add_action(u'priority=2', 'rwx', {})
-    role.add(acl)
-    acl = AclRoleEntry(scope=Acl.SUB)
-    acl.add_action(u'priority=3', 'rwx', {})
-    role.add(acl)
-    resolver.add_acl_role(role)
-
-    # Create a new AclRole again
-    acl = AclRoleEntry(scope=Acl.SUB)
+    # Create a new ACLRole
+    acl = ACLRoleEntry(scope=ACL.SUB)
     acl.add_action(u'gosa.objects.Person.userPassword', 'rwx', {})
     acl.add_action(u'gosa.objects.Person.username', 'rwx', {})
     acl.add_action(u'gosa.objects.Person.phone', 'rwx', {})
-    role123 = AclRole('role123')
+    role = ACLRole('role1')
+    role.add(acl)
+    resolver.add_acl_role(role)
+
+    # Create a new ACLRole again
+    acl = ACLRoleEntry(scope=ACL.SUB)
+    acl.add_action(u'gosa.objects.Person.userPassword', 'rwx', {})
+    acl.add_action(u'gosa.objects.Person.username', 'rwx', {})
+    acl.add_action(u'gosa.objects.Person.phone', 'rwx', {})
+    role123 = ACLRole('role123')
     role123.add(acl)
     resolver.add_acl_role(role123)
 
-    # Create a new AclRole
-    role2 = AclRole('role2')
-    acl = AclRoleEntry(role=role)
+    # Create a new ACLRole
+    role2 = ACLRole('role2')
+    acl = ACLRoleEntry(role=role)
     role2.add(acl)
     resolver.add_acl_role(role2)
 
     # Define some ACls
-    acl1 = Acl(scope=Acl.SUB)
+    acl1 = ACL(scope=ACL.SUB)
     acl1.add_members([u'cajus', u'hickert'])
     acl1.add_action(u'gosa.*.cancelEvent', 'rwx', {})
-    aclSet1 = AclSet(u"dc=gonicus,dc=de")
+    aclSet1 = ACLSet(u"dc=gonicus,dc=de")
     aclSet1.add(acl1)
 
     # ...
-    acl2 = Acl(role = role)
-    acl3 = Acl(scope=Acl.SUB)
+    acl2 = ACL(role = role)
+    acl3 = ACL(scope=ACL.SUB)
     acl3.add_members([u'cajus'])
     acl3.add_action(u'gosa.scheduler.cancelEvent', 'rwx', {})
-    aclSet2 = AclSet(u"ou=technik,dc=intranet,dc=gonicus,dc=de")
+    aclSet2 = ACLSet(u"ou=technik,dc=intranet,dc=gonicus,dc=de")
     aclSet2.add(acl2)
     aclSet2.add(acl3)
 
@@ -60,7 +56,7 @@ if not os.path.exists("agent.acl"):
     resolver.add_acl_set(aclSet2)
 
     # Use the created ACL role
-    acl = Acl(role=role2)
+    acl = ACL(role=role2)
     acl.add_members([u"cajus", u"Wursty"])
     resolver.add_acl_to_set(u"ou=technik,dc=intranet,dc=gonicus,dc=de", acl)
 
@@ -68,7 +64,7 @@ if not os.path.exists("agent.acl"):
 
 # Load definition from file
 if not resolver:
-    resolver = AclResolver()
+    resolver = ACLResolver()
 
 deps = ['ou=1,ou=technik,dc=intranet,dc=gonicus,dc=de',
         'ou=technik,dc=intranet,dc=gonicus,dc=de',
@@ -110,7 +106,7 @@ print resolver.get_permissions('cajus',
 #     resolver.remove_role(role_name)
 
 # print "#"* 50
-# print "Remove all acl entries for each AclSet"
+# print "Remove all acl entries for each ACLSet"
 # for aclset in resolver.list_acls():
 #     aclset.remove_acls_for_user('cajus')
 #     while len(aclset):

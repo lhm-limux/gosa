@@ -125,8 +125,8 @@ class ACLSet(list):
 
         self.append(item)
 
-        # Sort Acl items by id
-        self.sort(key=lambda item: (item.priority * -1))
+        # Sort ACL items by id
+        sorted(self, key=lambda item: item.priority)
 
     def __repr__(self):
         return(self.repr_self(self))
@@ -153,21 +153,6 @@ class ACLRole(list):
 
     def __init__(self, name):
         self.name = name
-
-    def add(self, item):
-        """
-        Adds a new acl object to this aclSet.
-        """
-        if type(item) != Acl:
-            raise TypeError('item is not of type %s' % Acl)
-
-        if item.priority == None:
-            item.priority = len(self)
-
-        self.append(item)
-
-        # Sort Acl items by id
-        self.sort(key=lambda item: (item.priority * -1))
 
     def get_name(self):
         """
@@ -249,9 +234,6 @@ class ACL(object):
         """
         self.uses_role = True
         self.role = role.name
-
-    def set_priority(self, priority):
-        self.priority = priority
 
     def add_member(self, member):
         """
@@ -401,7 +383,7 @@ class ACLResolver(object):
         self.base = lh.get_base()
         self.acl_file = os.path.join(self.env.config.getBaseDir(), "agent.acl")
 
-        self.env.log.debug("initializing ACL resolver")
+        self.env.log.info("initializing ACL resolver")
         self.load_from_file()
         ACLResolver.instance = self
 
@@ -478,7 +460,6 @@ class ACLResolver(object):
                         # Add the acl entry entry which refers to the role.
                         acl = ACLRoleEntry(role=roles[rn])
                         acl.use_role(roles[rn])
-                        acl.set_priority(acl_entry['priority'])
                         roles[name].add(acl)
                         self.add_acl_role(roles[name])
                     else:
@@ -510,12 +491,10 @@ class ACLResolver(object):
                             acl_rule_set = self.acl_roles[acl_entry['role']]
                             acl = ACL(role=acl_rule_set)
                             acl.add_members(acl_entry['members'])
-                            acl.set_priority(acl_entry['priority'])
                             acls.add(acl)
                         else:
                             acl = ACL(acl_scope_map[acl_entry['scope']])
                             acl.add_members(acl_entry['members'])
-                            acl.set_priority(acl_entry['priority'])
 
                             for action in acl_entry['actions']:
                                 acl.add_action(action['target'], action['acls'], action['options'])
@@ -548,8 +527,7 @@ class ACLResolver(object):
             acls = []
             for acl in acl_set:
                 if acl.uses_role:
-                    entry = {'priority': acl.priority,
-                            'role': acl.role,
+                    entry = {'role': acl.role,
                             'members': acl.members}
                 else:
                     entry = {'actions': acl.actions,
@@ -564,8 +542,7 @@ class ACLResolver(object):
             ret['roles'][role_name] = []
             for acl in self.acl_roles[role_name]:
                 if acl.uses_role:
-                    entry = {'role': acl.role,
-                             'priority': acl.priority}
+                    entry = {'role': acl.role}
                 else:
                     entry = {'actions': acl.actions,
                              'priority': acl.priority,
