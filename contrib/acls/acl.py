@@ -9,16 +9,16 @@ import ldap
 
 
 """
-This is a collection of classes that can manager Access control lists.
+This is a collection of classes that can manage Access control lists.
 
 
 AclSet
 ======
-The base class of all ACL assignment is the 'AclSet' class which
+The base class of all ACL assignments is the 'AclSet' class which
 combines a list of 'Acl' entries into a set of effective Acls.
 
-The AclSet has a location property which specifies the location this set of
-acls is valid for, e.g. dc=intranet,dc=gonicus,dc=de
+The AclSet has a location property which specifies the location, this set of
+acls, is valid for. E.g. dc=intranet,dc=gonicus,dc=de
 
 
 Acl
@@ -37,11 +37,11 @@ The Acl class contains information about the acl definition, like
 AclRole
 =======
 This class equals the 'AclSet' but in details it does not have a location, it
-has just a name. This name can be used later in 'Acl' classes to reference to
+has just a name. This name can be used later in 'Acl' classes to refer to
 this acl role.
 
-And it cannot contain 'Acl' objects you've to use 'AclRoleEntry' objects.
-AclRoleEntry objeects simply have no members.
+And instead of Acl-objects it uses AclRoleEntry-objects to assemble a set of acls.
+(AclRoleEntry objects have no members)
 
 
 AclRoleEntry
