@@ -47,9 +47,7 @@ if not os.path.exists("agent.acl"):
     aclSet1.add(acl1)
 
     # ...
-    acl2 = Acl(scope=Acl.RESET)
-    acl2.add_members([u'hickert'])
-    acl2.add_action(u'gosa.scheduler.cancelEvent', 'rwx', {'owner': 'hickert'})
+    acl2 = Acl(role = role)
     acl3 = Acl(scope=Acl.SUB)
     acl3.add_members([u'cajus'])
     acl3.add_action(u'gosa.scheduler.cancelEvent', 'rwx', {})
@@ -119,6 +117,14 @@ print resolver.get_permissions('cajus',
 #         aclset.remove(entry)
 #
 resolver.save_to_file()
+
+for aclset in resolver.list_acls():
+    print aclset
+    print 
+
+for name, aclset in resolver.list_roles().items():
+    print aclset
+    print 
 
 
 

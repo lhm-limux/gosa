@@ -126,6 +126,22 @@ class AclSet(list):
         # Sort Acl items by id
         sorted(self, key=lambda item: item.priority)
 
+    def __repr__(self):
+        return(self.repr_self(self))
+
+    def repr_self(self, entry, indent = 0):
+        rstr = ""
+        i = " " * indent
+        if type(entry) == AclSet:
+            rstr += "%s<AclSet: %s>" % (i, entry.location)
+            for sub_entry in entry:
+                rstr += self.repr_self(sub_entry, indent + 1)
+
+        if type(entry) == Acl:
+            rstr += entry.repr_self(indent + 1)
+
+        return rstr
+
 
 class AclRole(list):
     """
@@ -157,6 +173,22 @@ class AclRole(list):
 
         # Sort Acl items by id
         sorted(self, key=lambda item: item.priority)
+
+    def __repr__(self):
+        return(self.repr_self(self))
+
+    def repr_self(self, entry, indent = 0):
+        rstr = ""
+        i = " " * indent
+        if type(entry) == AclRole:
+            rstr += "%s<AclRole: %s>" % (i, entry.name)
+            for sub_entry in entry:
+                rstr += self.repr_self(sub_entry, indent + 1)
+
+        if type(entry) == AclRoleEntry:
+            rstr += entry.repr_self(indent + 1)
+
+        return rstr
 
 
 class Acl(object):
@@ -215,7 +247,7 @@ class Acl(object):
         """
         Adds a list of new members to this acl.
         """
-        if type(members) != list or len(members) == 0:
+        if type(members) != list:
             raise(Exception("Requires a list of members!"))
 
         for member in members:
@@ -241,6 +273,21 @@ class Acl(object):
         """
         return(self.member)
 
+    def repr_self(self, indent = 0):
+        """
+        Generates a human readable representation of the acl-object.
+        """
+        if self.uses_role:
+            r = AclResolver.instance
+            rstr = "\n%s<Acl> Role (%s) !!" % ((" " * indent), self.role)
+            rstr += "\n%s:" %  r.acl_roles[self.role].repr_self(r.acl_roles[self.role], indent + 1)
+
+        else:
+            rstr = "\n%s<Acl scope(%s)> %s: " % ((" " * indent), self.scope, str(self.members))
+            for entry in self.actions:
+                rstr += "\n%s%s:%s (%s)" % ((" " * (indent+1)), entry['target'], str(entry['acls']), str(entry['options']))
+        return rstr
+
     def match(self, user, action, acls, options={}, skip_user_check=False):
         """
         Check of the requested user, action and the action options match this
@@ -249,7 +296,7 @@ class Acl(object):
         if user in self.members or skip_user_check:
 
             if self.uses_role:
-                r = PluginRegistry.getInstance("AclResolver")
+                r = AclResolver.instance
                 self.env.log.debug("checking ACL role entries for role: %s" % self.role)
                 for acl in r.acl_roles[self.role]:
                     if acl.match(user, action, acls, options, skip_user_check=True):
@@ -319,7 +366,7 @@ class AclRoleEntry(Acl):
 
 class AclResolver(object):
     implements(IInterfaceHandler)
-
+    instance = None
     acl_sets = None
     acl_roles = None
 
@@ -335,6 +382,7 @@ class AclResolver(object):
 
         self.env.log.info("initializing ACL resolver")
         self.load_from_file()
+        AclResolver.instance = self
 
     def add_acl_set(self, acl):
         """
@@ -380,20 +428,50 @@ class AclResolver(object):
 
             # Add AclRoles
             roles = {}
+            unresolved = []
             for name in data['roles']:
-                roles[name] = AclRole(name)
+
+                # Create a new role object on demand.
+                if name not in roles:
+                    roles[name] = AclRole(name)
+
+                # Check if this role was referenced before but not initialized
+                if name in unresolved:
+                    unresolved.remove(name)
+
+                # Append the role acls to the AclRole object
                 acls = data['roles'][name]
                 for acl_entry in acls:
+
+                    # The acl entry refers to another role ebtry.
                     if 'role' in acl_entry:
+
+                        # If the role was'nt loaded yet, the create and attach requested role 
+                        #  to the list of roles, but mark it as unresolved
+                        rn = str(acl_entry['role'])
+                        if rn not in roles:
+                            unresolved.append(rn)
+                            roles[rn] = AclRole(rn)
+
+                        # Add the acl entry entry which refers to the role.
                         role = roles[str(acl_entry['role'])]
                         acl = AclRoleEntry(role=role)
+                        roles[name].add(acl)
                     else:
+
+                        # Add a normal (non-role) base acl entry
                         acl = AclRoleEntry(acl_scope_map[acl_entry['scope']])
                         for action in acl_entry['actions']:
                             acl.add_action(action['target'], action['acls'], action['options'])
+                        roles[name].add(acl)
 
-                    roles[name].add(acl)
-                self.add_acl_role(roles[name])
+            # Check if we've got unresolved roles!
+            if len(unresolved):
+                raise Exception("Loading ACls failed, we've got unresolved roles references: '%s'!" % (str(unresolved), ))
+
+            # Add the recently created roles.
+            for role_name in roles:
+                self.add_acl_role(roles[role_name])
 
             # Add AclSets
             for location in data['acl']:

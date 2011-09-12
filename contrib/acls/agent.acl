@@ -59,7 +59,9 @@
         ]
       }, 
       {
-        "role": "role1"
+        "priority": 1, 
+        "scope": "sub", 
+        "actions": []
       }
     ]
   }, 
@@ -89,20 +91,8 @@
       {
         "acls": [
           {
-            "priority": 0, 
-            "scope": "reset", 
-            "members": [
-              "hickert"
-            ], 
-            "actions": [
-              {
-                "acls": "rwx", 
-                "target": "gosa.scheduler.cancelEvent", 
-                "options": {
-                  "owner": "hickert"
-                }
-              }
-            ]
+            "role": "role1", 
+            "members": []
           }, 
           {
             "priority": 1, 
