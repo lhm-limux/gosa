@@ -12,6 +12,7 @@ Agent
    :maxdepth: 2
 
    command
+   acl
    scheduler
    amqp
    http

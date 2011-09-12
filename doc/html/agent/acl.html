@@ -1,0 +1,228 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ACL resolver &mdash; GOsa v3.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/cindex.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/requirements.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="GOsa v3.0 documentation" href="../index.html" />
+    <link rel="up" title="Agent" href="index.html" />
+    <link rel="next" title="Scheduler service" href="scheduler.html" />
+    <link rel="prev" title="Command registry" href="command.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="scheduler.html" title="Scheduler service"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="command.html" title="Command registry"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="../development.html" >Development documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Agent</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-gosa.agent.acl">
+<span id="acl-resolver"></span><h1>ACL resolver<a class="headerlink" href="#module-gosa.agent.acl" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="gosa.agent.acl.ACL">
+<em class="property">class </em><tt class="descclassname">gosa.agent.acl.</tt><tt class="descname">ACL</tt><big>(</big><em>scope=None</em>, <em>role=None</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACL" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ACL class contains list of action for a set of members.
+These ACL classes can then be bundled and attached to a ldap base using
+the ACLSet class.</p>
+<dl class="method">
+<dt id="gosa.agent.acl.ACL.add_action">
+<tt class="descname">add_action</tt><big>(</big><em>target</em>, <em>acls</em>, <em>options</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACL.add_action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a new action to this acl.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.acl.ACL.add_member">
+<tt class="descname">add_member</tt><big>(</big><em>member</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACL.add_member" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a new member to this acl.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.acl.ACL.add_members">
+<tt class="descname">add_members</tt><big>(</big><em>members</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACL.add_members" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a list of new members to this acl.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.acl.ACL.get_members">
+<tt class="descname">get_members</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACL.get_members" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of members this ACL is valid for.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.acl.ACL.get_type">
+<tt class="descname">get_type</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACL.get_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the type of an ACL.
+SUB, PSUB, RESET, ...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.acl.ACL.match">
+<tt class="descname">match</tt><big>(</big><em>user</em>, <em>action</em>, <em>acls</em>, <em>options={}</em>, <em>skip_user_check=False</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACL.match" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check of the requested user, action and the action options match this
+acl-object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.acl.ACL.repr_self">
+<tt class="descname">repr_self</tt><big>(</big><em>indent=0</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACL.repr_self" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a human readable representation of the acl-object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.acl.ACL.use_role">
+<tt class="descname">use_role</tt><big>(</big><em>role</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACL.use_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mark this ACL to use a role instead of direkt permission settings.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gosa.agent.acl.ACLRole">
+<em class="property">class </em><tt class="descclassname">gosa.agent.acl.</tt><tt class="descname">ACLRole</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLRole" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a container for ACL entries that should act like an acl role.</p>
+<dl class="method">
+<dt id="gosa.agent.acl.ACLRole.add">
+<tt class="descname">add</tt><big>(</big><em>item</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLRole.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a new acl object to this aclSet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.acl.ACLRole.get_name">
+<tt class="descname">get_name</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLRole.get_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the name of the role.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gosa.agent.acl.ACLSet">
+<em class="property">class </em><tt class="descclassname">gosa.agent.acl.</tt><tt class="descname">ACLSet</tt><big>(</big><em>location</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a container for ACL entries.</p>
+<dl class="method">
+<dt id="gosa.agent.acl.ACLSet.add">
+<tt class="descname">add</tt><big>(</big><em>item</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLSet.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a new acl object to this aclSet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.acl.ACLSet.get_location">
+<tt class="descname">get_location</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLSet.get_location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the location for this ACLSet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.acl.ACLSet.remove_acl">
+<tt class="descname">remove_acl</tt><big>(</big><em>acl</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLSet.remove_acl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes an acl entry fromt this ACLSet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.acl.ACLSet.remove_acls_for_user">
+<tt class="descname">remove_acls_for_user</tt><big>(</big><em>user</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLSet.remove_acls_for_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes all permissions for the given user form this aclset.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="command.html"
+                        title="previous chapter">Command registry</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="scheduler.html"
+                        title="next chapter">Scheduler service</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/agent/acl.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="scheduler.html" title="Scheduler service"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="command.html" title="Command registry"
+             >previous</a> |</li>
+        <li><a href="../index.html">GOsa v3.0 documentation</a> &raquo;</li>
+          <li><a href="../development.html" >Development documentation</a> &raquo;</li>
+          <li><a href="index.html" >Agent</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Cajus Pollmeier.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>
