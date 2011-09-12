@@ -6,6 +6,7 @@ import ldap
 from zope.interface import implements
 from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
+from gosa.agent.ldap_utils import LDAPHandler
 from gosa.common.components import Command, PluginRegistry
 
 
@@ -375,7 +376,8 @@ class AclResolver(object):
         self.acl_roles = {}
 
         # from config later on:
-        self.base = "dc=gonicus,dc=de"
+        lh = LDAPHandler.get_instance()
+        self.base = lh.get_base()
         self.acl_file = "agent.acl"
 
         self.env.log.info("initializing ACL resolver")

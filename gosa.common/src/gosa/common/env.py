@@ -18,6 +18,7 @@ from sqlalchemy import *
 from gosa.common.utils import dmi_system
 import gosa.common.log
 
+
 class Environment:
     """
     The global information container, used as a singleton.

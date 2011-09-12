@@ -34,6 +34,7 @@ if platform.system() != "Windows":
     import pwd
     import grp
 
+
 class ConfigNoFile(Exception):
     """
     Exception to inform about non existing or not accessible
