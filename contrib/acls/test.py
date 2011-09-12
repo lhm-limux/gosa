@@ -33,26 +33,26 @@ if not os.path.exists("agent.acl"):
     role2.add(acl)
     resolver.add_acl_role(role2)
 
-    ## Define some ACls 
-    #acl1 = Acl(scope=Acl.SUB)
-    #acl1.add_members([u'cajus', u'hickert'])
-    #acl1.add_action(u'gosa.*.cancelEvent', 'rwx', {})
-    #aclSet1 = AclSet(u"dc=gonicus,dc=de")
-    #aclSet1.add(acl1)
+    # Define some ACls 
+    acl1 = Acl(scope=Acl.SUB)
+    acl1.add_members([u'cajus', u'hickert'])
+    acl1.add_action(u'gosa.*.cancelEvent', 'rwx', {})
+    aclSet1 = AclSet(u"dc=gonicus,dc=de")
+    aclSet1.add(acl1)
 
-    ## ...
-    #acl2 = Acl(scope=Acl.RESET)
-    #acl2.add_members([u'hickert'])
-    #acl2.add_action(u'gosa.scheduler.cancelEvent', 'rwx', {'owner': 'hickert'})
-    #acl3 = Acl(scope=Acl.SUB)
-    #acl3.add_members([u'cajus'])
-    #acl3.add_action(u'gosa.scheduler.cancelEvent', 'rwx', {})
-    #aclSet2 = AclSet(u"ou=technik,dc=intranet,dc=gonicus,dc=de")
-    #aclSet2.add(acl2)
-    #aclSet2.add(acl3)
+    # ...
+    acl2 = Acl(scope=Acl.RESET)
+    acl2.add_members([u'hickert'])
+    acl2.add_action(u'gosa.scheduler.cancelEvent', 'rwx', {'owner': 'hickert'})
+    acl3 = Acl(scope=Acl.SUB)
+    acl3.add_members([u'cajus'])
+    acl3.add_action(u'gosa.scheduler.cancelEvent', 'rwx', {})
+    aclSet2 = AclSet(u"ou=technik,dc=intranet,dc=gonicus,dc=de")
+    aclSet2.add(acl2)
+    aclSet2.add(acl3)
 
-    #resolver.add_acl_set(aclSet1)
-    #resolver.add_acl_set(aclSet2)
+    resolver.add_acl_set(aclSet1)
+    resolver.add_acl_set(aclSet2)
 
     # Use the created ACL role
     acl = Acl(role=role2)
@@ -95,7 +95,8 @@ print resolver.get_permissions('cajus',
 
 print "#"* 50
 
-resolver.remove_role('role123')
+#resolver.remove_role('role123')
+resolver.remove_aclset_by_location("ou=technik,dc=intranet,dc=gonicus,dc=de")
 
 resolver.save_to_file()
 

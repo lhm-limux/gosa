@@ -508,7 +508,40 @@ class AclResolver(object):
 
         return(False)
 
+    def remove_aclset_by_location(self, location):
+        """
+        Removes a given acl rule.
+        """
+        if type(location) not in [str, unicode]:
+            raise Exception("AclSets can only be removed by location name, '%s' is an invalid parameter" % location)
+
+        # Remove all aclsets for the given location
+        found = 0
+        for aclset in self.acl_sets:
+            if aclset.location == location:
+                self.acl_sets.remove(aclset)
+                found +=1
+
+        # Send a message if there were no AclSets for the given location
+        if  not found:
+            raise Exception("No acl definitions for location '%s' were found, removal aborted!");
+
+        pass
+
     def remove_role(self, name):
+        """
+        Removes a role.
+        """
+
+        # Allow to remove roles by passing AclRole-objects.
+        if type(name) == AclRole:
+            name = name.name
+
+        # Check if we've got a valid name type.
+        if type(name) not in [str, unicode]:
+            raise Exception("Roles can only be removed by name, '%s' is an invalid parameter" % name)
+
+        # Check if such a role-name exists and then try to remove it.
         if name in self.acl_roles:
             if self.is_role_used(self.acl_roles[name]):
                 raise Exception("The role '%s' cannot be removed, it is still in use!" % name)

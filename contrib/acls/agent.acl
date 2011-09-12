@@ -1,5 +1,28 @@
 {
   "roles": {
+    "role123": [
+      {
+        "priority": 0, 
+        "scope": "sub", 
+        "actions": [
+          {
+            "acls": "rwx", 
+            "target": "gosa.objects.Person.userPassword", 
+            "options": {}
+          }, 
+          {
+            "acls": "rwx", 
+            "target": "gosa.objects.Person.username", 
+            "options": {}
+          }, 
+          {
+            "acls": "rwx", 
+            "target": "gosa.objects.Person.phone", 
+            "options": {}
+          }
+        ]
+      }
+    ], 
     "role1": [
       {
         "priority": 0, 
@@ -41,6 +64,27 @@
     ]
   }, 
   "acl": {
+    "dc=gonicus,dc=de": [
+      {
+        "acls": [
+          {
+            "priority": 0, 
+            "scope": "sub", 
+            "members": [
+              "cajus", 
+              "hickert"
+            ], 
+            "actions": [
+              {
+                "acls": "rwx", 
+                "target": "gosa.*.cancelEvent", 
+                "options": {}
+              }
+            ]
+          }
+        ]
+      }
+    ], 
     "ou=technik,dc=intranet,dc=gonicus,dc=de": [
       {
         "acls": [
