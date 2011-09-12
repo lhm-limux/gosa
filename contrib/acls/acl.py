@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
+import os
 import json
 import ldap
 
@@ -25,7 +26,7 @@ The base class of all ACL assignments is the 'AclSet' class which
 combines a list of 'Acl' entries into a set of effective Acls.
 
 The AclSet has a location property which specifies the location, this set of
-acls, is valid for. E.g. dc=intranet,dc=gonicus,dc=de
+acls, is valid for. E.g. dc=example,dc=net
 
 
 Acl
@@ -378,7 +379,7 @@ class AclResolver(object):
         # from config later on:
         lh = LDAPHandler.get_instance()
         self.base = lh.get_base()
-        self.acl_file = "agent.acl"
+        self.acl_file = os.path.join(self.env.config.getBaseDir(), "agent.acl")
 
         self.env.log.info("initializing ACL resolver")
         self.load_from_file()

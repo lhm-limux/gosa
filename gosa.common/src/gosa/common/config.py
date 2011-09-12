@@ -150,6 +150,13 @@ class Config(object):
         items = options.__dict__
         self.__registry['core'].update(dict([(k, items[k]) for k in items if items[k] != None]))
 
+    def getBaseDir(self):
+        bd = os.path.basename(self.__registry['core']['config'])
+        if bd == self.__registry['core']['config']:
+            return ""
+
+        return bd
+
     def getSections(self):
         """
         Return the list of available sections of the ini file. There should be at
