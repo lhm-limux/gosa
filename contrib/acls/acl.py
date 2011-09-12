@@ -131,11 +131,10 @@ class AclSet(list):
 
     def repr_self(self, entry, indent = 0):
         rstr = ""
-        i = " " * indent
         if type(entry) == AclSet:
-            rstr += "%s<AclSet: %s>" % (i, entry.location)
+            rstr += "%s<AclSet: %s>" % (" " * indent, entry.location)
             for sub_entry in entry:
-                rstr += self.repr_self(sub_entry, indent + 1)
+                rstr += self.repr_self(sub_entry, indent)
 
         if type(entry) == Acl:
             rstr += entry.repr_self(indent + 1)
@@ -179,11 +178,10 @@ class AclRole(list):
 
     def repr_self(self, entry, indent = 0):
         rstr = ""
-        i = " " * indent
         if type(entry) == AclRole:
-            rstr += "%s<AclRole: %s>" % (i, entry.name)
+            rstr += "%s<AclRole: %s>" % (" " * indent, entry.name)
             for sub_entry in entry:
-                rstr += self.repr_self(sub_entry, indent + 1)
+                rstr += self.repr_self(sub_entry, indent)
 
         if type(entry) == AclRoleEntry:
             rstr += entry.repr_self(indent + 1)
@@ -279,13 +277,13 @@ class Acl(object):
         """
         if self.uses_role:
             r = AclResolver.instance
-            rstr = "\n%s<Acl> Role (%s) !!" % ((" " * indent), self.role)
+            rstr = "\n%s<Acl> %s" % (" " * indent, str(self.members))
             rstr += "\n%s:" %  r.acl_roles[self.role].repr_self(r.acl_roles[self.role], indent + 1)
 
         else:
             rstr = "\n%s<Acl scope(%s)> %s: " % ((" " * indent), self.scope, str(self.members))
             for entry in self.actions:
-                rstr += "\n%s%s:%s (%s)" % ((" " * (indent+1)), entry['target'], str(entry['acls']), str(entry['options']))
+                rstr += "\n%s%s:%s %s" % ((" " * (indent+1)), entry['target'], str(entry['acls']), str(entry['options']))
         return rstr
 
     def match(self, user, action, acls, options={}, skip_user_check=False):
