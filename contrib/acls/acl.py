@@ -85,6 +85,24 @@ class AclSet(list):
         """
         return(self.location)
 
+    def remove_acls_for_user(self, user):
+        """
+        Removes all permissions for the given user form this aclset.
+        """
+        for acl in self:
+            if user in acl.members:
+                acl.members.remove(user)
+
+    def remove_acl(self, acl):
+        """
+        Removes an acl entry fromt this AclSet.
+        """
+        for cur_acl in self:
+            if cur_acl == acl:
+                self.remove(acl)
+                return True
+        return False
+
     def add(self, item):
         """
         Adds a new acl object to this aclSet.
@@ -554,7 +572,6 @@ class AclResolver(object):
             if aclset.location == location:
                 return True
         return False
-
 
     def remove_aclset_by_location(self, location):
         """

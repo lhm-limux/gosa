@@ -90,6 +90,9 @@ print resolver.get_permissions('cajus',
     'ou=1,ou=technik,dc=intranet,dc=gonicus,dc=de',
     'gosa.objects.Person.userPassword', 'rw')
 
+
+
+
 # print "#"* 50
 #
 # for location in resolver.list_acl_locations():
@@ -99,6 +102,14 @@ print resolver.get_permissions('cajus',
 # for role_name in resolver.list_role_names():
 #     print "Removing: %s" % role_name
 #     resolver.remove_role(role_name)
+
+print "#"* 50
+print "Remove all acl entries for each AclSet"
+for aclset in resolver.list_acls():
+    aclset.remove_acls_for_user('cajus')
+    while len(aclset):
+        entry = aclset[0]
+        aclset.remove(entry)
 
 resolver.save_to_file()
 
