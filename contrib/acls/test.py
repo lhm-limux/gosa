@@ -13,11 +13,15 @@ if not os.path.exists("agent.acl"):
     resolver = AclResolver()
 
     # Create a new AclRole
-    acl = AclRoleEntry(scope=Acl.SUB)
-    acl.add_action(u'gosa.objects.Person.userPassword', 'rwx', {})
-    acl.add_action(u'gosa.objects.Person.username', 'rwx', {})
-    acl.add_action(u'gosa.objects.Person.phone', 'rwx', {})
     role = AclRole('role1')
+    acl = AclRoleEntry(scope=Acl.SUB)
+    acl.add_action(u'priority=1', 'rwx', {})
+    role.add(acl)
+    acl = AclRoleEntry(scope=Acl.SUB)
+    acl.add_action(u'priority=2', 'rwx', {})
+    role.add(acl)
+    acl = AclRoleEntry(scope=Acl.SUB)
+    acl.add_action(u'priority=3', 'rwx', {})
     role.add(acl)
     resolver.add_acl_role(role)
 
