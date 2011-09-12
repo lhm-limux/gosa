@@ -311,7 +311,22 @@ class AclResolver(object):
         """
         Adds an AclSet object to the list of active-acl rules.
         """
-        self.acl_sets.append(acl)
+        if not self.aclset_exists_by_location(acl.location):
+            self.acl_sets.append(acl)
+        else:
+            raise Exception("An acl definition for location '%s' already exists!", acl.location)
+
+    def add_acl_to_set(self, location, acl):
+        """
+        Add an acl rule to an existing acl set.
+        """
+        if not self.aclset_exists_by_location(location):
+            raise Exception("No acl definition found for location '%s' cannot add acl!", location)
+        else:
+            aclset = self.get_aclset_by_location(location)
+            aclset.add(acl)
+
+        return(True)
 
     def add_acl_role(self, acl):
         """
@@ -507,6 +522,27 @@ class AclResolver(object):
                         return(True)
 
         return(False)
+
+    def get_aclset_by_location(self, location):
+        """
+        Returns an acl set by location.
+        """
+        if self.aclset_exists_by_location(location):
+            for aclset in self.acl_sets:
+                if aclset.location == location:
+                    return aclset
+        else:
+            raise Exception("No acl definition found for location '%s'!" % (location,))
+
+    def aclset_exists_by_location(self, location):
+        """
+        Checks if a AclSet for the given location exists or not.
+        """
+        for aclset in self.acl_sets:
+            if aclset.location == location:
+                return True
+        return False
+
 
     def remove_aclset_by_location(self, location):
         """

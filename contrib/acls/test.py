@@ -56,10 +56,8 @@ if not os.path.exists("agent.acl"):
 
     # Use the created ACL role
     acl = Acl(role=role2)
-    acl.add_members([u"cajus"])
-    aclSet = AclSet(u"ou=technik,dc=intranet,dc=gonicus,dc=de")
-    aclSet.add(acl)
-    resolver.add_acl_set(aclSet)
+    acl.add_members([u"cajus", u"Wursty"])
+    resolver.add_acl_to_set(u"ou=technik,dc=intranet,dc=gonicus,dc=de", acl)
 
     resolver.save_to_file()
 
@@ -96,7 +94,7 @@ print resolver.get_permissions('cajus',
 print "#"* 50
 
 #resolver.remove_role('role123')
-resolver.remove_aclset_by_location("ou=technik,dc=intranet,dc=gonicus,dc=de")
+#resolver.remove_aclset_by_location("ou=technik,dc=intranet,dc=gonicus,dc=de")
 
 resolver.save_to_file()
 
