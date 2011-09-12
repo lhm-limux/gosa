@@ -90,11 +90,15 @@ print resolver.get_permissions('cajus',
     'ou=1,ou=technik,dc=intranet,dc=gonicus,dc=de',
     'gosa.objects.Person.userPassword', 'rw')
 
-
-print "#"* 50
-
-#resolver.remove_role('role123')
-#resolver.remove_aclset_by_location("ou=technik,dc=intranet,dc=gonicus,dc=de")
+# print "#"* 50
+#
+# for location in resolver.list_acl_locations():
+#     print "Removing: %s" % location
+#     resolver.remove_aclset_by_location(location)
+#
+# for role_name in resolver.list_role_names():
+#     print "Removing: %s" % role_name
+#     resolver.remove_role(role_name)
 
 resolver.save_to_file()
 

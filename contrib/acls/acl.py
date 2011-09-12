@@ -498,6 +498,18 @@ class AclResolver(object):
         """
         return(self.acl_sets)
 
+    def list_acl_locations(self):
+        """
+        Returns all locations wie acls attached to
+        """
+        loc = []
+        for entry in self.acl_sets:
+            loc.append(entry.location)
+        return(loc)
+
+    def list_role_names(self):
+        return(self.acl_roles.keys())
+
     def list_roles(self):
         """
         Returns all AclRoles attached to the resolver
