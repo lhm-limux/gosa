@@ -453,11 +453,13 @@ class AclResolver(object):
                         if rn not in roles:
                             unresolved.append(rn)
                             roles[rn] = AclRole(rn)
+                            self.add_acl_role(roles[rn])
 
                         # Add the acl entry entry which refers to the role.
-                        role = roles[str(acl_entry['role'])]
-                        acl = AclRoleEntry(role=role)
+                        acl = AclRoleEntry(role=roles[rn])
+                        acl.use_role(roles[rn])
                         roles[name].add(acl)
+                        self.add_acl_role(roles[name])
                     else:
 
                         # Add a normal (non-role) base acl entry

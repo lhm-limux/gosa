@@ -32,9 +32,6 @@ if not os.path.exists("agent.acl"):
 
     # Create a new AclRole
     role2 = AclRole('role2')
-    acl = AclRoleEntry(scope=Acl.SUB)
-    acl.add_action(u'test.userPassword', 'rwx', {})
-    role2.add(acl)
     acl = AclRoleEntry(role=role)
     role2.add(acl)
     resolver.add_acl_role(role2)
