@@ -6,10 +6,16 @@ This is a collection of classes that can manage Access control lists.
 ACLSet
 ======
 The base class of all ACL assignments is the 'ACLSet' class which
-combines a list of 'ACL' entries into a set of effective ACLs.
+combines a list of ``ACL`` entries into a set of effective ACLs.
 
 The ACLSet has a location property which specifies the location, this set of
 acls, is valid for. E.g. dc=example,dc=net
+
+>>> # Create an ACLSet for location 'dc=gonicus,dc=de'
+>>> # (if you do not pass the location, the default of your ldap setup will be used)
+>>> aclset = ACLSet('dc=gonicus,dc=de')
+>>> resolver = ACLResolver()
+>>> resolver.add_acl_set(aclset)
 
 
 ACL
@@ -20,32 +26,149 @@ The ACL class contains information about the acl definition, like:
 Type     Description
 ======== ================
 Scope    The scope specifies where the ACL is valid for, e.g. ONE-level, all SUB-levels or RESET previous ACLs
-Memebers A list of users this acl is valid for.
+Members  A list of users this acl is valid for.
 Role     Instead of actions you can also refere to a ACLRole object.
-Actions  You can have multiple actions, where one action is described by a target, a set of acls and additional options that have to be checked while ACLs are resolved.
+Actions  You can have multiple actions, where one action is described by ``a target``, a ``set of acls`` and additional ``options`` that have to be checked while ACLs are resolved.
 ======== ================
+
+>>> # Create an ACLSet object
+>>> aclset = ACLSet()
+
+>>> # Create an ACL object and attach it to the ACLSet
+>>> acl = ACL()
+>>> acl.set_priority(0)
+>>> acl.set_members([u"user1", u"user2"])
+>>> acl.add_action('com.gosa.factory.Person.cn','rwx')
+>>> aclset.add(acl)
+
+>>> # Now add the set to the resolver
+>>> resolver = ACLResolver()
+>>> resolver.add_acl_set(aclset)
+
+>>> # You can now check for acls, both should return True now.
+>>> resolver.check('user1', 'com.gosa.factory.Person.cn', 'r')
+>>> resolver.check('user1', 'com.gosa.factory.Person.cn', 'rwx')
+
+ACL members can also contain regular expressions, like this:
+
+>>> acl.set_members([u"user1", u"^user[0-9]*$"])
+>>> ...
+>>> resolver.check('user45', 'com.gosa.factory.Person.cn', 'r')
+
+Also action can have wildcards, but only two right now:
+
+>>> acl.add_action('com.gosa.#.Person.cn','rwx')
+>>> acl.add_action('com.gosa.*.Person.cn','rwx')
+
+Where ``#`` allow to ignore one level on the target action and ``*`` allows to ignore one or more levels:
+
+``com.#.factory`` would match with ``com.test.factory`` or ``com.something.factory``
+
+``com.*.factory`` would match with ``com.test.factory``, ``com.something.factory`` or ``com.level1.level2.level3.factory``
+
 
 
 ACLRole
 =======
-This class equals the 'ACLSet' but in details it does not have a location, it
-has just a name. This name can be used later in 'ACL' classes to refer to
+
+This class equals the ``ACLSet`` class, but in details it does not have a location, instead
+it has name. This name can be used later in 'ACL' classes to refer to
 this acl role.
 
-And instead of ACL-objects it uses ACLRoleEntry-objects to assemble a set of acls.
-(ACLRoleEntry objects have no members)
+And instead of ``ACL-objects`` it uses ``ACLRoleEntry-objects`` to assemble a set of acls.
+
+
+>>> # Create an ACLRole object
+>>> aclrole = ACLRole('role1')
+>>> acl = ACLRoleEntry(scope=SUB)
+>>> acl.add_action(...)
+>>> aclrole.add(acl)
+
+>>> # Now add the role to the resolver
+>>> resolver = ACLResolver()
+>>> resolver.add_acl_set(aclrole)
+
+>>> # You can use this role like this in ACL entries of an ACLset:
+>>> aclset = ACLSet()
+>>> acl = ACL(role=aclrole)
+>>> aclset.add(acl)
+>>> resolver.add_acl_set(aclset)
+
+Or you can use this role within another role like this
+
+>>> # Create an ACLRole object
+>>> aclrole1 = ACLRole('role1')
+>>> acl = ACLRoleEntry(scope=SUB)
+>>> acl.add_action(...)
+>>> aclrole1.add(acl)
+
+>>> # Now add the role to the resolver
+>>> resolver = ACLResolver()
+>>> resolver.add_acl_set(aclrole1)
+
+>>> # Create antoher role which refers to role1
+>>> aclrole2 = ACLRole('role2')
+>>> acl = ACLRoleEntry(role=role1)
+>>> aclrole2.add(acl)
+>>> resolver = ACLResolver()
+>>> resolver.add_acl_set(aclrole2)
+
+>>> # Now use the role2 in an ACL defintion. (Role2 point to Role1 now.)
+>>> aclset = ACLSet()
+>>> acl = ACL(role=aclrole2)
+>>> aclset.add(acl)
+>>> resolver.add_acl_set(aclset)
 
 
 ACLRoleEntry
 ============
-ACLRoleEntries are used in 'ACLRole' objects to combine several allowed
+
+ACLRoleEntries are used in ``ACLRole`` objects to combine several allowed
 actions.
+
+>>> # Create an ACLRole object
+>>> aclrole = ACLRole('role1')
+
+>>> # Create an ACL object and attach it to the ACLSet
+>>> acl = ACLRoleEntry()
+>>> acl.set_priority(0)
+>>> acl.add_action('com.gosa.factory.Person.cn','rwx')
+>>> aclrole.add(acl)
+>>> acl = ACLRoleEntry()
+>>> acl.set_priority(20)
+>>> acl.add_action('com.gosa.factory.Person.cn','d')
+>>> acl.add_action('com.gosa.factory.Employee.cn','rwx')
+>>> aclrole.add(acl)
+
+>>> # Now add the role to the resolver
+>>> resolver = ACLResolver()
+>>> resolver.add_acl_set(aclrole)
 
 
 ACLResoler
 ==========
 
 The ACLResolver is responsible for loading, saving and resolving permission.
+
+>>> resolver = ACLResolver()
+>>> self.resolver.check('user1','com.gosa.factory','r')
+>>> self.resolver.check('user1','com.gosa.factory','rwx', 'dc=gonicus,dc=de')
+
+If no location is given (last parameter of check), the default location will be used. (The default location is the configured LDAP base).
+
+
+To list all defined roles and acls you can use:
+
+>>> resolver = ACLResolver()
+>>> resolver.list_roles()
+>>> resolver.list_acls()
+
+To print a human readable output of an ACLSet just use print.
+
+>>> acls = ACLSet('...')
+>>> acl = ACL(scope=ACL.ONE)
+>>> acls.add(acl)
+>>> print acls
 
 
 How an ACL assigment could look like
