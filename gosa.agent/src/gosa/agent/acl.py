@@ -311,7 +311,18 @@ class ACL(object):
         Check of the requested user, action and the action options match this
         acl-object.
         """
-        if user in self.members or skip_user_check:
+
+        # Check if the given user string matches one of the defined users
+        if skip_user_check:
+            user_match = True
+        else:
+            user_match = False
+            for suser in self.members:
+                if re.match(suser, user):
+                    user_match = True
+                    break
+
+        if user_match:
 
             if self.uses_role:
                 r = ACLResolver.instance

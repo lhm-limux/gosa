@@ -18,6 +18,31 @@ class TestACLResolver(unittest.TestCase):
         self.resolver = ACLResolver()
         self.ldap_base = self.resolver.base
 
+
+    def test_user_wildcards(self):
+
+        # Create acls with wildcard # in actions
+        base = self.ldap_base
+        aclset = ACLSet(base)
+        acl = ACL(scope=ACL.ONE)
+        acl.add_members([u'^gosa_.*_test$'])
+        acl.add_action('com.gosa.factory','rwx')
+        acl.set_priority(100)
+        aclset.add(acl)
+        self.resolver.add_acl_set(aclset)
+
+        # Check the permissions to be sure that they are set correctly
+        self.assertTrue(self.resolver.check('gosa_user_test','com.gosa.factory','r',location=base),
+                "User is not able to read!")
+
+        # Check the permissions to be sure that they are set correctly
+        self.assertTrue(self.resolver.check('gosa__test','com.gosa.factory','r',location=base),
+                "User is not able to read!")
+
+        # Check the permissions to be sure that they are set correctly
+        self.assertFalse(self.resolver.check('gosa_test_testWrong','com.gosa.factory','r',location=base),
+                "User is able to read!")
+
     def test_action_wildcards(self):
 
         # Create acls with wildcard # in actions
