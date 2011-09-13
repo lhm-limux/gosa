@@ -127,10 +127,6 @@ class ACLSet(list):
 
         # Sort Acl items by id
         self.sort(key=lambda item: (item.priority * 1))
-        print "---"
-
-        for entry in self:
-            print entry.priority
 
     def __repr__(self):
         return(self.repr_self(self))

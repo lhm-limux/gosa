@@ -18,6 +18,30 @@ class TestACLResolver(unittest.TestCase):
         self.resolver = ACLResolver()
         self.ldap_base = self.resolver.base
 
+    def test_roles(self):
+
+        # Create an ACLRole
+        role = ACLRole('role1')
+        acl = ACLRoleEntry(scope=ACL.ONE)
+        acl.add_action('com.gosa.factory','rwx')
+        role.add(acl)
+        self.resolver.add_acl_role(role)
+
+        # Use the recently created role. 
+        base = self.ldap_base
+        aclset = ACLSet(base)
+        acl = ACL(role=role)
+        acl.add_members([u'tester1'])
+        aclset.add(acl)
+        self.resolver.add_acl_set(aclset)
+
+        # Check the permissions to be sure that they are set correctly
+        self.assertTrue(self.resolver.get_permissions('tester1',base,'com.gosa.factory','r'),
+                "User is able to read!")
+
+    def test_role_recursion(self):
+        pass
+
     def test_acl_priorities(self):
 
         # Set up a RESET and a ONE or SUB scoped acl for the same location
@@ -47,7 +71,6 @@ class TestACLResolver(unittest.TestCase):
         # Check the permissions to be sure that they are set correctly
         self.assertFalse(self.resolver.get_permissions('tester1',base,'com.gosa.factory','r'),
                 "User is able to read!")
-
 
     def test_acls_scope_reset(self):
 
@@ -150,7 +173,6 @@ class TestACLResolver(unittest.TestCase):
         self.assertFalse(self.resolver.get_permissions('tester1',base,'com.gosa.factory','r'),
                 "The user is able to read, this is wrong!")
 
-
     def test_acls_scope_one(self):
 
         # Create acls with scope ONE
@@ -182,7 +204,6 @@ class TestACLResolver(unittest.TestCase):
         base = self.ldap_base
         self.assertFalse(self.resolver.get_permissions('tester1',base,'com.gosa.factory','r'),
                 "The user is able to read, this is wrong!")
-
 
 
 if __name__ == '__main__':
