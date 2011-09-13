@@ -19,6 +19,51 @@ class TestACLResolver(unittest.TestCase):
         self.ldap_base = self.resolver.base
 
 
+    def test_role_endless_recursion(self):
+        """
+        A test which ensures that roles do not refer to each other, creating an endless-recursion.
+        role1 -> role2 -> role1
+        """
+        # Create an ACLRole
+        role1 = ACLRole('role1')
+        role2 = ACLRole('role2')
+        role3 = ACLRole('role3')
+
+
+        self.resolver.clear()
+        self.resolver.add_acl_role(role1)
+        self.resolver.add_acl_role(role2)
+        self.resolver.add_acl_role(role3)
+
+        acl1 = ACLRoleEntry(role='role2')
+        acl2 = ACLRoleEntry(role='role3')
+        acl3 = ACLRoleEntry(role='role1')
+
+        role1.add(acl1)
+        role2.add(acl2)
+        role3.add(acl3)
+
+        print role1
+        print role2
+        print role3
+
+
+
+        # Use the recently created role.
+        base = self.ldap_base
+        aclset = ACLSet(base)
+        acl = ACL(role='role1')
+        acl.add_members([u'tester1'])
+        aclset.add(acl)
+        self.resolver.add_acl_set(aclset)
+
+        # Check the permissions to be sure that they are set correctly
+        self.assertTrue(self.resolver.check('tester1','com.gosa.factory','r',
+            location=base),
+                "User is able to read!")
+
+
+
     def test_user_wildcards(self):
         """
         checks if wildcards/regular expressions can be used for ACL member names
@@ -107,7 +152,7 @@ class TestACLResolver(unittest.TestCase):
         # Use the recently created role.
         base = self.ldap_base
         aclset = ACLSet(base)
-        acl = ACL(role=role)
+        acl = ACL(role='role1')
         acl.add_members([u'tester1'])
         aclset.add(acl)
         self.resolver.add_acl_set(aclset)
@@ -134,14 +179,14 @@ class TestACLResolver(unittest.TestCase):
 
         # Create another ACLRole wich refers to first one
         role2 = ACLRole('role2')
-        acl = ACLRoleEntry(role=role1)
+        acl = ACLRoleEntry(role='role1')
         role2.add(acl)
         self.resolver.add_acl_role(role2)
 
         # Use the recently created role.
         base = self.ldap_base
         aclset = ACLSet(base)
-        acl = ACL(role=role2)
+        acl = ACL(role='role2')
         acl.add_members([u'tester1'])
         aclset.add(acl)
         self.resolver.add_acl_set(aclset)

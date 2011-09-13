@@ -367,12 +367,20 @@ class ACL(object):
         if role:
             self.use_role(role)
 
-    def use_role(self, role):
+    def use_role(self, rolename):
         """
         Mark this ACL to use a role instead of direkt permission settings.
         """
-        self.uses_role = True
-        self.role = role.name
+        if type(rolename) not in [str, unicode]:
+            raise Exception("Expected type str or unicode for rolename!")
+
+        r = ACLResolver.instance
+        if rolename in r.acl_roles:
+            self.uses_role = True
+            self.role = rolename
+        else:
+            raise Exception("Unknown role '%s'!" % rolename)
+
 
     def set_priority(self, priority):
         self.priority = priority
