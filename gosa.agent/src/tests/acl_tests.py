@@ -18,12 +18,74 @@ class TestACLResolver(unittest.TestCase):
         self.resolver = ACLResolver()
         self.ldap_base = self.resolver.base
 
-    def test_simple_acls_scope_sub(self):
+    def test_acls_scope_reset(self):
+        self.resolver.clear()
+        base = "dc=a," + self.ldap_base
+
+        # Create acls with scope SUB
+        aclset = ACLSet(base)
+        acl = ACL(scope=ACL.SUB)
+        acl.add_members([u'tester1'])
+        acl.add_action('com.gosa.factory','rwx')
+        aclset.add(acl)
+        self.resolver.add_acl_set(aclset)
+
+        # Check for acls for the base, should return False
+        base = self.ldap_base
+        self.assertFalse(self.resolver.get_permissions('tester1',base,'com.gosa.factory','r'),
+                "User is able to read!")
+
+        # Check for acls for the tree we've created acls for.
+        base = "dc=a," + self.ldap_base
+        self.assertTrue(self.resolver.get_permissions('tester1',base,'com.gosa.factory','r'),
+                "User is not able to read!")
+
+        # Check for acls for one level above the acl definition
+        base = "dc=b,dc=a," + self.ldap_base
+        self.assertTrue(self.resolver.get_permissions('tester1',base,'com.gosa.factory','r'),
+                "User is not able to read!")
+
+        # Check for acls for two levels above the acl definition
+        base = "dc=c,dc=b,dc=a," + self.ldap_base
+        self.assertTrue(self.resolver.get_permissions('tester1',base,'com.gosa.factory','r'),
+                "User is not able to read!")
+
+        # ------
+        # Now add the ACL.RESET
+        # ------
+        base = "dc=b,dc=a," + self.ldap_base
+        aclset = ACLSet(base)
+        acl = ACL(scope=ACL.RESET)
+        acl.add_members([u'tester1'])
+        acl.add_action('com.gosa.factory','rwx')
+        aclset.add(acl)
+
+        self.resolver.add_acl_set(aclset)
+
+        # Check for acls for the tree we've created acls for.
+        # Should return True
+        base = "dc=a," + self.ldap_base
+        self.assertTrue(self.resolver.get_permissions('tester1',base,'com.gosa.factory','r'),
+                "User is not able to read!")
+
+        # Check for acls for one level above the acl definition
+        # Should return False
+        base = "dc=b,dc=a," + self.ldap_base
+        self.assertFalse(self.resolver.get_permissions('tester1',base,'com.gosa.factory','r'),
+                "User is able to read!")
+
+        # Check for acls for two levels above the acl definition
+        # Should return False
+        base = "dc=c,dc=b,dc=a," + self.ldap_base
+        self.assertFalse(self.resolver.get_permissions('tester1',base,'com.gosa.factory','r'),
+                "User is able to read!")
+
+    def test_acls_scope_sub(self):
 
         self.resolver.clear()
         base = "dc=a," + self.ldap_base
 
-        # Create simple acls with scope SUB
+        # Create acls with scope SUB
         aclset = ACLSet(base)
         acl = ACL(scope=ACL.SUB)
         acl.add_members([u'tester1'])
@@ -61,12 +123,12 @@ class TestACLResolver(unittest.TestCase):
                 "The user is able to read, this is wrong!")
 
 
-    def test_simple_acls_scope_one(self):
+    def test_acls_scope_one(self):
 
         self.resolver.clear()
         base = "dc=a," + self.ldap_base
 
-        # Create simple acls with scope ONE
+        # Create acls with scope ONE
         aclset = ACLSet(base)
         acl = ACL(scope=ACL.ONE)
         acl.add_members([u'tester1'])
