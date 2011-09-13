@@ -126,7 +126,11 @@ class ACLSet(list):
         self.append(item)
 
         # Sort Acl items by id
-        self.sort(key=lambda item: (item.priority * -1))
+        self.sort(key=lambda item: (item.priority * 1))
+        print "---"
+
+        for entry in self:
+            print entry.priority
 
     def __repr__(self):
         return(self.repr_self(self))
@@ -616,7 +620,7 @@ class ACLResolver(object):
                         elif acl.get_type() in (ACL.SUB, ) and not reset:
                             self.env.log.debug("found ACL for action '%s' (SUB)" % action)
                             return True
-                        elif acl.get_type() in (ACL.ONE, ) and orig_loc == acl_set.location:
+                        elif acl.get_type() in (ACL.ONE, ) and orig_loc == acl_set.location and not reset:
                             self.env.log.debug("found ACL for action '%s' (ONE)" % action)
                             return True
 

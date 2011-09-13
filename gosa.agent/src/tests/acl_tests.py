@@ -18,11 +18,41 @@ class TestACLResolver(unittest.TestCase):
         self.resolver = ACLResolver()
         self.ldap_base = self.resolver.base
 
-    def test_acls_scope_reset(self):
-        self.resolver.clear()
-        base = "dc=a," + self.ldap_base
+    def test_acl_priorities(self):
+
+        # Set up a RESET and a ONE or SUB scoped acl for the same location
+        # and check which wins.
 
         # Create acls with scope SUB
+        base = self.ldap_base
+        aclset = ACLSet(base)
+        acl = ACL(scope=ACL.ONE)
+        acl.add_members([u'tester1'])
+        acl.add_action('com.gosa.factory','rwx')
+        acl.set_priority(100)
+        aclset.add(acl)
+        self.resolver.add_acl_set(aclset)
+
+        # Check the permissions to be sure that they are set correctly
+        self.assertTrue(self.resolver.get_permissions('tester1',base,'com.gosa.factory','r'),
+                "User is not able to read!")
+
+        # Now add the RESET acl
+        acl = ACL(scope=ACL.RESET)
+        acl.add_members([u'tester1'])
+        acl.add_action('com.gosa.factory','rwx')
+        acl.set_priority(99)
+        aclset.add(acl)
+
+        # Check the permissions to be sure that they are set correctly
+        self.assertFalse(self.resolver.get_permissions('tester1',base,'com.gosa.factory','r'),
+                "User is able to read!")
+
+
+    def test_acls_scope_reset(self):
+
+        # Create acls with scope SUB
+        base = "dc=a," + self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(scope=ACL.SUB)
         acl.add_members([u'tester1'])
@@ -82,10 +112,8 @@ class TestACLResolver(unittest.TestCase):
 
     def test_acls_scope_sub(self):
 
-        self.resolver.clear()
-        base = "dc=a," + self.ldap_base
-
         # Create acls with scope SUB
+        base = "dc=a," + self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(scope=ACL.SUB)
         acl.add_members([u'tester1'])
@@ -125,10 +153,8 @@ class TestACLResolver(unittest.TestCase):
 
     def test_acls_scope_one(self):
 
-        self.resolver.clear()
-        base = "dc=a," + self.ldap_base
-
         # Create acls with scope ONE
+        base = "dc=a," + self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(scope=ACL.ONE)
         acl.add_members([u'tester1'])
