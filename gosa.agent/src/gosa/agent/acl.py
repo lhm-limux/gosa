@@ -61,7 +61,7 @@ actions.
 ==========
 ACLResoler
 
-The ACLResolver is responsible for loading, saving and resolving permissions.
+The ACLResolver is responsible for loading, saving and resolving permission.
 
 
 How an ACL assigment look could look like
@@ -97,7 +97,7 @@ class ACLSet(list):
 
     def remove_acls_for_user(self, user):
         """
-        Removes all permissions for the given user form this aclset.
+        Removes all permission for the given user form this aclset.
         """
         for acl in self:
             if user in acl.members:
@@ -332,7 +332,7 @@ class ACL(object):
                     if not re.match(test_act, action):
                         continue
 
-                    # Check if the required permissions are allowed.
+                    # Check if the required permission are allowed.
                     if (set(acls) & set(act['acls'])) != set(acls):
                         continue
 
@@ -580,10 +580,14 @@ class ACLResolver(object):
             import json
             json.dump(ret, f, indent=2)
 
-    def get_permissions(self, user, location, action, acls, options={}):
+    def check(self, user, action, acls, options={}, location=None):
         """
-        Check permissions for a given user and a location.
+        Check permission for a given user and a location.
         """
+
+        # Load default location if needed
+        if not location:
+            location = self.base
 
         # Collect all acls matching the where statement
         allowed = False
