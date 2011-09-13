@@ -1,21 +1,4 @@
 # -*- coding: utf-8 -*-
-import re
-import os
-import json
-import ldap
-
-from zope.interface import implements
-from gosa.common.handler import IInterfaceHandler
-from gosa.common import Environment
-from gosa.agent.ldap_utils import LDAPHandler
-from gosa.common.components import Command, PluginRegistry
-
-
-#TODO: Think about ldap relations, how to store and load objects.
-#TODO: What about object groups, to be able to inlcude clients?
-#TODO: Groups are not supported yet
-
-
 """
 This is a collection of classes that can manage Access control lists.
 
@@ -31,15 +14,16 @@ acls, is valid for. E.g. dc=example,dc=net
 
 ACL
 ===
-The ACL class contains information about the acl definition, like
-    |-> the scope
-    |-> the users this acl is valid for
-    |-> the actions described by
-      |-> target    e.g. com.gonicus.objectFactory.Person.*
-      |-> acls      e.g. rwxd
-      |-> options   e.g. uid=hickert
-    OR
-      |-> role      The role to use instead of a direct acls
+The ACL class contains information about the acl definition, like:
+
+======== ================
+Type     Description
+======== ================
+Scope    The scope specifies where the ACL is valid for, e.g. ONE-level, all SUB-levels or RESET previous ACLs
+Memebers A list of users this acl is valid for.
+Role     Instead of actions you can also refere to a ACLRole object.
+Actions  You can have multiple actions, where one action is described by a target, a set of acls and additional options that have to be checked while ACLs are resolved.
+======== ================
 
 
 ACLRole
@@ -58,26 +42,43 @@ ACLRoleEntries are used in 'ACLRole' objects to combine several allowed
 actions.
 
 
-==========
 ACLResoler
+==========
 
 The ACLResolver is responsible for loading, saving and resolving permission.
 
 
-How an ACL assigment look could look like
-=========================================
+How an ACL assigment could look like
+====================================
 
-ACLRole (test1)
- |-> ACLRoleEntry
- |-> ACLRoleEntry
-
-ACLSet
- |-> ACL
- |-> ACL
- |-> ACLRole (test1)
- |-> ACL
+>>> ACLRole (test1)
+>>>  |-> ACLRoleEntry
+>>>  |-> ACLRoleEntry
+>>>
+>>> ACLSet
+>>>  |-> ACL
+>>>  |-> ACL
+>>>  |-> ACLRole (test1)
+>>>  |-> ACL
 
 """
+
+import re
+import os
+import json
+import ldap
+
+from zope.interface import implements
+from gosa.common.handler import IInterfaceHandler
+from gosa.common import Environment
+from gosa.agent.ldap_utils import LDAPHandler
+from gosa.common.components import Command, PluginRegistry
+
+
+#TODO: Think about ldap relations, how to store and load objects.
+#TODO: What about object groups, to be able to inlcude clients?
+#TODO: Groups are not supported yet
+
 
 
 class ACLSet(list):
