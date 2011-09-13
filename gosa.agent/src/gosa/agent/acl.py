@@ -271,7 +271,7 @@ class ACL(object):
         for member in members:
             self.add_member(member)
 
-    def add_action(self, target, acls, options):
+    def add_action(self, target, acls, options={}):
         """
         Adds a new action to this acl.
         """
@@ -390,11 +390,14 @@ class ACLResolver(object):
 
     _priority_ = 0
 
+    def clear(self):
+        self.acl_sets = []
+        self.acl_roles = {}
+
     def __init__(self):
         self.env = Environment.getInstance()
 
-        self.acl_sets = []
-        self.acl_roles = {}
+        self.clear()
 
         # from config later on:
         lh = LDAPHandler.get_instance()
@@ -590,6 +593,7 @@ class ACLResolver(object):
             str(action)))
 
         # Remove the first part of the dn, until we reach the ldap base.
+        orig_loc = location
         while self.base in location:
 
             # Check acls for each acl set.
@@ -610,7 +614,10 @@ class ACLResolver(object):
                             self.env.log.debug("found permanent ACL for action '%s'" % action)
                             return True
                         elif acl.get_type() in (ACL.SUB, ) and not reset:
-                            self.env.log.debug("found ACL for action '%s'" % action)
+                            self.env.log.debug("found ACL for action '%s' (SUB)" % action)
+                            return True
+                        elif acl.get_type() in (ACL.ONE, ) and orig_loc == acl_set.location:
+                            self.env.log.debug("found ACL for action '%s' (ONE)" % action)
                             return True
 
             # Remove the first part of the dn
