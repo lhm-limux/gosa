@@ -20,6 +20,11 @@ class TestACLResolver(unittest.TestCase):
 
 
     def test_user_wildcards(self):
+        """
+        checks if wildcards/regular expressions can be used for ACL member names
+        e.g. to match all users starting with 'gosa_' and ending with '_test'
+            acl.add_members([u'^gosa_.*_test$'])
+        """
 
         # Create acls with wildcard # in actions
         base = self.ldap_base
@@ -44,6 +49,11 @@ class TestACLResolver(unittest.TestCase):
                 "User is able to read!")
 
     def test_action_wildcards(self):
+        """
+        This test checks if ACLs containing wildcard actions are processed correctly.
+        e.g.    To match all actions for 'com.' that ends with '.fatcory'
+                acl.add_action('com.#.factory','rwx')
+        """
 
         # Create acls with wildcard # in actions
         base = self.ldap_base
@@ -83,6 +93,9 @@ class TestACLResolver(unittest.TestCase):
                 "User is not able to read!")
 
     def test_roles(self):
+        """
+        This test checks if ACLRole objects are resolved correctly.
+        """
 
         # Create an ACLRole
         role = ACLRole('role1')
@@ -104,6 +117,13 @@ class TestACLResolver(unittest.TestCase):
                 "User is able to read!")
 
     def test_role_recursion(self):
+        """
+        This test checks if ACLRoles that contain ACLRoles are resolved correctly.
+        e.g.
+        ACLSet -> Acl -> points to role1
+                         role1 -> AclRoleEntry -> points to role 2
+                                                  role 2 contains the effective acls.
+        """
 
         # Create an ACLRole
         role1 = ACLRole('role1')
@@ -162,6 +182,9 @@ class TestACLResolver(unittest.TestCase):
                 "User is able to read!")
 
     def test_acls_scope_reset(self):
+        """
+        This test checks if an ACL entry containing the RESET scope revokes permission correctly.
+        """
 
         # Create acls with scope SUB
         base = "dc=a," + self.ldap_base
@@ -223,6 +246,10 @@ class TestACLResolver(unittest.TestCase):
                 "User is able to read!")
 
     def test_acls_scope_sub(self):
+        """
+        This test checks if permissions with scope SUB are spreed over the subtree correctly.
+        A ACL.SUB scope will effect the complete subtree of the location. (In case that no ACL.RESET is used.)
+        """
 
         # Create acls with scope SUB
         base = "dc=a," + self.ldap_base
@@ -263,6 +290,9 @@ class TestACLResolver(unittest.TestCase):
                 "The user is able to read, this is wrong!")
 
     def test_acls_scope_one(self):
+        """
+        This test check if the scope ACL.ONE is populated correclty.
+        """
 
         # Create acls with scope ONE
         base = "dc=a," + self.ldap_base
