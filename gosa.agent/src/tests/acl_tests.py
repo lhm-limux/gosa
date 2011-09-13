@@ -40,7 +40,31 @@ class TestACLResolver(unittest.TestCase):
                 "User is able to read!")
 
     def test_role_recursion(self):
-        pass
+
+        # Create an ACLRole
+        role1 = ACLRole('role1')
+        acl = ACLRoleEntry(scope=ACL.ONE)
+        acl.add_action('com.gosa.factory','rwx')
+        role1.add(acl)
+        self.resolver.add_acl_role(role1)
+
+        # Create another ACLRole wich refers to first one
+        role2 = ACLRole('role2')
+        acl = ACLRoleEntry(role=role1)
+        role2.add(acl)
+        self.resolver.add_acl_role(role2)
+
+        # Use the recently created role.
+        base = self.ldap_base
+        aclset = ACLSet(base)
+        acl = ACL(role=role2)
+        acl.add_members([u'tester1'])
+        aclset.add(acl)
+        self.resolver.add_acl_set(aclset)
+
+        # Check the permissions to be sure that they are set correctly
+        self.assertTrue(self.resolver.get_permissions('tester1',base,'com.gosa.factory','r'),
+                "User is able to read!")
 
     def test_acl_priorities(self):
 
