@@ -18,6 +18,45 @@ class TestACLResolver(unittest.TestCase):
         self.resolver = ACLResolver()
         self.ldap_base = self.resolver.base
 
+    def test_action_wildcards(self):
+
+        # Create acls with wildcard # in actions
+        base = self.ldap_base
+        aclset = ACLSet(base)
+        acl = ACL(scope=ACL.ONE)
+        acl.add_members([u'tester1'])
+        acl.add_action('com.#.factory','rwx')
+        acl.set_priority(100)
+        aclset.add(acl)
+        self.resolver.add_acl_set(aclset)
+
+        # Check the permissions to be sure that they are set correctly
+        self.assertTrue(self.resolver.check('tester1','com.gosa.factory','r',location=base),
+                "User is not able to read!")
+        self.assertTrue(self.resolver.check('tester1','com.gonicus.factory','r',location=base),
+                "User is not able to read!")
+        self.assertFalse(self.resolver.check('tester1','com.gonicus.gosa.factory','r',location=base),
+                "User is able to read!")
+
+        # Create acls with wildcard * in actions
+        self.resolver.clear()
+        base = self.ldap_base
+        aclset = ACLSet(base)
+        acl = ACL(scope=ACL.ONE)
+        acl.add_members([u'tester1'])
+        acl.add_action('com.*.factory','rwx')
+        acl.set_priority(100)
+        aclset.add(acl)
+        self.resolver.add_acl_set(aclset)
+
+        # Check the permissions to be sure that they are set correctly
+        self.assertTrue(self.resolver.check('tester1','com.gosa.factory','r',location=base),
+                "User is not able to read!")
+        self.assertTrue(self.resolver.check('tester1','com.gonicus.factory','r',location=base),
+                "User is not able to read!")
+        self.assertTrue(self.resolver.check('tester1','com.gonicus.gosa.factory','r',location=base),
+                "User is not able to read!")
+
     def test_roles(self):
 
         # Create an ACLRole
