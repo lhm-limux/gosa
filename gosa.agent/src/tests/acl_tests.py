@@ -12,7 +12,7 @@ class TestACLResolver(unittest.TestCase):
 
     def setUp(self):
         """ Stuff to be run before every test """
-        Environment.config = "test-acl.conf"
+        Environment.config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test-acl.conf")
         Environment.noargs = True
         self.env = Environment.getInstance()
         self.resolver = ACLResolver()
