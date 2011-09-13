@@ -16,6 +16,7 @@ class TestACLResolver(unittest.TestCase):
         Environment.noargs = True
         self.env = Environment.getInstance()
         self.resolver = ACLResolver()
+        self.resolver.clear()
         self.ldap_base = self.resolver.base
 
 
@@ -29,8 +30,6 @@ class TestACLResolver(unittest.TestCase):
         role2 = ACLRole('role2')
         role3 = ACLRole('role3')
 
-
-        self.resolver.clear()
         self.resolver.add_acl_role(role1)
         self.resolver.add_acl_role(role2)
         self.resolver.add_acl_role(role3)
@@ -44,23 +43,20 @@ class TestACLResolver(unittest.TestCase):
         role3.add(acl3)
 
         print role1
-        print role2
-        print role3
+        
 
+        ## Use the recently created role.
+        #base = self.ldap_base
+        #aclset = ACLSet(base)
+        #acl = ACL(role='role1')
+        #acl.add_members([u'tester1'])
+        #aclset.add(acl)
+        #self.resolver.add_acl_set(aclset)
 
-
-        # Use the recently created role.
-        base = self.ldap_base
-        aclset = ACLSet(base)
-        acl = ACL(role='role1')
-        acl.add_members([u'tester1'])
-        aclset.add(acl)
-        self.resolver.add_acl_set(aclset)
-
-        # Check the permissions to be sure that they are set correctly
-        self.assertTrue(self.resolver.check('tester1','com.gosa.factory','r',
-            location=base),
-                "User is able to read!")
+        ## Check the permissions to be sure that they are set correctly
+        #self.assertTrue(self.resolver.check('tester1','com.gosa.factory','r',
+        #    location=base),
+        #        "User is able to read!")
 
 
 
@@ -118,8 +114,10 @@ class TestACLResolver(unittest.TestCase):
         self.assertFalse(self.resolver.check('tester1','com.gonicus.gosa.factory','r',location=base),
                 "User is able to read!")
 
-        # Create acls with wildcard * in actions
+        # Clear created ACL defintions
         self.resolver.clear()
+
+        # Create acls with wildcard * in actions
         base = self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(scope=ACL.ONE)
