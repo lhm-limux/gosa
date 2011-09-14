@@ -253,17 +253,21 @@ class ACLSet(list):
         self.sort(key=lambda item: (item.priority * 1))
 
     def __repr__(self):
-        return(self.repr_self(self))
+        return(self.repr_self())
 
-    def repr_self(self, entry, indent = 0):
-        rstr = ""
-        if type(entry) == ACLSet:
-            rstr += "%s<ACLSet: %s>" % (" " * indent, entry.location)
-            for sub_entry in entry:
-                rstr += self.repr_self(sub_entry, indent)
+    def __repr__(self, indent = 0):
+        """
+        Create a human readable reprentation of this ACLSet object.
+        """
 
-        if type(entry) == ACL:
-            rstr += entry.repr_self(indent + 1)
+        # Only draw to a maximum level of 20 sub entries
+        if indent > 20:
+            return " " * indent + "...\n"
+
+        # Build a human readable representation of this aclset and its children.
+        rstr = "%s<ACLSet: %s>" % (" " * indent, self.location)
+        for entry in self:
+            rstr += entry.repr_self(indent +1)
 
         return rstr
 
@@ -315,16 +319,20 @@ class ACLRole(list):
         sorted(self, key=lambda item: item.priority)
 
     def __repr__(self):
-        return(self.repr_self(self))
+        return(self.repr_self())
 
-    def repr_self(self, entry, indent = 0):
-        rstr = ""
-        if type(entry) == ACLRole:
-            rstr += "%s<ACLRole: %s>" % (" " * indent, entry.name)
-            for sub_entry in entry:
-                rstr += self.repr_self(sub_entry, indent)
+    def repr_self(self, indent = 0):
+        """
+        Create a human readable reprentation of this ACLRole object.
+        """
 
-        if type(entry) == ACLRoleEntry:
+        # Only draw to a maximum level of 20 sub entries
+        if indent > 20:
+            return " " * indent + "...\n"
+
+        # Build a human readable representation of this role and its children.
+        rstr = "%s<ACLRole: %s>" % (" " * indent, self.name)
+        for entry in self:
             rstr += entry.repr_self(indent + 1)
 
         return rstr
@@ -423,15 +431,17 @@ class ACL(object):
         """
         return(self.member)
 
+    def __repr__(self):
+        return(self.repr_self())
+
     def repr_self(self, indent = 0):
         """
-        Generates a human readable representation of the acl-object.
+        Generates a human readable representation of the ACL-object.
         """
         if self.uses_role:
             r = ACLResolver.instance
             rstr = "\n%s<ACL> %s" % (" " * indent, str(self.members))
-            rstr += "\n%s:" %  r.acl_roles[self.role].repr_self(r.acl_roles[self.role], indent + 1)
-
+            rstr += "\n%s" % r.acl_roles[self.role].repr_self(indent + 1)
         else:
             rstr = "\n%s<ACL scope(%s)> %s: " % ((" " * indent), self.scope, str(self.members))
             for entry in self.actions:
