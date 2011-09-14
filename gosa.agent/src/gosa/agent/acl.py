@@ -438,11 +438,15 @@ class ACL(object):
                 rstr += "\n%s%s:%s %s" % ((" " * (indent+1)), entry['target'], str(entry['acls']), str(entry['options']))
         return rstr
 
-    def match(self, user, action, acls, options={}, skip_user_check=False):
+    def match(self, user, action, acls, options={}, skip_user_check=False, used_roles=None):
         """
         Check of the requested user, action and the action options match this
         acl-object.
         """
+
+        # Initialize list of already used roles, to avoid recursions
+        if not used_roles:
+            used_roles=[]
 
         # Check if the given user string matches one of the defined users
         if skip_user_check:
@@ -457,10 +461,17 @@ class ACL(object):
         if user_match:
 
             if self.uses_role:
+
+                # Check for recursions while resolving the acls.
+                if self.role in used_roles:
+                    raise Exception("Recursion in acl resolution, loop in role '%s'! Included roles %s." % (self.role, str(used_roles)))
+
+                # Resolve acls used in the role.
+                used_roles.append(self.role)
                 r = ACLResolver.instance
                 self.env.log.debug("checking ACL role entries for role: %s" % self.role)
                 for acl in r.acl_roles[self.role]:
-                    if acl.match(user, action, acls, options, skip_user_check=True):
+                    if acl.match(user, action, acls, options, True, used_roles):
                         self.env.log.debug("ACL role entry matched for role '%s'" % self.role)
                         return True
             else:

@@ -19,7 +19,6 @@ class TestACLResolver(unittest.TestCase):
         self.resolver.clear()
         self.ldap_base = self.resolver.base
 
-
     def test_role_endless_recursion(self):
         """
         A test which ensures that roles do not refer to each other, creating an endless-recursion.
@@ -42,21 +41,18 @@ class TestACLResolver(unittest.TestCase):
         role2.add(acl2)
         role3.add(acl3)
 
-        print role1
-        
+        # Use the recently created role.
+        base = self.ldap_base
+        aclset = ACLSet(base)
+        acl = ACL(role='role1')
+        acl.add_members([u'tester1'])
+        aclset.add(acl)
+        self.resolver.add_acl_set(aclset)
 
-        ## Use the recently created role.
-        #base = self.ldap_base
-        #aclset = ACLSet(base)
-        #acl = ACL(role='role1')
-        #acl.add_members([u'tester1'])
-        #aclset.add(acl)
-        #self.resolver.add_acl_set(aclset)
-
-        ## Check the permissions to be sure that they are set correctly
-        #self.assertTrue(self.resolver.check('tester1','com.gosa.factory','r',
-        #    location=base),
-        #        "User is able to read!")
+        # Check the permissions to be sure that they are set correctly
+        self.assertTrue(self.resolver.check('tester1','com.gosa.factory','r',
+            location=base),
+                "User is able to read!")
 
 
 
