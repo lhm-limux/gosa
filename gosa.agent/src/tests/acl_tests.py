@@ -50,11 +50,8 @@ class TestACLResolver(unittest.TestCase):
         self.resolver.add_acl_set(aclset)
 
         # Check the permissions to be sure that they are set correctly
-        self.assertTrue(self.resolver.check('tester1','com.gosa.factory','r',
-            location=base),
-                "User is able to read!")
-
-
+        self.assertRaises(Exception, self.resolver.check, 'tester1','com.gosa.factory','r',
+            location=base)
 
     def test_user_wildcards(self):
         """
