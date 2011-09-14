@@ -203,7 +203,6 @@ from gosa.common.components import Command, PluginRegistry
 #TODO: Groups are not supported yet
 
 
-
 class ACLSet(list):
     """
     This is a container for ACL entries.
@@ -255,7 +254,7 @@ class ACLSet(list):
     def __repr__(self):
         return(self.repr_self())
 
-    def __repr__(self, indent = 0):
+    def __repr__(self, indent=0):
         """
         Create a human readable reprentation of this ACLSet object.
         """
@@ -267,7 +266,7 @@ class ACLSet(list):
         # Build a human readable representation of this aclset and its children.
         rstr = "%s<ACLSet: %s>" % (" " * indent, self.location)
         for entry in self:
-            rstr += entry.repr_self(indent +1)
+            rstr += entry.repr_self(indent + 1)
 
         return rstr
 
@@ -389,7 +388,6 @@ class ACL(object):
         else:
             raise Exception("Unknown role '%s'!" % rolename)
 
-
     def set_priority(self, priority):
         self.priority = priority
 
@@ -445,7 +443,7 @@ class ACL(object):
         else:
             rstr = "\n%s<ACL scope(%s)> %s: " % ((" " * indent), self.scope, str(self.members))
             for entry in self.actions:
-                rstr += "\n%s%s:%s %s" % ((" " * (indent+1)), entry['target'], str(entry['acls']), str(entry['options']))
+                rstr += "\n%s%s:%s %s" % ((" " * (indent + 1)), entry['target'], str(entry['acls']), str(entry['options']))
         return rstr
 
     def match(self, user, action, acls, options={}, skip_user_check=False, used_roles=None):
