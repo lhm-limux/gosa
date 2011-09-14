@@ -320,7 +320,7 @@ class ACLRole(list):
     def __repr__(self):
         return(self.repr_self())
 
-    def repr_self(self, indent = 0):
+    def repr_self(self, indent=0):
         """
         Create a human readable reprentation of this ACLRole object.
         """
@@ -432,7 +432,7 @@ class ACL(object):
     def __repr__(self):
         return(self.repr_self())
 
-    def repr_self(self, indent = 0):
+    def repr_self(self, indent=0):
         """
         Generates a human readable representation of the ACL-object.
         """
@@ -454,7 +454,7 @@ class ACL(object):
 
         # Initialize list of already used roles, to avoid recursions
         if not used_roles:
-            used_roles=[]
+            used_roles = []
 
         # Check if the given user string matches one of the defined users
         if skip_user_check:
