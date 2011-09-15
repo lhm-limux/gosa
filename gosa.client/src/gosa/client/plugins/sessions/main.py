@@ -12,6 +12,7 @@ from gosa.common import Environment
 from gosa.common.event import EventMaker
 from zope.interface import implements
 from gosa.common.handler import IInterfaceHandler
+import time
 
 
 class SessionKeeper(Plugin):
@@ -57,7 +58,9 @@ class SessionKeeper(Plugin):
             context = gobject.MainLoop().get_context()
 
             while self.active:
-                context.iteration(True)
+                context.iteration(False)
+                if not context.pending():
+                    time.sleep(1)
 
         self.__thread = Thread(target=runner)
         self.__thread.start()
