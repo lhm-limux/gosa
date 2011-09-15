@@ -11,9 +11,9 @@ combines a list of ``ACL`` entries into a set of effective ACLs.
 The ACLSet has a location property which specifies the location, this set of
 acls, is valid for. E.g. dc=example,dc=net
 
->>> # Create an ACLSet for location 'dc=gonicus,dc=de'
+>>> # Create an ACLSet for location 'dc=example,dc=net'
 >>> # (if you do not pass the location, the default of your ldap setup will be used)
->>> aclset = ACLSet('dc=gonicus,dc=de')
+>>> aclset = ACLSet('dc=example,dc=net')
 >>> resolver = ACLResolver()
 >>> resolver.add_acl_set(aclset)
 
@@ -38,7 +38,7 @@ Actions  You can have multiple actions, where one action is described by ``a tar
 >>> acl = ACL()
 >>> acl.set_priority(0)
 >>> acl.set_members([u"user1", u"user2"])
->>> acl.add_action('com.gosa.factory.Person.cn','rwx')
+>>> acl.add_action('org.gosa.factory.Person.cn','rwx')
 >>> aclset.add(acl)
 
 >>> # Now add the set to the resolver
@@ -46,19 +46,19 @@ Actions  You can have multiple actions, where one action is described by ``a tar
 >>> resolver.add_acl_set(aclset)
 
 >>> # You can now check for acls, both should return True now.
->>> resolver.check('user1', 'com.gosa.factory.Person.cn', 'r')
->>> resolver.check('user1', 'com.gosa.factory.Person.cn', 'rwx')
+>>> resolver.check('user1', 'org.gosa.factory.Person.cn', 'r')
+>>> resolver.check('user1', 'org.gosa.factory.Person.cn', 'rwx')
 
 ACL members can also contain regular expressions, like this:
 
 >>> acl.set_members([u"user1", u"^user[0-9]*$"])
 >>> ...
->>> resolver.check('user45', 'com.gosa.factory.Person.cn', 'r')
+>>> resolver.check('user45', 'org.gosa.factory.Person.cn', 'r')
 
 Also action can have wildcards, but only two right now:
 
->>> acl.add_action('com.gosa.#.Person.cn','rwx')
->>> acl.add_action('com.gosa.*.Person.cn','rwx')
+>>> acl.add_action('org.gosa.#.Person.cn','rwx')
+>>> acl.add_action('org.gosa.*.Person.cn','rwx')
 
 Where ``#`` allow to ignore one level on the target action and ``*`` allows to ignore one or more levels:
 
@@ -132,12 +132,12 @@ actions.
 >>> # Create an ACL object and attach it to the ACLSet
 >>> acl = ACLRoleEntry()
 >>> acl.set_priority(0)
->>> acl.add_action('com.gosa.factory.Person.cn','rwx')
+>>> acl.add_action('org.gosa.factory.Person.cn','rwx')
 >>> aclrole.add(acl)
 >>> acl = ACLRoleEntry()
 >>> acl.set_priority(20)
->>> acl.add_action('com.gosa.factory.Person.cn','d')
->>> acl.add_action('com.gosa.factory.Employee.cn','rwx')
+>>> acl.add_action('org.gosa.factory.Person.cn','d')
+>>> acl.add_action('org.gosa.factory.Employee.cn','rwx')
 >>> aclrole.add(acl)
 
 >>> # Now add the role to the resolver
@@ -151,8 +151,8 @@ ACLResoler
 The ACLResolver is responsible for loading, saving and resolving permission.
 
 >>> resolver = ACLResolver()
->>> self.resolver.check('user1','com.gosa.factory','r')
->>> self.resolver.check('user1','com.gosa.factory','rwx', 'dc=gonicus,dc=de')
+>>> self.resolver.check('user1','org.gosa.factory','r')
+>>> self.resolver.check('user1','org.gosa.factory','rwx', 'dc=example,dc=net')
 
 If no location is given (last parameter of check), the default location will be used. (The default location is the configured LDAP base).
 
