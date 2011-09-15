@@ -13,8 +13,11 @@ You can import it to your own code like this::
 """
 import config
 import platform
-from sqlalchemy.orm import sessionmaker, scoped_session
-from sqlalchemy import *
+try:
+    from sqlalchemy.orm import sessionmaker, scoped_session
+    from sqlalchemy import *
+except ImportError:
+    pass
 from gosa.common.utils import dmi_system
 import gosa.common.log
 

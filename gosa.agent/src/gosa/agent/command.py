@@ -240,8 +240,6 @@ class CommandRegistry(object):
         ``Return:`` the real methods result
         """
 
-        #TODO: check for permission
-
         # Check for user authentication
         if not user:
             raise CommandNotAuthorized("call of function '%s' without a valid username is not permitted" % func)
@@ -249,6 +247,12 @@ class CommandRegistry(object):
         # Check if the command is available
         if not func in self.capabilities:
             raise CommandInvalid("no function '%s' defined" % func)
+
+        # Check for permission
+        #func_args = self.capabilities[func]['sig']
+        ##TODO: assemble options
+        #if not self.acl.check(user, "org.gosa.command.%s" % func, "x")
+        #    raise CommandNotAuthorized("call of function '%s' is not permitted" % func)
 
         # Depending on the call method, we may have no queue information
         if not queue:
@@ -577,11 +581,15 @@ class CommandRegistry(object):
                         'name': func,
                         'path': "%s.%s" % (clazz.__class__.__name__, mname),
                         'target': clazz._target_,
-                        'sig': 'unknown' if not getargspec(method).args else getargspec(method).args,
+                        'sig': [] if not getargspec(method).args else getargspec(method).args,
                         'type': getattr(method, "type", NORMAL),
                         'needsQueue': getattr(method, "needsQueue", False),
                         'doc': doc,
                         }
+
+                    if 'self' in info['sig']:
+                        info['sig'].remove('self')
+
                     self.commands[func] = info
 
 
