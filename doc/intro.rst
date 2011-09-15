@@ -47,7 +47,7 @@ the following packages in your system::
          libavahi-compat-libdnssd-dev python-openssl python-dbus libssl-dev python-gtk2 \
          python-lxml python-libxml2 python-dmidecode python-ldap python-nose \
          python-kid python-coverage python-dateutil python-smbpasswd python-netifaces \
-         sasl2-bin
+         sasl2-bin python-cjson
 
 .. note::
       On MS Windows systems, only the client is supposed to work. Please install the
