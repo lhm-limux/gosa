@@ -18,7 +18,6 @@ common_install_requires = [
     'babel',
     'pyOpenSSL',
     'lxml',
-    'cjson',
     'qpid-python',
     ],
 # SQLAlchemy may be optional, because dbus/clients/shell do not use that
