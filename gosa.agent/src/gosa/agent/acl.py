@@ -559,7 +559,9 @@ class ACLResolver(object):
         # Load override admins from configuration
         admins = self.env.config.get("core.admins", default=None)
         if admins:
-            self.admins = re.sub(r'\s', '', admins).split(",")
+            admins = re.sub(r'\s', '', admins)
+            self.env.log.info("adding users to the ACL override: %s" % admins)
+            self.admins = admins.split(",")
 
         # from config later on:
         lh = LDAPHandler.get_instance()
