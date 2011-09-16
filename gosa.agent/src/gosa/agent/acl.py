@@ -315,14 +315,16 @@ class ACL(object):
     ============== =============
     Key            Description
     ============== =============
-    scope          The scope this ``ACL`` is valid for.
-                    ``ACL.ONE`` for one level.
-                    ``ACL.SUB`` for all sub-level. This can be revoked using ``ACL.RESET``
-                    ``ACL.RESET`` revokes the actions described in this ``ACL`` object for all sub-levels of the tree.
-                    ``ACL.PSUB`` for all sub-level, cannot be revoked using ``ACL.RESET``
-    role           You can either define permission action manually or you can use an ``ACLRole`` instead.
-                   Just set the role parameter with the name of the role you want to use.
+    scope          The scope this acl is valid for.
+    role           You can either define permission action directly or you can use an ``ACLRole`` instead
     ============== =============
+
+    Valid scope values:
+
+        * ``ACL.ONE`` for one level.
+        * ``ACL.SUB`` for all sub-level. This can be revoked using ``ACL.RESET``
+        * ``ACL.RESET`` revokes the actions described in this ``ACL`` object for all sub-levels of the tree.
+        * ``ACL.PSUB`` for all sub-level, cannot be revoked using ``ACL.RESET``
 
     The ACL class contains list of action for a set of members.
     These ACL classes can then be bundled and attached to a ldap base using
@@ -423,11 +425,46 @@ class ACL(object):
             raise ACLException("Unknown role '%s'!" % rolename)
 
     def set_priority(self, priority):
+        """
+        Sets the priority of this ACL object. Lower values mean higher priority.
+
+        If no priority is given, a priority of 0 will be used when this ACL gets added to an ACLSet, the next will get 1, then 2 aso.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        priority       The new priority value for this ACl.
+        ============== =============
+
+        Example::
+
+            aclset = ACLSet()
+            acl = ACL(scope=ACL.ONE)
+            acl.add_members([u'tester1', u'tester2'])
+            acl.add_action('com.#.factory', 'rwx')
+
+            acl.set_priority(100)
+
+        """
         self.priority = priority
 
     def add_member(self, member):
         """
         Adds a new member to this acl.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        member         A username that have to be added.
+        ============== =============
+
+        Example::
+
+            aclset = ACLSet()
+            acl = ACL(scope=ACL.ONE)
+
+            acl.add_member(u'peter')
+
         """
         if type(member) != unicode:
             raise(ACLException("Member should be of type str!"))
@@ -436,6 +473,20 @@ class ACL(object):
     def add_members(self, members):
         """
         Adds a list of new members to this acl.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        members        A list of usernames that have to be added.
+        ============== =============
+
+        Example::
+
+            aclset = ACLSet()
+            acl = ACL(scope=ACL.ONE)
+
+            acl.add_members([u'peter', u'klaus'])
+
         """
         if type(members) != list:
             raise(ACLException("Requires a list of members!"))
@@ -445,7 +496,65 @@ class ACL(object):
 
     def add_action(self, target, acls, options={}):
         """
-        Adds a new action to this acl.
+
+        Adds a new action to this ACL object.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        target         The target action we want ot create ACLs for. E.g. 'com.gosa.factory.Person'
+        acls           The acls this action contains. E.g. 'rwcdm'.
+        options        Special additional options that have to be checked.
+        ============== =============
+
+        **Targets**
+
+        Targets can contain placeholder to be more flexible when it come to resolving acls.
+        You can use ``#`` and ``*`` where ``#`` matches for one level and ``*`` for multiple target levels.
+
+        For example ``gosa.#.factory`` would match for:
+         * gosa.test.factory
+         * gosa.hallo.factory
+        but not for:
+         * gosa.factory
+         * gosa.level1.level2.factory
+
+        Where ``gosa.*.factory`` matches for:
+         * gosa.factory
+         * gosa.level1.factory
+         * gosa.level1.level2.factory
+
+        **Acls**
+
+        The acls paramter describes the action we can perform on a given ``target``. 
+        Possible actions are:
+
+         * r - Lesen
+         * w - Schreiben
+         * m - Verschieben
+         * c - Erstellen
+         * d - Löschen
+         * s - Suchen - bzw. gefunden werden
+         * x - Ausführen
+         * e - Event empfangen
+
+        The actions has to passed as a string, which contains all actions at once::
+            >>> add_action(``target``, **"rwcdm"**, ``options``)
+
+        **Options**
+
+        Options are additional check parameters that have to be fullfulled to get this acl to match.
+
+        The ``options`` parameter is a dictionary which contains a key and a value for each additional option we want to check, e.g. ::
+            >>> add_action(``target``, ``acls``, **{'uid': 'hanspeter', 'ou': 'technik'}**)
+
+        If you've got a user object as dictionary, then you can check permissions like this::
+            >>> resolver.check('some.target', 'rwcdm', user1)
+
+        The resolver will then check if the keys ``uid`` and ``ou`` are present in the user1 dictionary and then check if the values match.
+        If not all options match, the ACL will not match.
+
+
         """
         if self.uses_role:
             raise ACLException("ACL classes that use a role cannot define"
@@ -877,6 +986,9 @@ class ACLResolver(object):
                         elif acl.get_scope() in (ACL.ONE, ) and orig_loc == acl_set.location and not reset:
                             self.env.log.debug("found ACL for action '%s' (ONE)" % action)
                             return True
+                    if acl.uses_role:
+                        raise Exception("Roles are not supported! Yet!")
+
 
             # Remove the first part of the dn
             location = ','.join(ldap.dn.explode_dn(location)[1::])
