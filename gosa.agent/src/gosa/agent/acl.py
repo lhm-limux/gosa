@@ -589,6 +589,98 @@ class ACL(object):
                 rstr += "\n%s%s:%s %s" % ((" " * (indent + 1)), entry['target'], str(entry['acls']), str(entry['options']))
         return rstr
 
+    def match2(self, user, target, acls, options=None, skip_user_check=False, used_roles=None):
+        """
+        Check if this ``ACL`` object matches the given criteria.
+
+        .. warning::
+            Do NOT use this to validate permissions. Use  ACLResolver->check() instead
+
+        =============== =============
+        Key             Description
+        =============== =============
+        user            The user we want to check for. E.g. 'hans'
+        target          The target action we want to check for. E.g. 'com.gosa.factory'
+        acls            A string containing the acls we want to check for.
+        options         Special additional options that have to be checked.
+        skip_user_check Skips checks for users, this is required to resolve roles.
+        used_roles      A list of roles used in this recursion, to be able to check for endless-recursions.
+        =============== =============
+        """
+
+        # Initialize list of already used roles, to avoid recursions
+        if not used_roles:
+            used_roles = []
+
+        # Check if the given user string matches one of the defined users
+        if skip_user_check:
+            user_match = True
+        else:
+            user_match = False
+            for suser in self.members:
+                if re.match(suser, user):
+                    user_match = True
+                    break
+
+        if user_match:
+
+            if self.uses_role:
+
+                # Check for recursions while resolving the acls.
+                if self.role in used_roles:
+                    raise ACLException("Recursion in acl resolution, loop in role '%s'! Included roles %s." % (self.role, str(used_roles)))
+
+                # Resolve acls used in the role.
+                used_roles.append(self.role)
+                r = ACLResolver.instance
+                self.env.log.debug("checking ACL role entries for role: %s" % self.role)
+                for acl in r.acl_roles[self.role]:
+                    (match, scope) = acl.match2(user, target, acls, options if options else {}, True, used_roles)
+                    if match:
+                        self.env.log.debug("ACL role entry matched for role '%s'" % self.role)
+                        return (match, scope)
+            else:
+                for act in self.actions:
+
+                    # check for # and * placeholders
+                    test_act = re.escape(act['target'])
+                    test_act = re.sub(r'(^|\\.)(\\\*)(\\.|$)', '\\1.*\\3', test_act)
+                    test_act = re.sub(r'(^|\\.)(\\#)(\\.|$)', '\\1[^\.]*\\3', test_act)
+
+                    # Check if the requested-action matches the acl-action.
+                    if not re.match(test_act, target):
+                        continue
+
+                    # Check if the required permission are allowed.
+                    if (set(acls) & set(act['acls'])) != set(acls):
+                        continue
+
+                    # Check if all required options are given
+                    for entry in act['options']:
+
+                        # Check for missing options
+                        if entry not in options:
+                            self.env.log.debug("ACL option '%s' is missing" % entry)
+                            continue
+
+                        # Simply match string options.
+                        if type(act['options'][entry]) == str and not re.match2(act['options'][entry], options[entry]):
+                            self.env.log.debug("ACL option '%s' with value '%s' does not match with '%s'" % (entry,
+                                        act['options'][entry], options[entry]))
+                            continue
+
+                        # Simply match string options.
+                        elif act['options'][entry] != options[entry]:
+                            self.env.log.debug("ACL option '%s' with value '%s' does not match with '%s'" % (entry,
+                                        act['options'][entry], options[entry]))
+                            continue
+
+                    # The acl rule matched!
+                    return (True, self.scope)
+
+        # Nothing matched!
+        return (False, None)
+
     def match(self, user, target, acls, options=None, skip_user_check=False, used_roles=None):
         """
         Check if this ``ACL`` object matches the given criteria.
@@ -829,7 +921,7 @@ class ACLResolver(object):
         role           The ACLRole object we want to add.
         ============== =============
         """
-        self.acl_roles[acl.name] = role
+        self.acl_roles[role.name] = role
 
     def load_from_file(self):
         """
@@ -1011,7 +1103,7 @@ class ACLResolver(object):
         allowed = False
         reset = False
 
-        self.env.log.debug("checkint ACL for %s/%s/%s" % (user, location,
+        self.env.log.debug("checking ACL for %s/%s/%s" % (user, location,
             str(target)))
 
         # Remove the first part of the dn, until we reach the ldap base.
@@ -1027,23 +1119,33 @@ class ACLResolver(object):
 
                 # Check ACls
                 for acl in acl_set:
-                    if acl.match(user, target, acls, options):
+
+                    (match, scope) = acl.match2(user, target, acls, options)
+                    if match:
+
                         self.env.log.debug("found matching ACL in '%s'" % location)
-                        if acl.get_scope() == ACL.RESET:
+                        if scope == ACL.RESET:
                             self.env.log.debug("found ACL reset for target '%s'" % target)
                             reset = True
-                        elif acl.get_scope() == ACL.PSUB:
-                            self.env.log.debug("found permanent ACL for target '%s'" % target)
-                            return True
-                        elif acl.get_scope() in (ACL.SUB, ) and not reset:
-                            self.env.log.debug("found ACL for target '%s' (SUB)" % target)
-                            return True
-                        elif acl.get_scope() in (ACL.ONE, ) and orig_loc == acl_set.location and not reset:
-                            self.env.log.debug("found ACL for target '%s' (ONE)" % target)
-                            return True
-                    if acl.uses_role:
-                        raise Exception("Roles are not supported! Yet!")
+                        else:
 
+                            if scope == ACL.PSUB:
+                                self.env.log.debug("found permanent ACL for target '%s'" % target)
+                                return True
+
+                            elif (scope == ACL.SUB):
+                                if not reset:
+                                    self.env.log.debug("found ACL for target '%s' (SUB)" % target)
+                                    return True
+                                else:
+                                    self.env.log.debug("ACL DO NOT match due to reset. (SUB)")
+
+                            elif (scope == ACL.ONE and orig_loc == acl_set.location):
+                                if not reset:
+                                    self.env.log.debug("found ACL for target '%s' (ONE)" % target)
+                                    return True
+                                else:
+                                    self.env.log.debug("ACL DO NOT match due to reset. (ONE)")
 
             # Remove the first part of the dn
             location = ','.join(ldap.dn.explode_dn(location)[1::])
