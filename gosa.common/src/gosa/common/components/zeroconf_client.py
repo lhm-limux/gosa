@@ -54,10 +54,11 @@ class ZeroconfClient(object):
     """
     __resolved = []
 
-    def __init__(self, regtype, timeout=2.0, callback=None):
+    def __init__(self, regtype, timeout=2.0, callback=None, domain='local'):
         self.__timeout = timeout
         self.__callback = callback
         self.__regtype = regtype
+        self.domain = domain
 
     def start(self):
         """
@@ -72,7 +73,7 @@ class ZeroconfClient(object):
                                 'org.freedesktop.Avahi.Server')
             sbrowser = dbus.Interface(bus.get_object(avahi.DBUS_NAME,
                            self.__server.ServiceBrowserNew(avahi.IF_UNSPEC,
-                           avahi.PROTO_UNSPEC, self.__regtype, 'local',
+                           avahi.PROTO_UNSPEC, self.__regtype, self.domain,
                            dbus.UInt32(0))),
                            avahi.DBUS_INTERFACE_SERVICE_BROWSER)
             sbrowser.connect_to_signal("ItemNew", self.__browseCallbackAvahi)
