@@ -205,11 +205,33 @@ from gosa.common.components import Command, PluginRegistry
 
 class ACLSet(list):
     """
-    This is a container for ACL entries.
+    The ``ACLSet`` class is a container for ``ACL``-objects.
+
+    An ``ACLSet`` is created for a location, e.g. 'dc=example,dc=com', this location specifies where
+    the ``ACLs`` included in this set are active.
+    If no location is given, the ldap base is used as default.
+
+    ============== =============
+    Key            Description
+    ============== =============
+    location       The location this ACLSet is created for.
+    ============== =============
+
+    Example::
+
+        aclset = ACLSet('dc=gonicus,dc=de')
+        aclset.add(ACL(...))
+        ...
+
     """
     location = None
 
-    def __init__(self, location):
+    def __init__(self, location=None):
+
+        # If no location is given use the default one.
+        if not location:
+           location = LDAPHandler.get_instance().get_base()
+
         self.location = location
 
     def get_location(self):
@@ -220,7 +242,27 @@ class ACLSet(list):
 
     def remove_acls_for_user(self, user):
         """
-        Removes all permission for the given user form this aclset.
+        Removes all permission for a given user from this aclset.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        user           The username to remove acls for.
+        ============== =============
+
+        Example::
+
+            aclset = ACLSet()
+            acl = ACL(scope=ACL.ONE)
+            acl.add_members([u'tester1', u'tester2'])
+            acl.add_action('com.#.factory', 'rwx')
+            acl.set_priority(100)
+            aclset.add(acl)
+
+            aclset.remove_acls_for_user('tester1')
+
+            ...
+
         """
         for acl in self:
             if user in acl.members:
@@ -229,6 +271,24 @@ class ACLSet(list):
     def remove_acl(self, acl):
         """
         Removes an acl entry fromt this ACLSet.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        acl            The ACL object to remove.
+        ============== =============
+
+        Example::
+
+            aclset = ACLSet()
+            acl = ACL(scope=ACL.ONE)
+            acl.add_members([u'tester1', u'tester2'])
+            acl.add_action('com.#.factory', 'rwx')
+            acl.set_priority(100)
+            aclset.add(acl)
+
+            aclset.remove_acl(acl)
+
         """
         for cur_acl in self:
             if cur_acl == acl:
@@ -238,7 +298,24 @@ class ACLSet(list):
 
     def add(self, item):
         """
-        Adds a new acl object to this aclSet.
+        Adds a new ``ACL`` object to this ``ACLSet``.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        acl            The ACL object to add.
+        ============== =============
+
+        Example::
+
+            aclset = ACLSet()
+            acl = ACL(scope=ACL.ONE)
+            acl.add_members([u'tester1', u'tester2'])
+            acl.add_action('com.#.factory', 'rwx')
+            acl.set_priority(100)
+
+            aclset.add(acl)
+
         """
         if type(item) != ACL:
             raise TypeError('item is not of type %s' % ACL)
@@ -273,7 +350,33 @@ class ACLSet(list):
 
 class ACLRole(list):
     """
-    This is a container for ACL entries that should act like an acl role.
+    This is a container for ``ACLRoleEntries`` entries that should act like a role.
+
+    An ``ACLRole`` has a name which can be used in ``ACL`` objects to use the role.
+
+    ============== =============
+    Key            Description
+    ============== =============
+    name           The name of the role we want to create.
+    ============== =============
+
+    Example::
+
+        # Create an ACLRole
+        role = ACLRole('role1')
+        acl = ACLRoleEntry(scope=ACL.ONE)
+        acl.add_action('com.gosa.factory', 'rwx')
+        role.add(acl)
+        self.resolver.add_acl_role(role)
+
+        # Use the recently created role.
+        base = self.ldap_base
+        aclset = ACLSet(base)
+        acl = ACL(role='role1')
+        acl.add_members([u'tester1'])
+        aclset.add(acl)
+        self.resolver.add_acl_set(aclset)
+
     """
     name = None
     priority = None
@@ -283,11 +386,28 @@ class ACLRole(list):
 
     def add(self, item):
         """
-        Adds a new acl object to this aclSet.
-        """
-        if type(item) != Acl:
-            raise TypeError('item is not of type %s' % Acl)
+        Add a new ``ACLRoleEntry`` object to this ``ACLRole``.
 
+        ============== =============
+        Key            Description
+        ============== =============
+        item           The ``ACLRoleEntry`` item to add to this role.
+        ============== =============
+
+        Example::
+
+            # Create an ACLRole
+            role = ACLRole('role1')
+            acl = ACLRoleEntry(scope=ACL.ONE)
+            acl.add_action('com.gosa.factory', 'rwx')
+
+            role.add(acl)
+
+        """
+        if type(item) != ACLRoleEntry:
+            raise TypeError('item is not of type %s' % ACLRoleEntry)
+
+        # Create an item priority if it does not exists.
         if item.priority == None:
             item.priority = len(self)
 
@@ -301,21 +421,6 @@ class ACLRole(list):
         Returns the name of the role.
         """
         return self.name
-
-    def add(self, item):
-        """
-        Adds a new acl object to this aclSet.
-        """
-        if type(item) != ACLRoleEntry:
-            raise TypeError('item is not of type %s' % ACLRoleEntry)
-
-        if item.priority == None:
-            item.priority = len(self)
-
-        self.append(item)
-
-        # Sort ACL items by id
-        sorted(self, key=lambda item: item.priority)
 
     def __repr__(self):
         return(self.repr_self())
@@ -339,10 +444,50 @@ class ACLRole(list):
 
 class ACL(object):
     """
-    The ACL class contains list of action for a set of members.
-    These ACL classes can then be bundled and attached to a ldap base using
-    the ACLSet class.
-    """
+    The ``ACL`` object describes a set of action that can be accessed in a given scope.
+    ``ACL`` classes can then be bundled in ``ACLSet`` objects.
+
+    ============== =============
+    Key            Description
+    ============== =============
+    scope          The scope this ``ACL`` is valid for.
+                    ``ACL.ONE`` for one level.
+                    ``ACL.SUB`` for all sub-level. This can be revoked using ``ACL.RESET``
+                    ``ACL.RESET`` revokes the actions described in this ``ACL`` object for all sub-levels of the tree.
+                    ``ACL.PSUB`` for all sub-level, cannot be revoked using ``ACL.RESET``
+    role           You can either define permission action manually or you can use an ``ACLRole`` instead.
+                   Just set the role parameter with the name of the role you want to use.
+    ============== =============
+
+    Example::
+
+        # Create an ACL object which uses an ACLRole as permission defintion.
+        aclset = ACLSet()
+        acl = ACL(role='Rolle1')
+        acl.add_members([u'tester1'])
+        aclset.add(acl)
+        self.resolver.add_acl_set(aclset)
+
+        # -----
+
+        # Create a SUB-level ACL
+        aclset = ACLSet("dc=b,dc=a")
+        acl = ACL(scope=ACL.SUB)
+        acl.add_members([u'tester1'])
+        acl.add_action('com.gosa.factory', 'rwx')
+        acl.add_action('com.gosa.person', 'rwx')
+        aclset.add(acl)
+        self.resolver.add_acl_set(aclset)
+
+        # Revoke all permissions for 'com.gosa.*' for the subtree 'dc=c,dc=b,dc=a'
+        aclset = ACLSet("dc=c,dc=b,dc=a")
+        acl = ACL(scope=ACL.RESET)
+        acl.add_members([u'tester1'])
+        acl.add_action('com.gosa.*', 'rwx')
+        aclset.add(acl)
+        self.resolver.add_acl_set(aclset)
+
+        """
     priority = None
 
     ONE = 1
@@ -353,30 +498,44 @@ class ACL(object):
     members = None
     actions = None
     scope = None
-
     uses_role = False
     role = None
 
     def __init__(self, scope=None, role=None):
         self.env = Environment.getInstance()
 
-        if scope == None:
-            scope = ACL.SUB
+        # Do not allow to use scope and role together
+        if scope and role:
+            raise Exception("You can either use 'role' or 'scope', but not both!")
+        elif not scope and not role:
+            raise Exception("You must either use 'role' or 'scope'!")
 
-        if scope not in (ACL.ONE, ACL.SUB, ACL.PSUB, ACL.RESET):
-            raise(Exception("Invalid ACL type given"))
-
-        self.scope = scope
         self.actions = []
         self.locations = []
         self.members = []
 
+        # Is this a role base or manually configured ACL object.
         if role:
-            self.use_role(role)
+            self.__use_role(role)
+        else:
+            if scope == None:
+                scope = ACL.SUB
 
-    def use_role(self, rolename):
+            if scope not in (ACL.ONE, ACL.SUB, ACL.PSUB, ACL.RESET):
+                raise(Exception("Invalid ACL type given"))
+
+            self.scope = scope
+
+    def __use_role(self, rolename):
         """
         Mark this ACL to use a role instead of direkt permission settings.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        rolename       The name of the role to use.
+        ============== =============
+
         """
         if type(rolename) not in [str, unicode]:
             raise Exception("Expected type str or unicode for rolename!")
@@ -561,7 +720,7 @@ class ACLResolver(object):
         self.env = Environment.getInstance()
 
         # Load list of admin users.
-        self.admin_users = ['cajus', 'tester']
+        self.admin_users = []
 
         # from config later on:
         lh = LDAPHandler.get_instance()
