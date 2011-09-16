@@ -166,10 +166,7 @@ class ZeroconfClient(object):
         hosttarget = args[7]
         port = args[8]
 
-        # get txt record from dbus.Array
-        txtRecord = ""
-        for i in args[9]:
-            txtRecord += chr(i[0])
+        txtRecord = ''.join(avahi.txt_array_to_string_array(args[9]))
 
         self.__callback(sdRef, flags, interfaceIndex, errorCode, fullname,
                         hosttarget, port, txtRecord)

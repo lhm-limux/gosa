@@ -38,11 +38,13 @@ import time
 import traceback
 import code
 import getopt
+import socket
 import getpass
 import readline
 import gettext
 import textwrap
 import locale
+import thread
 from types import ListType
 from urllib2 import HTTPError
 from pkg_resources import resource_filename
@@ -55,6 +57,11 @@ from gosa.common.utils import parseURL
 # Set locale domain
 t = gettext.translation('messages', resource_filename("gosa.shell", "locale"), fallback=True)
 _ = t.ugettext
+
+
+# Global lock
+a_lock = thread.allocate_lock()
+
 
 def softspace(fn, newvalue):
     """ Method copied from imported code """
@@ -126,11 +133,11 @@ class GOsaService():
     """ The GOsaService class encapsulates all GOSA functionality that is
         accessible via the interactive console. """
     proxy = None
-    __zclient = None
     __url = None
 
     def __init__(self):
         self.name = 'GOsaService'
+        self.domain = socket.getfqdn().split('.', 1)[1]
 
     def connect(self, service_uri='', username='', password=''):
         """ Creates a service proxy object from the arguments. """
@@ -142,16 +149,21 @@ class GOsaService():
 
         if len(service_uri) <= 0:
             print(_("Searching service provider..."))
-            self.__zclient = ZeroconfClient('_gosa._tcp', callback=self.updateURL)
-            self.__zclient.start()
+            self.__mdns = ZeroconfClient('_gosa._tcp', callback=self.updateURL)
+            self.__sddns = ZeroconfClient('_gosa._tcp',
+                    callback=self.updateURL, domain=self.domain)
+            self.__mdns.start()
+            self.__sddns.start()
             try:
                 while not self.__url:
                     time.sleep(0.5)
             except KeyboardInterrupt:
                 # Shutdown client
-                self.__zclient.stop()
+                self.__mdns.stop()
+                self.__sddns.stop()
                 sys.exit(1)
-            self.__zclient.stop()
+            self.__mdns.stop()
+            self.__sddns.stop()
             service_uri = self.__url
 
         # Test if one argument is still needed.
@@ -242,12 +254,14 @@ class GOsaService():
 
     def updateURL(self, sdRef, flags, interfaceIndex, errorCode, fullname,
                 hosttarget, port, txtRecord):
+        global a_lock
+
         # Don't do this twice for amqp. We've automatic fallback.
+        with a_lock:
+            if self.__url:
+                return
 
-        if self.__url:
-            return
-
-        self.__url = txtRecord
+            self.__url = txtRecord
 
     def help(self):
         """ Prints some help """

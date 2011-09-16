@@ -2,6 +2,8 @@
 
 import re
 import time
+import socket
+import thread
 from urlparse import urlparse
 from qpid.messaging import *
 from qpid.messaging.util import auto_fetch_reconnect_urls
@@ -11,6 +13,9 @@ from gosa.common.components.amqp import AMQPHandler, EventProvider
 from gosa.common.components.zeroconf_client import ZeroconfClient
 from gosa.common.utils import parseURL, buildXMLSchema
 from gosa.common import Environment
+
+# Global lock
+a_lock = thread.allocate_lock()
 
 
 class AMQPClientHandler(AMQPHandler):
@@ -22,7 +27,6 @@ class AMQPClientHandler(AMQPHandler):
     __capabilities = {}
     __peers = {}
     _eventProvider = None
-    __zclient = None
     url = None
     joined = False
 
@@ -45,11 +49,15 @@ class AMQPClientHandler(AMQPHandler):
         # Load configuration
         self.url = parseURL(self.env.config.get('amqp.url', None))
         self.domain = self.env.config.get('ampq.domain', default="org.gosa")
+        self.dns_domain = socket.getfqdn().split('.', 1)[1]
 
         # Use zeroconf if there's no URL
         if not self.url:
-            self.__zclient = ZeroconfClient('_gosa._tcp', callback=self.updateURL)
-            self.__zclient.start()
+            self.__mdns = ZeroconfClient('_gosa._tcp', callback=self.updateURL)
+            self.__sddns = ZeroconfClient('_gosa._tcp', callback=self.updateURL,
+                domain=self.domain)
+            self.__mdns.start()
+            self.__sddns.start()
 
             # Wait for valid URL to continue
             self.env.log.info("Searching service provider...")
@@ -57,7 +65,8 @@ class AMQPClientHandler(AMQPHandler):
                 time.sleep(0.5)
 
             # Stop zeroconf resolution
-            self.__zclient.stop()
+            self.__mdns.stop()
+            self.__sddns.stop()
 
         # Set params and go for it
         self.reconnect = self.env.config.get('amqp.reconnect', True)
@@ -111,27 +120,31 @@ class AMQPClientHandler(AMQPHandler):
 
     def updateURL(self, sdRef, flags, interfaceIndex, errorCode, fullname,
                 hosttarget, port, txtRecord):
-        # Don't do this twice for amqp. We've automatic fallback.
-        if self.url:
-            return
+        global a_lock
 
-        rx = re.compile(r'^amqps?://')
-        if rx.match(txtRecord):
-            o = urlparse(txtRecord)
-            # pylint: disable-msg=E1101
-            self.domain = o.path[1::]
-            self.env.log.info("using service '%s'" % txtRecord)
+        with a_lock:
 
-            # Configure system
-            user = self.env.config.get('amqp.id', default=None)
-            if not user:
-                user = self.env.uuid
-            key = self.env.config.get('amqp.key')
-            if key:
+            # Don't do this twice for amqp. We've automatic fallback.
+            if self.url:
+                return
+
+            rx = re.compile(r'^amqps?://')
+            if rx.match(txtRecord):
+                o = urlparse(txtRecord)
                 # pylint: disable-msg=E1101
-                self.url = parseURL('%s://%s:%s@%s' % (o.scheme, user, key, o.netloc))
-            else:
-                self.url = parseURL(txtRecord)
+                self.domain = o.path[1::]
+                self.env.log.info("using service '%s'" % txtRecord)
+
+                # Configure system
+                user = self.env.config.get('amqp.id', default=None)
+                if not user:
+                    user = self.env.uuid
+                key = self.env.config.get('amqp.key')
+                if key:
+                    # pylint: disable-msg=E1101
+                    self.url = parseURL('%s://%s:%s@%s' % (o.scheme, user, key, o.netloc))
+                else:
+                    self.url = parseURL(txtRecord)
 
     def __del__(self):
         self.env.log.debug("shutting down AMQP client handler")
