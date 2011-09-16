@@ -3,8 +3,6 @@
 This chapter details the way access control is handled within the GOsa core
 engine.
 
---------
-
 How an ACL assigment could look like
 ------------------------------------
 
@@ -619,12 +617,13 @@ class ACLResolver(object):
         >>> resolver.list_roles()
         >>> resolver.list_acls()
 
-    To print a human readable output of an ACLSet just use print::
+    To print a human readable output of an ACLSet just use the string
+    repesentation::
 
         >>> acls = ACLSet('...')
         >>> acl = ACL(scope=ACL.ONE)
         >>> acls.add(acl)
-        >>> print acls
+        >>> acls
     """
     implements(IInterfaceHandler)
     instance = None
