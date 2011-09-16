@@ -132,7 +132,7 @@ class ACLRole(list):
 
         >>> # Create an ACLRole object
         >>> aclrole = ACLRole('role1')
-        >>> acl = ACLRoleEntry(scope=SUB)
+        >>> acl = ACLRoleEntry(scope=ACL.SUB)
         >>> acl.add_action(...)
         >>> aclrole.add(acl)
 
@@ -150,7 +150,7 @@ class ACLRole(list):
 
         >>> # Create an ACLRole object
         >>> aclrole1 = ACLRole('role1')
-        >>> acl = ACLRoleEntry(scope=SUB)
+        >>> acl = ACLRoleEntry(scope=ACL.SUB)
         >>> acl.add_action(...)
         >>> aclrole1.add(acl)
 
@@ -297,7 +297,7 @@ class ACL(object):
     uses_role = False
     role = None
 
-    def __init__(self, scope=ACL.SUB, role=None):
+    def __init__(self, scope=SUB, role=None):
         self.env = Environment.getInstance()
 
         if scope not in (ACL.ONE, ACL.SUB, ACL.PSUB, ACL.RESET):
