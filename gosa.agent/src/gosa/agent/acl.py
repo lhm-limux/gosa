@@ -880,6 +880,9 @@ class ACLResolver(object):
                         elif acl.get_scope() in (ACL.ONE, ) and orig_loc == acl_set.location and not reset:
                             self.env.log.debug("found ACL for action '%s' (ONE)" % action)
                             return True
+                    if acl.uses_role:
+                        raise Exception("Roles are not supported! Yet!")
+
 
             # Remove the first part of the dn
             location = ','.join(ldap.dn.explode_dn(location)[1::])
