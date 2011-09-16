@@ -45,7 +45,7 @@ class TestACLResolver(unittest.TestCase):
         base = self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(role='role1')
-        acl.add_members([u'tester1'])
+        acl.set_members([u'tester1'])
         aclset.add(acl)
         self.resolver.add_acl_set(aclset)
 
@@ -57,14 +57,14 @@ class TestACLResolver(unittest.TestCase):
         """
         checks if wildcards/regular expressions can be used for ACL member names
         e.g. to match all users starting with 'gosa_' and ending with '_test'
-            acl.add_members([u'^gosa_.*_test$'])
+            acl.set_members([u'^gosa_.*_test$'])
         """
 
         # Create acls with wildcard # in actions
         base = self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(scope=ACL.ONE)
-        acl.add_members([u'^gosa_.*_test$'])
+        acl.set_members([u'^gosa_.*_test$'])
         acl.add_action('com.gosa.factory', 'rwx')
         acl.set_priority(100)
         aclset.add(acl)
@@ -93,7 +93,7 @@ class TestACLResolver(unittest.TestCase):
         base = self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(scope=ACL.ONE)
-        acl.add_members([u'tester1'])
+        acl.set_members([u'tester1'])
         acl.add_action('com.#.factory', 'rwx')
         acl.set_priority(100)
         aclset.add(acl)
@@ -114,7 +114,7 @@ class TestACLResolver(unittest.TestCase):
         base = self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(scope=ACL.ONE)
-        acl.add_members([u'tester1'])
+        acl.set_members([u'tester1'])
         acl.add_action('com.*.factory', 'rwx')
         acl.set_priority(100)
         aclset.add(acl)
@@ -144,7 +144,7 @@ class TestACLResolver(unittest.TestCase):
         base = self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(role='role1')
-        acl.add_members([u'tester1'])
+        acl.set_members([u'tester1'])
         aclset.add(acl)
         self.resolver.add_acl_set(aclset)
 
@@ -178,7 +178,7 @@ class TestACLResolver(unittest.TestCase):
         base = self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(role='role2')
-        acl.add_members([u'tester1'])
+        acl.set_members([u'tester1'])
         aclset.add(acl)
         self.resolver.add_acl_set(aclset)
 
@@ -196,7 +196,7 @@ class TestACLResolver(unittest.TestCase):
         base = self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(scope=ACL.ONE)
-        acl.add_members([u'tester1'])
+        acl.set_members([u'tester1'])
         acl.add_action('com.gosa.factory', 'rwx')
         acl.set_priority(100)
         aclset.add(acl)
@@ -208,7 +208,7 @@ class TestACLResolver(unittest.TestCase):
 
         # Now add the RESET acl
         acl = ACL(scope=ACL.RESET)
-        acl.add_members([u'tester1'])
+        acl.set_members([u'tester1'])
         acl.add_action('com.gosa.factory', 'rwx')
         acl.set_priority(99)
         aclset.add(acl)
@@ -226,7 +226,7 @@ class TestACLResolver(unittest.TestCase):
         base = "dc=a," + self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(scope=ACL.SUB)
-        acl.add_members([u'tester1'])
+        acl.set_members([u'tester1'])
         acl.add_action('com.gosa.factory', 'rwx')
         aclset.add(acl)
         self.resolver.add_acl_set(aclset)
@@ -257,7 +257,7 @@ class TestACLResolver(unittest.TestCase):
         base = "dc=b,dc=a," + self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(scope=ACL.RESET)
-        acl.add_members([u'tester1'])
+        acl.set_members([u'tester1'])
         acl.add_action('com.gosa.factory', 'rwx')
         aclset.add(acl)
 
@@ -291,7 +291,7 @@ class TestACLResolver(unittest.TestCase):
         base = "dc=a," + self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(scope=ACL.SUB)
-        acl.add_members([u'tester1'])
+        acl.set_members([u'tester1'])
         acl.add_action('com.gosa.factory', 'rwx')
         aclset.add(acl)
         self.resolver.add_acl_set(aclset)
@@ -334,7 +334,7 @@ class TestACLResolver(unittest.TestCase):
         base = "dc=a," + self.ldap_base
         aclset = ACLSet(base)
         acl = ACL(scope=ACL.ONE)
-        acl.add_members([u'tester1'])
+        acl.set_members([u'tester1'])
         acl.add_action('com.gosa.factory', 'rwx')
         aclset.add(acl)
         self.resolver.add_acl_set(aclset)

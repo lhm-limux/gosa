@@ -91,7 +91,7 @@ class ACLSet(list):
 
             aclset = ACLSet()
             acl = ACL(scope=ACL.ONE)
-            acl.add_members([u'tester1', u'tester2'])
+            acl.set_members([u'tester1', u'tester2'])
             acl.add_action('com.#.factory', 'rwx')
             acl.set_priority(100)
             aclset.add(acl)
@@ -119,7 +119,7 @@ class ACLSet(list):
 
             aclset = ACLSet()
             acl = ACL(scope=ACL.ONE)
-            acl.add_members([u'tester1', u'tester2'])
+            acl.set_members([u'tester1', u'tester2'])
             acl.add_action('com.#.factory', 'rwx')
             acl.set_priority(100)
             aclset.add(acl)
@@ -147,7 +147,7 @@ class ACLSet(list):
 
             aclset = ACLSet()
             acl = ACL(scope=ACL.ONE)
-            acl.add_members([u'tester1', u'tester2'])
+            acl.set_members([u'tester1', u'tester2'])
             acl.add_action('com.#.factory', 'rwx')
             acl.set_priority(100)
 
@@ -442,7 +442,7 @@ class ACL(object):
 
             aclset = ACLSet()
             acl = ACL(scope=ACL.ONE)
-            acl.add_members([u'tester1', u'tester2'])
+            acl.set_members([u'tester1', u'tester2'])
             acl.add_action('com.#.factory', 'rwx')
 
             acl.set_priority(100)
@@ -469,17 +469,39 @@ class ACL(object):
 
         """
         if type(member) != unicode:
-            raise(ACLException("Member should be of type str!"))
+            raise(ACLException("Member should be of type unicode!"))
         self.members.append(member)
 
-    def add_members(self, members):
+    def del_member(self, member):
         """
-        Adds a list of new members to this acl.
+        Removes a member from this ACL.
 
         ============== =============
         Key            Description
         ============== =============
-        members        A list of usernames that have to be added.
+        member         A username
+        ============== =============
+
+        Example::
+
+            aclset = ACLSet()
+            acl = ACL(scope=ACL.ONE)
+            ...
+            acl.del_member(u'peter')
+
+        """
+        if type(member) != unicode:
+            raise(ACLException("Member should be of type unicode!"))
+        self.members.delete(member)
+
+    def set_members(self, members):
+        """
+        Set the members for this acl
+
+        ============== =============
+        Key            Description
+        ============== =============
+        members        A list of usernames
         ============== =============
 
         Example::
@@ -487,14 +509,13 @@ class ACL(object):
             aclset = ACLSet()
             acl = ACL(scope=ACL.ONE)
 
-            acl.add_members([u'peter', u'klaus'])
+            acl.set_members([u'peter', u'klaus'])
 
         """
         if type(members) != list:
             raise(ACLException("Requires a list of members!"))
 
-        for member in members:
-            self.add_member(member)
+        self.members = members
 
     def add_action(self, target, acls, options=None):
         """
@@ -910,12 +931,12 @@ class ACLResolver(object):
                         if 'role' in acl_entry:
                             acl_rule_set = self.acl_roles[acl_entry['role']]
                             acl = ACL(role=acl_rule_set)
-                            acl.add_members(acl_entry['members'])
+                            acl.set_members(acl_entry['members'])
                             acl.set_priority(acl_entry['priority'])
                             acls.add(acl)
                         else:
                             acl = ACL(acl_scope_map[acl_entry['scope']])
-                            acl.add_members(acl_entry['members'])
+                            acl.set_members(acl_entry['members'])
                             acl.set_priority(acl_entry['priority'])
 
                             for action in acl_entry['actions']:
