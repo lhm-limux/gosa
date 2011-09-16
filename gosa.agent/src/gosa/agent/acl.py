@@ -34,6 +34,8 @@ from gosa.common.components import Command
 #TODO: Think about ldap relations, how to store and load objects.
 #TODO: What about object groups, to be able to inlcude clients?
 #TODO: Groups are not supported yet
+#TODO: Allow Wildcards in ACL-Options
+#TODO: Add set_members method to ACLs.
 
 
 class ACLException(Exception):
