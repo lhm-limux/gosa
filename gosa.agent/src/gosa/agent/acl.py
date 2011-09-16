@@ -181,8 +181,8 @@ class ACLRole(list):
         """
         Adds a new acl object to this aclSet.
         """
-        if type(item) != Acl:
-            raise TypeError('item is not of type %s' % Acl)
+        if type(item) != ACL:
+            raise TypeError('item is not of type %s' % ACL)
 
         if item.priority == None:
             item.priority = len(self)
@@ -305,7 +305,6 @@ class ACL(object):
 
         self.scope = scope
         self.actions = []
-        self.locations = []
         self.members = []
 
         if role:
@@ -364,7 +363,7 @@ class ACL(object):
         """
         Returns the list of members this ACL is valid for.
         """
-        return(self.member)
+        return(self.members)
 
     def __str__(self):
         return(self.repr_self())
@@ -795,10 +794,7 @@ class ACLResolver(object):
         """
         Returns all locations wie acls attached to
         """
-        loc = []
-        for entry in self.acl_sets:
-            loc.append(entry.location)
-        return(loc)
+        return map(lambda entry: entry.location, self.acl_sets)
 
     def list_role_names(self):
         return(self.acl_roles.keys())
