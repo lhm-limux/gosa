@@ -549,6 +549,7 @@ class ACLResolver(object):
     instance = None
     acl_sets = None
     acl_roles = None
+    admin_users = None
 
     _priority_ = 0
 
@@ -559,7 +560,8 @@ class ACLResolver(object):
     def __init__(self):
         self.env = Environment.getInstance()
 
-        self.clear()
+        # Load list of admin users.
+        self.admin_users = ['cajus', 'tester']
 
         # from config later on:
         lh = LDAPHandler.get_instance()
@@ -567,6 +569,7 @@ class ACLResolver(object):
         self.acl_file = os.path.join(self.env.config.getBaseDir(), "agent.acl")
 
         self.env.log.debug("initializing ACL resolver")
+        self.clear()
         self.load_from_file()
         ACLResolver.instance = self
 
@@ -746,6 +749,10 @@ class ACLResolver(object):
         """
         Check permission for a given user and a location.
         """
+
+        # Admin users are allowed to do anything.
+        if user in self.admin_users:
+            return True
 
         # Load default location if needed
         if not location:
