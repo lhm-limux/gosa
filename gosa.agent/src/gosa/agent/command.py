@@ -240,8 +240,6 @@ class CommandRegistry(object):
         ``Return:`` the real methods result
         """
 
-        #TODO: check for permission
-
         # Check for user authentication
         if not user:
             raise CommandNotAuthorized("call of function '%s' without a valid username is not permitted" % func)
@@ -253,6 +251,12 @@ class CommandRegistry(object):
         # Depending on the call method, we may have no queue information
         if not queue:
             queue = self.env.domain + ".command.%s" % self.capabilities[func]['target']
+
+        # Check for permission
+        chk_options = dict(dict(zip(self.capabilities[func]['sig'], arg)).items() + larg.items())
+        acl = PluginRegistry.getInstance("ACLResolver")
+        if not acl.check(user, "%s.%s" % (queue, func), "x", options=chk_options):
+            raise CommandNotAuthorized("call of function '%s.%s' is not permitted" % (queue, func))
 
         # Convert to list
         arg = list(arg)
@@ -490,7 +494,7 @@ class CommandRegistry(object):
                 self.capabilities[methodName] = {
                     'path': method.Path.text,
                     'target': method.Target.text,
-                    'sig': string.split(method.Signature.text, ','),
+                    'sig': string.split(method.Signature.text, ',') if method.Signature.text else [],
                     'type': mtype[method.Type.text],
                     'needsQueue': method.QueueRequired.text == "true",
                     'doc': method.Documentation.text}
@@ -577,11 +581,15 @@ class CommandRegistry(object):
                         'name': func,
                         'path': "%s.%s" % (clazz.__class__.__name__, mname),
                         'target': clazz._target_,
-                        'sig': 'unknown' if not getargspec(method).args else getargspec(method).args,
+                        'sig': [] if not getargspec(method).args else getargspec(method).args,
                         'type': getattr(method, "type", NORMAL),
                         'needsQueue': getattr(method, "needsQueue", False),
                         'doc': doc,
                         }
+
+                    if 'self' in info['sig']:
+                        info['sig'].remove('self')
+
                     self.commands[func] = info
 
 
