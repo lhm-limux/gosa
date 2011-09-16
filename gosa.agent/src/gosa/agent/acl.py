@@ -29,7 +29,7 @@ from zope.interface import implements
 from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
 from gosa.agent.ldap_utils import LDAPHandler
-from gosa.common.components import Command, PluginRegistry
+from gosa.common.components import Command
 
 #TODO: Think about ldap relations, how to store and load objects.
 #TODO: What about object groups, to be able to inlcude clients?
@@ -63,10 +63,11 @@ class ACLSet(list):
     location = None
 
     def __init__(self, location=None):
+        super(ACLSet, self).__init__()
 
         # If no location is given use the default one.
         if not location:
-           location = LDAPHandler.get_instance().get_base()
+            location = LDAPHandler.get_instance().get_base()
 
         self.location = location
 
@@ -247,6 +248,7 @@ class ACLRole(list):
     priority = None
 
     def __init__(self, name):
+        super(ACLRole, self).__init__()
         self.name = name
 
     def add(self, item):
@@ -494,7 +496,7 @@ class ACL(object):
         for member in members:
             self.add_member(member)
 
-    def add_action(self, target, acls, options={}):
+    def add_action(self, target, acls, options=None):
         """
 
         Adds a new action to this ACL object.
@@ -539,14 +541,14 @@ class ACL(object):
          * e - Receive event
 
         The actions has to passed as a string, which contains all actions at once::
-            >>> add_action(``target``, **"rwcdm"**, ``options``)
+            >>> add_action(``target``, "rwcdm", ``options``)
 
         **Options**
 
         Options are additional check parameters that have to be fullfulled to get this acl to match.
 
         The ``options`` parameter is a dictionary which contains a key and a value for each additional option we want to check, e.g. ::
-            >>> add_action(``target``, ``acls``, **{'uid': 'hanspeter', 'ou': 'technik'}**)
+            >>> add_action(``target``, ``acls``, {'uid': 'hanspeter', 'ou': 'technik'})
 
         If you've got a user object as dictionary, then you can check permissions like this::
             >>> resolver.check('some.target', 'rwcdm', user1)
@@ -563,7 +565,7 @@ class ACL(object):
         acl = {
                 'target': target,
                 'acls': acls,
-                'options': options}
+                'options': options if options else {}}
         self.actions.append(acl)
 
     def get_members(self):
@@ -589,7 +591,7 @@ class ACL(object):
                 rstr += "\n%s%s:%s %s" % ((" " * (indent + 1)), entry['target'], str(entry['acls']), str(entry['options']))
         return rstr
 
-    def match(self, user, action, acls, options={}, skip_user_check=False, used_roles=None):
+    def match(self, user, action, acls, options=None, skip_user_check=False, used_roles=None):
         """
         Check of the requested user, action and the action options match this
         acl-object.
@@ -622,7 +624,7 @@ class ACL(object):
                 r = ACLResolver.instance
                 self.env.log.debug("checking ACL role entries for role: %s" % self.role)
                 for acl in r.acl_roles[self.role]:
-                    if acl.match(user, action, acls, options, True, used_roles):
+                    if acl.match(user, action, acls, options if options else {}, True, used_roles):
                         self.env.log.debug("ACL role entry matched for role '%s'" % self.role)
                         return True
             else:
@@ -936,10 +938,9 @@ class ACLResolver(object):
 
         # Store json data into a file
         with open(self.acl_file, 'w') as f:
-            import json
             json.dump(ret, f, indent=2)
 
-    def check(self, user, action, acls, options={}, location=None):
+    def check(self, user, action, acls, options=None, location=None):
         """
         Check permission for a given user and a location.
         """
@@ -1072,8 +1073,6 @@ class ACLResolver(object):
         # Send a message if there were no ACLSets for the given location
         if  not found:
             raise ACLException("No acl definitions for location '%s' were found, removal aborted!")
-
-        pass
 
     def remove_role(self, name):
         """
