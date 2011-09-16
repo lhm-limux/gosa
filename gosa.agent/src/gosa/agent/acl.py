@@ -23,7 +23,6 @@ How an ACL assigment could look like
 --------
 
 """
-
 import re
 import os
 import json
@@ -99,10 +98,10 @@ class ACLSet(list):
         # Sort Acl items by id
         self.sort(key=lambda item: (item.priority * 1))
 
-    def __repr__(self):
+    def __str__(self):
         return(self.repr_self())
 
-    def __repr__(self, indent=0):
+    def repr_self(self, indent=0):
         """
         Create a human readable reprentation of this ACLSet object.
         """
@@ -211,7 +210,7 @@ class ACLRole(list):
         # Sort ACL items by id
         sorted(self, key=lambda item: item.priority)
 
-    def __repr__(self):
+    def __str__(self):
         return(self.repr_self())
 
     def repr_self(self, indent=0):
@@ -367,7 +366,7 @@ class ACL(object):
         """
         return(self.member)
 
-    def __repr__(self):
+    def __str__(self):
         return(self.repr_self())
 
     def repr_self(self, indent=0):
@@ -537,8 +536,8 @@ class ACLResolver(object):
     _priority_ = 0
 
     def __init__(self):
-        self.env.log.debug("initializing ACL resolver")
         self.env = Environment.getInstance()
+        self.env.log.debug("initializing ACL resolver")
 
         # Load override admins from configuration
         admins = self.env.config.get("core.admins", default=None)
