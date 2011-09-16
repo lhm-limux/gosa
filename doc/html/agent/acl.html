@@ -174,19 +174,149 @@ the <tt class="docutils literal"><span class="pre">ACLSet</span></tt> class.</p>
 <dl class="method">
 <dt id="gosa.agent.acl.ACL.add_action">
 <tt class="descname">add_action</tt><big>(</big><em>target</em>, <em>acls</em>, <em>options={}</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACL.add_action" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a new action to this acl.</p>
+<dd><p>Adds a new action to this ACL object.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="84%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>target</td>
+<td>The target action we want ot create ACLs for. E.g. &#8216;com.gosa.factory.Person&#8217;</td>
+</tr>
+<tr><td>acls</td>
+<td>The acls this action contains. E.g. &#8216;rwcdm&#8217;.</td>
+</tr>
+<tr><td>options</td>
+<td>Special additional options that have to be checked.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Targets</strong></p>
+<p>Targets can contain placeholder to be more flexible when it come to resolving acls.
+You can use <tt class="docutils literal"><span class="pre">#</span></tt> and <tt class="docutils literal"><span class="pre">*</span></tt> where <tt class="docutils literal"><span class="pre">#</span></tt> matches for one level and <tt class="docutils literal"><span class="pre">*</span></tt> for multiple target levels.</p>
+<dl class="docutils">
+<dt>For example <tt class="docutils literal"><span class="pre">gosa.#.factory</span></tt> would match for:</dt>
+<dd><ul class="first last simple">
+<li>gosa.test.factory</li>
+<li>gosa.hallo.factory</li>
+</ul>
+</dd>
+<dt>but not for:</dt>
+<dd><ul class="first last simple">
+<li>gosa.factory</li>
+<li>gosa.level1.level2.factory</li>
+</ul>
+</dd>
+<dt>Where <tt class="docutils literal"><span class="pre">gosa.*.factory</span></tt> matches for:</dt>
+<dd><ul class="first last simple">
+<li>gosa.factory</li>
+<li>gosa.level1.factory</li>
+<li>gosa.level1.level2.factory</li>
+</ul>
+</dd>
+</dl>
+<p><strong>Acls</strong></p>
+<p>The acls paramter describes the action we can perform on a given <tt class="docutils literal"><span class="pre">target</span></tt>. 
+Possible actions are:</p>
+<blockquote>
+<div><ul class="simple">
+<li>r - Lesen</li>
+<li>w - Schreiben</li>
+<li>m - Verschieben</li>
+<li>c - Erstellen</li>
+<li>d - Löschen</li>
+<li>s - Suchen - bzw. gefunden werden</li>
+<li>x - Ausführen</li>
+<li>e - Event empfangen</li>
+</ul>
+</div></blockquote>
+<dl class="docutils">
+<dt>The actions has to passed as a string, which contains all actions at once::</dt>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">add_action</span><span class="p">(</span><span class="sb">``</span><span class="n">target</span><span class="sb">``</span><span class="p">,</span> <span class="o">**</span><span class="s">&quot;rwcdm&quot;</span><span class="o">**</span><span class="p">,</span> <span class="sb">``</span><span class="n">options</span><span class="sb">``</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<p><strong>Options</strong></p>
+<p>Options are additional check parameters that have to be fullfulled to get this acl to match.</p>
+<dl class="docutils">
+<dt>The <tt class="docutils literal"><span class="pre">options</span></tt> parameter is a dictionary which contains a key and a value for each additional option we want to check, e.g. ::</dt>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">add_action</span><span class="p">(</span><span class="sb">``</span><span class="n">target</span><span class="sb">``</span><span class="p">,</span> <span class="sb">``</span><span class="n">acls</span><span class="sb">``</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="s">&#39;uid&#39;</span><span class="p">:</span> <span class="s">&#39;hanspeter&#39;</span><span class="p">,</span> <span class="s">&#39;ou&#39;</span><span class="p">:</span> <span class="s">&#39;technik&#39;</span><span class="p">}</span><span class="o">**</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+<dt>If you&#8217;ve got a user object as dictionary, then you can check permissions like this::</dt>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">resolver</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s">&#39;some.target&#39;</span><span class="p">,</span> <span class="s">&#39;rwcdm&#39;</span><span class="p">,</span> <span class="n">user1</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<p>The resolver will then check if the keys <tt class="docutils literal"><span class="pre">uid</span></tt> and <tt class="docutils literal"><span class="pre">ou</span></tt> are present in the user1 dictionary and then check if the values match.
+If not all options match, the ACL will not match.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="gosa.agent.acl.ACL.add_member">
 <tt class="descname">add_member</tt><big>(</big><em>member</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACL.add_member" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a new member to this acl.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>member</td>
+<td>A username that have to be added.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">aclset</span> <span class="o">=</span> <span class="n">ACLSet</span><span class="p">()</span>
+<span class="n">acl</span> <span class="o">=</span> <span class="n">ACL</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="n">ACL</span><span class="o">.</span><span class="n">ONE</span><span class="p">)</span>
+
+<span class="n">acl</span><span class="o">.</span><span class="n">add_member</span><span class="p">(</span><span class="s">u&#39;peter&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
 <dt id="gosa.agent.acl.ACL.add_members">
 <tt class="descname">add_members</tt><big>(</big><em>members</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACL.add_members" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a list of new members to this acl.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>members</td>
+<td>A list of usernames that have to be added.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">aclset</span> <span class="o">=</span> <span class="n">ACLSet</span><span class="p">()</span>
+<span class="n">acl</span> <span class="o">=</span> <span class="n">ACL</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="n">ACL</span><span class="o">.</span><span class="n">ONE</span><span class="p">)</span>
+
+<span class="n">acl</span><span class="o">.</span><span class="n">add_members</span><span class="p">([</span><span class="s">u&#39;peter&#39;</span><span class="p">,</span> <span class="s">u&#39;klaus&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
@@ -213,6 +343,38 @@ acl-object.</p>
 <dt id="gosa.agent.acl.ACL.repr_self">
 <tt class="descname">repr_self</tt><big>(</big><em>indent=0</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACL.repr_self" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a human readable representation of the ACL-object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.acl.ACL.set_priority">
+<tt class="descname">set_priority</tt><big>(</big><em>priority</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACL.set_priority" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the priority of this ACL object. Lower values mean higher priority.</p>
+<p>If no priority is given, a priority of 0 will be used when this ACL gets added to an ACLSet, the next will get 1, then 2 aso.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="72%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>priority</td>
+<td>The new priority value for this ACl.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">aclset</span> <span class="o">=</span> <span class="n">ACLSet</span><span class="p">()</span>
+<span class="n">acl</span> <span class="o">=</span> <span class="n">ACL</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="n">ACL</span><span class="o">.</span><span class="n">ONE</span><span class="p">)</span>
+<span class="n">acl</span><span class="o">.</span><span class="n">add_members</span><span class="p">([</span><span class="s">u&#39;tester1&#39;</span><span class="p">,</span> <span class="s">u&#39;tester2&#39;</span><span class="p">])</span>
+<span class="n">acl</span><span class="o">.</span><span class="n">add_action</span><span class="p">(</span><span class="s">&#39;com.#.factory&#39;</span><span class="p">,</span> <span class="s">&#39;rwx&#39;</span><span class="p">)</span>
+
+<span class="n">acl</span><span class="o">.</span><span class="n">set_priority</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </dd></dl>

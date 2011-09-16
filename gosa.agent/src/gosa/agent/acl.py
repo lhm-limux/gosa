@@ -498,6 +498,7 @@ class ACL(object):
 
     def add_action(self, target, acls, options={}):
         """
+
         Adds a new action to this ACL object.
 
         ============== =============
@@ -508,18 +509,52 @@ class ACL(object):
         options        Special additional options that have to be checked.
         ============== =============
 
+        **Targets**
+
         Targets can contain placeholder to be more flexible when it come to resolving acls.
         You can use ``#`` and ``*`` where ``#`` matches for one level and ``*`` for multiple target levels.
 
-        Example::
+        For example ``gosa.#.factory`` would match for:
+         * gosa.test.factory
+         * gosa.hallo.factory
+        but not for:
+         * gosa.factory
+         * gosa.level1.level2.factory
 
-            gosa.#.factory would match for:
-                * gosa.test.factory
-                * gosa.hallo.factory
-            but not for:
-                * gosa.factory
-                * gosa.level1.level2.factory
+        Where ``gosa.*.factory`` matches for:
+         * gosa.factory
+         * gosa.level1.factory
+         * gosa.level1.level2.factory
 
+        **Acls**
+
+        The acls paramter describes the action we can perform on a given ``target``. 
+        Possible actions are:
+
+         * r - Lesen
+         * w - Schreiben
+         * m - Verschieben
+         * c - Erstellen
+         * d - Löschen
+         * s - Suchen - bzw. gefunden werden
+         * x - Ausführen
+         * e - Event empfangen
+
+        The actions has to passed as a string, which contains all actions at once::
+            >>> add_action(``target``, **"rwcdm"**, ``options``)
+
+        **Options**
+
+        Options are additional check parameters that have to be fullfulled to get this acl to match.
+
+        The ``options`` parameter is a dictionary which contains a key and a value for each additional option we want to check, e.g. ::
+            >>> add_action(``target``, ``acls``, **{'uid': 'hanspeter', 'ou': 'technik'}**)
+
+        If you've got a user object as dictionary, then you can check permissions like this::
+            >>> resolver.check('some.target', 'rwcdm', user1)
+
+        The resolver will then check if the keys ``uid`` and ``ou`` are present in the user1 dictionary and then check if the values match.
+        If not all options match, the ACL will not match.
 
 
         """
