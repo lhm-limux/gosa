@@ -60,7 +60,6 @@
 <span id="acl-handling"></span><h1>ACL handling<a class="headerlink" href="#module-gosa.agent.acl" title="Permalink to this headline">¶</a></h1>
 <p>This chapter details the way access control is handled within the GOsa core
 engine.</p>
-<hr class="docutils" />
 <div class="section" id="how-an-acl-assigment-could-look-like">
 <h2>How an ACL assigment could look like<a class="headerlink" href="#how-an-acl-assigment-could-look-like" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python"><pre>ACLRole (test1)
@@ -173,7 +172,7 @@ the <tt class="docutils literal"><span class="pre">ACLSet</span></tt> class.</p>
 <p><tt class="docutils literal"><span class="pre">com.*.factory</span></tt> would match with <tt class="docutils literal"><span class="pre">com.test.factory</span></tt>, <tt class="docutils literal"><span class="pre">com.something.factory</span></tt> or <tt class="docutils literal"><span class="pre">com.level1.level2.level3.factory</span></tt></p>
 <dl class="method">
 <dt id="gosa.agent.acl.ACL.add_action">
-<tt class="descname">add_action</tt><big>(</big><em>target</em>, <em>acls</em>, <em>options={}</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACL.add_action" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">add_action</tt><big>(</big><em>target</em>, <em>acls</em>, <em>options=None</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACL.add_action" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a new action to this ACL object.</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -222,23 +221,23 @@ You can use <tt class="docutils literal"><span class="pre">#</span></tt> and <tt
 </dd>
 </dl>
 <p><strong>Acls</strong></p>
-<p>The acls paramter describes the action we can perform on a given <tt class="docutils literal"><span class="pre">target</span></tt>. 
+<p>The acls paramter describes the action we can perform on a given <tt class="docutils literal"><span class="pre">target</span></tt>.
 Possible actions are:</p>
 <blockquote>
 <div><ul class="simple">
-<li>r - Lesen</li>
-<li>w - Schreiben</li>
-<li>m - Verschieben</li>
-<li>c - Erstellen</li>
-<li>d - Löschen</li>
-<li>s - Suchen - bzw. gefunden werden</li>
-<li>x - Ausführen</li>
-<li>e - Event empfangen</li>
+<li>r - Read</li>
+<li>w - Write</li>
+<li>m - Move</li>
+<li>c - Create</li>
+<li>d - Delete</li>
+<li>s - Search - or beeing found</li>
+<li>x - Execute</li>
+<li>e - Receive event</li>
 </ul>
 </div></blockquote>
 <dl class="docutils">
 <dt>The actions has to passed as a string, which contains all actions at once::</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">add_action</span><span class="p">(</span><span class="sb">``</span><span class="n">target</span><span class="sb">``</span><span class="p">,</span> <span class="o">**</span><span class="s">&quot;rwcdm&quot;</span><span class="o">**</span><span class="p">,</span> <span class="sb">``</span><span class="n">options</span><span class="sb">``</span><span class="p">)</span>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">add_action</span><span class="p">(</span><span class="sb">``</span><span class="n">target</span><span class="sb">``</span><span class="p">,</span> <span class="s">&quot;rwcdm&quot;</span><span class="p">,</span> <span class="sb">``</span><span class="n">options</span><span class="sb">``</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd>
@@ -247,7 +246,7 @@ Possible actions are:</p>
 <p>Options are additional check parameters that have to be fullfulled to get this acl to match.</p>
 <dl class="docutils">
 <dt>The <tt class="docutils literal"><span class="pre">options</span></tt> parameter is a dictionary which contains a key and a value for each additional option we want to check, e.g. ::</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">add_action</span><span class="p">(</span><span class="sb">``</span><span class="n">target</span><span class="sb">``</span><span class="p">,</span> <span class="sb">``</span><span class="n">acls</span><span class="sb">``</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="s">&#39;uid&#39;</span><span class="p">:</span> <span class="s">&#39;hanspeter&#39;</span><span class="p">,</span> <span class="s">&#39;ou&#39;</span><span class="p">:</span> <span class="s">&#39;technik&#39;</span><span class="p">}</span><span class="o">**</span><span class="p">)</span>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">add_action</span><span class="p">(</span><span class="sb">``</span><span class="n">target</span><span class="sb">``</span><span class="p">,</span> <span class="sb">``</span><span class="n">acls</span><span class="sb">``</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;uid&#39;</span><span class="p">:</span> <span class="s">&#39;hanspeter&#39;</span><span class="p">,</span> <span class="s">&#39;ou&#39;</span><span class="p">:</span> <span class="s">&#39;technik&#39;</span><span class="p">})</span>
 </pre></div>
 </div>
 </dd>
@@ -334,9 +333,43 @@ SUB, PSUB, RESET, ...</p>
 
 <dl class="method">
 <dt id="gosa.agent.acl.ACL.match">
-<tt class="descname">match</tt><big>(</big><em>user</em>, <em>action</em>, <em>acls</em>, <em>options={}</em>, <em>skip_user_check=False</em>, <em>used_roles=None</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACL.match" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check of the requested user, action and the action options match this
-acl-object.</p>
+<tt class="descname">match</tt><big>(</big><em>user</em>, <em>target</em>, <em>acls</em>, <em>options=None</em>, <em>skip_user_check=False</em>, <em>used_roles=None</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACL.match" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if this <tt class="docutils literal"><span class="pre">ACL</span></tt> object matches the given criteria.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Do NOT use this to validate permissions. Use  ACLResolver-&gt;check() instead</p>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>user</td>
+<td>The user we want to check for. E.g. &#8216;hans&#8217;</td>
+</tr>
+<tr><td>target</td>
+<td>The target action we want to check for. E.g. &#8216;com.gosa.factory&#8217;</td>
+</tr>
+<tr><td>acls</td>
+<td>A string containing the acls we want to check for.</td>
+</tr>
+<tr><td>options</td>
+<td>Special additional options that have to be checked.</td>
+</tr>
+<tr><td>skip_user_check</td>
+<td>Skips checks for users, this is required to resolve roles.</td>
+</tr>
+<tr><td>used_roles</td>
+<td>A list of roles used in this recursion, to be able to check for endless-recursions.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -396,23 +429,56 @@ permission:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">resolver</span><span class="o">.</span><span class="n">list_acls</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>To print a human readable output of an ACLSet just use print:</p>
+<p>To print a human readable output of an ACLSet just use the string
+repesentation:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">acls</span> <span class="o">=</span> <span class="n">ACLSet</span><span class="p">(</span><span class="s">&#39;...&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">acl</span> <span class="o">=</span> <span class="n">ACL</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="n">ACL</span><span class="o">.</span><span class="n">ONE</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">acls</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">acl</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">acls</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">acls</span>
 </pre></div>
 </div>
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.aclset_exists_by_location">
 <tt class="descname">aclset_exists_by_location</tt><big>(</big><em>location</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.aclset_exists_by_location" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if a ACLSet for the given location exists or not.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="29%" />
+<col width="71%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>location</td>
+<td>The location we want to check for.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.add_acl_role">
-<tt class="descname">add_acl_role</tt><big>(</big><em>acl</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.add_acl_role" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds an ACLRole object to the list of active-acl roles.</p>
+<tt class="descname">add_acl_role</tt><big>(</big><em>role</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.add_acl_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a new ACLRole-object to the ACLResolver class.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="29%" />
+<col width="71%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>role</td>
+<td>The ACLRole object we want to add.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -424,19 +490,121 @@ permission:</p>
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.add_acl_to_set">
 <tt class="descname">add_acl_to_set</tt><big>(</big><em>location</em>, <em>acl</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.add_acl_to_set" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add an acl rule to an existing acl set.</p>
+<dd><p>Adds an ACL-object to an existing ACLSet.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="76%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>location</td>
+<td>The location we want to add an ACL object to.</td>
+</tr>
+<tr><td>acl</td>
+<td>The ACL object we want to add.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.check">
-<tt class="descname">check</tt><big>(</big><em>user</em>, <em>action</em>, <em>acls</em>, <em>options={}</em>, <em>location=None</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.check" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">check</tt><big>(</big><em>user</em>, <em>target</em>, <em>acls</em>, <em>options=None</em>, <em>location=None</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.check" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check permission for a given user and a location.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="21%" />
+<col width="79%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>user</td>
+<td>The user we want to check for.</td>
+</tr>
+<tr><td>target</td>
+<td>The target string, e.g. &#8216;com.gosa.factory&#8217;</td>
+</tr>
+<tr><td>acls</td>
+<td>The list of acls, we want to check for, e.g. &#8216;rcwdm&#8217;</td>
+</tr>
+<tr><td>options</td>
+<td>A dictionary containing extra options to check for.</td>
+</tr>
+<tr><td>location</td>
+<td>The location we want to check acls in.</td>
+</tr>
+</tbody>
+</table>
+<p>Take a look at ACL.add_action for details about <tt class="docutils literal"><span class="pre">target</span></tt>, <tt class="docutils literal"><span class="pre">options</span></tt> and <tt class="docutils literal"><span class="pre">acls</span></tt>.</p>
+<dl class="docutils">
+<dt>Example::</dt>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">resolver</span> <span class="o">=</span> <span class="n">ACLResolver</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="bp">self</span><span class="o">.</span><span class="n">resolver</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s">&#39;user1&#39;</span><span class="p">,</span><span class="s">&#39;org.gosa.factory&#39;</span><span class="p">,</span><span class="s">&#39;r&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="bp">self</span><span class="o">.</span><span class="n">resolver</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s">&#39;user1&#39;</span><span class="p">,</span><span class="s">&#39;org.gosa.factory&#39;</span><span class="p">,</span><span class="s">&#39;rwx&#39;</span><span class="p">,</span> <span class="s">&#39;dc=example,dc=net&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.acl.ACLResolver.clear">
+<tt class="descname">clear</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clears all information abouts roles and acls.
+This is called during initialization of the ACLResolver class.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.get_aclset_by_location">
 <tt class="descname">get_aclset_by_location</tt><big>(</big><em>location</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.get_aclset_by_location" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an acl set by location.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>location</td>
+<td>The location we want to return the ACLSets for.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.acl.ACLResolver.is_role_used">
+<tt class="descname">is_role_used</tt><big>(</big><em>rolename</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.is_role_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks whether the given ACLRole object is used or not.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>rolename</td>
+<td>The name of the role we want to check for.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -460,25 +628,57 @@ permission:</p>
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.load_from_file">
 <tt class="descname">load_from_file</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.load_from_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load acl definitions from a file</p>
+<dd><p>Load the acl definitions from the configured storage file.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.remove_aclset_by_location">
 <tt class="descname">remove_aclset_by_location</tt><big>(</big><em>location</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.remove_aclset_by_location" title="Permalink to this definition">¶</a></dt>
-<dd><p>Removes a given acl rule.</p>
+<dd><p>Removes a given ACLSet by location.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>location</td>
+<td>The location we want to delete ACLSets for.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.remove_role">
 <tt class="descname">remove_role</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.remove_role" title="Permalink to this definition">¶</a></dt>
-<dd><p>Removes an acl role.</p>
+<dd><p>Removes an acl role by name.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="76%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>name</td>
+<td>The name of the role that have to be removed.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.save_to_file">
 <tt class="descname">save_to_file</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.save_to_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Save acl definition into a file</p>
+<dd><p>Saves the acl definitions back the configured storage file.</p>
 </dd></dl>
 
 </dd></dl>
@@ -599,33 +799,63 @@ a set of acls:</p>
 <dl class="class">
 <dt id="gosa.agent.acl.ACLRoleEntry">
 <em class="property">class </em><tt class="descclassname">gosa.agent.acl.</tt><tt class="descname">ACLRoleEntry</tt><big>(</big><em>scope=2</em>, <em>role=None</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLRoleEntry" title="Permalink to this definition">¶</a></dt>
-<dd><p>ACLRoleEntries are used in <tt class="docutils literal"><span class="pre">ACLRole</span></tt> objects to combine several allowed
-actions.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="c"># Create an ACLRole object</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">aclrole</span> <span class="o">=</span> <span class="n">ACLRole</span><span class="p">(</span><span class="s">&#39;role1&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="c"># Create an ACL object and attach it to the ACLSet</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">acl</span> <span class="o">=</span> <span class="n">ACLRoleEntry</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">acl</span><span class="o">.</span><span class="n">set_priority</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">acl</span><span class="o">.</span><span class="n">add_action</span><span class="p">(</span><span class="s">&#39;org.gosa.factory.Person.cn&#39;</span><span class="p">,</span><span class="s">&#39;rwx&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">aclrole</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">acl</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">acl</span> <span class="o">=</span> <span class="n">ACLRoleEntry</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">acl</span><span class="o">.</span><span class="n">set_priority</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">acl</span><span class="o">.</span><span class="n">add_action</span><span class="p">(</span><span class="s">&#39;org.gosa.factory.Person.cn&#39;</span><span class="p">,</span><span class="s">&#39;d&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">acl</span><span class="o">.</span><span class="n">add_action</span><span class="p">(</span><span class="s">&#39;org.gosa.factory.Employee.cn&#39;</span><span class="p">,</span><span class="s">&#39;rwx&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">aclrole</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">acl</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="c"># Now add the role to the resolver</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">resolver</span> <span class="o">=</span> <span class="n">ACLResolver</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">resolver</span><span class="o">.</span><span class="n">add_acl_set</span><span class="p">(</span><span class="n">aclrole</span><span class="p">)</span>
-</pre></div>
-</div>
+<dd><p>The <tt class="docutils literal"><span class="pre">ACLRoleEntry</span></tt> object describes a set of action that can be accessed in a given scope.
+<tt class="docutils literal"><span class="pre">ACLRoleEntry</span></tt> classes can then be bundled in <tt class="docutils literal"><span class="pre">ACLRole</span></tt> objects, to build up roles.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="14%" />
+<col width="86%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>scope</td>
+<td>The scope this acl is valid for.</td>
+</tr>
+<tr><td>role</td>
+<td>You can either define permission action directly or you can use an <tt class="docutils literal"><span class="pre">ACLRole</span></tt> instead</td>
+</tr>
+</tbody>
+</table>
+<p>Valid scope values:</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">ACL.ONE</span></tt> for one level.</li>
+<li><tt class="docutils literal"><span class="pre">ACL.SUB</span></tt> for all sub-level. This can be revoked using <tt class="docutils literal"><span class="pre">ACL.RESET</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">ACL.RESET</span></tt> revokes the actions described in this <tt class="docutils literal"><span class="pre">ACL</span></tt> object for all sub-levels of the tree.</li>
+<li><tt class="docutils literal"><span class="pre">ACL.PSUB</span></tt> for all sub-level, cannot be revoked using <tt class="docutils literal"><span class="pre">ACL.RESET</span></tt></li>
+</ul>
+</div></blockquote>
+<p>Members properties:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="4%" />
+<col width="96%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>Scope</td>
+<td>The scope specifies where the ACL is valid for, e.g. ONE-level, all SUB-levels or RESET previous ACLs</td>
+</tr>
+<tr><td>Role</td>
+<td>Instead of actions you can also refere to a ACLRole object.</td>
+</tr>
+<tr><td>Actions</td>
+<td>You can have multiple actions, where one action is described by <tt class="docutils literal"><span class="pre">a</span> <span class="pre">target</span></tt>, a <tt class="docutils literal"><span class="pre">set</span> <span class="pre">of</span> <span class="pre">acls</span></tt> and additional <tt class="docutils literal"><span class="pre">options</span></tt> that have to be checked while ACLs are resolved.</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="gosa.agent.acl.ACLRoleEntry.add_member">
 <tt class="descname">add_member</tt><big>(</big><em>member</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLRoleEntry.add_member" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a new member to this acl.</p>
+<dd><p>An overloaded method from ACL which disallows to add users.</p>
 </dd></dl>
 
 </dd></dl>
