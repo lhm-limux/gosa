@@ -21,7 +21,6 @@ How an ACL assigment could look like
      |-> ACL
 
 --------
-
 """
 import re
 import os
@@ -34,10 +33,10 @@ from gosa.common import Environment
 from gosa.agent.ldap_utils import LDAPHandler
 from gosa.common.components import Command, PluginRegistry
 
-
 #TODO: Think about ldap relations, how to store and load objects.
 #TODO: What about object groups, to be able to inlcude clients?
 #TODO: Groups are not supported yet
+
 
 class ACLException(Exception):
     pass
@@ -70,7 +69,7 @@ class ACLSet(list):
 
     def remove_acls_for_user(self, user):
         """
-        Removes all permission for the given user form this aclset.
+        Removes all permission for the given user form this ACLSet.
         """
         for acl in self:
             if user in acl.members:
@@ -88,7 +87,7 @@ class ACLSet(list):
 
     def add(self, item):
         """
-        Adds a new acl object to this aclSet.
+        Adds a new acl object to this ACLSet.
         """
         if type(item) != ACL:
             raise TypeError('item is not of type %s' % ACL)
@@ -460,9 +459,9 @@ class ACL(object):
         # Nothing matched!
         return False
 
-    def get_type(self):
+    def get_scope(self):
         """
-        Returns the type of an ACL.
+        Returns the scope of an ACL.
         SUB, PSUB, RESET, ...
         """
         return(self.scope)
@@ -766,16 +765,16 @@ class ACLResolver(object):
                 for acl in acl_set:
                     if acl.match(user, action, acls, options):
                         self.env.log.debug("found matching ACL in '%s'" % location)
-                        if acl.get_type() == ACL.RESET:
+                        if acl.get_scope() == ACL.RESET:
                             self.env.log.debug("found ACL reset for action '%s'" % action)
                             reset = True
-                        elif acl.get_type() == ACL.PSUB:
+                        elif acl.get_scope() == ACL.PSUB:
                             self.env.log.debug("found permanent ACL for action '%s'" % action)
                             return True
-                        elif acl.get_type() in (ACL.SUB, ) and not reset:
+                        elif acl.get_scope() in (ACL.SUB, ) and not reset:
                             self.env.log.debug("found ACL for action '%s' (SUB)" % action)
                             return True
-                        elif acl.get_type() in (ACL.ONE, ) and orig_loc == acl_set.location and not reset:
+                        elif acl.get_scope() in (ACL.ONE, ) and orig_loc == acl_set.location and not reset:
                             self.env.log.debug("found ACL for action '%s' (ONE)" % action)
                             return True
 
