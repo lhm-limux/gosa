@@ -317,14 +317,16 @@ class ACL(object):
     ============== =============
     Key            Description
     ============== =============
-    scope          The scope this ``ACL`` is valid for.
-                    ``ACL.ONE`` for one level.
-                    ``ACL.SUB`` for all sub-level. This can be revoked using ``ACL.RESET``
-                    ``ACL.RESET`` revokes the actions described in this ``ACL`` object for all sub-levels of the tree.
-                    ``ACL.PSUB`` for all sub-level, cannot be revoked using ``ACL.RESET``
-    role           You can either define permission action manually or you can use an ``ACLRole`` instead.
-                   Just set the role parameter with the name of the role you want to use.
+    scope          The scope this acl is valid for.
+    role           You can either define permission action directly or you can use an ``ACLRole`` instead
     ============== =============
+
+    Valid scope values:
+
+        * ``ACL.ONE`` for one level.
+        * ``ACL.SUB`` for all sub-level. This can be revoked using ``ACL.RESET``
+        * ``ACL.RESET`` revokes the actions described in this ``ACL`` object for all sub-levels of the tree.
+        * ``ACL.PSUB`` for all sub-level, cannot be revoked using ``ACL.RESET``
 
     The ACL class contains list of action for a set of members.
     These ACL classes can then be bundled and attached to a ldap base using
