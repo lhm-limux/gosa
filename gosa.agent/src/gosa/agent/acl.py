@@ -554,6 +554,7 @@ class ACLResolver(object):
     _priority_ = 0
 
     def __init__(self):
+        self.env.log.debug("initializing ACL resolver")
         self.env = Environment.getInstance()
 
         # Load override admins from configuration
@@ -563,12 +564,12 @@ class ACLResolver(object):
             self.env.log.info("adding users to the ACL override: %s" % admins)
             self.admins = admins.split(",")
 
-        # from config later on:
+        # Load default LDAP base
         lh = LDAPHandler.get_instance()
         self.base = lh.get_base()
         self.acl_file = os.path.join(self.env.config.getBaseDir(), "agent.acl")
 
-        self.env.log.debug("initializing ACL resolver")
+        # Load initial ACL information from file
         self.clear()
         self.load_from_file()
         ACLResolver.instance = self
