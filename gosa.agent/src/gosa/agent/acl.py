@@ -549,15 +549,17 @@ class ACLResolver(object):
     instance = None
     acl_sets = None
     acl_roles = None
-    admin_users = None
+    admins = []
 
     _priority_ = 0
 
     def __init__(self):
         self.env = Environment.getInstance()
 
-        # Load list of admin users.
-        self.admin_users = ['cajus', 'tester']
+        # Load override admins from configuration
+        admins = self.env.config.get("core.admins", default=None)
+        if admins:
+            self.admins = re.sub(r'\s', '', admins).split(",")
 
         # from config later on:
         lh = LDAPHandler.get_instance()
@@ -568,9 +570,6 @@ class ACLResolver(object):
         self.clear()
         self.load_from_file()
         ACLResolver.instance = self
-
-        # Load override admins from configuration
-        self.admins = 
 
     def clear(self):
         self.acl_sets = []
@@ -754,7 +753,7 @@ class ACLResolver(object):
         """
 
         # Admin users are allowed to do anything.
-        if user in self.admin_users:
+        if user in self.admins:
             return True
 
         # Load default location if needed
