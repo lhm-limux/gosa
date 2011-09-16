@@ -427,11 +427,46 @@ class ACL(object):
             raise ACLException("Unknown role '%s'!" % rolename)
 
     def set_priority(self, priority):
+        """
+        Sets the priority of this ACL object. Lower values mean higher priority.
+
+        If no priority is given, a priority of 0 will be used when this ACL gets added to an ACLSet, the next will get 1, then 2 aso.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        priority       The new priority value for this ACl.
+        ============== =============
+
+        Example::
+
+            aclset = ACLSet()
+            acl = ACL(scope=ACL.ONE)
+            acl.add_members([u'tester1', u'tester2'])
+            acl.add_action('com.#.factory', 'rwx')
+
+            acl.set_priority(100)
+
+        """
         self.priority = priority
 
     def add_member(self, member):
         """
         Adds a new member to this acl.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        member         A username that have to be added.
+        ============== =============
+
+        Example::
+
+            aclset = ACLSet()
+            acl = ACL(scope=ACL.ONE)
+
+            acl.add_member(u'peter')
+
         """
         if type(member) != unicode:
             raise(ACLException("Member should be of type str!"))
@@ -440,6 +475,20 @@ class ACL(object):
     def add_members(self, members):
         """
         Adds a list of new members to this acl.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        members        A list of usernames that have to be added.
+        ============== =============
+
+        Example::
+
+            aclset = ACLSet()
+            acl = ACL(scope=ACL.ONE)
+
+            acl.add_members([u'peter', u'klaus'])
+
         """
         if type(members) != list:
             raise(ACLException("Requires a list of members!"))
@@ -449,7 +498,30 @@ class ACL(object):
 
     def add_action(self, target, acls, options={}):
         """
-        Adds a new action to this acl.
+        Adds a new action to this ACL object.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        target         The target action we want ot create ACLs for. E.g. 'com.gosa.factory.Person'
+        acls           The acls this action contains. E.g. 'rwcdm'.
+        options        Special additional options that have to be checked.
+        ============== =============
+
+        Targets can contain placeholder to be more flexible when it come to resolving acls.
+        You can use ``#`` and ``*`` where ``#`` matches for one level and ``*`` for multiple target levels.
+
+        Example::
+
+            gosa.#.factory would match for:
+                * gosa.test.factory
+                * gosa.hallo.factory
+            but not for:
+                * gosa.factory
+                * gosa.level1.level2.factory
+
+
+
         """
         if self.uses_role:
             raise ACLException("ACL classes that use a role cannot define"
