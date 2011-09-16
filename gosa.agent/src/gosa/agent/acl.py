@@ -39,6 +39,9 @@ from gosa.common.components import Command, PluginRegistry
 #TODO: What about object groups, to be able to inlcude clients?
 #TODO: Groups are not supported yet
 
+class ACLException(Exception):
+    pass
+
 
 class ACLSet(list):
     """
@@ -294,14 +297,11 @@ class ACL(object):
     uses_role = False
     role = None
 
-    def __init__(self, scope=None, role=None):
+    def __init__(self, scope=ACL.SUB, role=None):
         self.env = Environment.getInstance()
 
-        if scope == None:
-            scope = ACL.SUB
-
         if scope not in (ACL.ONE, ACL.SUB, ACL.PSUB, ACL.RESET):
-            raise(Exception("Invalid ACL type given"))
+            raise(ACLException("Invalid ACL type given"))
 
         self.scope = scope
         self.actions = []
@@ -316,14 +316,14 @@ class ACL(object):
         Mark this ACL to use a role instead of direkt permission settings.
         """
         if type(rolename) not in [str, unicode]:
-            raise Exception("Expected type str or unicode for rolename!")
+            raise ACLException("Expected type str or unicode for rolename!")
 
         r = ACLResolver.instance
         if rolename in r.acl_roles:
             self.uses_role = True
             self.role = rolename
         else:
-            raise Exception("Unknown role '%s'!" % rolename)
+            raise ACLException("Unknown role '%s'!" % rolename)
 
     def set_priority(self, priority):
         self.priority = priority
@@ -333,7 +333,7 @@ class ACL(object):
         Adds a new member to this acl.
         """
         if type(member) != unicode:
-            raise(Exception("Member should be of type str!"))
+            raise(ACLException("Member should be of type str!"))
         self.members.append(member)
 
     def add_members(self, members):
@@ -341,7 +341,7 @@ class ACL(object):
         Adds a list of new members to this acl.
         """
         if type(members) != list:
-            raise(Exception("Requires a list of members!"))
+            raise(ACLException("Requires a list of members!"))
 
         for member in members:
             self.add_member(member)
@@ -351,7 +351,7 @@ class ACL(object):
         Adds a new action to this acl.
         """
         if self.uses_role:
-            raise Exception("ACL classes that use a role cannot define"
+            raise ACLException("ACL classes that use a role cannot define"
                    " additional costum acls!")
 
         acl = {
@@ -409,7 +409,7 @@ class ACL(object):
 
                 # Check for recursions while resolving the acls.
                 if self.role in used_roles:
-                    raise Exception("Recursion in acl resolution, loop in role '%s'! Included roles %s." % (self.role, str(used_roles)))
+                    raise ACLException("Recursion in acl resolution, loop in role '%s'! Included roles %s." % (self.role, str(used_roles)))
 
                 # Resolve acls used in the role.
                 used_roles.append(self.role)
@@ -493,14 +493,14 @@ class ACLRoleEntry(ACL):
         >>> resolver.add_acl_set(aclrole)
     """
 
-    def __init__(self, scope=None, role=None):
+    def __init__(self, scope=ACL.SUB, role=None):
         super(ACLRoleEntry, self).__init__(scope=scope, role=role)
 
     def add_member(self, member):
         """
         Adds a new member to this acl.
         """
-        raise Exception("Role ACLs do not support direct members")
+        raise ACLException("Role ACLs do not support direct members")
 
 
 class ACLResolver(object):
@@ -567,14 +567,14 @@ class ACLResolver(object):
         if not self.aclset_exists_by_location(acl.location):
             self.acl_sets.append(acl)
         else:
-            raise Exception("An acl definition for location '%s' already exists!", acl.location)
+            raise ACLException("An acl definition for location '%s' already exists!", acl.location)
 
     def add_acl_to_set(self, location, acl):
         """
         Add an acl rule to an existing acl set.
         """
         if not self.aclset_exists_by_location(location):
-            raise Exception("No acl definition found for location '%s' cannot add acl!", location)
+            raise ACLException("No acl definition found for location '%s' cannot add acl!", location)
         else:
             aclset = self.get_aclset_by_location(location)
             aclset.add(acl)
@@ -646,7 +646,7 @@ class ACLResolver(object):
 
             # Check if we've got unresolved roles!
             if len(unresolved):
-                raise Exception("Loading ACls failed, we've got unresolved roles references: '%s'!" % (str(unresolved), ))
+                raise ACLException("Loading ACls failed, we've got unresolved roles references: '%s'!" % (str(unresolved), ))
 
             # Add the recently created roles.
             for role_name in roles:
@@ -837,7 +837,7 @@ class ACLResolver(object):
                 if aclset.location == location:
                     return aclset
         else:
-            raise Exception("No acl definition found for location '%s'!" % (location,))
+            raise ACLException("No acl definition found for location '%s'!" % (location,))
 
     def aclset_exists_by_location(self, location):
         """
@@ -853,7 +853,7 @@ class ACLResolver(object):
         Removes a given acl rule.
         """
         if type(location) not in [str, unicode]:
-            raise Exception("ACLSets can only be removed by location name, '%s' is an invalid parameter" % location)
+            raise ACLException("ACLSets can only be removed by location name, '%s' is an invalid parameter" % location)
 
         # Remove all aclsets for the given location
         found = 0
@@ -864,7 +864,7 @@ class ACLResolver(object):
 
         # Send a message if there were no ACLSets for the given location
         if  not found:
-            raise Exception("No acl definitions for location '%s' were found, removal aborted!")
+            raise ACLException("No acl definitions for location '%s' were found, removal aborted!")
 
         pass
 
@@ -879,15 +879,15 @@ class ACLResolver(object):
 
         # Check if we've got a valid name type.
         if type(name) not in [str, unicode]:
-            raise Exception("Roles can only be removed by name, '%s' is an invalid parameter" % name)
+            raise ACLException("Roles can only be removed by name, '%s' is an invalid parameter" % name)
 
         # Check if such a role-name exists and then try to remove it.
         if name in self.acl_roles:
             if self.is_role_used(self.acl_roles[name]):
-                raise Exception("The role '%s' cannot be removed, it is still in use!" % name)
+                raise ACLException("The role '%s' cannot be removed, it is still in use!" % name)
             else:
                 del(self.acl_roles[name])
                 return True
         else:
-            raise Exception("No such role '%s', removal aborted!" % name)
+            raise ACLException("No such role '%s', removal aborted!" % name)
         return False
