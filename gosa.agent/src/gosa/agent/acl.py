@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-This is a collection of classes that can manage Access control lists.
+This chapter details the way access control is handled within the GOsa core
+engine.
 
 
 ACLSet
@@ -145,8 +146,8 @@ actions.
 >>> resolver.add_acl_set(aclrole)
 
 
-ACLResoler
-==========
+ACLResolver
+===========
 
 The ACLResolver is responsible for loading, saving and resolving permission.
 

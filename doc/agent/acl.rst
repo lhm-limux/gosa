@@ -1,4 +1,4 @@
-ACL resolver
+ACL handling
 ============
 
 .. automodule:: gosa.agent.acl
