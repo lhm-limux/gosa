@@ -877,7 +877,7 @@ class ACLResolver(object):
     def clear(self):
         """
         Clears all information abouts roles and acls.
-        This is called during initialization of the ACLResolver class. 
+        This is called during initialization of the ACLResolver class.
         """
 
         self.acl_sets = []
@@ -900,7 +900,7 @@ class ACLResolver(object):
         Key            Description
         ============== =============
         location       The location we want to add an ACL object to.
-        acl            The ACL object we want to add. 
+        acl            The ACL object we want to add.
         ============== =============
         """
         if not self.aclset_exists_by_location(location):
