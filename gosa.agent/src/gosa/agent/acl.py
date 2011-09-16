@@ -17,11 +17,10 @@ How an ACL assigment could look like
     ACLSet
      |-> ACL
      |-> ACL
-     |-> ACLRole (test1)
+     |-> ACL -> ACLRole (test1)
      |-> ACL
 
 --------
-
 """
 import re
 import os
@@ -34,10 +33,10 @@ from gosa.common import Environment
 from gosa.agent.ldap_utils import LDAPHandler
 from gosa.common.components import Command, PluginRegistry
 
-
 #TODO: Think about ldap relations, how to store and load objects.
 #TODO: What about object groups, to be able to inlcude clients?
 #TODO: Groups are not supported yet
+
 
 class ACLException(Exception):
     pass
@@ -81,7 +80,7 @@ class ACLSet(list):
 
     def remove_acls_for_user(self, user):
         """
-        Removes all permission for a given user from this aclset.
+        Removes all permission for the given user form this ACLSet.
 
         ============== =============
         Key            Description
@@ -207,7 +206,7 @@ class ACLRole(list):
 
         >>> # Create an ACLRole object
         >>> aclrole = ACLRole('role1')
-        >>> acl = ACLRoleEntry(scope=SUB)
+        >>> acl = ACLRoleEntry(scope=ACL.SUB)
         >>> acl.add_action(...)
         >>> aclrole.add(acl)
 
@@ -225,7 +224,7 @@ class ACLRole(list):
 
         >>> # Create an ACLRole object
         >>> aclrole1 = ACLRole('role1')
-        >>> acl = ACLRoleEntry(scope=SUB)
+        >>> acl = ACLRoleEntry(scope=ACL.SUB)
         >>> acl.add_action(...)
         >>> aclrole1.add(acl)
 
@@ -388,12 +387,8 @@ class ACL(object):
     uses_role = False
     role = None
 
-    def __init__(self, scope=None, role=None):
+    def __init__(self, scope=SUB, role=None):
         self.env = Environment.getInstance()
-
-        # Do not allow to use scope and role together
-        if scope and role:
-            raise Exception("You can either use 'role' or 'scope', but not both!")
 
         self.actions = []
         self.members = []
@@ -402,8 +397,6 @@ class ACL(object):
         if role:
             self.__use_role(role)
         else:
-            if scope == None:
-                scope = ACL.SUB
 
             if scope not in (ACL.ONE, ACL.SUB, ACL.PSUB, ACL.RESET):
                 raise(Exception("Invalid ACL type given"))
@@ -567,9 +560,9 @@ class ACL(object):
         # Nothing matched!
         return False
 
-    def get_type(self):
+    def get_scope(self):
         """
-        Returns the type of an ACL.
+        Returns the scope of an ACL.
         SUB, PSUB, RESET, ...
         """
         return(self.scope)
@@ -873,16 +866,16 @@ class ACLResolver(object):
                 for acl in acl_set:
                     if acl.match(user, action, acls, options):
                         self.env.log.debug("found matching ACL in '%s'" % location)
-                        if acl.get_type() == ACL.RESET:
+                        if acl.get_scope() == ACL.RESET:
                             self.env.log.debug("found ACL reset for action '%s'" % action)
                             reset = True
-                        elif acl.get_type() == ACL.PSUB:
+                        elif acl.get_scope() == ACL.PSUB:
                             self.env.log.debug("found permanent ACL for action '%s'" % action)
                             return True
-                        elif acl.get_type() in (ACL.SUB, ) and not reset:
+                        elif acl.get_scope() in (ACL.SUB, ) and not reset:
                             self.env.log.debug("found ACL for action '%s' (SUB)" % action)
                             return True
-                        elif acl.get_type() in (ACL.ONE, ) and orig_loc == acl_set.location and not reset:
+                        elif acl.get_scope() in (ACL.ONE, ) and orig_loc == acl_set.location and not reset:
                             self.env.log.debug("found ACL for action '%s' (ONE)" % action)
                             return True
 
