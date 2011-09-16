@@ -311,14 +311,14 @@ class ACLRole(list):
 
 class ACL(object):
     """
-    The ``ACL`` object describes a set of action that can be accessed in a given scope.
-    ``ACL`` classes can then be bundled in ``ACLSet`` objects.
+    The ``ACL`` object describes a set of actions that can be accessed in a given scope.
+    ``ACL`` classes can then be bundled in ``ACLSet`` objects and attached to locations.
 
     ============== =============
     Key            Description
     ============== =============
     scope          The scope this acl is valid for.
-    role           You can either define permission action directly or you can use an ``ACLRole`` instead
+    role           You can either define permission actions directly or you can use an ``ACLRole`` instead
     ============== =============
 
     Valid scope values:
@@ -328,8 +328,8 @@ class ACL(object):
         * ``ACL.RESET`` revokes the actions described in this ``ACL`` object for all sub-levels of the tree.
         * ``ACL.PSUB`` for all sub-level, cannot be revoked using ``ACL.RESET``
 
-    The ACL class contains list of action for a set of members.
-    These ACL classes can then be bundled and attached to a ldap base using
+    The ACL class contains list of actions for a set of members.
+    These ACL classes can then be bundled and attached to a location base using
     the ``ACLSet`` class.
 
     ======== ================
@@ -337,7 +337,7 @@ class ACL(object):
     ======== ================
     Scope    The scope specifies where the ACL is valid for, e.g. ONE-level, all SUB-levels or RESET previous ACLs
     Members  A list of users this acl is valid for.
-    Role     Instead of actions you can also refere to a ACLRole object.
+    Role     Instead of actions you can also refer to a ACLRole object.
     Actions  You can have multiple actions, where one action is described by ``a target``, a ``set of acls`` and additional ``options`` that have to be checked while ACLs are resolved.
     ======== ================
 
@@ -503,8 +503,8 @@ class ACL(object):
         ============== =============
         Key            Description
         ============== =============
-        target         The target action we want ot create ACLs for. E.g. 'com.gosa.factory.Person'
-        acls           The acls this action contains. E.g. 'rwcdm'.
+        target         The target action we want to create ACLs for. E.g. 'com.gosa.factory.Person'
+        acls           The acls this action contain. E.g. 'rwcdm'.
         options        Special additional options that have to be checked.
         ============== =============
 
@@ -539,14 +539,14 @@ class ACL(object):
          * x - Execute
          * e - Receive event
 
-        The actions has to passed as a string, which contains all actions at once::
+        The actions have to passed as a string, which contains all actions at once::
             >>> add_action(``target``, "rwcdm", ``options``)
 
         **Options**
 
-        Options are additional check parameters that have to be fullfulled to get this acl to match.
+        Options are additional check parameters that have to be fullfilled to get this acl to match.
 
-        The ``options`` parameter is a dictionary which contains a key and a value for each additional option we want to check, e.g. ::
+        The ``options`` parameter is a dictionary which contains a key and a value for each additional option we want to check for, e.g. ::
             >>> add_action(``target``, ``acls``, {'uid': 'hanspeter', 'ou': 'technik'})
 
         If you've got a user object as dictionary, then you can check permissions like this::
@@ -713,7 +713,7 @@ class ACLRoleEntry(ACL):
     Type     Description
     ======== ================
     Scope    The scope specifies where the ACL is valid for, e.g. ONE-level, all SUB-levels or RESET previous ACLs
-    Role     Instead of actions you can also refere to a ACLRole object.
+    Role     Instead of actions you can also refer to a ACLRole object.
     Actions  You can have multiple actions, where one action is described by ``a target``, a ``set of acls`` and additional ``options`` that have to be checked while ACLs are resolved.
     ======== ================
     """
