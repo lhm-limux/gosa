@@ -526,17 +526,17 @@ class ACL(object):
 
         **Acls**
 
-        The acls paramter describes the action we can perform on a given ``target``. 
+        The acls paramter describes the action we can perform on a given ``target``.
         Possible actions are:
 
-         * r - Lesen
-         * w - Schreiben
-         * m - Verschieben
-         * c - Erstellen
-         * d - Löschen
-         * s - Suchen - bzw. gefunden werden
-         * x - Ausführen
-         * e - Event empfangen
+         * r - Read
+         * w - Write
+         * m - Move
+         * c - Create
+         * d - Delete
+         * s - Search - or beeing found
+         * x - Execute
+         * e - Receive event
 
         The actions has to passed as a string, which contains all actions at once::
             >>> add_action(``target``, **"rwcdm"**, ``options``)
