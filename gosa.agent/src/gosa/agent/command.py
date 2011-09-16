@@ -248,15 +248,15 @@ class CommandRegistry(object):
         if not func in self.capabilities:
             raise CommandInvalid("no function '%s' defined" % func)
 
-        # Check for permission
-        #func_args = self.capabilities[func]['sig']
-        ##TODO: assemble options
-        #if not self.acl.check(user, "org.gosa.command.%s" % func, "x")
-        #    raise CommandNotAuthorized("call of function '%s' is not permitted" % func)
-
         # Depending on the call method, we may have no queue information
         if not queue:
             queue = self.env.domain + ".command.%s" % self.capabilities[func]['target']
+
+        # Check for permission
+        chk_options = dict(dict(zip(self.capabilities[func]['sig'], arg)).items() + larg.items())
+        acl = PluginRegistry.getInstance("ACLResolver")
+        if not acl.check(user, "%s.%s" % (queue, func), "x", options=chk_options):
+            raise CommandNotAuthorized("call of function '%s.%s' is not permitted" % (queue, func))
 
         # Convert to list
         arg = list(arg)
@@ -494,7 +494,7 @@ class CommandRegistry(object):
                 self.capabilities[methodName] = {
                     'path': method.Path.text,
                     'target': method.Target.text,
-                    'sig': string.split(method.Signature.text, ','),
+                    'sig': string.split(method.Signature.text, ',') if method.Signature.text else [],
                     'type': mtype[method.Type.text],
                     'needsQueue': method.QueueRequired.text == "true",
                     'doc': method.Documentation.text}

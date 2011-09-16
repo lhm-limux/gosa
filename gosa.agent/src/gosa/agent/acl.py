@@ -552,10 +552,6 @@ class ACLResolver(object):
 
     _priority_ = 0
 
-    def clear(self):
-        self.acl_sets = []
-        self.acl_roles = {}
-
     def __init__(self):
         self.env = Environment.getInstance()
 
@@ -569,6 +565,13 @@ class ACLResolver(object):
         self.env.log.debug("initializing ACL resolver")
         self.load_from_file()
         ACLResolver.instance = self
+
+        # Load override admins from configuration
+        self.admins = 
+
+    def clear(self):
+        self.acl_sets = []
+        self.acl_roles = {}
 
     def add_acl_set(self, acl):
         """
