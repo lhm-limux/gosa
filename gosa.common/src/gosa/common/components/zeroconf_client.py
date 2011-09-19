@@ -13,6 +13,10 @@ else:
     import pybonjour
 
 
+class ZeroconfException(Exception):
+    pass
+
+
 class ZeroconfClient(object):
     """
     The ZeroconfClient class helps with browsing for announced services. It
@@ -52,6 +56,7 @@ class ZeroconfClient(object):
     regtypes        The service list to watch out for - i.e. _amqps._tcp
     timeout         The timeout in seconds
     callback        Method to call when we've received something
+    domain          optional DNS domain to discover
     =============== ============
     """
     __resolved = []
@@ -107,8 +112,11 @@ class ZeroconfClient(object):
             sddns = ZeroconfClient(regs, callback=done_callback, domain=domain)
             sddns.start()
 
-        urls = q.get()
-        q.task_done()
+        while True:
+            urls = q.get()
+            q.task_done()
+            if urls:
+                break
 
         if domain:
             sddns.stop()
@@ -148,7 +156,7 @@ class ZeroconfClient(object):
         sbrowser.connect_to_signal("ItemNew", self.__newServiceAvahi)
         sbrowser.connect_to_signal("ItemRemove", self.__removeServiceAvahi)
         sbrowser.connect_to_signal("AllForNow", self.__allForNowAvahi)
-        sbrowser.connect_to_signal("Failure", self.__errorCallbackAvahi)
+        #sbrowser.connect_to_signal("Failure", self.__errorCallbackAvahi)
 
     def __newServiceAvahi(self, interface, protocol, name, type, domain, flags):
         interface, protocol, name, type, domain, host, aprotocol, address, port, txt, flags = self.__server.ResolveService(interface, protocol, name, type, domain, avahi.PROTO_UNSPEC, dbus.UInt32(0))
@@ -171,9 +179,7 @@ class ZeroconfClient(object):
         self.__callback(self.__services.values())
 
     def __errorCallbackAvahi(self, *args):
-        #TODO: Make this one real
-        print('ERROR: ')
-        print(args)
+        raise ZeroconfException("DBUS communication error: %s" % str(args[0]))
 
 # 8<--------------------------------------------- pybonjour
 # 8<--------------------------------------------- pybonjour
