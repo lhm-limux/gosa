@@ -715,29 +715,9 @@ class ACLRoleEntry(ACL):
     The ``ACLRoleEntry`` object describes a set of action that can be accessed in a given scope.
     ``ACLRoleEntry`` classes can then be bundled in ``ACLRole`` objects, to build up roles.
 
-    ============== =============
-    Key            Description
-    ============== =============
-    scope          The scope this acl is valid for.
-    role           You can either define permission action directly or you can use an ``ACLRole`` instead
-    ============== =============
+    This class interits most methods from :class:`gosa.agent.acl.ACL`, except for member managing methods,
+    due to the fact that ACLRoleEntries do not have members!
 
-    Valid scope values:
-
-        * ``ACL.ONE`` for one level.
-        * ``ACL.SUB`` for all sub-level. This can be revoked using ``ACL.RESET``
-        * ``ACL.RESET`` revokes the actions described in this ``ACL`` object for all sub-levels of the tree.
-        * ``ACL.PSUB`` for all sub-level, cannot be revoked using ``ACL.RESET``
-
-    Members properties:
-
-    ======== ================
-    Type     Description
-    ======== ================
-    Scope    The scope specifies where the ACL is valid for, e.g. ONE-level, all SUB-levels or RESET previous ACLs
-    Role     Instead of actions you can also refer to a ACLRole object.
-    Actions  You can have multiple actions, where one action is described by ``a target``, a ``set of acls`` and additional ``options`` that have to be checked while ACLs are resolved.
-    ======== ================
     """
 
     def __init__(self, scope=ACL.SUB, role=None):
@@ -749,6 +729,11 @@ class ACLRoleEntry(ACL):
         """
         raise ACLException("Role ACLs do not support direct members")
 
+    def set_members(self, member):
+        """
+        An overloaded method from ACL which disallows to add users.
+        """
+        raise ACLException("Role ACLs do not support direct members")
 
 class ACLResolver(object):
     """
