@@ -715,7 +715,7 @@ class ACLRoleEntry(ACL):
     The ``ACLRoleEntry`` object describes a set of action that can be accessed in a given scope.
     ``ACLRoleEntry`` classes can then be bundled in ``ACLRole`` objects, to build up roles.
 
-    This class interits most methods from :class:`gosa.agent.acl.ACL`, except for member managing methods,
+    This class interits most methods from :class:`gosa.agent.acl.ACL`, except for methods that manage members,
     due to the fact that ACLRoleEntries do not have members!
 
     """
