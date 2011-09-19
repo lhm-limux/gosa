@@ -393,11 +393,16 @@ class ACL(object):
     uses_role = False
     role = None
 
+    id = None
+
     def __init__(self, scope=SUB, role=None):
         self.env = Environment.getInstance()
 
         self.actions = []
         self.members = []
+
+        r = ACLResolver.instance
+        self.id = r.get_next_acl_id()
 
         # Is this a role base or manually configured ACL object.
         if role:
@@ -772,6 +777,8 @@ class ACLResolver(object):
     acl_roles = None
     admins = []
 
+    next_acl_id = 0
+
     _priority_ = 0
 
     def __init__(self):
@@ -795,6 +802,14 @@ class ACLResolver(object):
         self.load_from_file()
         ACLResolver.instance = self
 
+    def list_admin_accounts(self):
+        return self.admins
+
+    def get_next_acl_id(self):
+
+        self.next_acl_id += 1
+        return(self.next_acl_id)
+
     def clear(self):
         """
         Clears all information abouts roles and acls.
@@ -810,6 +825,7 @@ class ACLResolver(object):
         """
         if not self.aclset_exists_by_location(acl.location):
             self.acl_sets.append(acl)
+
         else:
             raise ACLException("An acl definition for location '%s' already exists!", acl.location)
 
@@ -1241,9 +1257,71 @@ class ACLResolver(object):
 
     @Command(needsUser=True, __help__=N_("List defined ACLs by base or topic."))
     def getACLs(self, user, base=None, topic=None):
-        #TODO: detail permission check, topic for ACLs - org.gosa.acl
-        #TODO: should list static override ACLs defined in gosa/config
-        pass
+        """
+        This command returns a lists of defined ACLs, including hard coded
+        system-admins (configuration file).
+
+        You can filter the result by using the ``topic`` and ``base`` parameters.
+        The ``base`` parameter will only list permissions defined for the given base,
+        where the ``topic`` parameter will list all acls that match the given topic value.
+
+        Example::
+
+            >>> getACls(base='dc=gonicus,dc=de')
+            >>> getACls(topic='com\.gonicus\.factory\..*'
+
+        ============== =============
+        Key            Description
+        ============== =============
+        base           (optional) The base we want to list the permissions for.
+        topic          (optional) The topic we want to list acls for.
+        ============== =============
+
+        """
+
+        # Collect all acls
+        r = ACLResolver()
+        result = []
+        for aclset in self.acl_sets:
+            if base == aclset.location or base == None:
+
+                # Check permissions
+                if not r.check(user, 'org.gosa.acl', 'r', aclset.location):
+                    continue
+
+                for acl in aclset:
+
+                    # Check if this acl matches the requested topic
+                    match = True
+                    if topic != None:
+                        match = False
+
+                        # Walk through defined topics of the current acl and check if one
+                        # matches the required topic.
+                        for action in acl.actions:
+                            if re.match(topic, action['target']):
+                                match = True
+                                break
+
+                    # The current ACL matches the requested topic add it to the result.
+                    if match:
+                        result.append({'location': aclset.location,
+                            'id': acl.id,
+                            'members': acl.members,
+                            'scope': acl.scope,
+                            'actions': acl.actions})
+
+        # Append configured admin accounts
+        admins = r.list_admin_accounts()
+        if len(admins) and r.check(user, 'org.gosa.acl', 'r'):
+            if topic == None or re.match(topic, '*'):
+                result.append({'location': aclset.location,
+                    'id': None,
+                    'members': admins,
+                    'scope': ACL.PSUB,
+                    'actions': [{'action': '*', 'acls':'rwcdmsxe', 'options': {}}]})
+
+        return(result)
 
     @Command(needsUser=True, __help__=N_("Remove defined ACL by ID."))
     def removeACL(self, user, acl_id):
