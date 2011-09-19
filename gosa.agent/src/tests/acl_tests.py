@@ -19,6 +19,26 @@ class TestACLResolver(unittest.TestCase):
         self.resolver.clear()
         self.ldap_base = self.resolver.base
 
+    def test_remove_acls_for_user(self):
+
+        # Create acls with scope SUB
+        aclset = ACLSet()
+        acl = ACL(scope=ACL.SUB)
+        acl.set_members([u'tester1', u'tester2'])
+        acl.add_action('com.gosa.factory', 'rwx')
+        aclset.add(acl)
+        self.resolver.add_acl_set(aclset)
+
+        # Now remove all ACLs for user 'tester1' but keep those for 'tester2'
+        self.resolver.remove_acls_for_user('tester1')
+
+        # No check the permissions 'tester1' should not be able to read anymore, where 'tester2' should.
+        self.assertFalse(self.resolver.check('tester1', 'com.gosa.factory', 'r'),
+                "Removing ACLs for a specific user does not work correctly! The user should not be able to read, but he can!")
+
+        self.assertTrue(self.resolver.check('tester2', 'com.gosa.factory', 'r'),
+                "Removing ACLs for a specific user does not work correctly! The user should still be able to read, but he cannot!")
+
     def test_role_endless_recursion(self):
         """
         A test which ensures that roles do not refer to each other, creating an endless-recursion.

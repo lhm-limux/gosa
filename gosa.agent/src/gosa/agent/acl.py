@@ -1216,3 +1216,32 @@ class ACLResolver(object):
         else:
             raise ACLException("No such role '%s', removal aborted!" % name)
         return False
+
+    def remove_acls_for_user(self, user):
+        """
+        Removes all permission for the given user!
+
+        ============== =============
+        Key            Description
+        ============== =============
+        user           The username to remove acls for.
+        ============== =============
+
+        Example::
+
+            aclset = ACLSet()
+            acl = ACL(scope=ACL.ONE)
+            acl.set_members([u'tester1', u'tester2'])
+            acl.add_action('com.#.factory', 'rwx')
+            acl.set_priority(100)
+            aclset.add(acl)
+            resolver.add(aclset)
+
+            resolver.remove_acls_for_user('tester1')
+
+            ...
+
+        """
+        for aclset in self.acl_sets:
+            aclset.remove_acls_for_user(user)
+
