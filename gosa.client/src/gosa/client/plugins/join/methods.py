@@ -158,18 +158,7 @@ class join_method(object):
 
         # If there's no url, try to find it using zeroconf
         if not svc_url:
-            self.env.log.info("Searching service provider...")
-            zclient = ZeroconfClient('_gosa._tcp', callback=self.update_url)
-            zclient.start()
-            try:
-                while not self._url:
-                    time.sleep(0.5)
-            except KeyboardInterrupt:
-                # Shutdown client
-                zclient.stop()
-                sys.exit(1)
-            zclient.stop()
-            svc_url = self._url
+            svc_url = ZeroconfClient.discover(['_amqps._tcp', '_amqp._tcp'], domain=self.domain)[0]
 
         self.svc_id = svc_id
         self.url = svc_url
@@ -210,17 +199,6 @@ class join_method(object):
             return i_info[netifaces.AF_LINK][0]['addr']
 
         return None
-
-    def update_url(self, sdRef, flags, interfaceIndex, errorCode, fullname,
-                hosttarget, port, txtRecord):
-        # Don't do this twice for amqp. We've automatic fallback.
-        if self._url:
-            return
-
-        rx = re.compile(r'^amqps?://')
-        if rx.match(txtRecord):
-            self.env.log.info("using service '%s'" % txtRecord)
-            self._url = txtRecord
 
     def show_error(self, error):
         """

@@ -778,6 +778,7 @@ class ACLResolver(object):
     next_acl_id = 0
 
     _priority_ = 0
+    _target_ = 'core'
 
     def __init__(self):
         self.env = Environment.getInstance()

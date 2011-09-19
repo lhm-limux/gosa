@@ -133,7 +133,6 @@ class GOsaService():
     """ The GOsaService class encapsulates all GOSA functionality that is
         accessible via the interactive console. """
     proxy = None
-    __url = None
 
     def __init__(self):
         self.name = 'GOsaService'
@@ -149,22 +148,8 @@ class GOsaService():
 
         if len(service_uri) <= 0:
             print(_("Searching service provider..."))
-            self.__mdns = ZeroconfClient('_gosa._tcp', callback=self.updateURL)
-            self.__sddns = ZeroconfClient('_gosa._tcp',
-                    callback=self.updateURL, domain=self.domain)
-            self.__mdns.start()
-            self.__sddns.start()
-            try:
-                while not self.__url:
-                    time.sleep(0.5)
-            except KeyboardInterrupt:
-                # Shutdown client
-                self.__mdns.stop()
-                self.__sddns.stop()
-                sys.exit(1)
-            self.__mdns.stop()
-            self.__sddns.stop()
-            service_uri = self.__url
+            service_uri = ZeroconfClient.discover(['_amqps._tcp', '_amqp._tcp',
+                '_https._tcp', '_http._tcp'], domain=self.domain)[0]
 
         # Test if one argument is still needed.
         if len(service_uri) <= 0:
@@ -251,17 +236,6 @@ class GOsaService():
         except Exception, e:
             print(e)
             sys.exit(1)
-
-    def updateURL(self, sdRef, flags, interfaceIndex, errorCode, fullname,
-                hosttarget, port, txtRecord):
-        global a_lock
-
-        # Don't do this twice for amqp. We've automatic fallback.
-        with a_lock:
-            if self.__url:
-                return
-
-            self.__url = txtRecord
 
     def help(self):
         """ Prints some help """

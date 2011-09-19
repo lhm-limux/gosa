@@ -71,11 +71,10 @@ class JSONRPCService(object):
             default=1800), cookie_name='GOsaRPC'))
 
         # Announce service
-        url= "%s://%s:%s%s" % (self.__http.scheme, self.__http.host, self.__http.port, self.path)
         self.__zeroconf = ZeroconfService(name="GOsa JSONRPC command service",
             port=self.__http.port,
-            stype="_gosa._tcp",
-            text=url)
+            stype="_%s._tcp" % self.__http.scheme,
+            text="path=%s\001service=gosa" % self.path)
         self.__zeroconf.publish()
 
     def stop(self):

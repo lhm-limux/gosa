@@ -129,8 +129,8 @@ class AMQPService(object):
         url = parseURL(self.env.config.get("amqp.url"))
         self.__zeroconf = ZeroconfService(name="GOsa AMQP command service",
                 port=url['port'],
-                stype="_gosa._tcp",
-                text="%s://%s:%s/%s" % (url['scheme'], url['host'], url['port'], self.env.domain))
+                stype="_%s._tcp" % url['scheme'],
+                text="path=%s\001service=gosa" % url['path'])
         self.__zeroconf.publish()
 
     def stop(self):
