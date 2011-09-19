@@ -130,7 +130,7 @@ the <tt class="docutils literal"><span class="pre">ACLSet</span></tt> class.</p>
 <td>Instead of actions you can also refer to a ACLRole object.</td>
 </tr>
 <tr><td>Actions</td>
-<td>You can have multiple actions, where one action is described by <tt class="docutils literal"><span class="pre">a</span> <span class="pre">target</span></tt>, a <tt class="docutils literal"><span class="pre">set</span> <span class="pre">of</span> <span class="pre">acls</span></tt> and additional <tt class="docutils literal"><span class="pre">options</span></tt> that have to be checked while ACLs are resolved.</td>
+<td>You can have multiple actions, where one action is described by <tt class="docutils literal"><span class="pre">a</span> <span class="pre">topic</span></tt>, a <tt class="docutils literal"><span class="pre">set</span> <span class="pre">of</span> <span class="pre">acls</span></tt> and additional <tt class="docutils literal"><span class="pre">options</span></tt> that have to be checked while ACLs are resolved.</td>
 </tr>
 </tbody>
 </table>
@@ -167,12 +167,12 @@ the <tt class="docutils literal"><span class="pre">ACLSet</span></tt> class.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">acl</span><span class="o">.</span><span class="n">add_action</span><span class="p">(</span><span class="s">&#39;org.gosa.*.Person.cn&#39;</span><span class="p">,</span><span class="s">&#39;rwx&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Where <tt class="docutils literal"><span class="pre">#</span></tt> allow to ignore one level on the target action and <tt class="docutils literal"><span class="pre">*</span></tt> allows to ignore one or more levels:</p>
+<p>Where <tt class="docutils literal"><span class="pre">#</span></tt> allow to ignore one level on the topic action and <tt class="docutils literal"><span class="pre">*</span></tt> allows to ignore one or more levels:</p>
 <p><tt class="docutils literal"><span class="pre">com.#.factory</span></tt> would match with <tt class="docutils literal"><span class="pre">com.test.factory</span></tt> or <tt class="docutils literal"><span class="pre">com.something.factory</span></tt></p>
 <p><tt class="docutils literal"><span class="pre">com.*.factory</span></tt> would match with <tt class="docutils literal"><span class="pre">com.test.factory</span></tt>, <tt class="docutils literal"><span class="pre">com.something.factory</span></tt> or <tt class="docutils literal"><span class="pre">com.level1.level2.level3.factory</span></tt></p>
 <dl class="method">
 <dt id="gosa.agent.acl.ACL.add_action">
-<tt class="descname">add_action</tt><big>(</big><em>target</em>, <em>acls</em>, <em>options=None</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACL.add_action" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">add_action</tt><big>(</big><em>topic</em>, <em>acls</em>, <em>options=None</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACL.add_action" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a new action to this ACL object.</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -185,8 +185,8 @@ the <tt class="docutils literal"><span class="pre">ACLSet</span></tt> class.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td>target</td>
-<td>The target action we want to create ACLs for. E.g. &#8216;com.gosa.factory.Person&#8217;</td>
+<tr><td>topic</td>
+<td>The topic action we want to create ACLs for. E.g. &#8216;com.gosa.factory.Person&#8217;</td>
 </tr>
 <tr><td>acls</td>
 <td>The acls this action contain. E.g. &#8216;rwcdm&#8217;.</td>
@@ -198,7 +198,7 @@ the <tt class="docutils literal"><span class="pre">ACLSet</span></tt> class.</p>
 </table>
 <p><strong>Targets</strong></p>
 <p>Targets can contain placeholder to be more flexible when it come to resolving acls.
-You can use <tt class="docutils literal"><span class="pre">#</span></tt> and <tt class="docutils literal"><span class="pre">*</span></tt> where <tt class="docutils literal"><span class="pre">#</span></tt> matches for one level and <tt class="docutils literal"><span class="pre">*</span></tt> for multiple target levels.</p>
+You can use <tt class="docutils literal"><span class="pre">#</span></tt> and <tt class="docutils literal"><span class="pre">*</span></tt> where <tt class="docutils literal"><span class="pre">#</span></tt> matches for one level and <tt class="docutils literal"><span class="pre">*</span></tt> for multiple topic levels.</p>
 <dl class="docutils">
 <dt>For example <tt class="docutils literal"><span class="pre">gosa.#.factory</span></tt> would match for:</dt>
 <dd><ul class="first last simple">
@@ -221,7 +221,7 @@ You can use <tt class="docutils literal"><span class="pre">#</span></tt> and <tt
 </dd>
 </dl>
 <p><strong>Acls</strong></p>
-<p>The acls paramter describes the action we can perform on a given <tt class="docutils literal"><span class="pre">target</span></tt>.
+<p>The acls paramter describes the action we can perform on a given <tt class="docutils literal"><span class="pre">topic</span></tt>.
 Possible actions are:</p>
 <blockquote>
 <div><ul class="simple">
@@ -237,7 +237,7 @@ Possible actions are:</p>
 </div></blockquote>
 <dl class="docutils">
 <dt>The actions have to passed as a string, which contains all actions at once::</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">add_action</span><span class="p">(</span><span class="sb">``</span><span class="n">target</span><span class="sb">``</span><span class="p">,</span> <span class="s">&quot;rwcdm&quot;</span><span class="p">,</span> <span class="sb">``</span><span class="n">options</span><span class="sb">``</span><span class="p">)</span>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">add_action</span><span class="p">(</span><span class="sb">``</span><span class="n">topic</span><span class="sb">``</span><span class="p">,</span> <span class="s">&quot;rwcdm&quot;</span><span class="p">,</span> <span class="sb">``</span><span class="n">options</span><span class="sb">``</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd>
@@ -246,12 +246,12 @@ Possible actions are:</p>
 <p>Options are additional check parameters that have to be fullfilled to get this acl to match.</p>
 <dl class="docutils">
 <dt>The <tt class="docutils literal"><span class="pre">options</span></tt> parameter is a dictionary which contains a key and a value for each additional option we want to check for, e.g. ::</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">add_action</span><span class="p">(</span><span class="sb">``</span><span class="n">target</span><span class="sb">``</span><span class="p">,</span> <span class="sb">``</span><span class="n">acls</span><span class="sb">``</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;uid&#39;</span><span class="p">:</span> <span class="s">&#39;hanspeter&#39;</span><span class="p">,</span> <span class="s">&#39;ou&#39;</span><span class="p">:</span> <span class="s">&#39;technik&#39;</span><span class="p">})</span>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">add_action</span><span class="p">(</span><span class="sb">``</span><span class="n">topic</span><span class="sb">``</span><span class="p">,</span> <span class="sb">``</span><span class="n">acls</span><span class="sb">``</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;uid&#39;</span><span class="p">:</span> <span class="s">&#39;hanspeter&#39;</span><span class="p">,</span> <span class="s">&#39;ou&#39;</span><span class="p">:</span> <span class="s">&#39;technik&#39;</span><span class="p">})</span>
 </pre></div>
 </div>
 </dd>
 <dt>If you&#8217;ve got a user object as dictionary, then you can check permissions like this::</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">resolver</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s">&#39;some.target&#39;</span><span class="p">,</span> <span class="s">&#39;rwcdm&#39;</span><span class="p">,</span> <span class="n">user1</span><span class="p">)</span>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">resolver</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s">&#39;some.topic&#39;</span><span class="p">,</span> <span class="s">&#39;rwcdm&#39;</span><span class="p">,</span> <span class="n">user1</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd>
@@ -287,6 +287,12 @@ If not all options match, the ACL will not match.</p>
 <span class="n">acl</span><span class="o">.</span><span class="n">add_member</span><span class="p">(</span><span class="s">u&#39;peter&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.acl.ACL.clear_actions">
+<tt class="descname">clear_actions</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACL.clear_actions" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method removes all defined actions from this acl.</p>
 </dd></dl>
 
 <dl class="method">
@@ -333,7 +339,7 @@ SUB, PSUB, RESET, ...</p>
 
 <dl class="method">
 <dt id="gosa.agent.acl.ACL.match">
-<tt class="descname">match</tt><big>(</big><em>user</em>, <em>target</em>, <em>acls</em>, <em>options=None</em>, <em>skip_user_check=False</em>, <em>used_roles=None</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACL.match" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">match</tt><big>(</big><em>user</em>, <em>topic</em>, <em>acls</em>, <em>options=None</em>, <em>skip_user_check=False</em>, <em>used_roles=None</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACL.match" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if this <tt class="docutils literal"><span class="pre">ACL</span></tt> object matches the given criteria.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
@@ -353,8 +359,8 @@ SUB, PSUB, RESET, ...</p>
 <tr><td>user</td>
 <td>The user we want to check for. E.g. &#8216;hans&#8217;</td>
 </tr>
-<tr><td>target</td>
-<td>The target action we want to check for. E.g. &#8216;com.gosa.factory&#8217;</td>
+<tr><td>topic</td>
+<td>The topic action we want to check for. E.g. &#8216;com.gosa.factory&#8217;</td>
 </tr>
 <tr><td>acls</td>
 <td>A string containing the acls we want to check for.</td>
@@ -437,6 +443,29 @@ SUB, PSUB, RESET, ...</p>
 <span class="n">acl</span><span class="o">.</span><span class="n">set_priority</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.acl.ACL.set_scope">
+<tt class="descname">set_scope</tt><big>(</big><em>scope</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACL.set_scope" title="Permalink to this definition">¶</a></dt>
+<dd><p>This methods updates the ACLs scope level.</p>
+<p>See <a class="reference internal" href="#gosa.agent.acl.ACL" title="gosa.agent.acl.ACL"><tt class="xref py py-class docutils literal"><span class="pre">gosa.agent.acl.ACL</span></tt></a> for details on the scope-levels.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="72%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>priority</td>
+<td>The new priority value for this ACl.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -533,17 +562,17 @@ repesentation:</p>
 <li><tt class="docutils literal"><span class="pre">reset</span></tt> revokes the actions described in this rule for all sub-levels of the tree.</li>
 <li><tt class="docutils literal"><span class="pre">psub</span></tt> the acl is valid for all sub-levels, this cannot be revoked using <tt class="docutils literal"><span class="pre">reset</span></tt></li>
 </ul>
-<p>The <strong>actions</strong> parameter is dictionary with three items <tt class="docutils literal"><span class="pre">target</span></tt>, <tt class="docutils literal"><span class="pre">acls</span></tt> and <tt class="docutils literal"><span class="pre">options</span></tt>.</p>
-<p>The <strong>target</strong> specifies the action this acl affects, for exmaple:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span> <span class="p">{</span><span class="s">&#39;target&#39;</span><span class="p">:</span> <span class="s">&#39;org.gosa.factory&#39;</span><span class="p">,</span> <span class="s">&#39;acls&#39;</span><span class="p">:</span> <span class="o">...</span><span class="p">}</span>
-<span class="gp">&gt;&gt;&gt; </span> <span class="p">{</span><span class="s">&#39;target&#39;</span><span class="p">:</span> <span class="s">&#39;org.gosa.#.factory&#39;</span><span class="p">,</span> <span class="s">&#39;acls&#39;</span><span class="p">:</span> <span class="o">...</span><span class="p">}</span>
-<span class="gp">&gt;&gt;&gt; </span> <span class="p">{</span><span class="s">&#39;target&#39;</span><span class="p">:</span> <span class="s">&#39;org.gosa.*.factory&#39;</span><span class="p">,</span> <span class="s">&#39;acls&#39;</span><span class="p">:</span> <span class="o">...</span><span class="p">}</span>
+<p>The <strong>actions</strong> parameter is dictionary with three items <tt class="docutils literal"><span class="pre">topic</span></tt>, <tt class="docutils literal"><span class="pre">acls</span></tt> and <tt class="docutils literal"><span class="pre">options</span></tt>.</p>
+<p>The <strong>topic</strong> specifies the action this acl affects, for exmaple:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span> <span class="p">{</span><span class="s">&#39;topic&#39;</span><span class="p">:</span> <span class="s">&#39;org.gosa.factory&#39;</span><span class="p">,</span> <span class="s">&#39;acls&#39;</span><span class="p">:</span> <span class="o">...</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span> <span class="p">{</span><span class="s">&#39;topic&#39;</span><span class="p">:</span> <span class="s">&#39;org.gosa.#.factory&#39;</span><span class="p">,</span> <span class="s">&#39;acls&#39;</span><span class="p">:</span> <span class="o">...</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span> <span class="p">{</span><span class="s">&#39;topic&#39;</span><span class="p">:</span> <span class="s">&#39;org.gosa.*.factory&#39;</span><span class="p">,</span> <span class="s">&#39;acls&#39;</span><span class="p">:</span> <span class="o">...</span><span class="p">}</span>
 </pre></div>
 </div>
 <p>The above example uses the placeholders <tt class="docutils literal"><span class="pre">*</span></tt> and <tt class="docutils literal"><span class="pre">#</span></tt>.
 The <tt class="docutils literal"><span class="pre">*</span></tt> is a wildcard for everything and <tt class="docutils literal"><span class="pre">#</span></tt> only allows to ignore one level
-of the target. (The levels are separated by &#8216;.&#8217;)</p>
-<p>The <strong>acls</strong> key describes the action we can perform on the given <tt class="docutils literal"><span class="pre">target</span></tt>.
+of the topic. (The levels are separated by &#8216;.&#8217;)</p>
+<p>The <strong>acls</strong> key describes the action we can perform on the given <tt class="docutils literal"><span class="pre">topic</span></tt>.
 Possible actions are:</p>
 <ul class="simple">
 <li>r - Read</li>
@@ -555,26 +584,26 @@ Possible actions are:</p>
 <li>x - Execute</li>
 <li>e - Receive event</li>
 </ul>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="p">{</span><span class="s">&#39;target&#39;</span><span class="p">:</span> <span class="s">&#39;...&#39;</span><span class="p">,</span> <span class="s">&#39;acls&#39;</span><span class="p">:</span> <span class="s">&#39;rwc&#39;</span><span class="p">}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="p">{</span><span class="s">&#39;target&#39;</span><span class="p">:</span> <span class="s">&#39;...&#39;</span><span class="p">,</span> <span class="s">&#39;acls&#39;</span><span class="p">:</span> <span class="s">&#39;rwcdmsxe&#39;</span><span class="p">}</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="p">{</span><span class="s">&#39;topic&#39;</span><span class="p">:</span> <span class="s">&#39;...&#39;</span><span class="p">,</span> <span class="s">&#39;acls&#39;</span><span class="p">:</span> <span class="s">&#39;rwc&#39;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">{</span><span class="s">&#39;topic&#39;</span><span class="p">:</span> <span class="s">&#39;...&#39;</span><span class="p">,</span> <span class="s">&#39;acls&#39;</span><span class="p">:</span> <span class="s">&#39;rwcdmsxe&#39;</span><span class="p">}</span>
 </pre></div>
 </div>
 <p><strong>Options</strong> are additional check parameters that have to be fullfilled to get this acl to match.</p>
 <p>The <tt class="docutils literal"><span class="pre">options</span></tt> parameter is a dictionary which contains a key and a value for each additional option we want to check for, e.g.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="p">{</span><span class="s">&#39;target&#39;</span><span class="p">:</span> <span class="s">&#39;...&#39;</span><span class="p">,</span> <span class="s">&#39;acls&#39;</span><span class="p">:</span> <span class="s">&#39;...&#39;</span> <span class="p">,</span> <span class="p">{</span><span class="s">&#39;uid&#39;</span><span class="p">:</span> <span class="s">&#39;hanspeter&#39;</span><span class="p">,</span> <span class="s">&#39;ou&#39;</span><span class="p">:</span> <span class="s">&#39;technik&#39;</span><span class="p">})</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="p">{</span><span class="s">&#39;topic&#39;</span><span class="p">:</span> <span class="s">&#39;...&#39;</span><span class="p">,</span> <span class="s">&#39;acls&#39;</span><span class="p">:</span> <span class="s">&#39;...&#39;</span> <span class="p">,</span> <span class="p">{</span><span class="s">&#39;uid&#39;</span><span class="p">:</span> <span class="s">&#39;hanspeter&#39;</span><span class="p">,</span> <span class="s">&#39;ou&#39;</span><span class="p">:</span> <span class="s">&#39;technik&#39;</span><span class="p">})</span>
 </pre></div>
 </div>
 <p>If you&#8217;ve got a user object as dictionary, then you can check permissions like this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">resolver</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s">&#39;some.target&#39;</span><span class="p">,</span> <span class="s">&#39;rwcdm&#39;</span><span class="p">,</span> <span class="n">user1</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">resolver</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s">&#39;some.topic&#39;</span><span class="p">,</span> <span class="s">&#39;rwcdm&#39;</span><span class="p">,</span> <span class="n">user1</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The resolver will then check if the keys <tt class="docutils literal"><span class="pre">uid</span></tt> and <tt class="docutils literal"><span class="pre">ou</span></tt> are present in the user1 dictionary and then check if the values match.</p>
 <p>Example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">resolver</span><span class="o">.</span><span class="n">addACL</span><span class="p">(</span><span class="s">&#39;dc=gonicus,dc=de&#39;</span><span class="p">,</span> <span class="s">&#39;sub&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="s">u&#39;tester1&#39;</span><span class="p">],</span> <span class="p">[{</span><span class="s">&#39;target&#39;</span><span class="p">:</span> <span class="s">&#39;com.gosa.*&#39;</span><span class="p">,</span> <span class="s">&#39;acls&#39;</span><span class="p">:</span> <span class="s">&#39;rwcdm&#39;</span><span class="p">}])</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">resolver</span><span class="o">.</span><span class="n">addACL</span><span class="p">(</span><span class="s">&#39;dc=gonicus,dc=de&#39;</span><span class="p">,</span> <span class="s">&#39;sub&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="s">u&#39;tester1&#39;</span><span class="p">],</span> <span class="p">[{</span><span class="s">&#39;topic&#39;</span><span class="p">:</span> <span class="s">&#39;com.gosa.*&#39;</span><span class="p">,</span> <span class="s">&#39;acls&#39;</span><span class="p">:</span> <span class="s">&#39;rwcdm&#39;</span><span class="p">}])</span>
 </pre></div>
 </div>
 <p>or with some options:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">resolver</span><span class="o">.</span><span class="n">addACL</span><span class="p">(</span><span class="s">&#39;dc=gonicus,dc=de&#39;</span><span class="p">,</span> <span class="s">&#39;sub&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="s">u&#39;tester1&#39;</span><span class="p">],</span> <span class="p">[{</span><span class="s">&#39;target&#39;</span><span class="p">:</span> <span class="s">&#39;com.gosa.*&#39;</span><span class="p">,</span> <span class="s">&#39;acls&#39;</span><span class="p">:</span> <span class="s">&#39;rwcdm&#39;</span><span class="p">,</span> <span class="s">&#39;options&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;uid&#39;</span><span class="p">:</span> <span class="s">&#39;^u[0-9]&#39;</span><span class="p">}}])</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">resolver</span><span class="o">.</span><span class="n">addACL</span><span class="p">(</span><span class="s">&#39;dc=gonicus,dc=de&#39;</span><span class="p">,</span> <span class="s">&#39;sub&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="s">u&#39;tester1&#39;</span><span class="p">],</span> <span class="p">[{</span><span class="s">&#39;topic&#39;</span><span class="p">:</span> <span class="s">&#39;com.gosa.*&#39;</span><span class="p">,</span> <span class="s">&#39;acls&#39;</span><span class="p">:</span> <span class="s">&#39;rwcdm&#39;</span><span class="p">,</span> <span class="s">&#39;options&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;uid&#39;</span><span class="p">:</span> <span class="s">&#39;^u[0-9]&#39;</span><span class="p">}}])</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -659,7 +688,7 @@ Possible actions are:</p>
 
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.check">
-<tt class="descname">check</tt><big>(</big><em>user</em>, <em>target</em>, <em>acls</em>, <em>options=None</em>, <em>base=None</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.check" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">check</tt><big>(</big><em>user</em>, <em>topic</em>, <em>acls</em>, <em>options=None</em>, <em>base=None</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.check" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check permission for a given user and a base.</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -675,8 +704,8 @@ Possible actions are:</p>
 <tr><td>user</td>
 <td>The user we want to check for.</td>
 </tr>
-<tr><td>target</td>
-<td>The target string, e.g. &#8216;com.gosa.factory&#8217;</td>
+<tr><td>topic</td>
+<td>The topic string, e.g. &#8216;com.gosa.factory&#8217;</td>
 </tr>
 <tr><td>acls</td>
 <td>The list of acls, we want to check for, e.g. &#8216;rcwdm&#8217;</td>
@@ -689,7 +718,7 @@ Possible actions are:</p>
 </tr>
 </tbody>
 </table>
-<p>Take a look at ACL.add_action for details about <tt class="docutils literal"><span class="pre">target</span></tt>, <tt class="docutils literal"><span class="pre">options</span></tt> and <tt class="docutils literal"><span class="pre">acls</span></tt>.</p>
+<p>Take a look at ACL.add_action for details about <tt class="docutils literal"><span class="pre">topic</span></tt>, <tt class="docutils literal"><span class="pre">options</span></tt> and <tt class="docutils literal"><span class="pre">acls</span></tt>.</p>
 <dl class="docutils">
 <dt>Example::</dt>
 <dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">resolver</span> <span class="o">=</span> <span class="n">ACLResolver</span><span class="p">()</span>
