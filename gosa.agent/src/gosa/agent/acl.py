@@ -30,6 +30,8 @@ from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
 from gosa.agent.ldap_utils import LDAPHandler
 from gosa.common.components import Command
+from gosa.common.utils import N_
+
 
 #TODO: Think about ldap relations, how to store and load objects.
 #TODO: What about object groups, to be able to inlcude clients?
@@ -1233,3 +1235,52 @@ class ACLResolver(object):
         for aclset in self.acl_sets:
             aclset.remove_acls_for_user(user)
 
+    @Command(needsUser=True, __help__=N_("List defined ACLs by base or topic."))
+    def getACLs(self, user, base=None, topic=None):
+        #TODO: detail permission check, topic for ACLs - org.gosa.acl
+        #TODO: should list static override ACLs defined in gosa/config
+        pass
+
+    @Command(needsUser=True, __help__=N_("Remove defined ACL by ID."))
+    def removeACL(self, user, acl_id):
+        #TODO: detail permission check, topic for ACLs - org.gosa.acl
+        pass
+
+    @Command(needsUser=True, __help__=N_("Add a new ACL."))
+    def addACL(self, user, base, scope, priority, members, actions):
+        #TODO: detail permission check, topic for ACLs - org.gosa.acl
+        # action = {'topic': ..., 'acl': ..., 'options': ...}
+        pass
+
+    @Command(needsUser=True, __help__=N_("Refresh existing ACL by ID."))
+    def updateACL(self, user, acl_id, scope, priority, members, actions):
+        #TODO: detail permission check, topic for ACLs - org.gosa.acl
+        # action = {'topic': ..., 'acl': ..., 'options': ...}
+        pass
+
+    @Command(needsUser=True, __help__=N_("Add a new ACL based on role."))
+    def addACLWithRole(self, user, base, priority, members, role):
+        #TODO: detail permission check, topic for ACLs - org.gosa.acl
+        pass
+
+    @Command(needsUser=True, __help__=N_("List defined roles."))
+    def getACLRoles(self, user):
+        #TODO: detail permission check, topic for ACLs - org.gosa.acl
+        pass
+
+    @Command(needsUser=True, __help__=N_("Remove defined role by ID."))
+    def removeACLRole(self, user, role_id):
+        #TODO: detail permission check, topic for ACLs - org.gosa.acl
+        pass
+
+    @Command(needsUser=True, __help__=N_("Add new role."))
+    def addACLRole(self, user, scope, priority, actions):
+        #TODO: detail permission check, topic for ACLs - org.gosa.acl
+        # action = {'topic': ..., 'acl': ..., 'options': ...}
+        pass
+
+    @Command(needsUser=True, __help__=N_("Refresh existing role by ID."))
+    def updateACLRole(self, user, acl_id, scope, priority, actions):
+        #TODO: detail permission check, topic for ACLs - org.gosa.acl
+        # action = {'topic': ..., 'acl': ..., 'options': ...}
+        pass
