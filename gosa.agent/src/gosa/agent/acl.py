@@ -37,8 +37,6 @@ from gosa.common.utils import N_
 #TODO: What about object groups, to be able to inlcude clients?
 #TODO: Groups are not supported yet
 
-#TODO: Rename target to topic.
-
 
 class ACLException(Exception):
     pass
@@ -342,7 +340,7 @@ class ACL(object):
     Scope    The scope specifies where the ACL is valid for, e.g. ONE-level, all SUB-levels or RESET previous ACLs
     Members  A list of users this acl is valid for.
     Role     Instead of actions you can also refer to a ACLRole object.
-    Actions  You can have multiple actions, where one action is described by ``a target``, a ``set of acls`` and additional ``options`` that have to be checked while ACLs are resolved.
+    Actions  You can have multiple actions, where one action is described by ``a topic``, a ``set of acls`` and additional ``options`` that have to be checked while ACLs are resolved.
     ======== ================
 
         >>> # Create an ACLSet object
@@ -374,7 +372,7 @@ class ACL(object):
         >>> acl.add_action('org.gosa.#.Person.cn','rwx')
         >>> acl.add_action('org.gosa.*.Person.cn','rwx')
 
-    Where ``#`` allow to ignore one level on the target action and ``*`` allows to ignore one or more levels:
+    Where ``#`` allow to ignore one level on the topic action and ``*`` allows to ignore one or more levels:
 
     ``com.#.factory`` would match with ``com.test.factory`` or ``com.something.factory``
 
@@ -526,14 +524,14 @@ class ACL(object):
 
         self.members = members
 
-    def add_action(self, target, acls, options=None):
+    def add_action(self, topic, acls, options=None):
         """
         Adds a new action to this ACL object.
 
         ============== =============
         Key            Description
         ============== =============
-        target         The target action we want to create ACLs for. E.g. 'com.gosa.factory.Person'
+        topic          The topic action we want to create ACLs for. E.g. 'com.gosa.factory.Person'
         acls           The acls this action contain. E.g. 'rwcdm'.
         options        Special additional options that have to be checked.
         ============== =============
@@ -541,7 +539,7 @@ class ACL(object):
         **Targets**
 
         Targets can contain placeholder to be more flexible when it come to resolving acls.
-        You can use ``#`` and ``*`` where ``#`` matches for one level and ``*`` for multiple target levels.
+        You can use ``#`` and ``*`` where ``#`` matches for one level and ``*`` for multiple topic levels.
 
         For example ``gosa.#.factory`` would match for:
          * gosa.test.factory
@@ -557,7 +555,7 @@ class ACL(object):
 
         **Acls**
 
-        The acls paramter describes the action we can perform on a given ``target``.
+        The acls paramter describes the action we can perform on a given ``topic``.
         Possible actions are:
 
          * r - Read
@@ -570,17 +568,17 @@ class ACL(object):
          * e - Receive event
 
         The actions have to passed as a string, which contains all actions at once::
-            >>> add_action(``target``, "rwcdm", ``options``)
+            >>> add_action(``topic``, "rwcdm", ``options``)
 
         **Options**
 
         Options are additional check parameters that have to be fullfilled to get this acl to match.
 
         The ``options`` parameter is a dictionary which contains a key and a value for each additional option we want to check for, e.g. ::
-            >>> add_action(``target``, ``acls``, {'uid': 'hanspeter', 'ou': 'technik'})
+            >>> add_action(``topic``, ``acls``, {'uid': 'hanspeter', 'ou': 'technik'})
 
         If you've got a user object as dictionary, then you can check permissions like this::
-            >>> resolver.check('some.target', 'rwcdm', user1)
+            >>> resolver.check('some.topic', 'rwcdm', user1)
 
         The resolver will then check if the keys ``uid`` and ``ou`` are present in the user1 dictionary and then check if the values match.
         If not all options match, the ACL will not match.
@@ -591,7 +589,7 @@ class ACL(object):
                    " additional costum acls!")
 
         acl = {
-                'target': target,
+                'topic': topic,
                 'acls': acls,
                 'options': options if options else {}}
         self.actions.append(acl)
@@ -616,10 +614,10 @@ class ACL(object):
         else:
             rstr = "\n%s<ACL scope(%s)> %s: " % ((" " * indent), self.scope, str(self.members))
             for entry in self.actions:
-                rstr += "\n%s%s:%s %s" % ((" " * (indent + 1)), entry['target'], str(entry['acls']), str(entry['options']))
+                rstr += "\n%s%s:%s %s" % ((" " * (indent + 1)), entry['topic'], str(entry['acls']), str(entry['options']))
         return rstr
 
-    def match(self, user, target, acls, options=None, skip_user_check=False, used_roles=None):
+    def match(self, user, topic, acls, options=None, skip_user_check=False, used_roles=None):
         """
         Check if this ``ACL`` object matches the given criteria.
 
@@ -630,7 +628,7 @@ class ACL(object):
         Key             Description
         =============== =============
         user            The user we want to check for. E.g. 'hans'
-        target          The target action we want to check for. E.g. 'com.gosa.factory'
+        topic           The topic action we want to check for. E.g. 'com.gosa.factory'
         acls            A string containing the acls we want to check for.
         options         Special additional options that have to be checked.
         skip_user_check Skips checks for users, this is required to resolve roles.
@@ -665,7 +663,7 @@ class ACL(object):
                 r = ACLResolver.instance
                 self.env.log.debug("checking ACL role entries for role: %s" % self.role)
                 for acl in r.acl_roles[self.role]:
-                    (match, scope) = acl.match(user, target, acls, options if options else {}, True, used_roles)
+                    (match, scope) = acl.match(user, topic, acls, options if options else {}, True, used_roles)
                     if match:
                         self.env.log.debug("ACL role entry matched for role '%s'" % self.role)
                         return (match, scope)
@@ -673,12 +671,12 @@ class ACL(object):
                 for act in self.actions:
 
                     # check for # and * placeholders
-                    test_act = re.escape(act['target'])
+                    test_act = re.escape(act['topic'])
                     test_act = re.sub(r'(^|\\.)(\\\*)(\\.|$)', '\\1.*\\3', test_act)
                     test_act = re.sub(r'(^|\\.)(\\#)(\\.|$)', '\\1[^\.]*\\3', test_act)
 
                     # Check if the requested-action matches the acl-action.
-                    if not re.match(test_act, target):
+                    if not re.match(test_act, topic):
                         continue
 
                     # Check if the required permission are allowed.
@@ -915,7 +913,7 @@ class ACLResolver(object):
                         # Add a normal (non-role) base acl entry
                         acl = ACLRoleEntry(acl_scope_map[acl_entry['scope']])
                         for action in acl_entry['actions']:
-                            acl.add_action(action['target'], action['acls'], action['options'])
+                            acl.add_action(action['topic'], action['acls'], action['options'])
                         roles[name].add(acl)
 
             # Check if we've got unresolved roles!
@@ -947,7 +945,7 @@ class ACLResolver(object):
                             acl.set_priority(acl_entry['priority'])
 
                             for action in acl_entry['actions']:
-                                acl.add_action(action['target'], action['acls'], action['options'])
+                                acl.add_action(action['topic'], action['acls'], action['options'])
 
                             acls.add(acl)
                     self.add_acl_set(acls)
@@ -1005,7 +1003,7 @@ class ACLResolver(object):
         with open(self.acl_file, 'w') as f:
             json.dump(ret, f, indent=2)
 
-    def check(self, user, target, acls, options=None, base=None):
+    def check(self, user, topic, acls, options=None, base=None):
         """
         Check permission for a given user and a base.
 
@@ -1013,13 +1011,13 @@ class ACLResolver(object):
         Key            Description
         ============== =============
         user           The user we want to check for.
-        target         The target string, e.g. 'com.gosa.factory'
+        topic          The topic string, e.g. 'com.gosa.factory'
         acls           The list of acls, we want to check for, e.g. 'rcwdm'
         options        A dictionary containing extra options to check for.
         base           The base we want to check acls in.
         ============== =============
 
-        Take a look at ACL.add_action for details about ``target``, ``options`` and ``acls``.
+        Take a look at ACL.add_action for details about ``topic``, ``options`` and ``acls``.
 
         Example::
             >>> resolver = ACLResolver()
@@ -1040,8 +1038,7 @@ class ACLResolver(object):
         allowed = False
         reset = False
 
-        self.env.log.debug("checking ACL for %s/%s/%s" % (user, base,
-            str(target)))
+        self.env.log.debug("checking ACL for %s/%s/%s" % (user, base, str(topic)))
 
         # Remove the first part of the dn, until we reach the ldap base.
         orig_loc = base
@@ -1057,29 +1054,29 @@ class ACLResolver(object):
                 # Check ACls
                 for acl in acl_set:
 
-                    (match, scope) = acl.match(user, target, acls, options)
+                    (match, scope) = acl.match(user, topic, acls, options)
                     if match:
 
                         self.env.log.debug("found matching ACL in '%s'" % base)
                         if scope == ACL.RESET:
-                            self.env.log.debug("found ACL reset for target '%s'" % target)
+                            self.env.log.debug("found ACL reset for topic '%s'" % topic)
                             reset = True
                         else:
 
                             if scope == ACL.PSUB:
-                                self.env.log.debug("found permanent ACL for target '%s'" % target)
+                                self.env.log.debug("found permanent ACL for topic '%s'" % topic)
                                 return True
 
                             elif (scope == ACL.SUB):
                                 if not reset:
-                                    self.env.log.debug("found ACL for target '%s' (SUB)" % target)
+                                    self.env.log.debug("found ACL for topic '%s' (SUB)" % topic)
                                     return True
                                 else:
                                     self.env.log.debug("ACL DO NOT match due to reset. (SUB)")
 
                             elif (scope == ACL.ONE and orig_loc == acl_set.base):
                                 if not reset:
-                                    self.env.log.debug("found ACL for target '%s' (ONE)" % target)
+                                    self.env.log.debug("found ACL for topic '%s' (ONE)" % topic)
                                     return True
                                 else:
                                     self.env.log.debug("ACL DO NOT match due to reset. (ONE)")
@@ -1316,7 +1313,7 @@ class ACLResolver(object):
                         # Walk through defined topics of the current acl and check if one
                         # matches the required topic.
                         for action in acl.actions:
-                            if re.match(topic, action['target']):
+                            if re.match(topic, action['topic']):
                                 match = True
                                 break
 
@@ -1402,19 +1399,19 @@ class ACLResolver(object):
             * ``reset`` revokes the actions described in this rule for all sub-levels of the tree.
             * ``psub`` the acl is valid for all sub-levels, this cannot be revoked using ``reset``
 
-        The **actions** parameter is dictionary with three items ``target``, ``acls`` and ``options``.
+        The **actions** parameter is dictionary with three items ``topic``, ``acls`` and ``options``.
 
-        The **target** specifies the action this acl affects, for exmaple::
+        The **topic** specifies the action this acl affects, for exmaple::
 
-            >>>  {'target': 'org.gosa.factory', 'acls': ...}
-            >>>  {'target': 'org.gosa.#.factory', 'acls': ...}
-            >>>  {'target': 'org.gosa.*.factory', 'acls': ...}
+            >>>  {'topic': 'org.gosa.factory', 'acls': ...}
+            >>>  {'topic': 'org.gosa.#.factory', 'acls': ...}
+            >>>  {'topic': 'org.gosa.*.factory', 'acls': ...}
 
         The above example uses the placeholders ``*`` and ``#``.
         The ``*`` is a wildcard for everything and ``#`` only allows to ignore one level
-        of the target. (The levels are separated by '.')
+        of the topic. (The levels are separated by '.')
 
-        The **acls** key describes the action we can perform on the given ``target``.
+        The **acls** key describes the action we can perform on the given ``topic``.
         Possible actions are:
 
          * r - Read
@@ -1426,28 +1423,28 @@ class ACLResolver(object):
          * x - Execute
          * e - Receive event
 
-            >>> {'target': '...', 'acls': 'rwc'}
-            >>> {'target': '...', 'acls': 'rwcdmsxe'}
+            >>> {'topic': '...', 'acls': 'rwc'}
+            >>> {'topic': '...', 'acls': 'rwcdmsxe'}
 
         **Options** are additional check parameters that have to be fullfilled to get this acl to match.
 
         The ``options`` parameter is a dictionary which contains a key and a value for each additional option we want to check for, e.g. ::
 
-            >>> {'target': '...', 'acls': '...' , {'uid': 'hanspeter', 'ou': 'technik'})
+            >>> {'topic': '...', 'acls': '...' , {'uid': 'hanspeter', 'ou': 'technik'})
 
         If you've got a user object as dictionary, then you can check permissions like this::
 
-            >>> resolver.check('some.target', 'rwcdm', user1)
+            >>> resolver.check('some.topic', 'rwcdm', user1)
 
         The resolver will then check if the keys ``uid`` and ``ou`` are present in the user1 dictionary and then check if the values match.
 
         Example:
 
-            >>> resolver.addACL('dc=gonicus,dc=de', 'sub', 0, [u'tester1'], [{'target': 'com.gosa.*', 'acls': 'rwcdm'}])
+            >>> resolver.addACL('dc=gonicus,dc=de', 'sub', 0, [u'tester1'], [{'topic': 'com.gosa.*', 'acls': 'rwcdm'}])
 
         or with some options:
 
-            >>> resolver.addACL('dc=gonicus,dc=de', 'sub', 0, [u'tester1'], [{'target': 'com.gosa.*', 'acls': 'rwcdm', 'options': {'uid': '^u[0-9]'}}])
+            >>> resolver.addACL('dc=gonicus,dc=de', 'sub', 0, [u'tester1'], [{'topic': 'com.gosa.*', 'acls': 'rwcdm', 'options': {'uid': '^u[0-9]'}}])
 
         """
 
@@ -1481,8 +1478,8 @@ class ACLResolver(object):
             for action in actions:
                 if 'acls' not in action:
                     raise ACLException("An action is missing the 'acls' key! %s" % action)
-                if 'target' not in action:
-                    raise ACLException("An action is missing the 'target' key! %s" % action)
+                if 'topic' not in action:
+                    raise ACLException("An action is missing the 'topic' key! %s" % action)
                 if 'options' not in action:
                     action['options'] = {}
                 if type(action['options']) != dict:
@@ -1502,7 +1499,7 @@ class ACLResolver(object):
         acl = ACL(scope_int)
         acl.set_members(members)
         for action in actions:
-            acl.add_action(action['target'], action['acls'], action['options'])
+            acl.add_action(action['topic'], action['acls'], action['options'])
             self.add_acl_to_base(base, acl)
 
     @Command(needsUser=True, __help__=N_("Refresh existing ACL by ID."))
