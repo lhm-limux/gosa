@@ -433,6 +433,22 @@ class ACL(object):
         else:
             raise ACLException("Unknown role '%s'!" % rolename)
 
+    def set_scope(self, scope):
+        """
+        This methods updates the ACLs scope level.
+
+        See :class:`gosa.agent.acl.ACL` for details on the scope-levels.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        priority       The new priority value for this ACl.
+        ============== =============
+        """
+
+        if scope not in [ACL.ONE, ACL.SUB, ACL.PSUB, ACL.RESET]:
+            raise ACLException("Invalid scope value given!")
+
     def set_priority(self, priority):
         """
         Sets the priority of this ACL object. Lower values mean higher priority.
@@ -523,6 +539,12 @@ class ACL(object):
             raise(ACLException("Requires a list of members!"))
 
         self.members = members
+
+    def clear_actions(self):
+        """
+        This method removes all defined actions from this acl.
+        """
+        self.actions = []
 
     def add_action(self, topic, acls, options=None):
         """
@@ -1504,9 +1526,64 @@ class ACLResolver(object):
 
     @Command(needsUser=True, __help__=N_("Refresh existing ACL by ID."))
     def updateACL(self, user, acl_id, scope, priority, members, actions):
-        #TODO: detail permission check, topic for ACLs - org.gosa.acl
-        # action = {'topic': ..., 'acl': ..., 'options': ...}
-        pass
+
+        # Validate the given scope
+        acl_scope_map = {}
+        acl_scope_map['one'] = ACL.ONE
+        acl_scope_map['sub'] = ACL.SUB
+        acl_scope_map['psub'] = ACL.PSUB
+        acl_scope_map['reset'] = ACL.RESET
+
+        if scope not in acl_scope_map:
+            raise ACLException("Invalid scope given! Expected on of 'one', 'sub', 'psub' and 'reset'!")
+
+        # Validate given actions
+        if type(actions) != list:
+            raise ACLException("Expected actions to be of type list!")
+        else:
+            new_actions = []
+            for action in actions:
+                if 'acls' not in action:
+                    raise ACLException("An action is missing the 'acls' key! %s" % action)
+                if 'topic' not in action:
+                    raise ACLException("An action is missing the 'topic' key! %s" % action)
+                if 'options' not in action:
+                    action['options'] = {}
+                if type(action['options']) != dict:
+                    raise ACLException("Options have to be of type dict! %s" % action)
+                if len(set(action['acls']) - set("rwcdmxse")) != 0:
+                    raise ACLException("Unsupported acl type found '%s'!" % "".join((set(action['acls']) - set("rwcdmxse"))))
+
+                # Create a new action entry
+                entry = {'acls': action['acls'],
+                         'topic': action['topic'],
+                         'options': action['options']}
+                new_actions.append(entry)
+
+        scope_int = acl_scope_map[scope]
+        # Check if there is a with the given and and whether we've write permissions to it or not.
+        acl = None
+        for _aclset in self.acl_sets:
+            for _acl in _aclset:
+                if _acl.id == acl_id:
+
+                    # Check permissions
+                    if not self.check(user, 'org.gosa.acl', 'w', _aclset.base):
+                        raise ACLException("The requested operation is not allowed!")
+
+                    acl = _acl
+
+        # Check if we've found a valid acl object with the given id.
+        if not acl:
+            raise ACLException("No such acl definition with is %s" % acl_id)
+
+        # Update the acl properties
+        acl.set_scope(scope_int)
+        acl.set_members(members)
+        acl.set_priority(priority)
+        acl.clear_actions()
+        for action in new_actions:
+            acl.add_action(action['topic'], action['acls'], action['options'])
 
     @Command(needsUser=True, __help__=N_("Add a new ACL based on role."))
     def addACLWithRole(self, user, base, priority, members, role):
