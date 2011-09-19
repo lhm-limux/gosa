@@ -37,6 +37,8 @@ from gosa.common.utils import N_
 #TODO: What about object groups, to be able to inlcude clients?
 #TODO: Groups are not supported yet
 
+#TODO: Rename target to topic.
+
 
 class ACLException(Exception):
     pass
@@ -714,11 +716,13 @@ class ACL(object):
 
 class ACLRoleEntry(ACL):
     """
-    The ``ACLRoleEntry`` object describes a set of action that can be accessed in a given scope.
+    The ``ACLRoleEntry`` object describes a set of actions that can be accessed in a given scope.
     ``ACLRoleEntry`` classes can then be bundled in ``ACLRole`` objects, to build up roles.
 
     This class interits most methods from :class:`gosa.agent.acl.ACL`, except for methods that manage members,
     due to the fact that ACLRoleEntries do not have members!
+
+    Take a look at :class:`gosa.agent.acl.ACLRole` to get an idea aobut how roles are created.
 
     """
 
