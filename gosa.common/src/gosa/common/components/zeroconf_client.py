@@ -181,27 +181,24 @@ class ZeroconfClient(object):
     def __errorCallbackAvahi(self, *args):
         raise ZeroconfException("DBUS communication error: %s" % str(args[0]))
 
-# 8<--------------------------------------------- pybonjour
-# 8<--------------------------------------------- pybonjour
-# 8<--------------------------------------------- pybonjour
-# 8<--------------------------------------------- pybonjour
-#TODO: the pybonjour module needs attention
-
     def startPybonjour(self):
-        #TODO: needs an update for regtypes!
         self.active = True
+        browse_sdRefs = []
 
         # Start the bonjour event processing.
-        browse_sdRef = pybonjour.DNSServiceBrowse(regtype=self.__regtypes,
-            callBack=self.__browseCallback)
+        for reg_type in self.__regtypes:
+            browse_sdRefs.append(pybonjour.DNSServiceBrowse(regtype=self.__regtypes,
+                callBack=self.__browseCallback))
 
         def runner():
             try:
                 while self.active:
-                    ready = select.select([browse_sdRef], [], [],
+                    ready = select.select(browse_sdRefs, [], [],
                         self.__timeout)
-                    if browse_sdRef in ready[0]:
-                        pybonjour.DNSServiceProcessResult(browse_sdRef)
+
+                    for browse_sdRef in browse_sdRefs:
+                        if browse_sdRef in ready[0]:
+                            pybonjour.DNSServiceProcessResult(browse_sdRef)
             finally:
                 browse_sdRef.close()
 
@@ -213,12 +210,20 @@ class ZeroconfClient(object):
         self.__thread.join()
 
     def __resolveCallback(self, sdRef, flags, interfaceIndex, errorCode,
-                        fullname, hosttarget, port, txtRecord):
+                        fullname, host, port, txt):
         if errorCode == pybonjour.kDNSServiceErr_NoError:
-            #TODO: HIER
-            txtRecord = ''.join(txtRecord.split('\x01'))
-            self.__callback(sdRef, flags, interfaceIndex, errorCode, fullname,
-                                     hosttarget, port, txtRecord)
+
+            # Conversation to URL
+            if port == 80:
+                port = ''
+            else:
+                port = ':%i' % port
+
+            if self.__get_service(txt) == "gosa":
+                path = self.__get_path(txt)
+                url = "%s://%s%s%s" % (fullname.split(".")[-4:-3][0][1:], host, port, path)
+                self.__callback([url.encode('ascii')])
+
             self.__resolved.append(True)
 
     def __browseCallback(self, sdRef, flags, interfaceIndex, errorCode,
