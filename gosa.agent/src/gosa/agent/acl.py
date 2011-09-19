@@ -1268,7 +1268,7 @@ class ACLResolver(object):
         Example::
 
             >>> getACls(base='dc=gonicus,dc=de')
-            >>> getACls(topic='com\.gonicus\.factory\..*'
+            >>> getACls(topic='com\.gonicus\.factory\..*')
 
         ============== =============
         Key            Description
@@ -1325,8 +1325,43 @@ class ACLResolver(object):
 
     @Command(needsUser=True, __help__=N_("Remove defined ACL by ID."))
     def removeACL(self, user, acl_id):
-        #TODO: detail permission check, topic for ACLs - org.gosa.acl
-        pass
+        """
+        This command removes an acl an acl definition by its id.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        acl_id         The id of the acl to remove.
+        ============== =============
+
+        ``Return``: Boolean True on success else False
+
+        Example:
+            >>> getACls(base='dc=gonicus,dc=de')
+            >>> getACls(topic='com\.gonicus\.factory\..*')
+
+        """
+
+        # Now walk through aclsets and remove the acl with the given ID.
+        for aclset in self.acl_sets:
+            for acl in aclset:
+                if acl.id == acl_id:
+
+                    # Check permissions
+                    if not r.check(user, 'org.gosa.acl', 'w', aclset.location):
+                        raise ACLException("The requested operation is not allowed!")
+
+                    # Remove the acl from the set.
+                    aclset.remove(acl);
+
+                    # We've removed the last acl for this base,  remove the aclset.
+                    if len(aclset) == 0:
+                        self.remove_aclset_by_location(aclset.location)
+
+                    return True
+
+        # Nothing removed
+        return False
 
     @Command(needsUser=True, __help__=N_("Add a new ACL."))
     def addACL(self, user, base, scope, priority, members, actions):
