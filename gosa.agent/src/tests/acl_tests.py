@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 import os
-from gosa.agent.acl import ACL, ACLSet, ACLRole, ACLRoleEntry, ACLResolver
+from gosa.agent.acl import ACL, ACLSet, ACLRole, ACLRoleEntry, ACLResolver, ACLException
 from gosa.common import Environment
 
 
@@ -18,6 +18,46 @@ class TestACLResolver(unittest.TestCase):
         self.resolver = ACLResolver()
         self.resolver.clear()
         self.ldap_base = self.resolver.base
+
+    def test_role_removal(self):
+        """
+        This test checks if an ACLRole objects can be removed!
+        """
+
+        # Create an ACLRole
+        role = ACLRole('role1')
+        acl = ACLRoleEntry(scope=ACL.ONE)
+        acl.add_action('com.gosa.factory', 'rwx')
+        role.add(acl)
+        self.resolver.add_acl_role(role)
+
+        # Use the recently created role.
+        base = self.ldap_base
+        aclset = ACLSet(base)
+        acl = ACL(role='role1')
+        acl.set_members([u'tester1'])
+        aclset.add(acl)
+        self.resolver.add_acl_set(aclset)
+
+        # Check the permissions to be sure that they are set correctly
+        self.assertTrue(self.resolver.check('tester1', 'com.gosa.factory', 'r', location=base),
+                "ACLRoles are not resolved correctly! The user should be able to read, but he cannot!")
+
+        self.assertRaises(ACLException, self.resolver.remove_role , 'role1')
+
+        self.assertTrue(self.resolver.check('tester1', 'com.gosa.factory', 'r', location=base),
+                "ACLRoles are not resolved correctly! The user should be able to read, but he cannot!")
+
+        self.resolver.remove_aclset_by_location(base)
+
+        self.assertFalse(self.resolver.check('tester1', 'com.gosa.factory', 'r', location=base),
+                "Role removal failed! The user should not be able to read, but he can!")
+
+        self.assertTrue(self.resolver.remove_role('role1'),
+                "Role removal failed! The expected return code was True!")
+
+        self.assertTrue(len(self.resolver.list_roles()) == 0,
+                "Role removal failed! The role still exists despite removal!")
 
     def test_remove_acls_for_user(self):
 

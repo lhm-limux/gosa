@@ -1114,6 +1114,9 @@ class ACLResolver(object):
         ============== =============
         """
 
+        if type(rolename)  != str:
+            raise ACLException("Expected parameter to be of type 'str'!")
+
         for aclset in self.acl_sets:
             if self.__is_role_used(aclset, rolename):
                 return(True)
@@ -1122,7 +1125,7 @@ class ACLResolver(object):
     def __is_role_used(self, aclset, rolename):
         for acl in aclset:
             if acl.uses_role:
-                if acl.role == rolename:
+                if str(acl.role) == str(rolename):
                     return(True)
                 else:
                     role_acl_sets = self.acl_roles[acl.role]
@@ -1208,7 +1211,7 @@ class ACLResolver(object):
 
         # Check if such a role-name exists and then try to remove it.
         if name in self.acl_roles:
-            if self.is_role_used(self.acl_roles[name]):
+            if self.is_role_used(self.acl_roles[name].name):
                 raise ACLException("The role '%s' cannot be removed, it is still in use!" % name)
             else:
                 del(self.acl_roles[name])
