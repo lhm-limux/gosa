@@ -1351,7 +1351,8 @@ class ACLResolver(object):
         admins = self.list_admin_accounts()
         if len(admins) and self.check(user, 'org.gosa.acl', 'r'):
             if topic == None or re.match(topic, '*'):
-                result.append({'base': aclset.base,
+                result.append(
+                   {'base': self.base,
                     'id': None,
                     'members': admins,
                     'scope': ACL.PSUB,
@@ -1513,7 +1514,7 @@ class ACLResolver(object):
         # All checks passed now add the new ACL.
 
         # Do we have an ACLSet for the given base, No?
-        if not base in self.acl_sets:
+        if not self.aclset_exists_by_base(base):
             self.add_acl_set(ACLSet(base))
 
         # Create a new acl with the given parameters
@@ -1575,7 +1576,7 @@ class ACLResolver(object):
 
         # Check if we've found a valid acl object with the given id.
         if not acl:
-            raise ACLException("No such acl definition with is %s" % acl_id)
+            raise ACLException("No such acl definition with id %s" % acl_id)
 
         # Update the acl properties
         acl.set_scope(scope_int)
@@ -1587,8 +1588,43 @@ class ACLResolver(object):
 
     @Command(needsUser=True, __help__=N_("Add a new ACL based on role."))
     def addACLWithRole(self, user, base, priority, members, role):
-        #TODO: detail permission check, topic for ACLs - org.gosa.acl
-        pass
+        """
+        Adds a new acl-rule to the active acls.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        base           The base this acl works on. E.g. 'dc=example,dc=de'
+        scope          The 'scope' defines how an acl is inherited by sub-bases. See table below for details.
+        priority       An integer value to prioritize this acl-rule. (Lower values mean higher priority)
+        members        A list of members this acl affects. E.g. [u'Herbert', u'klaus']
+        ============== =============
+
+        Valid **scope** values:
+
+            * ``one`` for one level. The acl is only valid for the given base.
+            * ``sub`` the acl is valid for all sub-trees of the given base. This can be revoked using ``reset``
+            * ``reset`` revokes the actions described in this rule for all sub-levels of the tree.
+            * ``psub`` the acl is valid for all sub-levels, this cannot be revoked using ``reset``
+
+        Example:
+
+        >>> addACLWithRole("dc=gonicus,dc=de", 0, [u'user1', 'role1'])
+
+        """
+        # Check permissions
+        if not self.check(user, 'org.gosa.acl', 'w', base):
+            raise ACLException("The requested operation is not allowed!")
+
+        # Do we have an ACLSet for the given base, No?
+        if not self.aclset_exists_by_base(base):
+            self.add_acl_set(ACLSet(base))
+
+        # Create a new acl with the given parameters
+        aclset = self.get_aclset_by_base(base)
+        acl = ACL(role=role)
+        acl.set_members(members)
+        self.add_acl_to_base(base, acl)
 
     @Command(needsUser=True, __help__=N_("List defined roles."))
     def getACLRoles(self, user):
