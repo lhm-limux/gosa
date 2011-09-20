@@ -97,13 +97,22 @@ ACLSet
 </tr>
 </tbody>
 </table>
-<p id="scope-description">Scope values</p>
+<p id="scope-description">Scope values - internal use:</p>
 <blockquote>
 <div><ul class="simple">
 <li><tt class="docutils literal"><span class="pre">ACL.ONE</span></tt> for one level.</li>
 <li><tt class="docutils literal"><span class="pre">ACL.SUB</span></tt> for all sub-level. This can be revoked using <tt class="docutils literal"><span class="pre">ACL.RESET</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">ACL.RESET</span></tt> revokes the actions described in this <tt class="docutils literal"><span class="pre">ACL</span></tt> object for all sub-levels of the tree.</li>
 <li><tt class="docutils literal"><span class="pre">ACL.PSUB</span></tt> for all sub-level, cannot be revoked using <tt class="docutils literal"><span class="pre">ACL.RESET</span></tt></li>
+</ul>
+</div></blockquote>
+<p>Scope values - external use, e.g. when executing commands using the gosa-shell:</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">&quot;one&quot;</span></tt> for one level.</li>
+<li><tt class="docutils literal"><span class="pre">&quot;sub&quot;</span></tt> for all sub-level. This can be revoked using <tt class="docutils literal"><span class="pre">ACL.RESET</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">&quot;reset&quot;</span></tt> revokes the actions described in this <tt class="docutils literal"><span class="pre">ACL</span></tt> object for all sub-levels of the tree.</li>
+<li><tt class="docutils literal"><span class="pre">&quot;psub&quot;</span></tt> for all sub-level, cannot be revoked using <tt class="docutils literal"><span class="pre">ACL.RESET</span></tt></li>
 </ul>
 </div></blockquote>
 <p>The ACL class contains list of actions for a set of members.
@@ -237,7 +246,7 @@ Possible actions are:</p>
 </div></blockquote>
 <dl class="docutils">
 <dt>The actions have to passed as a string, which contains all actions at once::</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">add_action</span><span class="p">(</span><span class="sb">``</span><span class="n">topic</span><span class="sb">``</span><span class="p">,</span> <span class="s">&quot;rwcdm&quot;</span><span class="p">,</span> <span class="sb">``</span><span class="n">options</span><span class="sb">``</span><span class="p">)</span>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">add_action</span><span class="p">(</span><span class="s">&#39;topic&#39;</span><span class="p">,</span> <span class="s">&quot;rwcdm&quot;</span><span class="p">,</span> <span class="sb">``</span><span class="n">options</span><span class="sb">``</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd>
@@ -246,7 +255,7 @@ Possible actions are:</p>
 <p>Options are additional check parameters that have to be fullfilled to get this acl to match.</p>
 <dl class="docutils">
 <dt>The <tt class="docutils literal"><span class="pre">options</span></tt> parameter is a dictionary which contains a key and a value for each additional option we want to check for, e.g. ::</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">add_action</span><span class="p">(</span><span class="sb">``</span><span class="n">topic</span><span class="sb">``</span><span class="p">,</span> <span class="sb">``</span><span class="n">acls</span><span class="sb">``</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;uid&#39;</span><span class="p">:</span> <span class="s">&#39;hanspeter&#39;</span><span class="p">,</span> <span class="s">&#39;ou&#39;</span><span class="p">:</span> <span class="s">&#39;technik&#39;</span><span class="p">})</span>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">add_action</span><span class="p">(</span><span class="s">&#39;topic&#39;</span><span class="p">,</span> <span class="s">&#39;acls&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;uid&#39;</span><span class="p">:</span> <span class="s">&#39;hanspeter&#39;</span><span class="p">,</span> <span class="s">&#39;ou&#39;</span><span class="p">:</span> <span class="s">&#39;technik&#39;</span><span class="p">})</span>
 </pre></div>
 </div>
 </dd>
@@ -493,8 +502,8 @@ repesentation:</p>
 <p>Adds a new acl-rule to the active acls.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="14%" />
-<col width="86%" />
+<col width="11%" />
+<col width="89%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Key</th>
@@ -506,7 +515,7 @@ repesentation:</p>
 <td>The base this acl works on. E.g. &#8216;dc=example,dc=de&#8217;</td>
 </tr>
 <tr><td>scope</td>
-<td>The &#8216;scope&#8217; defines how an acl is inherited by sub-bases. See table below for details.</td>
+<td>The &#8216;scope&#8217; defines how an acl is inherited by sub-bases. See <a class="reference internal" href="#scope-description"><em>Scope values</em></a> for details.</td>
 </tr>
 <tr><td>priority</td>
 <td>An integer value to prioritize this acl-rule. (Lower values mean higher priority)</td>
@@ -575,11 +584,11 @@ repesentation:</p>
 <p class="first admonition-title">Note</p>
 <p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
 </div>
-<p>Adds a new acl-role to the active acls.</p>
+<p>Adds a new acl to an existing role.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="14%" />
-<col width="86%" />
+<col width="11%" />
+<col width="89%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Key</th>
@@ -591,7 +600,7 @@ repesentation:</p>
 <td>The name of the acl-role we want to add to.</td>
 </tr>
 <tr><td>scope</td>
-<td>The &#8216;scope&#8217; defines how an acl is inherited by sub-bases. See table below for details.</td>
+<td>The &#8216;scope&#8217; defines how an acl is inherited by sub-bases. See <a class="reference internal" href="#scope-description"><em>Scope values</em></a> for details.</td>
 </tr>
 <tr><td>priority</td>
 <td>An integer value to prioritize this acl-rule. (Lower values mean higher priority)</td>
@@ -622,7 +631,7 @@ repesentation:</p>
 <p class="first admonition-title">Note</p>
 <p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
 </div>
-<p>Adds a new acl-rule to the active acls.</p>
+<p>Add a new ACL based on role.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="15%" />
@@ -1157,8 +1166,8 @@ where the <tt class="docutils literal"><span class="pre">topic</span></tt> param
 <p>Updates an acl by ID.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="14%" />
-<col width="86%" />
+<col width="11%" />
+<col width="89%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Key</th>
@@ -1170,7 +1179,7 @@ where the <tt class="docutils literal"><span class="pre">topic</span></tt> param
 <td>The ID of the acl we want to update.</td>
 </tr>
 <tr><td>scope</td>
-<td>The &#8216;scope&#8217; defines how an acl is inherited by sub-bases. See table below for details.</td>
+<td>The &#8216;scope&#8217; defines how an acl is inherited by sub-bases. See <a class="reference internal" href="#scope-description"><em>Scope values</em></a> for details.</td>
 </tr>
 <tr><td>priority</td>
 <td>An integer value to prioritize this acl-rule. (Lower values mean higher priority)</td>
@@ -1207,8 +1216,8 @@ where the <tt class="docutils literal"><span class="pre">topic</span></tt> param
 <p>Updates an role-acl by ID.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="14%" />
-<col width="86%" />
+<col width="11%" />
+<col width="89%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Key</th>
@@ -1220,7 +1229,7 @@ where the <tt class="docutils literal"><span class="pre">topic</span></tt> param
 <td>The ID of the role-acl we want to update.</td>
 </tr>
 <tr><td>scope</td>
-<td>The &#8216;scope&#8217; defines how an acl is inherited by sub-bases. See table below for details.</td>
+<td>The &#8216;scope&#8217; defines how an acl is inherited by sub-bases. See <a class="reference internal" href="#scope-description"><em>Scope values</em></a> for details.</td>
 </tr>
 <tr><td>priority</td>
 <td>An integer value to prioritize this acl-rule. (Lower values mean higher priority)</td>
@@ -1251,7 +1260,7 @@ where the <tt class="docutils literal"><span class="pre">topic</span></tt> param
 <p class="first admonition-title">Note</p>
 <p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
 </div>
-<p>Refresh existing role-acl by ID to refer to antoher role.</p>
+<p>Refresh existing role-acl by ID to refer to another role.</p>
 <p>(You can use getACLRoles() to list the role-acl IDs)</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -1275,7 +1284,7 @@ where the <tt class="docutils literal"><span class="pre">topic</span></tt> param
 </tr>
 </tbody>
 </table>
-<p>This example lets the role-acl with ID:1 to point to role2:</p>
+<p>Example: Let the role-acl with ID:1 point to role2:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">updateACLRolewithRole</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;role2&quot;</span><span class="p">)</span>
 </pre></div>
 </div>

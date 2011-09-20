@@ -325,12 +325,19 @@ class ACL(object):
 
     .. _scope_description:
 
-    Scope values
+    Scope values - internal use:
 
         * ``ACL.ONE`` for one level.
         * ``ACL.SUB`` for all sub-level. This can be revoked using ``ACL.RESET``
         * ``ACL.RESET`` revokes the actions described in this ``ACL`` object for all sub-levels of the tree.
         * ``ACL.PSUB`` for all sub-level, cannot be revoked using ``ACL.RESET``
+
+    Scope values - external use, e.g. when executing commands using the gosa-shell:
+
+        * ``"one"`` for one level.
+        * ``"sub"`` for all sub-level. This can be revoked using ``ACL.RESET``
+        * ``"reset"`` revokes the actions described in this ``ACL`` object for all sub-levels of the tree.
+        * ``"psub"`` for all sub-level, cannot be revoked using ``ACL.RESET``
 
     The ACL class contains list of actions for a set of members.
     These ACL classes can then be bundled and attached to a base base using
@@ -554,7 +561,7 @@ class ACL(object):
          * e - Receive event
 
         The actions have to passed as a string, which contains all actions at once::
-            >>> add_action(``topic``, "rwcdm", ``options``)
+            >>> add_action('topic', "rwcdm", ``options``)
 
         .. _options_description:
 
@@ -563,7 +570,7 @@ class ACL(object):
         Options are additional check parameters that have to be fullfilled to get this acl to match.
 
         The ``options`` parameter is a dictionary which contains a key and a value for each additional option we want to check for, e.g. ::
-            >>> add_action(``topic``, ``acls``, {'uid': 'hanspeter', 'ou': 'technik'})
+            >>> add_action('topic', 'acls', {'uid': 'hanspeter', 'ou': 'technik'})
 
         If you've got a user object as dictionary, then you can check permissions like this::
             >>> resolver.check('some.topic', 'rwcdm', user1)
@@ -1407,13 +1414,11 @@ class ACLResolver(object):
         Key            Description
         ============== =============
         base           The base this acl works on. E.g. 'dc=example,dc=de'
-        scope          The 'scope' defines how an acl is inherited by sub-bases. See table below for details.
+        scope          The 'scope' defines how an acl is inherited by sub-bases. See :ref:`Scope values <scope_description>` for details.
         priority       An integer value to prioritize this acl-rule. (Lower values mean higher priority)
         members        A list of members this acl affects. E.g. [u'Herbert', u'klaus']
         actions        A dictionary which includes the topic and the acls this rule includes.
         ============== =============
-
-        For details about scope values, see: :ref:`_scope_desc`.
 
         The **actions** parameter is dictionary with three items ``topic``, ``acls`` and ``options``.
 
@@ -1530,7 +1535,7 @@ class ACLResolver(object):
         Key            Description
         ============== =============
         id             The ID of the acl we want to update.
-        scope          The 'scope' defines how an acl is inherited by sub-bases. See table below for details.
+        scope          The 'scope' defines how an acl is inherited by sub-bases. See :ref:`Scope values <scope_description>` for details.
         priority       An integer value to prioritize this acl-rule. (Lower values mean higher priority)
         members        A new list of members.
         actions        A dictionary which includes the topic and the acls this rule includes.
@@ -1609,7 +1614,7 @@ class ACLResolver(object):
     @Command(needsUser=True, __help__=N_("Add a new ACL based on role."))
     def addACLWithRole(self, user, base, priority, members, role):
         """
-        Adds a new acl-rule to the active acls.
+        Add a new ACL based on role.
 
         ============== =============
         Key            Description
@@ -1715,13 +1720,13 @@ class ACLResolver(object):
     @Command(needsUser=True, __help__=N_("Add new acl to an existing role."))
     def addACLToRole(self, user, rolename, scope, priority, actions):
         """
-        Adds a new acl-role to the active acls.
+        Adds a new acl to an existing role.
 
         ============== =============
         Key            Description
         ============== =============
         rolename       The name of the acl-role we want to add to.
-        scope          The 'scope' defines how an acl is inherited by sub-bases. See table below for details.
+        scope          The 'scope' defines how an acl is inherited by sub-bases. See :ref:`Scope values <scope_description>` for details.
         priority       An integer value to prioritize this acl-rule. (Lower values mean higher priority)
         actions        A dictionary which includes the topic and the acls this rule includes.
         ============== =============
@@ -1791,7 +1796,7 @@ class ACLResolver(object):
             acl.add_action(action['topic'], action['acls'], action['options'])
             self.add_acl_to_role(rolename, acl)
 
-    @Command(needsUser=True, __help__=N_("Add a new role-baed ACL to an existing role."))
+    @Command(needsUser=True, __help__=N_("Add a new role-based acl to an existing role."))
     def addACLWithRoleToRole(self, user, rolename, priority, role):
         """
         Adds a new role-based acl to an existing role.
@@ -1830,7 +1835,7 @@ class ACLResolver(object):
         Key            Description
         ============== =============
         id             The ID of the role-acl we want to update.
-        scope          The 'scope' defines how an acl is inherited by sub-bases. See table below for details.
+        scope          The 'scope' defines how an acl is inherited by sub-bases. See :ref:`Scope values <scope_description>` for details.
         priority       An integer value to prioritize this acl-rule. (Lower values mean higher priority)
         actions        A dictionary which includes the topic and the acls this rule includes.
         ============== =============
@@ -1900,10 +1905,10 @@ class ACLResolver(object):
         for action in actions:
             acl.add_action(action['topic'], action['acls'], action['options'])
 
-    @Command(needsUser=True, __help__=N_("Refresh existing role-acl by ID to refer to antoher role"))
+    @Command(needsUser=True, __help__=N_("Refresh existing role-acl by ID to refer to another role"))
     def updateACLRolewithRole(self, user, acl_id, priority, rolename):
         """
-        Refresh existing role-acl by ID to refer to antoher role.
+        Refresh existing role-acl by ID to refer to another role.
 
         (You can use getACLRoles() to list the role-acl IDs)
 
@@ -1915,7 +1920,7 @@ class ACLResolver(object):
         rolename       The name of the role to use.
         ============== =============
 
-        This example lets the role-acl with ID:1 to point to role2:
+        Example: Let the role-acl with ID:1 point to role2:
 
         >>> updateACLRolewithRole(1, 0, "role2")
 
