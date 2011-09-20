@@ -237,7 +237,7 @@ class SchedulerService(object):
                 day_of_week=day_of_week, hour=hour,
                 minute=minute, second=second,
                 start_date=start_date)
-        jod = self.sched.add_job(trigger, cr.dispatch, args, kwargs, **options)
+        job = self.sched.add_job(trigger, cr.dispatch, args, kwargs, **options)
         return job.uuid
 
     @Command(needsQueue=True, needsUser=True, __help__=N_("Add a new interval job to the scheduler."))
