@@ -520,7 +520,7 @@ repesentation:</p>
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.addACL">
 <tt class="descname">addACL</tt><big>(</big><em>user</em>, <em>base</em>, <em>scope</em>, <em>priority</em>, <em>members</em>, <em>actions</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.addACL" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition" id="cmd-0">
+<dd><div class="admonition " id="cmd-0">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -604,6 +604,54 @@ Possible actions are:</p>
 </div>
 <p>or with some options:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">resolver</span><span class="o">.</span><span class="n">addACL</span><span class="p">(</span><span class="s">&#39;dc=gonicus,dc=de&#39;</span><span class="p">,</span> <span class="s">&#39;sub&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="s">u&#39;tester1&#39;</span><span class="p">],</span> <span class="p">[{</span><span class="s">&#39;topic&#39;</span><span class="p">:</span> <span class="s">&#39;com.gosa.*&#39;</span><span class="p">,</span> <span class="s">&#39;acls&#39;</span><span class="p">:</span> <span class="s">&#39;rwcdm&#39;</span><span class="p">,</span> <span class="s">&#39;options&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;uid&#39;</span><span class="p">:</span> <span class="s">&#39;^u[0-9]&#39;</span><span class="p">}}])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="gosa.agent.acl.ACLResolver.addACLWithRole">
+<tt class="descname">addACLWithRole</tt><big>(</big><em>user</em>, <em>base</em>, <em>priority</em>, <em>members</em>, <em>role</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.addACLWithRole" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition " id="cmd-1">
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
+</div>
+<p>Adds a new acl-rule to the active acls.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="14%" />
+<col width="86%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>base</td>
+<td>The base this acl works on. E.g. &#8216;dc=example,dc=de&#8217;</td>
+</tr>
+<tr><td>scope</td>
+<td>The &#8216;scope&#8217; defines how an acl is inherited by sub-bases. See table below for details.</td>
+</tr>
+<tr><td>priority</td>
+<td>An integer value to prioritize this acl-rule. (Lower values mean higher priority)</td>
+</tr>
+<tr><td>members</td>
+<td>A list of members this acl affects. E.g. [u&#8217;Herbert&#8217;, u&#8217;klaus&#8217;]</td>
+</tr>
+</tbody>
+</table>
+<p>Valid <strong>scope</strong> values:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">one</span></tt> for one level. The acl is only valid for the given base.</li>
+<li><tt class="docutils literal"><span class="pre">sub</span></tt> the acl is valid for all sub-trees of the given base. This can be revoked using <tt class="docutils literal"><span class="pre">reset</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">reset</span></tt> revokes the actions described in this rule for all sub-levels of the tree.</li>
+<li><tt class="docutils literal"><span class="pre">psub</span></tt> the acl is valid for all sub-levels, this cannot be revoked using <tt class="docutils literal"><span class="pre">reset</span></tt></li>
+</ul>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">addACLWithRole</span><span class="p">(</span><span class="s">&quot;dc=gonicus,dc=de&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="s">u&#39;user1&#39;</span><span class="p">,</span> <span class="s">&#39;role1&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -740,7 +788,7 @@ This is called during initialization of the ACLResolver class.</p>
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.getACLs">
 <tt class="descname">getACLs</tt><big>(</big><em>user</em>, <em>base=None</em>, <em>topic=None</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.getACLs" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition" id="cmd-1">
+<dd><div class="admonition " id="cmd-2">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -848,7 +896,7 @@ where the <tt class="docutils literal"><span class="pre">topic</span></tt> param
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.removeACL">
 <tt class="descname">removeACL</tt><big>(</big><em>user</em>, <em>acl_id</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.removeACL" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition" id="cmd-2">
+<dd><div class="admonition " id="cmd-3">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>

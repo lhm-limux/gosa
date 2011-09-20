@@ -397,21 +397,35 @@ Prepare DNS-Zone for zeroconf
 Zeroconf setup::
 
   ; Zeroconf base setup
-  b._dns-sd._udp  IN PTR @   ;  b = browse domain
-  lb._dns-sd._udp IN PTR @   ;  lb = legacy browse domain
-  r._dns-sd._udp  IN PTR @   ;  r = registration domain
-
+  b._dns-sd._udp                  PTR @   ;  b = browse domain
+  lb._dns-sd._udp                 PTR @   ;  lb = legacy browse domain
+  _services._dns-sd._udp          PTR _amqps._tcp
+                                  PTR _https._tcp
+  
   ; Zeroconf gosa-ng records
-  _gosa._tcp  PTR GOsa\ NG\ Service._gosa._tcp
-  GOsa\ NG\ Service._gosa._tcp     SRV 0 0 5671 amqp.example.org.
-                                 TXT amqps://amqp.example.org:5671/org.gosa
+  _amqps._tcp                     PTR GOsa\ RPC\ Service._amqps._tcp
+  GOsa\ RPC\ Service._amqps._tcp  SRV 0 0 5671 amqp.example.net.
+                                  TXT path=/org.gosa service=gosa
+  
+  _https._tcp                     PTR GOsa\ Web\ Service._https._tcp
+                                  PTR GOsa\ RPC\ Service._https._tcp
+  GOsa\ RPC\ Service._https._tcp  SRV 0 0 8080 gosa.example.net.
+                                  TXT path=/rpc service=gosa
+  GOsa\ Web\ Service._https._tcp  SRV 0 0 443 amqp.example.net.
+                                  TXT path=/gosa 
 
 You can test your setup with::
 
-  # avahi-browse -D
-  -> this should list your domain
-  # avahi-browse -r example.org _gosa._tcp
-  -> this should list your services
+  you@amqp:~$ avahi-browse -D
+  +  n/a  n/a example.net
+
+  you@amqp:~$ avahi-browse -rd example.net _amqps._tcp
+  +   k.A. k.A. GOsa RPC Service                              _amqps._tcp          example.net
+  =   k.A. k.A. GOsa RPC Service                              _amqps._tcp          example.net
+     hostname = [amqp.example.net]
+     address = [10.3.64.59]
+     port = [5671]
+     txt = ["service=gosa" "path=/org.gosa"]
 
 
 Deploy a development agent
