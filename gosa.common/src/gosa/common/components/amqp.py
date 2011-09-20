@@ -28,22 +28,24 @@ class AMQPHandler(object):
         env = Environment.getInstance()
         env.log.debug("initializing AMQP handler")
         self.env = env
+        self.config = env.config
+        self.log = env.log
 
         # Enable debugging for qpid if we're in debug mode
-        #if self.env.config.get('core.loglevel') == 'DEBUG':
+        #if self.config.get('core.loglevel') == 'DEBUG':
         #    enable('qpid', DEBUG)
 
         # Evaluate username
-        user = self.env.config.get("amqp.id", default=None)
+        user = self.config.get("amqp.id", default=None)
         if not user:
             user = self.env.uuid
-        password = self.env.config.get("amqp.key")
+        password = self.config.get("amqp.key")
 
         # Load configuration
-        self.url = parseURL(makeAuthURL(self.env.config.get('amqp.url'), user, password))
-        self.reconnect = self.env.config.get('amqp.reconnect', True)
-        self.reconnect_interval = self.env.config.get('amqp.reconnect_interval', 3)
-        self.reconnect_limit = self.env.config.get('amqp.reconnect_limit', 0)
+        self.url = parseURL(makeAuthURL(self.config.get('amqp.url'), user, password))
+        self.reconnect = self.config.get('amqp.reconnect', True)
+        self.reconnect_interval = self.config.get('amqp.reconnect_interval', 3)
+        self.reconnect_limit = self.config.get('amqp.reconnect_limit', 0)
 
         # Load defined event schema files
         schema_doc = buildXMLSchema(['gosa.common'], 'data/events',
@@ -58,7 +60,7 @@ class AMQPHandler(object):
         self.start()
 
     def __del__(self):
-        self.env.log.debug("shutting down AMQP handler")
+        self.log.debug("shutting down AMQP handler")
         self._conn.close()
 
     def start(self):
@@ -66,13 +68,13 @@ class AMQPHandler(object):
         Enable AMQP queueing. This method puts up the event processor and
         sets it to "active".
         """
-        self.env.log.debug("enabling AMQP queueing")
+        self.log.debug("enabling AMQP queueing")
 
         # Evaluate username
-        user = self.env.config.get("amqp.id", default=None)
+        user = self.config.get("amqp.id", default=None)
         if not user:
             user = self.env.uuid
-        password = self.env.config.get("amqp.key")
+        password = self.config.get("amqp.key")
 
         # Create initial broker connection
         url = "%s:%s" % (self.url['host'], self.url['port'])
@@ -84,22 +86,22 @@ class AMQPHandler(object):
             reconnect_limit=self.reconnect_limit)
 
         # Do automatic broker failover if requested
-        if self.env.config.get('amqp.failover', False):
+        if self.config.get('amqp.failover', False):
             auto_fetch_reconnect_urls(self._conn)
 
         # Create event exchange
         socket = connect(self.url['host'], self.url['port'])
         if self.url['scheme'][-1] == 's':
             socket = ssl(socket)
-        user = self.env.config.get("amqp.id", default=None)
+        user = self.config.get("amqp.id", default=None)
         if not user:
             user = self.env.uuid
         connection = DirectConnection(sock=socket,
                 username=user,
-                password=self.env.config.get("amqp.key"))
+                password=self.config.get("amqp.key"))
         connection.start()
         session = connection.session(str(uuid4()))
-        # pylint: disable-msg=E1103
+        # pylint: disable=E1103
         session.exchange_declare(exchange=self.env.domain, type="xml")
         connection.close()
 
@@ -139,7 +141,7 @@ class AMQPHandler(object):
             conn = Connection.establish(url, transport=self.url['transport'], username=user, password=password)
             conn.close()
         except ConnectionError, e:
-            self.env.log.debug("AMQP service authentication reports: %s" % str(e))
+            self.log.debug("AMQP service authentication reports: %s" % str(e))
             return False
 
         return True
@@ -168,7 +170,7 @@ class AMQPHandler(object):
             if not isinstance(data, basestring):
                 data = data.content
             if self.env:
-                self.env.log.debug("event rejected (%s): %s" % (str(e), data))
+                self.log.debug("event rejected (%s): %s" % (str(e), data))
             raise
 
 
@@ -196,12 +198,14 @@ class AMQPWorker(object):
 
     def __init__(self, env, connection, s_address=None, r_address=None, workers=0, callback=None):
         self.env = env
+        self.log = env.log
+
         self.callback = callback
 
         # Get reader handle
         ssn = connection.session()
         if s_address:
-            self.env.log.debug("creating AMQP sender for %s" % s_address)
+            self.log.debug("creating AMQP sender for %s" % s_address)
             self.sender = ssn.sender(s_address, capacity=100)
 
         # Get one receiver object or...
@@ -211,7 +215,7 @@ class AMQPWorker(object):
         # ... start receive workers
         else:
             for i in range(workers):
-                self.env.log.debug("creating AMQP receiver (%d) for %s" % (i, r_address))
+                self.log.debug("creating AMQP receiver (%d) for %s" % (i, r_address))
                 rcv = ssn.receiver(r_address, capacity=100)
                 proc = AMQPProcessor(ssn, self.callback)
                 proc.start()
@@ -257,6 +261,7 @@ class EventProvider(object):
 
     def __init__(self, env, conn):
         self.env = env
+        self.log = env.log
 
         # Prepare session and sender
         self.__sess = conn.session()
@@ -265,7 +270,7 @@ class EventProvider(object):
 
     def send(self, data):
         #TODO: reject if not permitted
-        self.env.log.debug("sending event: %s" % data)
+        self.log.debug("sending event: %s" % data)
         msg = Message(data)
         msg.user_id = self.__user
         return self.__sender.send(msg)
@@ -275,6 +280,7 @@ class EventConsumer(object):
 
     def __init__(self, env, conn, xquery=".", callback=None):
         self.env = env
+        self.log = env.log
 
         # Load defined event schema files
         schema_doc = buildXMLSchema(['gosa.common'], 'data/events',
@@ -325,8 +331,8 @@ class EventConsumer(object):
         # Validate event and let it pass if it matches the schema
         try:
             xml = objectify.fromstring(data.content, self._parser)
-            self.env.log.debug("event received: %s" % data.content)
+            self.log.debug("event received: %s" % data.content)
             self.__callback(xml)
         except etree.XMLSyntaxError as e:
             if self.env:
-                self.env.log.debug("event rejected (%s): %s" % (str(e), data.content))
+                self.log.debug("event rejected (%s): %s" % (str(e), data.content))

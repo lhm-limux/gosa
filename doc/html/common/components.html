@@ -702,7 +702,7 @@ up automatically.</p>
 <hr class="docutils" />
 <span class="target" id="module-gosa.common.components.zeroconf_client"></span><dl class="class">
 <dt id="gosa.common.components.zeroconf_client.ZeroconfClient">
-<em class="property">class </em><tt class="descclassname">gosa.common.components.zeroconf_client.</tt><tt class="descname">ZeroconfClient</tt><big>(</big><em>regtype</em>, <em>timeout=2.0</em>, <em>callback=None</em>, <em>domain='local'</em><big>)</big><a class="headerlink" href="#gosa.common.components.zeroconf_client.ZeroconfClient" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">gosa.common.components.zeroconf_client.</tt><tt class="descname">ZeroconfClient</tt><big>(</big><em>regtypes</em>, <em>timeout=2.0</em>, <em>callback=None</em>, <em>domain='local'</em><big>)</big><a class="headerlink" href="#gosa.common.components.zeroconf_client.ZeroconfClient" title="Permalink to this definition">¶</a></dt>
 <dd><p>The ZeroconfClient class helps with browsing for announced services. It
 creates a separate thread and needs the registrated service to look for
 as a parameter.</p>
@@ -720,7 +720,7 @@ as a parameter.</p>
 <span class="gp">... </span>  <span class="k">print</span><span class="p">(</span><span class="s">&#39;  port       =&#39;</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c"># Get instance and tell client to start</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">z</span><span class="o">=</span> <span class="n">ZeroconfClient</span><span class="p">(</span><span class="s">&#39;_gosa._tcp&#39;</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">z</span><span class="o">=</span> <span class="n">ZeroconfClient</span><span class="p">([</span><span class="s">&#39;_amqps._tcp&#39;</span><span class="p">],</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">z</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c"># Do some sleep until someone presses Ctrl+C</span>
@@ -735,8 +735,8 @@ as a parameter.</p>
 </div>
 <table border="1" class="docutils">
 <colgroup>
-<col width="25%" />
-<col width="75%" />
+<col width="22%" />
+<col width="78%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Parameter</th>
@@ -744,8 +744,8 @@ as a parameter.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td>regtype</td>
-<td>The service to watch out for - i.e. _gosa._tcp</td>
+<tr><td>regtypes</td>
+<td>The service list to watch out for - i.e. _amqps._tcp</td>
 </tr>
 <tr><td>timeout</td>
 <td>The timeout in seconds</td>
@@ -753,20 +753,11 @@ as a parameter.</p>
 <tr><td>callback</td>
 <td>Method to call when we&#8217;ve received something</td>
 </tr>
+<tr><td>domain</td>
+<td>optional DNS domain to discover</td>
+</tr>
 </tbody>
 </table>
-<dl class="method">
-<dt id="gosa.common.components.zeroconf_client.ZeroconfClient.start">
-<tt class="descname">start</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.common.components.zeroconf_client.ZeroconfClient.start" title="Permalink to this definition">¶</a></dt>
-<dd><p>Start zeroconf event processing.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="gosa.common.components.zeroconf_client.ZeroconfClient.stop">
-<tt class="descname">stop</tt><big>(</big><big>)</big><a class="headerlink" href="#gosa.common.components.zeroconf_client.ZeroconfClient.stop" title="Permalink to this definition">¶</a></dt>
-<dd><p>Stop the zeroconf event processing.</p>
-</dd></dl>
-
 </dd></dl>
 
 <hr class="docutils" />

@@ -21,18 +21,19 @@ class PluginRegistry(object):
     def __init__(self, component="gosa.modules"):
         env = Environment.getInstance()
         self.env = env
-        self.env.log.debug("inizializing plugin registry")
+        self.log = env.log
+        self.log.debug("inizializing plugin registry")
 
         # Get module from setuptools
         for entry in pkg_resources.iter_entry_points(component):
             module = entry.load()
-            self.env.log.info("module %s included" % module.__name__)
+            self.log.info("module %s included" % module.__name__)
             PluginRegistry.modules[module.__name__] = module
 
             # Save interface handlers
-            # pylint: disable-msg=E1101
+            # pylint: disable=E1101
             if IInterfaceHandler.implementedBy(module):
-                self.env.log.debug("registering handler module %s" % module.__name__)
+                self.log.debug("registering handler module %s" % module.__name__)
                 PluginRegistry.handlers[module.__name__] = module
 
         # Initialize component handlers
