@@ -239,6 +239,7 @@ class GOsaService():
 
     def help(self):
         """ Prints some help """
+        mlist = []
         for method, info in self.proxy.getMethods(None, locale.getdefaultlocale()).iteritems():
             sig = info['sig']
             args = ', '.join(sig)
@@ -247,7 +248,11 @@ class GOsaService():
                 d = ' '.join(info['doc'].split())
                 for line in textwrap.wrap(d, 72):
                     doc += "    %s\n" % line
-            print("%s(%s)\n%s" % (method, args, doc))
+            mlist.append((method, args, doc))
+
+        mlist.sort(key=lambda x: x[0])
+        for mset in mlist:
+            print("%s(%s)\n%s" % mset)
 
 
 def main(argv=sys.argv):
