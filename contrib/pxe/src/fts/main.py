@@ -14,6 +14,7 @@ try:
     import _find_fuse_parts
 except ImportError:
     pass
+
 import fuse
 from fuse import Fuse
 
@@ -25,30 +26,14 @@ if not hasattr(fuse, '__version__'):
 
 fuse.feature_assert('stateful_files', 'has_init')
 macaddress = re.compile("^[0-9a-f]{1,2}-[0-9a-f]{1,2}-[0-9a-f]{1,2}-[0-9a-f]{1,2}-[0-9a-f]{1,2}-[0-9a-f]{1,2}$")
-static=os.getcwd()+'/pxelinux.static'
+static = os.getcwd() + '/pxelinux.static'
 
 # Create connection to service
 proxy = AMQPServiceProxy('amqps://cajus:tester@amqp.intranet.gonicus.de/org.gosa')
 
-def getDepth(path):
-    """
-    Return the depth of a given path, zero-based from root ('/')
-    """
-    if path=='/':
-        return 0
-    else:
-        return path.count('/')
-
-def getParts(path):
-    """
-    Return the slash-separated parts of a given path as a list
-    """
-    if path=='/':
-        return [['/']]
-    else:
-        return path.split('/')
 
 class FileStat(fuse.Stat):
+
     def __init__(self):
         self.st_mode = stat.S_IFDIR | 0755
         self.st_ino = 0
@@ -61,8 +46,8 @@ class FileStat(fuse.Stat):
         self.st_mtime = self.st_atime
         self.st_ctime = self.st_atime
 
+
 class PxeFS(Fuse):
-    _target_ = 'fts'
 
     def __init__(self, *args, **kw):
         Fuse.__init__(self, *args, **kw)
@@ -130,6 +115,7 @@ class PxeFS(Fuse):
             self.filesystem[self.root][path]['content'] = str(proxy.systemGetBootString(None, path[4:].replace('-', ':')))
             self.filesystem[self.root][path]['timestamp'] = time()
         return self.filesystem[self.root][path]['content']
+
 
 def main():
     usage = """

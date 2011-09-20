@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import pkg_resources
 from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
@@ -22,7 +23,15 @@ class PluginRegistry(object):
         env = Environment.getInstance()
         self.env = env
         self.log = env.log
+        self.evreg = {}
         self.log.debug("inizializing plugin registry")
+
+        # Load common event resources
+        base_dir = pkg_resources.resource_filename('gosa.common', 'data/events')
+        for res in pkg_resources.resource_listdir('gosa.common', 'data/events'):
+            filename = os.path.join(base_dir, res)
+            self.log.debug("loading common event from '%s'" % filename)
+            self.evreg[filename] = open(filename).read()
 
         # Get module from setuptools
         for entry in pkg_resources.iter_entry_points(component):
@@ -42,6 +51,18 @@ class PluginRegistry(object):
 
         # Initialize modules
         for module, clazz  in PluginRegistry.modules.iteritems():
+
+            # Check for event resources
+            if pkg_resources.resource_isdir(clazz.__module__, 'data/events'):
+                base_dir = pkg_resources.resource_filename(clazz.__module__, 'data/events')
+
+                for res in pkg_resources.resource_listdir(clazz.__module__, 'data/events'):
+                    filename = os.path.join(base_dir, res)
+                    if not filename in self.evreg:
+                        self.evreg[filename] = open(filename).read()
+                        self.log.debug("loading module event from '%s'" % filename)
+
+            # Register modules
             if module in PluginRegistry.handlers:
                 PluginRegistry.modules[module] = PluginRegistry.handlers[module]
             else:

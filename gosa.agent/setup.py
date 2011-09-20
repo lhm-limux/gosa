@@ -44,6 +44,7 @@ setup(
     include_package_data = True,
     package_data = {
         'gosa.agent': ['data/agent.conf'],
+        'gosa.agent.plugins.goto': ['data/events'],
     },
 
     test_suite = "nose.collector",

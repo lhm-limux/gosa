@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from pkg_resources import resource_listdir, resource_isdir
 
 
 class Plugin(object):
@@ -29,7 +30,3 @@ class Plugin(object):
 
     """
     _target_ = None
-
-    #TODO: More interface declarations
-    pass
-
