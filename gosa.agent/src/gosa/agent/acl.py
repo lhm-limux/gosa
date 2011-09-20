@@ -323,7 +323,9 @@ class ACL(object):
     role           You can either define permission actions directly or you can use an ``ACLRole`` instead
     ============== =============
 
-    Valid scope values:
+    .. _scope_description:
+
+    Scope values
 
         * ``ACL.ONE`` for one level.
         * ``ACL.SUB`` for all sub-level. This can be revoked using ``ACL.RESET``
@@ -516,7 +518,9 @@ class ACL(object):
         options        Special additional options that have to be checked.
         ============== =============
 
-        **Targets**
+        .. _topic_description:
+
+        **Topic**
 
         Targets can contain placeholder to be more flexible when it come to resolving acls.
         You can use ``#`` and ``*`` where ``#`` matches for one level and ``*`` for multiple topic levels.
@@ -532,6 +536,8 @@ class ACL(object):
          * gosa.factory
          * gosa.level1.factory
          * gosa.level1.level2.factory
+
+        .. _acls_description:
 
         **Acls**
 
@@ -549,6 +555,8 @@ class ACL(object):
 
         The actions have to passed as a string, which contains all actions at once::
             >>> add_action(``topic``, "rwcdm", ``options``)
+
+        .. _options_description:
 
         **Options**
 
@@ -1016,7 +1024,7 @@ class ACLResolver(object):
         base           The base we want to check acls in.
         ============== =============
 
-        Take a look at ACL.add_action for details about ``topic``, ``options`` and ``acls``.
+        For details about ``topic``, ``options`` and ``acls``, click here: :ref:`Scope values <scope_description>`, :ref:`Topic <topic_description>`, :ref:`ACLs <acls_description>` and :ref:`Options <options_description>`
 
         Example::
             >>> resolver = ACLResolver()
@@ -1405,51 +1413,12 @@ class ACLResolver(object):
         actions        A dictionary which includes the topic and the acls this rule includes.
         ============== =============
 
-        Valid **scope** values:
-
-            * ``one`` for one level. The acl is only valid for the given base.
-            * ``sub`` the acl is valid for all sub-trees of the given base. This can be revoked using ``reset``
-            * ``reset`` revokes the actions described in this rule for all sub-levels of the tree.
-            * ``psub`` the acl is valid for all sub-levels, this cannot be revoked using ``reset``
+        For details about scope values, see: :ref:`_scope_desc`.
 
         The **actions** parameter is dictionary with three items ``topic``, ``acls`` and ``options``.
 
-        The **topic** specifies the action this acl affects, for exmaple::
-
-            >>>  {'topic': 'org.gosa.factory', 'acls': ...}
-            >>>  {'topic': 'org.gosa.#.factory', 'acls': ...}
-            >>>  {'topic': 'org.gosa.*.factory', 'acls': ...}
-
-        The above example uses the placeholders ``*`` and ``#``.
-        The ``*`` is a wildcard for everything and ``#`` only allows to ignore one level
-        of the topic. (The levels are separated by '.')
-
-        The **acls** key describes the action we can perform on the given ``topic``.
-        Possible actions are:
-
-         * r - Read
-         * w - Write
-         * m - Move
-         * c - Create
-         * d - Delete
-         * s - Search - or beeing found
-         * x - Execute
-         * e - Receive event
-
-            >>> {'topic': '...', 'acls': 'rwc'}
-            >>> {'topic': '...', 'acls': 'rwcdmsxe'}
-
-        **Options** are additional check parameters that have to be fullfilled to get this acl to match.
-
-        The ``options`` parameter is a dictionary which contains a key and a value for each additional option we want to check for, e.g. ::
-
-            >>> {'topic': '...', 'acls': '...' , {'uid': 'hanspeter', 'ou': 'technik'})
-
-        If you've got a user object as dictionary, then you can check permissions like this::
-
-            >>> resolver.check('some.topic', 'rwcdm', user1)
-
-        The resolver will then check if the keys ``uid`` and ``ou`` are present in the user1 dictionary and then check if the values match.
+        For details about ``scope``, ``topic``, ``options`` and ``acls``, click here: 
+            :ref:`Scope values <scope_description>`, :ref:`Topic <topic_description>`, :ref:`ACLs <acls_description>` and :ref:`Options <options_description>`
 
         Example:
 
@@ -1567,51 +1536,8 @@ class ACLResolver(object):
         actions        A dictionary which includes the topic and the acls this rule includes.
         ============== =============
 
-        Valid **scope** values:
-
-            * ``one`` for one level. The acl is only valid for the given base.
-            * ``sub`` the acl is valid for all sub-trees of the given base. This can be revoked using ``reset``
-            * ``reset`` revokes the actions described in this rule for all sub-levels of the tree.
-            * ``psub`` the acl is valid for all sub-levels, this cannot be revoked using ``reset``
-
-        The **actions** parameter is dictionary with three items ``topic``, ``acls`` and ``options``.
-
-        The **topic** specifies the action this acl affects, for exmaple::
-
-            >>>  {'topic': 'org.gosa.factory', 'acls': ...}
-            >>>  {'topic': 'org.gosa.#.factory', 'acls': ...}
-            >>>  {'topic': 'org.gosa.*.factory', 'acls': ...}
-
-        The above example uses the placeholders ``*`` and ``#``.
-        The ``*`` is a wildcard for everything and ``#`` only allows to ignore one level
-        of the topic. (The levels are separated by '.')
-
-        The **acls** key describes the action we can perform on the given ``topic``.
-        Possible actions are:
-
-         * r - Read
-         * w - Write
-         * m - Move
-         * c - Create
-         * d - Delete
-         * s - Search - or beeing found
-         * x - Execute
-         * e - Receive event
-
-            >>> {'topic': '...', 'acls': 'rwc'}
-            >>> {'topic': '...', 'acls': 'rwcdmsxe'}
-
-        **Options** are additional check parameters that have to be fullfilled to get this acl to match.
-
-        The ``options`` parameter is a dictionary which contains a key and a value for each additional option we want to check for, e.g. ::
-
-            >>> {'topic': '...', 'acls': '...' , {'uid': 'hanspeter', 'ou': 'technik'})
-
-        If you've got a user object as dictionary, then you can check permissions like this::
-
-            >>> resolver.check('some.topic', 'rwcdm', user1)
-
-        The resolver will then check if the keys ``uid`` and ``ou`` are present in the user1 dictionary and then check if the values match.
+        For details about ``scope``, ``topic``, ``options`` and ``acls``, click here:
+            :ref:`Scope values <scope_description>`, :ref:`Topic <topic_description>`, :ref:`ACLs <acls_description>` and :ref:`Options <options_description>`
 
         Example:
 
@@ -1800,51 +1726,8 @@ class ACLResolver(object):
         actions        A dictionary which includes the topic and the acls this rule includes.
         ============== =============
 
-        Valid **scope** values:
-
-            * ``one`` for one level. The acl is only valid for the given base.
-            * ``sub`` the acl is valid for all sub-trees of the given base. This can be revoked using ``reset``
-            * ``reset`` revokes the actions described in this rule for all sub-levels of the tree.
-            * ``psub`` the acl is valid for all sub-levels, this cannot be revoked using ``reset``
-
-        The **actions** parameter is dictionary with three items ``topic``, ``acls`` and ``options``.
-
-        The **topic** specifies the action this acl affects, for exmaple::
-
-            >>>  {'topic': 'org.gosa.factory', 'acls': ...}
-            >>>  {'topic': 'org.gosa.#.factory', 'acls': ...}
-            >>>  {'topic': 'org.gosa.*.factory', 'acls': ...}
-
-        The above example uses the placeholders ``*`` and ``#``.
-        The ``*`` is a wildcard for everything and ``#`` only allows to ignore one level
-        of the topic. (The levels are separated by '.')
-
-        The **acls** key describes the action we can perform on the given ``topic``.
-        Possible actions are:
-
-         * r - Read
-         * w - Write
-         * m - Move
-         * c - Create
-         * d - Delete
-         * s - Search - or beeing found
-         * x - Execute
-         * e - Receive event
-
-            >>> {'topic': '...', 'acls': 'rwc'}
-            >>> {'topic': '...', 'acls': 'rwcdmsxe'}
-
-        **Options** are additional check parameters that have to be fullfilled to get this acl to match.
-
-        The ``options`` parameter is a dictionary which contains a key and a value for each additional option we want to check for, e.g. ::
-
-            >>> {'topic': '...', 'acls': '...' , {'uid': 'hanspeter', 'ou': 'technik'})
-
-        If you've got a user object as dictionary, then you can check permissions like this::
-
-            >>> resolver.check('some.topic', 'rwcdm', user1)
-
-        The resolver will then check if the keys ``uid`` and ``ou`` are present in the user1 dictionary and then check if the values match.
+        For details about ``scope``, ``topic``, ``options`` and ``acls``, click here:
+            :ref:`Scope values <scope_description>`, :ref:`Topic <topic_description>`, :ref:`ACLs <acls_description>` and :ref:`Options <options_description>`
 
         Example:
 
@@ -1952,51 +1835,8 @@ class ACLResolver(object):
         actions        A dictionary which includes the topic and the acls this rule includes.
         ============== =============
 
-        Valid **scope** values:
-
-            * ``one`` for one level. The acl is only valid for the given base.
-            * ``sub`` the acl is valid for all sub-trees of the given base. This can be revoked using ``reset``
-            * ``reset`` revokes the actions described in this rule for all sub-levels of the tree.
-            * ``psub`` the acl is valid for all sub-levels, this cannot be revoked using ``reset``
-
-        The **actions** parameter is dictionary with three items ``topic``, ``acls`` and ``options``.
-
-        The **topic** specifies the action this acl affects, for exmaple::
-
-            >>>  {'topic': 'org.gosa.factory', 'acls': ...}
-            >>>  {'topic': 'org.gosa.#.factory', 'acls': ...}
-            >>>  {'topic': 'org.gosa.*.factory', 'acls': ...}
-
-        The above example uses the placeholders ``*`` and ``#``.
-        The ``*`` is a wildcard for everything and ``#`` only allows to ignore one level
-        of the topic. (The levels are separated by '.')
-
-        The **acls** key describes the action we can perform on the given ``topic``.
-        Possible actions are:
-
-         * r - Read
-         * w - Write
-         * m - Move
-         * c - Create
-         * d - Delete
-         * s - Search - or beeing found
-         * x - Execute
-         * e - Receive event
-
-            >>> {'topic': '...', 'acls': 'rwc'}
-            >>> {'topic': '...', 'acls': 'rwcdmsxe'}
-
-        **Options** are additional check parameters that have to be fullfilled to get this acl to match.
-
-        The ``options`` parameter is a dictionary which contains a key and a value for each additional option we want to check for, e.g. ::
-
-            >>> {'topic': '...', 'acls': '...' , {'uid': 'hanspeter', 'ou': 'technik'})
-
-        If you've got a user object as dictionary, then you can check permissions like this::
-
-            >>> resolver.check('some.topic', 'rwcdm', user1)
-
-        The resolver will then check if the keys ``uid`` and ``ou`` are present in the user1 dictionary and then check if the values match.
+        For details about ``scope``, ``topic``, ``options`` and ``acls``, click here:
+            :ref:`Scope values <scope_description>`, :ref:`Topic <topic_description>`, :ref:`ACLs <acls_description>` and :ref:`Options <options_description>`
 
         Example:
 
@@ -2060,10 +1900,12 @@ class ACLResolver(object):
         for action in actions:
             acl.add_action(action['topic'], action['acls'], action['options'])
 
-    @Command(needsUser=True, __help__=N_("Refresh existing role-acl by ID to use refer to antoher role."))
+    @Command(needsUser=True, __help__=N_("Refresh existing role-acl by ID to refer to antoher role"))
     def updateACLRolewithRole(self, user, acl_id, priority, rolename):
         """
-        "Refresh existing role-acl by ID to use refer to antoher role.
+        Refresh existing role-acl by ID to refer to antoher role.
+
+        (You can use getACLRoles() to list the role-acl IDs)
 
         ============== =============
         Key            Description
@@ -2073,7 +1915,7 @@ class ACLResolver(object):
         rolename       The name of the role to use.
         ============== =============
 
-        This example let role-acl with ID:1 to point to role2:
+        This example lets the role-acl with ID:1 to point to role2:
 
         >>> updateACLRolewithRole(1, 0, "role2")
 
@@ -2101,6 +1943,8 @@ class ACLResolver(object):
 
         Removes a defined role ACL by its id.
 
+        (You can use getACLRoles() to list the role-acl IDs)
+
         ============== =============
         Key            Description
         ============== =============
@@ -2119,7 +1963,7 @@ class ACLResolver(object):
                 if _acl.id == role_id:
                     self.acl_roles[_aclrole].remove(_acl)
 
-    @Command(needsUser=True, __help__=N_("Remove a defined acl-role."))
+    @Command(needsUser=True, __help__=N_("Remove a defined acl-role by name"))
     def removeRole(self, user, rolename):
         """
         Removes a defined role by its name.
