@@ -97,13 +97,22 @@ ACLSet
 </tr>
 </tbody>
 </table>
-<p id="scope-description">Scope values</p>
+<p id="scope-description">Scope values - internal use:</p>
 <blockquote>
 <div><ul class="simple">
 <li><tt class="docutils literal"><span class="pre">ACL.ONE</span></tt> for one level.</li>
 <li><tt class="docutils literal"><span class="pre">ACL.SUB</span></tt> for all sub-level. This can be revoked using <tt class="docutils literal"><span class="pre">ACL.RESET</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">ACL.RESET</span></tt> revokes the actions described in this <tt class="docutils literal"><span class="pre">ACL</span></tt> object for all sub-levels of the tree.</li>
 <li><tt class="docutils literal"><span class="pre">ACL.PSUB</span></tt> for all sub-level, cannot be revoked using <tt class="docutils literal"><span class="pre">ACL.RESET</span></tt></li>
+</ul>
+</div></blockquote>
+<p>Scope values - external use, e.g. when executing commands using the gosa-shell:</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">&quot;one&quot;</span></tt> for one level.</li>
+<li><tt class="docutils literal"><span class="pre">&quot;sub&quot;</span></tt> for all sub-level. This can be revoked using <tt class="docutils literal"><span class="pre">ACL.RESET</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">&quot;reset&quot;</span></tt> revokes the actions described in this <tt class="docutils literal"><span class="pre">ACL</span></tt> object for all sub-levels of the tree.</li>
+<li><tt class="docutils literal"><span class="pre">&quot;psub&quot;</span></tt> for all sub-level, cannot be revoked using <tt class="docutils literal"><span class="pre">ACL.RESET</span></tt></li>
 </ul>
 </div></blockquote>
 <p>The ACL class contains list of actions for a set of members.
@@ -237,7 +246,7 @@ Possible actions are:</p>
 </div></blockquote>
 <dl class="docutils">
 <dt>The actions have to passed as a string, which contains all actions at once::</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">add_action</span><span class="p">(</span><span class="sb">``</span><span class="n">topic</span><span class="sb">``</span><span class="p">,</span> <span class="s">&quot;rwcdm&quot;</span><span class="p">,</span> <span class="sb">``</span><span class="n">options</span><span class="sb">``</span><span class="p">)</span>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">add_action</span><span class="p">(</span><span class="s">&#39;topic&#39;</span><span class="p">,</span> <span class="s">&quot;rwcdm&quot;</span><span class="p">,</span> <span class="sb">``</span><span class="n">options</span><span class="sb">``</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd>
@@ -246,7 +255,7 @@ Possible actions are:</p>
 <p>Options are additional check parameters that have to be fullfilled to get this acl to match.</p>
 <dl class="docutils">
 <dt>The <tt class="docutils literal"><span class="pre">options</span></tt> parameter is a dictionary which contains a key and a value for each additional option we want to check for, e.g. ::</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">add_action</span><span class="p">(</span><span class="sb">``</span><span class="n">topic</span><span class="sb">``</span><span class="p">,</span> <span class="sb">``</span><span class="n">acls</span><span class="sb">``</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;uid&#39;</span><span class="p">:</span> <span class="s">&#39;hanspeter&#39;</span><span class="p">,</span> <span class="s">&#39;ou&#39;</span><span class="p">:</span> <span class="s">&#39;technik&#39;</span><span class="p">})</span>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">add_action</span><span class="p">(</span><span class="s">&#39;topic&#39;</span><span class="p">,</span> <span class="s">&#39;acls&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;uid&#39;</span><span class="p">:</span> <span class="s">&#39;hanspeter&#39;</span><span class="p">,</span> <span class="s">&#39;ou&#39;</span><span class="p">:</span> <span class="s">&#39;technik&#39;</span><span class="p">})</span>
 </pre></div>
 </div>
 </dd>
@@ -484,7 +493,7 @@ repesentation:</p>
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.addACL">
 <tt class="descname">addACL</tt><big>(</big><em>user</em>, <em>base</em>, <em>scope</em>, <em>priority</em>, <em>members</em>, <em>actions</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.addACL" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-0">
+<dd><div class="admonition" id="cmd-0">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -493,8 +502,8 @@ repesentation:</p>
 <p>Adds a new acl-rule to the active acls.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="14%" />
-<col width="86%" />
+<col width="11%" />
+<col width="89%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Key</th>
@@ -506,7 +515,7 @@ repesentation:</p>
 <td>The base this acl works on. E.g. &#8216;dc=example,dc=de&#8217;</td>
 </tr>
 <tr><td>scope</td>
-<td>The &#8216;scope&#8217; defines how an acl is inherited by sub-bases. See table below for details.</td>
+<td>The &#8216;scope&#8217; defines how an acl is inherited by sub-bases. See <a class="reference internal" href="#scope-description"><em>Scope values</em></a> for details.</td>
 </tr>
 <tr><td>priority</td>
 <td>An integer value to prioritize this acl-rule. (Lower values mean higher priority)</td>
@@ -519,7 +528,6 @@ repesentation:</p>
 </tr>
 </tbody>
 </table>
-<p>For details about scope values, see: <em class="xref std std-ref">_scope_desc</em>.</p>
 <p>The <strong>actions</strong> parameter is dictionary with three items <tt class="docutils literal"><span class="pre">topic</span></tt>, <tt class="docutils literal"><span class="pre">acls</span></tt> and <tt class="docutils literal"><span class="pre">options</span></tt>.</p>
 <p>For details about <tt class="docutils literal"><span class="pre">scope</span></tt>, <tt class="docutils literal"><span class="pre">topic</span></tt>, <tt class="docutils literal"><span class="pre">options</span></tt> and <tt class="docutils literal"><span class="pre">acls</span></tt>, click here: 
 <a class="reference internal" href="#scope-description"><em>Scope values</em></a>, <a class="reference internal" href="#topic-description"><em>Topic</em></a>, <a class="reference internal" href="#acls-description"><em>ACLs</em></a> and <a class="reference internal" href="#options-description"><em>Options</em></a></p>
@@ -536,7 +544,7 @@ repesentation:</p>
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.addACLRole">
 <tt class="descname">addACLRole</tt><big>(</big><em>user</em>, <em>rolename</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.addACLRole" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-1">
+<dd><div class="admonition" id="cmd-1">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -569,17 +577,17 @@ repesentation:</p>
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.addACLToRole">
 <tt class="descname">addACLToRole</tt><big>(</big><em>user</em>, <em>rolename</em>, <em>scope</em>, <em>priority</em>, <em>actions</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.addACLToRole" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-2">
+<dd><div class="admonition" id="cmd-2">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
 </div>
-<p>Adds a new acl-role to the active acls.</p>
+<p>Adds a new acl to an existing role.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="14%" />
-<col width="86%" />
+<col width="11%" />
+<col width="89%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Key</th>
@@ -591,7 +599,7 @@ repesentation:</p>
 <td>The name of the acl-role we want to add to.</td>
 </tr>
 <tr><td>scope</td>
-<td>The &#8216;scope&#8217; defines how an acl is inherited by sub-bases. See table below for details.</td>
+<td>The &#8216;scope&#8217; defines how an acl is inherited by sub-bases. See <a class="reference internal" href="#scope-description"><em>Scope values</em></a> for details.</td>
 </tr>
 <tr><td>priority</td>
 <td>An integer value to prioritize this acl-rule. (Lower values mean higher priority)</td>
@@ -616,13 +624,13 @@ repesentation:</p>
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.addACLWithRole">
 <tt class="descname">addACLWithRole</tt><big>(</big><em>user</em>, <em>base</em>, <em>priority</em>, <em>members</em>, <em>role</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.addACLWithRole" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-3">
+<dd><div class="admonition" id="cmd-3">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
 </div>
-<p>Adds a new acl-rule to the active acls.</p>
+<p>Add a new ACL based on role.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="15%" />
@@ -657,7 +665,7 @@ repesentation:</p>
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.addACLWithRoleToRole">
 <tt class="descname">addACLWithRoleToRole</tt><big>(</big><em>user</em>, <em>rolename</em>, <em>priority</em>, <em>role</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.addACLWithRoleToRole" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-4">
+<dd><div class="admonition" id="cmd-4">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -849,7 +857,7 @@ This is called during initialization of the ACLResolver class.</p>
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.getACLRoles">
 <tt class="descname">getACLRoles</tt><big>(</big><em>user</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.getACLRoles" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-5">
+<dd><div class="admonition" id="cmd-5">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -865,7 +873,7 @@ This is called during initialization of the ACLResolver class.</p>
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.getACLs">
 <tt class="descname">getACLs</tt><big>(</big><em>user</em>, <em>base=None</em>, <em>topic=None</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.getACLs" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-6">
+<dd><div class="admonition" id="cmd-6">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -973,7 +981,7 @@ where the <tt class="docutils literal"><span class="pre">topic</span></tt> param
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.removeACL">
 <tt class="descname">removeACL</tt><big>(</big><em>user</em>, <em>acl_id</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.removeACL" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-7">
+<dd><div class="admonition" id="cmd-7">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1005,7 +1013,7 @@ where the <tt class="docutils literal"><span class="pre">topic</span></tt> param
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.removeRole">
 <tt class="descname">removeRole</tt><big>(</big><em>user</em>, <em>rolename</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.removeRole" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-8">
+<dd><div class="admonition" id="cmd-8">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1033,7 +1041,7 @@ where the <tt class="docutils literal"><span class="pre">topic</span></tt> param
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.removeRoleACL">
 <tt class="descname">removeRoleACL</tt><big>(</big><em>user</em>, <em>role_id</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.removeRoleACL" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-9">
+<dd><div class="admonition" id="cmd-9">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1148,7 +1156,7 @@ where the <tt class="docutils literal"><span class="pre">topic</span></tt> param
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.updateACL">
 <tt class="descname">updateACL</tt><big>(</big><em>user</em>, <em>acl_id</em>, <em>scope</em>, <em>priority</em>, <em>members</em>, <em>actions</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.updateACL" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-10">
+<dd><div class="admonition" id="cmd-10">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1157,8 +1165,8 @@ where the <tt class="docutils literal"><span class="pre">topic</span></tt> param
 <p>Updates an acl by ID.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="14%" />
-<col width="86%" />
+<col width="11%" />
+<col width="89%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Key</th>
@@ -1170,7 +1178,7 @@ where the <tt class="docutils literal"><span class="pre">topic</span></tt> param
 <td>The ID of the acl we want to update.</td>
 </tr>
 <tr><td>scope</td>
-<td>The &#8216;scope&#8217; defines how an acl is inherited by sub-bases. See table below for details.</td>
+<td>The &#8216;scope&#8217; defines how an acl is inherited by sub-bases. See <a class="reference internal" href="#scope-description"><em>Scope values</em></a> for details.</td>
 </tr>
 <tr><td>priority</td>
 <td>An integer value to prioritize this acl-rule. (Lower values mean higher priority)</td>
@@ -1198,7 +1206,7 @@ where the <tt class="docutils literal"><span class="pre">topic</span></tt> param
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.updateACLRole">
 <tt class="descname">updateACLRole</tt><big>(</big><em>user</em>, <em>acl_id</em>, <em>scope</em>, <em>priority</em>, <em>actions</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.updateACLRole" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-11">
+<dd><div class="admonition" id="cmd-11">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1207,8 +1215,8 @@ where the <tt class="docutils literal"><span class="pre">topic</span></tt> param
 <p>Updates an role-acl by ID.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="14%" />
-<col width="86%" />
+<col width="11%" />
+<col width="89%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Key</th>
@@ -1220,7 +1228,7 @@ where the <tt class="docutils literal"><span class="pre">topic</span></tt> param
 <td>The ID of the role-acl we want to update.</td>
 </tr>
 <tr><td>scope</td>
-<td>The &#8216;scope&#8217; defines how an acl is inherited by sub-bases. See table below for details.</td>
+<td>The &#8216;scope&#8217; defines how an acl is inherited by sub-bases. See <a class="reference internal" href="#scope-description"><em>Scope values</em></a> for details.</td>
 </tr>
 <tr><td>priority</td>
 <td>An integer value to prioritize this acl-rule. (Lower values mean higher priority)</td>
@@ -1243,15 +1251,15 @@ where the <tt class="docutils literal"><span class="pre">topic</span></tt> param
 </dd></dl>
 
 <dl class="method">
-<dt id="gosa.agent.acl.ACLResolver.updateACLRolewithRole">
-<tt class="descname">updateACLRolewithRole</tt><big>(</big><em>user</em>, <em>acl_id</em>, <em>priority</em>, <em>rolename</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.updateACLRolewithRole" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-12">
+<dt id="gosa.agent.acl.ACLResolver.updateACLRoleWithRole">
+<tt class="descname">updateACLRoleWithRole</tt><big>(</big><em>user</em>, <em>acl_id</em>, <em>priority</em>, <em>rolename</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.updateACLRoleWithRole" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition" id="cmd-12">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last"><strong>This method will be exported by the CommandRegistry.</strong></p>
 </div>
-<p>Refresh existing role-acl by ID to refer to antoher role.</p>
+<p>Refresh existing role-acl by ID to refer to another role.</p>
 <p>(You can use getACLRoles() to list the role-acl IDs)</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -1275,7 +1283,7 @@ where the <tt class="docutils literal"><span class="pre">topic</span></tt> param
 </tr>
 </tbody>
 </table>
-<p>This example lets the role-acl with ID:1 to point to role2:</p>
+<p>Example: Let the role-acl with ID:1 point to role2:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">updateACLRolewithRole</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;role2&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1284,7 +1292,7 @@ where the <tt class="docutils literal"><span class="pre">topic</span></tt> param
 <dl class="method">
 <dt id="gosa.agent.acl.ACLResolver.updateACLWithRole">
 <tt class="descname">updateACLWithRole</tt><big>(</big><em>user</em>, <em>acl_id</em>, <em>priority</em>, <em>members</em>, <em>rolename</em><big>)</big><a class="headerlink" href="#gosa.agent.acl.ACLResolver.updateACLWithRole" title="Permalink to this definition">¶</a></dt>
-<dd><div class="admonition " id="cmd-13">
+<dd><div class="admonition" id="cmd-13">
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
