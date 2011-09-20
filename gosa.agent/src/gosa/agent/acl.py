@@ -741,6 +741,7 @@ class ACLRoleEntry(ACL):
         """
         raise ACLException("Role ACLs do not support direct members")
 
+
 class ACLResolver(object):
     """
     The ACLResolver is responsible for loading, saving and resolving
@@ -1134,7 +1135,7 @@ class ACLResolver(object):
         ============== =============
         """
 
-        if type(rolename)  != str:
+        if type(rolename) != str:
             raise ACLException("Expected parameter to be of type 'str'!")
 
         for aclset in self.acl_sets:
@@ -1424,7 +1425,7 @@ class ACLResolver(object):
 
         The **actions** parameter is dictionary with three items ``topic``, ``acls`` and ``options``.
 
-        For details about ``scope``, ``topic``, ``options`` and ``acls``, click here: 
+        For details about ``scope``, ``topic``, ``options`` and ``acls``, click here:
             :ref:`Scope values <scope_description>`, :ref:`Topic <topic_description>`, :ref:`ACLs <acls_description>` and :ref:`Options <options_description>`
 
         Example:
