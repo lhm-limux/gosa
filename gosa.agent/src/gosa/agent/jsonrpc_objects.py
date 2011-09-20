@@ -2,8 +2,8 @@
 import uuid
 from types import MethodType
 from gosa.common import Environment
-from gosa.common.components import Command, PluginRegistry, ObjectRegistry
 from gosa.common.utils import N_
+from gosa.common.components import Command, PluginRegistry, ObjectRegistry, AMQPServiceProxy
 
 
 class JSONRPCObjectMapper(object):

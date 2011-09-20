@@ -199,8 +199,8 @@ class GOsaObjectFactory(object):
                 raise Exception("Cannot detect a valid input backend for "
                         "attribute %s!" % (prop['Name'],))
             if not out_b:
-                raise Exception(_("Cannot detect a valid output backend for "
-                        "attribute %s!") % (prop['Name'],))
+                raise Exception("Cannot detect a valid output backend for "
+                        "attribute %s!" % (prop['Name'],))
 
             # Read for a validator
             validator =  None
