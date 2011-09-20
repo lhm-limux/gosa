@@ -10,6 +10,7 @@ if platform.system() != "Windows":
 else:
     raise NotImplemented("pybonjour support is currently disabled")
     from threading import Thread
+    #pylint: disable=F0401
     import pybonjour
 
 

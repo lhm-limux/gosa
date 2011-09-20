@@ -12,6 +12,7 @@ from gosa.common import Environment
 
 # Import pythoncom for win32com / threads
 if platform.system() == "Windows":
+    #pylint: disable=F0401
     import pythoncom
 
 

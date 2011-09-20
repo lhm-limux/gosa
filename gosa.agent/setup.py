@@ -50,7 +50,7 @@ setup(
     zip_safe = False,
 
     setup_requires = [
-        'nose',
+        'nose==0.11.1',
         'NoseXUnit',
         'pylint',
         ],

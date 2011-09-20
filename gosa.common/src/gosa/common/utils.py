@@ -52,6 +52,7 @@ def makeAuthURL(url, user, password):
     ``Return``: string without namespace
     """
     o = urlparse(url)
+    #pylint: disable=E1101
     return "%s://%s:%s@%s%s" % (o.scheme, user, password, o.netloc, o.path)
 
 
@@ -75,7 +76,7 @@ def parseURL(url):
     url = urlparse(url)
 
     # Load parts and extend if not provided
-    # pylint: disable-msg=E1101
+    # pylint: disable=E1101
     scheme, user, password, host, port, path = url.scheme, url.username, url.password, url.hostname, url.port, url.path[1:]
     if scheme[0:4] == 'amqp':
         if scheme == 'amqp':
@@ -237,6 +238,7 @@ try:
     import dmidecode
     dmidecode.clear_warnings()
 
+    #pylint: disable=E0102
     def dmi_system(item, data=None):
         if not data:
             data = dmidecode.system()
@@ -257,11 +259,12 @@ except:
 
     for ext in ["dmidecode", "dmidecode.exe"]:
         if locate(ext):
+            #pylint: disable=E0102
             def dmi_system(item, data=None):
                 cmd = [ext, '-s', 'system-uuid']
                 p = Popen(cmd, stdout=PIPE, stderr=PIPE)
                 (stdout, stderr) = p.communicate()
-                return stdout.strip()
+                return "".join(stdout).strip()
 
             break
 
@@ -314,6 +317,7 @@ def downloadFile(url, download_dir=None, use_filename=False):
         raise ValueError(N_("Invalid url specified: %s"), url)
         return result
 
+    #pylint: disable=E1101
     if o.scheme in ('http', 'https', 'ftp'):
         try:
             if use_filename:
@@ -346,6 +350,7 @@ def downloadFile(url, download_dir=None, use_filename=False):
         except:
             raise
     else:
+        #pylint: disable=E1101
         raise ValueError(N_("Unsupported URL scheme %s!"), o.scheme)
 
     return result

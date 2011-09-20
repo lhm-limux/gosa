@@ -5,7 +5,7 @@ import pickle
 import logging
 
 from gosa.common.components.scheduler.jobstores.base import JobStore
-from gosa.common.components.scheduler.job import Job
+from gosa.common.components.scheduler.job import Job, JOB_WAITING, JOB_ERROR
 
 try:
     from sqlalchemy import *
