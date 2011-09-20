@@ -741,6 +741,7 @@ class ACLRoleEntry(ACL):
         """
         raise ACLException("Role ACLs do not support direct members")
 
+
 class ACLResolver(object):
     """
     The ACLResolver is responsible for loading, saving and resolving
@@ -1134,7 +1135,7 @@ class ACLResolver(object):
         ============== =============
         """
 
-        if type(rolename)  != str:
+        if type(rolename) != str:
             raise ACLException("Expected parameter to be of type 'str'!")
 
         for aclset in self.acl_sets:
@@ -1424,7 +1425,7 @@ class ACLResolver(object):
 
         The **actions** parameter is dictionary with three items ``topic``, ``acls`` and ``options``.
 
-        For details about ``scope``, ``topic``, ``options`` and ``acls``, click here: 
+        For details about ``scope``, ``topic``, ``options`` and ``acls``, click here:
             :ref:`Scope values <scope_description>`, :ref:`Topic <topic_description>`, :ref:`ACLs <acls_description>` and :ref:`Options <options_description>`
 
         Example:
@@ -1919,20 +1920,23 @@ class ACLResolver(object):
             for _acl in self.acl_roles[_aclrole]:
                 if _acl.id == acl_id:
                     acl = _acl
+        if acl:
 
-        # Update the scope value.
-        if scope:
-            acl.set_scope(scope_int)
+            # Update the scope value.
+            if scope:
+                acl.set_scope(scope_int)
 
-        # Update the priority
-        if priority:
-            acl.set_priority(priority)
+            # Update the priority
+            if priority:
+                acl.set_priority(priority)
 
-        # Update the acl actions
-        if actions:
-            acl.clear_actions()
-            for action in actions:
-                acl.add_action(action['topic'], action['acls'], action['options'])
+            # Update the acl actions
+            if actions:
+                acl.clear_actions()
+                for action in actions:
+                    acl.add_action(action['topic'], action['acls'], action['options'])
+        else:
+            raise ACLException("An acl with the given id does not exists! (%s)" % (acl_id,))
 
     @Command(needsUser=True, __help__=N_("Refresh existing role-acl by ID to refer to another role"))
     def updateACLRoleWithRole(self, user, acl_id, priority, rolename):
@@ -1969,10 +1973,13 @@ class ACLResolver(object):
                 if _acl.id == acl_id:
                     acl = _acl
 
-        acl.use_role(rolename)
+        if acl:
+            acl.use_role(rolename)
 
-        if priority:
-            acl.set_priority(priority)
+            if priority:
+                acl.set_priority(priority)
+        else:
+            raise ACLException("An acl with the given id does not exists! (%s)" % (acl_id,))
 
     @Command(needsUser=True, __help__=N_("Remove defined role-acl by ID."))
     def removeRoleACL(self, user, role_id):
