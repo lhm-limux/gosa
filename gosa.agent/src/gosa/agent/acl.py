@@ -473,50 +473,6 @@ class ACL(object):
         """
         self.priority = priority
 
-    def add_member(self, member):
-        """
-        Adds a new member to this acl.
-
-        ============== =============
-        Key            Description
-        ============== =============
-        member         A username that have to be added.
-        ============== =============
-
-        Example::
-
-            aclset = ACLSet()
-            acl = ACL(scope=ACL.ONE)
-
-            acl.add_member(u'peter')
-
-        """
-        if type(member) != unicode:
-            raise(ACLException("Member should be of type unicode!"))
-        self.members.append(member)
-
-    def del_member(self, member):
-        """
-        Removes a member from this ACL.
-
-        ============== =============
-        Key            Description
-        ============== =============
-        member         A username
-        ============== =============
-
-        Example::
-
-            aclset = ACLSet()
-            acl = ACL(scope=ACL.ONE)
-            ...
-            acl.del_member(u'peter')
-
-        """
-        if type(member) != unicode:
-            raise(ACLException("Member should be of type unicode!"))
-        self.members.delete(member)
-
     def set_members(self, members):
         """
         Set the members for this acl
@@ -2163,3 +2119,21 @@ class ACLResolver(object):
                 if _acl.id == role_id:
                     self.acl_roles[_aclrole].remove(_acl)
 
+    @Command(needsUser=True, __help__=N_("Remove a defined acl-role."))
+    def removeRole(self, user, rolename):
+        """
+        Removes a defined role by its name.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        rolename       The name of the role.
+        ============== =============
+        """
+
+        # Check permissions
+        if not self.check(user, 'org.gosa.acl', 'w', self.base):
+            raise ACLException("The requested operation is not allowed!")
+
+        # Try to find role-acl with the given ID.
+        self.remove_role(rolename)
