@@ -5,6 +5,7 @@ import re
 import gettext
 import netifaces
 import ConfigParser
+import socket
 from urlparse import urlparse
 from pkg_resources import resource_filename
 from urllib import quote_plus as quote
@@ -45,11 +46,13 @@ class join_method(object):
         self.uuid = dmi_system("uuid")
         self.mac = self.get_mac_address()
         self.get_service()
+        self.domain = socket.getfqdn().split('.', 1)[1]
 
     def url_builder(self, username, password):
         username = quote(username)
         password = quote(password)
         u = urlparse(self.url)
+        #pylint: disable=E1101
         return "%s://%s:%s@%s%s" % (u.scheme, username, password, u.netloc, u.path)
 
     def test_login(self):
