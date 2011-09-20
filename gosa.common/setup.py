@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-from setuptools import setup, find_packages
+#from setuptools import setup, find_packages
+from distutils.core import setup, find_packages
 import os
 import platform
 
@@ -20,8 +21,6 @@ common_install_requires = [
     'lxml',
     'qpid-python',
     ],
-# SQLAlchemy may be optional, because dbus/clients/shell do not use that
-#'sqlalchemy',
 
 if platform.system() == "Windows":
     common_install_requires[0].append([

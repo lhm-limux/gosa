@@ -45,7 +45,7 @@ from libinst.keyboard_models import KeyboardModels
 from libinst.utils import load_system
 
 from gosa.common import Environment
-from gosa.common.components.command import Command, NamedArgs
+from gosa.common.components.command import Command
 from gosa.agent.ldap_utils import LDAPHandler
 from gosa.common.components import Plugin
 from gosa.common.utils import N_
@@ -412,8 +412,7 @@ class LibinstManager(Plugin):
         return result
 
     @Command(__help__=N_("Return available information for the given distribution"))
-    @NamedArgs("m_hash")
-    def getDistribution(self, m_hash=None, distribution=None):
+    def getDistribution(self, distribution=None):
         """
         Return information about the named distribution.
 
@@ -457,8 +456,7 @@ class LibinstManager(Plugin):
         return result
 
     @Command(__help__=N_("List available releases for the given distribution"))
-    @NamedArgs("m_hash")
-    def getReleases(self, m_hash=None, distribution=None):
+    def getReleases(self, distribution=None):
         """
         List releases by distribution or all.
 
@@ -508,8 +506,7 @@ class LibinstManager(Plugin):
         return result
 
     @Command(__help__=N_("Return available information for the given release"))
-    @NamedArgs("m_hash")
-    def getRelease(self, m_hash=None, release=None):
+    def getRelease(self, release=None):
         """
         Returns information about the privided release.
 
@@ -561,8 +558,7 @@ class LibinstManager(Plugin):
         return result
 
     @Command(__help__=N_("List available architectures for the given distribution"))
-    @NamedArgs("m_hash")
-    def getArchitectures(self, m_hash=None, distribution=None, release=None):
+    def getArchitectures(self, distribution=None, release=None):
         """
         List available architectures per release, distribution or global.
 
@@ -620,8 +616,7 @@ class LibinstManager(Plugin):
         return result
 
     @Command(__help__=N_("List available sections for the given distribution"))
-    @NamedArgs("m_hash")
-    def getSections(self, m_hash=None, distribution=None, release=None):
+    def getSections(self, distribution=None, release=None):
         """
         List available sections per release, distribution or global.
 
@@ -677,8 +672,7 @@ class LibinstManager(Plugin):
         return result
 
     @Command(__help__=N_("Create a new distribution based on type, mirror and installation method"))
-    @NamedArgs("m_hash")
-    def createDistribution(self, name, type, m_hash=None, install_method=None, mirror=None):
+    def createDistribution(self, name, type, install_method=None, mirror=None):
         """
         Create a new distribution based on type, mirror and installation method. This
         is the first step to be done before creating releases - because releases depend
@@ -752,8 +746,7 @@ class LibinstManager(Plugin):
         return result != None
 
     @Command(__help__=N_("Remove selected distribution from the repository"))
-    @NamedArgs("m_hash")
-    def removeDistribution(self, distribution, m_hash=None, recursive=False):
+    def removeDistribution(self, distribution, recursive=False):
         """
         Remove an existing distribution. It checks the dependencies and will
         not remove a parent distribution until the recursive parameter is specified.
@@ -865,8 +858,7 @@ class LibinstManager(Plugin):
         return result != None
 
     @Command(__help__=N_("Remove a release"))
-    @NamedArgs("m_hash")
-    def removeRelease(self, release, m_hash=None, recursive=False):
+    def removeRelease(self, release, recursive=False):
         """
         Remove an existing release. It checks the dependencies and will
         not remove a parent release until the recursive parameter is specified.
@@ -977,8 +969,7 @@ class LibinstManager(Plugin):
         return result
 
     @Command(__help__=N_("Replace distribution properties"))
-    @NamedArgs("m_hash")
-    def setDistribution(self, m_hash=None, distribution=None, arch=None, component=None, mirror_sources=None):
+    def setDistribution(self, distribution=None, arch=None, component=None, mirror_sources=None):
         """
         Modify properties of an existing distribution.
 
@@ -1073,8 +1064,7 @@ class LibinstManager(Plugin):
         return result
 
     @Command(__help__=N_("Add new properties to a mirrored distribution"))
-    @NamedArgs("m_hash")
-    def addMirrorProperty(self, m_hash=None, distribution=None, arch=None, component=None, mirror_sources=None, origin=None):
+    def addMirrorProperty(self, distribution=None, arch=None, component=None, mirror_sources=None, origin=None):
         """
         Add properties to an existing distribution mirror definition.
 
@@ -1144,8 +1134,7 @@ class LibinstManager(Plugin):
         return result
 
     @Command(__help__=N_("Remove existing properties from a mirrored distribution"))
-    @NamedArgs("m_hash")
-    def removeMirrorProperty(self, m_hash=None, distribution=None, arch=None, component=None):
+    def removeMirrorProperty(self, distribution=None, arch=None, component=None):
         """
         Remove properties of an existing distribution mirror definition.
 
@@ -1205,8 +1194,7 @@ class LibinstManager(Plugin):
         return result
 
     @Command(__help__=N_("Update a local mirror"))
-    @NamedArgs("m_hash")
-    def updateMirror(self, m_hash=None, distribution=None, components=None, architectures=None, sections=None):
+    def updateMirror(self, distribution=None, components=None, architectures=None, sections=None):
         """
         Initially download or update a distribution from a mirror.
 
@@ -1278,8 +1266,7 @@ class LibinstManager(Plugin):
     #TODO: list channels/mirrors
 
     @Command(__help__=N_("List packages by various criteria"))
-    @NamedArgs("m_hash")
-    def getPackages(self, m_hash=None, release=None, arch=None, component=None, section=None, custom_filter=None,
+    def getPackages(self, release=None, arch=None, component=None, section=None, custom_filter=None,
         offset=None, limit=None):
         """
         List available packages using the specified criteria.
@@ -1386,8 +1373,7 @@ class LibinstManager(Plugin):
         return result
 
     @Command(__help__=N_("Get complete package information based on various criteria"))
-    @NamedArgs("m_hash")
-    def getPackagesInformation(self, m_hash=None, release=None, arch=None, section=None, custom_filter=None,
+    def getPackagesInformation(self, release=None, arch=None, section=None, custom_filter=None,
         offset=None, limit=None):
         """
         Like getPackages, but returns a complete dictionary with package information.
@@ -1402,8 +1388,7 @@ class LibinstManager(Plugin):
         pass
 
     @Command(__help__=N_("Add a package to the selected distribution/release"))
-    @NamedArgs("m_hash")
-    def addPackage(self, url, m_hash=None, release=None, distribution=None, component=None, updateInventory=True):
+    def addPackage(self, url, release=None, distribution=None, component=None, updateInventory=True):
         """
         Add one package to a distribution.
 
@@ -1516,8 +1501,7 @@ class LibinstManager(Plugin):
         return result != None
 
     @Command(__help__=N_("Remove a package from the selected release"))
-    @NamedArgs("m_hash")
-    def removePackage(self, package, m_hash=None, arch=None, release=None, distribution=None):
+    def removePackage(self, package, arch=None, release=None, distribution=None):
         """
         Removes a package from a release.
 
@@ -1719,8 +1703,7 @@ class LibinstManager(Plugin):
         return result
 
     @Command(__help__=N_("Returns a list of items of item_type (if given) for the specified release - or all."))
-    @NamedArgs("m_hash")
-    def listConfigItems(self, release, m_hash=None, item_type=None, path=None, children=None):
+    def listConfigItems(self, release, item_type=None, path=None, children=None):
         """
         List configuration items for given release.
 
