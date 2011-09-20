@@ -211,6 +211,7 @@ def main():
             import gosa.common.lsprofcalltree
             p = cProfile.Profile()
             p.runctx('mainLoop(env)', globals(), {'env': env})
+            #pylint: disable=E1101
             k = gosa.common.lsprofcalltree.KCacheGrind(p)
             data = open('prof.kgrind', 'w+')
             k.output(data)

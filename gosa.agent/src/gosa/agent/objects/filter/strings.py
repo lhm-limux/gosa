@@ -24,5 +24,5 @@ class ConcatString(ElementFilter):
                 new_val = map(lambda x: appstr + x, value[key])
         else:
             raise ValueError("Unknown input type for filter %s. Type as '%s'!") % (
-                    self.__name__, type(value))
+                    self.__class__.__name__, type(value))
         return key, {key: new_val}
