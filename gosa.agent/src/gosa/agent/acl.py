@@ -1812,7 +1812,7 @@ class ACLResolver(object):
             self.add_acl_to_role(rolename, acl)
 
     @Command(needsUser=True, __help__=N_("Add a new role-based acl to an existing role."))
-    def addACLWithRoleToRole(self, user, rolename, role, priority=None):
+    def addACLWithRoleToRole(self, user, rolename, priority, role):
         """
         Adds a new role-based acl to an existing role.
 
@@ -1844,7 +1844,6 @@ class ACLResolver(object):
         # Set the priority
         if priority:
             acl.set_priority(priority)
-
 
     @Command(needsUser=True, __help__=N_("Refresh existing role by ID."))
     def updateACLRole(self, user, acl_id, scope=None, priority=None, actions=None):
@@ -1936,7 +1935,7 @@ class ACLResolver(object):
                 acl.add_action(action['topic'], action['acls'], action['options'])
 
     @Command(needsUser=True, __help__=N_("Refresh existing role-acl by ID to refer to another role"))
-    def updateACLRoleWithRole(self, user, acl_id, rolename, priority=None):
+    def updateACLRoleWithRole(self, user, acl_id, priority, rolename):
         """
         Refresh existing role-acl by ID to refer to another role.
 
