@@ -27,7 +27,7 @@ class TestACLResolver(unittest.TestCase):
 
         # Create another role which uses the above defined role
         self.resolver.addACLRole('hickert', 'rolle2')
-        self.resolver.addACLWithRoleToRole('hickert', 'rolle2', 0, 'rolle1')
+        self.resolver.addACLWithRoleToRole('hickert', 'rolle2', 'rolle1', 0)
 
         # Now use the role 'rolle1' and check if it is resolved correclty
         self.resolver.addACLWithRole('hickert', 'dc=gonicus,dc=de', 0, ['peter'], 'rolle2')
@@ -52,7 +52,7 @@ class TestACLResolver(unittest.TestCase):
 
         # Now update the role-acl 1 to use another role.
         self.resolver.addACLRole('hickert', 'dummy')
-        self.resolver.updateACLRoleWithRole('hickert', 1, 0, 'dummy')
+        self.resolver.updateACLRoleWithRole('hickert', 1, 'dummy',0 )
         self.assertFalse(self.resolver.check('peter', 'com.wurstpelle.de', 'r', {}, 'dc=1,dc=gonicus,dc=de'),
                 "Resolving acl-roles using the exported gosa.agent commands does not work! The user should not be able to read, but he can!")
 
