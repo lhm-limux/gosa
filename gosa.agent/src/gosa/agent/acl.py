@@ -404,7 +404,7 @@ class ACL(object):
 
         # Is this a role base or manually configured ACL object.
         if role:
-            self.__use_role(role)
+            self.use_role(role)
         else:
 
             if scope not in (ACL.ONE, ACL.SUB, ACL.PSUB, ACL.RESET):
@@ -412,7 +412,7 @@ class ACL(object):
 
             self.scope = scope
 
-    def __use_role(self, rolename):
+    def use_role(self, rolename):
         """
         Mark this ACL to use a role instead of direkt permission settings.
 
@@ -544,6 +544,8 @@ class ACL(object):
         """
         This method removes all defined actions from this acl.
         """
+        self.role = None
+        self.uses_role = False
         self.actions = []
 
     def add_action(self, topic, acls, options=None):
@@ -606,7 +608,7 @@ class ACL(object):
         If not all options match, the ACL will not match.
 
         """
-        if self.uses_role:
+        if self.uses_role and self.role:
             raise ACLException("ACL classes that use a role cannot define"
                    " additional costum acls!")
 
@@ -866,6 +868,24 @@ class ACLResolver(object):
         else:
             aclset = self.get_aclset_by_base(base)
             aclset.add(acl)
+
+        return(True)
+
+    def add_acl_to_role(self, rolename, acl):
+        """
+        Adds an ACLRoleEntry-object to an existing ACLRole.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        rolename       The name of the role we want to add this ACLRoleEntry to.
+        acl            The ACLRoleEntry object we want to add.
+        ============== =============
+        """
+        if rolename not in self.acl_roles:
+            raise ACLException("A role with the given name already exists! (%s)" % (rolename,))
+        else:
+            self.acl_roles[rolename].add(acl)
 
         return(True)
 
@@ -1316,6 +1336,11 @@ class ACLResolver(object):
         ============== =============
 
         """
+        acl_scope_map = {}
+        acl_scope_map[ACL.ONE] = 'one'
+        acl_scope_map[ACL.SUB] = 'sub'
+        acl_scope_map[ACL.PSUB] = 'psub'
+        acl_scope_map[ACL.RESET] = 'reset'
 
         # Collect all acls
         result = []
@@ -1342,11 +1367,19 @@ class ACLResolver(object):
 
                     # The current ACL matches the requested topic add it to the result.
                     if match:
-                        result.append({'base': aclset.base,
-                            'id': acl.id,
-                            'members': acl.members,
-                            'scope': acl.scope,
-                            'actions': acl.actions})
+                        if acl.uses_role:
+                            result.append({'base': aclset.base,
+                                'id': acl.id,
+                                'members': acl.members,
+                                'priority': acl.priority,
+                                'role': acl.role})
+                        else:
+                            result.append({'base': aclset.base,
+                                'id': acl.id,
+                                'members': acl.members,
+                                'scope': acl_scope_map[acl.scope],
+                                'priority': acl.priority,
+                                'actions': acl.actions})
 
         # Append configured admin accounts
         admins = self.list_admin_accounts()
@@ -1356,7 +1389,7 @@ class ACLResolver(object):
                    {'base': self.base,
                     'id': None,
                     'members': admins,
-                    'scope': ACL.PSUB,
+                    'scope': acl_scope_map[ACL.PSUB],
                     'actions': [{'action': '*', 'acls':'rwcdmsxe', 'options': {}}]})
 
         return(result)
@@ -1526,9 +1559,113 @@ class ACLResolver(object):
             acl.add_action(action['topic'], action['acls'], action['options'])
             self.add_acl_to_base(base, acl)
 
+    @Command(needsUser=True, __help__=N_("Refresh existing ACL by ID to use a role."))
+    def updateACLWithRole(self, user, acl_id, priority, members, rolename):
+        """
+        Updates an acl by ID to use an acl-role.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        id             The ID of the acl we want to update.
+        priority       An integer value to prioritize this acl-rule. (Lower values mean higher priority)
+        members        A new list of members.
+        rolename       The name of the role to use.
+        ============== =============
+        """
+
+        # Check if there is a with the given and and whether we've write permissions to it or not.
+        acl = None
+        for _aclset in self.acl_sets:
+            for _acl in _aclset:
+                if _acl.id == acl_id:
+
+                    # Check permissions
+                    if not self.check(user, 'org.gosa.acl', 'w', _aclset.base):
+                        raise ACLException("The requested operation is not allowed!")
+
+                    acl = _acl
+
+        # Check if we've found a valid acl object with the given id.
+        if not acl:
+            raise ACLException("No such acl definition with id %s" % acl_id)
+
+        # Update the acl properties
+        acl.set_members(members)
+        acl.set_priority(priority)
+        acl.clear_actions()
+        acl.use_role(rolename)
+
     @Command(needsUser=True, __help__=N_("Refresh existing ACL by ID."))
     def updateACL(self, user, acl_id, scope, priority, members, actions):
+        """
+        Updates an acl by ID.
 
+        ============== =============
+        Key            Description
+        ============== =============
+        id             The ID of the acl we want to update.
+        scope          The 'scope' defines how an acl is inherited by sub-bases. See table below for details.
+        priority       An integer value to prioritize this acl-rule. (Lower values mean higher priority)
+        members        A new list of members.
+        actions        A dictionary which includes the topic and the acls this rule includes.
+        ============== =============
+
+        Valid **scope** values:
+
+            * ``one`` for one level. The acl is only valid for the given base.
+            * ``sub`` the acl is valid for all sub-trees of the given base. This can be revoked using ``reset``
+            * ``reset`` revokes the actions described in this rule for all sub-levels of the tree.
+            * ``psub`` the acl is valid for all sub-levels, this cannot be revoked using ``reset``
+
+        The **actions** parameter is dictionary with three items ``topic``, ``acls`` and ``options``.
+
+        The **topic** specifies the action this acl affects, for exmaple::
+
+            >>>  {'topic': 'org.gosa.factory', 'acls': ...}
+            >>>  {'topic': 'org.gosa.#.factory', 'acls': ...}
+            >>>  {'topic': 'org.gosa.*.factory', 'acls': ...}
+
+        The above example uses the placeholders ``*`` and ``#``.
+        The ``*`` is a wildcard for everything and ``#`` only allows to ignore one level
+        of the topic. (The levels are separated by '.')
+
+        The **acls** key describes the action we can perform on the given ``topic``.
+        Possible actions are:
+
+         * r - Read
+         * w - Write
+         * m - Move
+         * c - Create
+         * d - Delete
+         * s - Search - or beeing found
+         * x - Execute
+         * e - Receive event
+
+            >>> {'topic': '...', 'acls': 'rwc'}
+            >>> {'topic': '...', 'acls': 'rwcdmsxe'}
+
+        **Options** are additional check parameters that have to be fullfilled to get this acl to match.
+
+        The ``options`` parameter is a dictionary which contains a key and a value for each additional option we want to check for, e.g. ::
+
+            >>> {'topic': '...', 'acls': '...' , {'uid': 'hanspeter', 'ou': 'technik'})
+
+        If you've got a user object as dictionary, then you can check permissions like this::
+
+            >>> resolver.check('some.topic', 'rwcdm', user1)
+
+        The resolver will then check if the keys ``uid`` and ``ou`` are present in the user1 dictionary and then check if the values match.
+
+        Example:
+
+            >>> resolver.addACLtoRole('rolle1', 'sub', 0, ['peter'], [{'topic': 'com.gosa.*', 'acls': 'rwcdm'}])
+
+        or with some options:
+
+            >>> resolver.addACLtoRole('rolle1', 'sub', 0, ['peter'], [{'topic': 'com.gosa.*', 'acls': 'rwcdm', 'options': {'uid': '^u[0-9]'}}])
+
+        """
         # Validate the given scope
         acl_scope_map = {}
         acl_scope_map['one'] = ACL.ONE
@@ -1596,17 +1733,10 @@ class ACLResolver(object):
         Key            Description
         ============== =============
         base           The base this acl works on. E.g. 'dc=example,dc=de'
-        scope          The 'scope' defines how an acl is inherited by sub-bases. See table below for details.
         priority       An integer value to prioritize this acl-rule. (Lower values mean higher priority)
         members        A list of members this acl affects. E.g. [u'Herbert', u'klaus']
+        role           The name of the role to use.
         ============== =============
-
-        Valid **scope** values:
-
-            * ``one`` for one level. The acl is only valid for the given base.
-            * ``sub`` the acl is valid for all sub-trees of the given base. This can be revoked using ``reset``
-            * ``reset`` revokes the actions described in this rule for all sub-levels of the tree.
-            * ``psub`` the acl is valid for all sub-levels, this cannot be revoked using ``reset``
 
         Example:
 
@@ -1629,22 +1759,407 @@ class ACLResolver(object):
 
     @Command(needsUser=True, __help__=N_("List defined roles."))
     def getACLRoles(self, user):
-        #TODO: detail permission check, topic for ACLs - org.gosa.acl
-        pass
+        """
+        This command returns a lists of all defined ACLRoles.
 
-    @Command(needsUser=True, __help__=N_("Remove defined role by ID."))
-    def removeACLRole(self, user, role_id):
-        #TODO: detail permission check, topic for ACLs - org.gosa.acl
-        pass
+        Example::
+
+            >>> getAClRoles()
+
+        """
+
+        # Check permissions
+        if not self.check(user, 'org.gosa.acl', 'r', self.base):
+            raise ACLException("The requested operation is not allowed!")
+
+        acl_scope_map = {}
+        acl_scope_map[ACL.ONE] = 'one'
+        acl_scope_map[ACL.SUB] = 'sub'
+        acl_scope_map[ACL.PSUB] = 'psub'
+        acl_scope_map[ACL.RESET] = 'reset'
+
+        # Collect all acls
+        result = []
+        for aclrole in self.acl_roles:
+            for acl in self.acl_roles[aclrole]:
+                if acl.uses_role:
+                    entry = {'rolename': self.acl_roles[aclrole].name,
+                        'id': acl.id,
+                        'priority': acl.priority,
+                        'role': acl.role}
+                else:
+                    entry = {'rolename': self.acl_roles[aclrole].name,
+                        'id': acl.id,
+                        'priority': acl.priority,
+                        'actions': acl.actions,
+                        'scope': acl_scope_map[acl.scope]}
+                result.append(entry)
+        return result
 
     @Command(needsUser=True, __help__=N_("Add new role."))
-    def addACLRole(self, user, scope, priority, actions):
-        #TODO: detail permission check, topic for ACLs - org.gosa.acl
-        # action = {'topic': ..., 'acl': ..., 'options': ...}
-        pass
+    def addACLRole(self, user, rolename):
+        """
+        Creates a new acl-role.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        rolename       The name of the new role.
+        ============== =============
+
+        Example:
+
+        >>> addACLRole('role1')
+        >>> addACLtoRole('role1', 'sub', 0, {...})
+
+        """
+
+        # Check permissions
+        if not self.check(user, 'org.gosa.acl', 'w', self.base):
+            raise ACLException("The requested operation is not allowed!")
+
+        # Validate the rolename
+        if type(rolename) != str or len(rolename) <= 0:
+            raise ACLException("Expected parameter to be of type str!")
+
+        # Check if rolename exists
+        if rolename in self.acl_roles:
+            raise ACLException("A role with the given name already exists! (%s)" % (rolename,))
+
+        # Create and add the new role
+        role = ACLRole(rolename)
+        self.add_acl_role(role)
+
+    @Command(needsUser=True, __help__=N_("Add new acl to an existing role."))
+    def addACLToRole(self, user, rolename, scope, priority, actions):
+        """
+        Adds a new acl-role to the active acls.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        rolename       The name of the acl-role we want to add to.
+        scope          The 'scope' defines how an acl is inherited by sub-bases. See table below for details.
+        priority       An integer value to prioritize this acl-rule. (Lower values mean higher priority)
+        actions        A dictionary which includes the topic and the acls this rule includes.
+        ============== =============
+
+        Valid **scope** values:
+
+            * ``one`` for one level. The acl is only valid for the given base.
+            * ``sub`` the acl is valid for all sub-trees of the given base. This can be revoked using ``reset``
+            * ``reset`` revokes the actions described in this rule for all sub-levels of the tree.
+            * ``psub`` the acl is valid for all sub-levels, this cannot be revoked using ``reset``
+
+        The **actions** parameter is dictionary with three items ``topic``, ``acls`` and ``options``.
+
+        The **topic** specifies the action this acl affects, for exmaple::
+
+            >>>  {'topic': 'org.gosa.factory', 'acls': ...}
+            >>>  {'topic': 'org.gosa.#.factory', 'acls': ...}
+            >>>  {'topic': 'org.gosa.*.factory', 'acls': ...}
+
+        The above example uses the placeholders ``*`` and ``#``.
+        The ``*`` is a wildcard for everything and ``#`` only allows to ignore one level
+        of the topic. (The levels are separated by '.')
+
+        The **acls** key describes the action we can perform on the given ``topic``.
+        Possible actions are:
+
+         * r - Read
+         * w - Write
+         * m - Move
+         * c - Create
+         * d - Delete
+         * s - Search - or beeing found
+         * x - Execute
+         * e - Receive event
+
+            >>> {'topic': '...', 'acls': 'rwc'}
+            >>> {'topic': '...', 'acls': 'rwcdmsxe'}
+
+        **Options** are additional check parameters that have to be fullfilled to get this acl to match.
+
+        The ``options`` parameter is a dictionary which contains a key and a value for each additional option we want to check for, e.g. ::
+
+            >>> {'topic': '...', 'acls': '...' , {'uid': 'hanspeter', 'ou': 'technik'})
+
+        If you've got a user object as dictionary, then you can check permissions like this::
+
+            >>> resolver.check('some.topic', 'rwcdm', user1)
+
+        The resolver will then check if the keys ``uid`` and ``ou`` are present in the user1 dictionary and then check if the values match.
+
+        Example:
+
+            >>> resolver.addACLtoRole('rolle1', 'sub', 0, [{'topic': 'com.gosa.*', 'acls': 'rwcdm'}])
+
+        or with some options:
+
+            >>> resolver.addACLtoRole('rolle1', 'sub', 0, [{'topic': 'com.gosa.*', 'acls': 'rwcdm', 'options': {'uid': '^u[0-9]'}}])
+
+        """
+
+        # Check permissions
+        if not self.check(user, 'org.gosa.acl', 'w', self.base):
+            raise ACLException("The requested operation is not allowed!")
+
+        # Check if the given rolename exists
+        if rolename not in self.acl_roles:
+            raise ACLException("A role with the given name already exists! (%s)" % (rolename,))
+
+        # Validate the given scope
+        acl_scope_map = {}
+        acl_scope_map['one'] = ACL.ONE
+        acl_scope_map['sub'] = ACL.SUB
+        acl_scope_map['psub'] = ACL.PSUB
+        acl_scope_map['reset'] = ACL.RESET
+
+        if scope not in acl_scope_map:
+            raise ACLException("Invalid scope given! Expected on of 'one', 'sub', 'psub' and 'reset'!")
+
+        scope_int = acl_scope_map[scope]
+
+        # Validate the priority
+        if type(priority) != int:
+            raise ACLException("Expected priority to be of type int!")
+
+        if priority < -100 or priority > 100:
+            raise ACLException("Priority it out of range! (-100, 100)")
+
+        # Validate given actions
+        if type(actions) != list:
+            raise ACLException("Expected actions to be of type list!")
+        else:
+            for action in actions:
+                if 'acls' not in action:
+                    raise ACLException("An action is missing the 'acls' key! %s" % action)
+                if 'topic' not in action:
+                    raise ACLException("An action is missing the 'topic' key! %s" % action)
+                if 'options' not in action:
+                    action['options'] = {}
+                if type(action['options']) != dict:
+                    raise ACLException("Options have to be of type dict! %s" % action)
+
+                if len(set(action['acls']) - set("rwcdmxse")) != 0:
+                    raise ACLException("Unsupported acl type found '%s'!" % "".join((set(action['acls']) - set("rwcdmxse"))))
+
+        # All checks passed now add the new ACL.
+
+        # Create a new acl with the given parameters
+        acl = ACLRoleEntry(scope_int)
+        for action in actions:
+            acl.add_action(action['topic'], action['acls'], action['options'])
+            self.add_acl_to_role(rolename, acl)
+
+    @Command(needsUser=True, __help__=N_("Add a new role-baed ACL to an existing role."))
+    def addACLWithRoleToRole(self, user, rolename, priority, role):
+        """
+        Adds a new role-based acl to an existing role.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        rolename       The name of the role we want to add this acl to.
+        priority       An integer value to prioritize this acl-rule. (Lower values mean higher priority)
+        role           The name of the role to use.
+        ============== =============
+
+        This example let role1 to point to role2:
+
+        >>> addACLWithRoleToRole("role1", 0, "role2")
+
+        """
+        # Check permissions
+        if not self.check(user, 'org.gosa.acl', 'w', self.base):
+            raise ACLException("The requested operation is not allowed!")
+
+        # Check if the given rolename exists
+        if rolename not in self.acl_roles:
+            raise ACLException("A role with the given name already exists! (%s)" % (rolename,))
+
+        # Create a new acl with the given parameters
+        acl = ACLRoleEntry(role=role)
+        self.add_acl_to_role(rolename, acl)
 
     @Command(needsUser=True, __help__=N_("Refresh existing role by ID."))
     def updateACLRole(self, user, acl_id, scope, priority, actions):
-        #TODO: detail permission check, topic for ACLs - org.gosa.acl
-        # action = {'topic': ..., 'acl': ..., 'options': ...}
-        pass
+        """
+        Updates an role-acl by ID.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        id             The ID of the role-acl we want to update.
+        scope          The 'scope' defines how an acl is inherited by sub-bases. See table below for details.
+        priority       An integer value to prioritize this acl-rule. (Lower values mean higher priority)
+        actions        A dictionary which includes the topic and the acls this rule includes.
+        ============== =============
+
+        Valid **scope** values:
+
+            * ``one`` for one level. The acl is only valid for the given base.
+            * ``sub`` the acl is valid for all sub-trees of the given base. This can be revoked using ``reset``
+            * ``reset`` revokes the actions described in this rule for all sub-levels of the tree.
+            * ``psub`` the acl is valid for all sub-levels, this cannot be revoked using ``reset``
+
+        The **actions** parameter is dictionary with three items ``topic``, ``acls`` and ``options``.
+
+        The **topic** specifies the action this acl affects, for exmaple::
+
+            >>>  {'topic': 'org.gosa.factory', 'acls': ...}
+            >>>  {'topic': 'org.gosa.#.factory', 'acls': ...}
+            >>>  {'topic': 'org.gosa.*.factory', 'acls': ...}
+
+        The above example uses the placeholders ``*`` and ``#``.
+        The ``*`` is a wildcard for everything and ``#`` only allows to ignore one level
+        of the topic. (The levels are separated by '.')
+
+        The **acls** key describes the action we can perform on the given ``topic``.
+        Possible actions are:
+
+         * r - Read
+         * w - Write
+         * m - Move
+         * c - Create
+         * d - Delete
+         * s - Search - or beeing found
+         * x - Execute
+         * e - Receive event
+
+            >>> {'topic': '...', 'acls': 'rwc'}
+            >>> {'topic': '...', 'acls': 'rwcdmsxe'}
+
+        **Options** are additional check parameters that have to be fullfilled to get this acl to match.
+
+        The ``options`` parameter is a dictionary which contains a key and a value for each additional option we want to check for, e.g. ::
+
+            >>> {'topic': '...', 'acls': '...' , {'uid': 'hanspeter', 'ou': 'technik'})
+
+        If you've got a user object as dictionary, then you can check permissions like this::
+
+            >>> resolver.check('some.topic', 'rwcdm', user1)
+
+        The resolver will then check if the keys ``uid`` and ``ou`` are present in the user1 dictionary and then check if the values match.
+
+        Example:
+
+            >>> resolver.updateACLRole(1, 'sub', 0, ['peter'], [{'topic': 'com.gosa.*', 'acls': 'rwcdm'}])
+
+        or with some options:
+
+            >>> resolver.updateACLRole(1, 'sub', 0, ['peter'], [{'topic': 'com.gosa.*', 'acls': 'rwcdm', 'options': {'uid': '^u[0-9]'}}])
+
+        """
+
+        # Check permissions
+        if not self.check(user, 'org.gosa.acl', 'w', self.base):
+            raise ACLException("The requested operation is not allowed!")
+
+        # Validate the given scope
+        acl_scope_map = {}
+        acl_scope_map['one'] = ACL.ONE
+        acl_scope_map['sub'] = ACL.SUB
+        acl_scope_map['psub'] = ACL.PSUB
+        acl_scope_map['reset'] = ACL.RESET
+
+        if scope not in acl_scope_map:
+            raise ACLException("Invalid scope given! Expected on of 'one', 'sub', 'psub' and 'reset'!")
+
+        scope_int = acl_scope_map[scope]
+
+        # Validate the priority
+        if type(priority) != int:
+            raise ACLException("Expected priority to be of type int!")
+
+        if priority < -100 or priority > 100:
+            raise ACLException("Priority it out of range! (-100, 100)")
+
+        # Validate given actions
+        if type(actions) != list:
+            raise ACLException("Expected actions to be of type list!")
+        else:
+            for action in actions:
+                if 'acls' not in action:
+                    raise ACLException("An action is missing the 'acls' key! %s" % action)
+                if 'topic' not in action:
+                    raise ACLException("An action is missing the 'topic' key! %s" % action)
+                if 'options' not in action:
+                    action['options'] = {}
+                if type(action['options']) != dict:
+                    raise ACLException("Options have to be of type dict! %s" % action)
+
+                if len(set(action['acls']) - set("rwcdmxse")) != 0:
+                    raise ACLException("Unsupported acl type found '%s'!" % "".join((set(action['acls']) - set("rwcdmxse"))))
+
+        # Try to find role-acl with the given ID.
+        acl = None
+        for _aclrole in self.acl_roles:
+            for _acl in self.acl_roles[_aclrole]:
+                if _acl.id == acl_id:
+                    acl = _acl
+
+        # Update the acl actions.
+        acl.clear_actions()
+        for action in actions:
+            acl.add_action(action['topic'], action['acls'], action['options'])
+
+    @Command(needsUser=True, __help__=N_("Refresh existing role-acl by ID to use refer to antoher role."))
+    def updateACLRolewithRole(self, user, acl_id, priority, rolename):
+        """
+        "Refresh existing role-acl by ID to use refer to antoher role.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        acl_id         The ID of the role-acl we want to update.
+        priority       An integer value to prioritize this acl-rule. (Lower values mean higher priority)
+        rolename       The name of the role to use.
+        ============== =============
+
+        This example let role-acl with ID:1 to point to role2:
+
+        >>> updateACLRolewithRole(1, 0, "role2")
+
+        """
+        # Check permissions
+        if not self.check(user, 'org.gosa.acl', 'w', self.base):
+            raise ACLException("The requested operation is not allowed!")
+
+        # Check if the given rolename exists
+        if rolename not in self.acl_roles:
+            raise ACLException("A role with the given name already exists! (%s)" % (rolename,))
+
+        # Try to find role-acl with the given ID.
+        acl = None
+        for _aclrole in self.acl_roles:
+            for _acl in self.acl_roles[_aclrole]:
+                if _acl.id == acl_id:
+                    acl = _acl
+
+        acl.use_role(rolename)
+
+    @Command(needsUser=True, __help__=N_("Remove defined role-acl by ID."))
+    def removeRoleACL(self, user, role_id):
+        """
+
+        Removes a defined role ACL by its id.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        role_id        The ID of the role-acl to remove.
+        ============== =============
+        """
+
+        # Check permissions
+        if not self.check(user, 'org.gosa.acl', 'w', self.base):
+            raise ACLException("The requested operation is not allowed!")
+
+        # Try to find role-acl with the given ID.
+        acl = None
+        for _aclrole in self.acl_roles:
+            for _acl in self.acl_roles[_aclrole]:
+                if _acl.id == role_id:
+                    self.acl_roles[_aclrole].remove(_acl)
+
