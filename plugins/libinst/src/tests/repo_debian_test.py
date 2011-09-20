@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
+import os
+import pprint
 import unittest
 
 from sqlalchemy.orm import sessionmaker
 from libinst import LibinstManager
 from libinst.entities.type import Type
 from gosa.common import Environment
-import pprint
 
 class TestDebianRepository(unittest.TestCase):
 
@@ -13,7 +14,7 @@ class TestDebianRepository(unittest.TestCase):
 
     def setUp(self):
         """ Stuff to be run before every test """
-        Environment.config = "test-libinst.conf"
+        Environment.config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test-libinst.conf")
         Environment.noargs = True
         self.env = Environment.getInstance()
         self.mgr = LibinstManager()
