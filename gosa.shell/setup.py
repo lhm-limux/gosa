@@ -46,7 +46,7 @@ setup(
     test_suite = "nose.collector",
     zip_safe = False,
 
-    setup_requires = ['nose', 'NoseXUnit', 'pylint', 'babel' ],
+    setup_requires = ['nose==0.11.1', 'NoseXUnit', 'pylint', 'babel' ],
     install_requires = ['gosa.common'],
 
     entry_points = """

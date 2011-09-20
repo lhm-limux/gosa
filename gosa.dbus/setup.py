@@ -46,7 +46,7 @@ setup(
     test_suite = "nose.collector",
 
     setup_requires = [
-        'nose',
+        'nose==0.11.1',
         'NoseXUnit',
         'pylint',
         'babel',

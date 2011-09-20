@@ -10,8 +10,10 @@ import logging
 import atexit
 
 try:
+    #pylint: disable=F0401
     from queue import Queue, Empty
 except ImportError:
+    #pylint: disable=F0401
     from Queue import Queue, Empty
 
 logger = logging.getLogger(__name__)
