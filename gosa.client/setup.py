@@ -50,7 +50,7 @@ else:
 
 setup(
     name = "gosa.client",
-    version = "0.1",
+    version = "3.0",
     author = "Cajus Pollmeier",
     author_email = "pollmeier@gonicus.de",
     description = "Identity-, system- and configmanagement middleware",

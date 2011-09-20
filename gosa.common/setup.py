@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-#from setuptools import setup, find_packages
-from distutils.core import setup, find_packages
 import os
 import platform
+from setuptools import setup, find_packages
 
 try:
     from babel.messages import frontend as babel
@@ -26,6 +25,7 @@ if platform.system() == "Windows":
     common_install_requires[0].append([
         'pybonjour',
     ])
+
 else:
     # Not installable this way:
     # avahi, pygtk (gobject), dbus
@@ -36,9 +36,10 @@ else:
     #])
     pass
 
+
 setup(
     name = "gosa.common",
-    version = "0.1",
+    version = "3.0",
     author = "Cajus Pollmeier",
     author_email = "pollmeier@gonicus.de",
     description = "Identity-, system- and configmanagement middleware",
@@ -60,7 +61,7 @@ setup(
     ],
 
     download_url = "http://oss.gonicus.de/pub/gosa",
-    packages = find_packages('src', exclude=['examples', 'tests']),
+    packages = find_packages('src'),
     package_dir={'': 'src'},
     namespace_packages = ['gosa'],
 
