@@ -74,6 +74,7 @@ class SessionKeeper(Plugin):
         self.__update_sessions()
 
         if self.__callback:
+            #pylint: disable=E1102
             self.__callback(dbus_message.get_member(), msg_string)
 
     def __update_sessions(self):

@@ -25,6 +25,7 @@ class GOsaClientService(win32serviceutil.ServiceFramework):
 
     def SvcStop(self):
         # Before we do anything, tell the SCM we are starting the stop process.
+        #pylint: disable=E1101
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
         self.env.active = False
 
