@@ -63,9 +63,24 @@
 Add a new ACL.</div>
 </td>
 </tr>
-<tr><td><a class="reference internal" href="agent/acl.html#cmd-1">addACLWithRole</a></td>
+<tr><td><a class="reference internal" href="agent/acl.html#cmd-1">addACLRole</a></td>
+<td><div class="first last container">
+Add new role.</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="agent/acl.html#cmd-2">addACLToRole</a></td>
+<td><div class="first last container">
+Add new acl to an existing role.</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="agent/acl.html#cmd-3">addACLWithRole</a></td>
 <td><div class="first last container">
 Add a new ACL based on role.</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="agent/acl.html#cmd-4">addACLWithRoleToRole</a></td>
+<td><div class="first last container">
+Add a new role-baed ACL to an existing role.</div>
 </td>
 </tr>
 <tr><td><a class="reference internal" href="plugins/agent/goto.html#cmd-0">clientDispatch</a></td>
@@ -83,7 +98,12 @@ Close object and remove it from stack</div>
 Call method from object on stack</div>
 </td>
 </tr>
-<tr><td><a class="reference internal" href="agent/acl.html#cmd-2">getACLs</a></td>
+<tr><td><a class="reference internal" href="agent/acl.html#cmd-5">getACLRoles</a></td>
+<td><div class="first last container">
+List defined roles.</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="agent/acl.html#cmd-6">getACLs</a></td>
 <td><div class="first last container">
 List defined ACLs by base or topic.</div>
 </td>
@@ -163,9 +183,19 @@ Send synchronous notification message to user</div>
 Instantiate object and place it on stack</div>
 </td>
 </tr>
-<tr><td><a class="reference internal" href="agent/acl.html#cmd-3">removeACL</a></td>
+<tr><td><a class="reference internal" href="agent/acl.html#cmd-7">removeACL</a></td>
 <td><div class="first last container">
 Remove defined ACL by ID.</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="agent/acl.html#cmd-8">removeRole</a></td>
+<td><div class="first last container">
+Remove a defined acl-role by name</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="agent/acl.html#cmd-9">removeRoleACL</a></td>
+<td><div class="first last container">
+Remove defined role-acl by ID.</div>
 </td>
 </tr>
 <tr><td><a class="reference internal" href="agent/scheduler.html#cmd-0">schedulerAddDateJob</a></td>
@@ -221,6 +251,26 @@ Set system status</div>
 <tr><td><a class="reference internal" href="plugins/agent/misc.html#cmd-0">transliterate</a></td>
 <td><div class="first last container">
 Transliterate a given string</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="agent/acl.html#cmd-10">updateACL</a></td>
+<td><div class="first last container">
+Refresh existing ACL by ID.</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="agent/acl.html#cmd-11">updateACLRole</a></td>
+<td><div class="first last container">
+Refresh existing role by ID.</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="agent/acl.html#cmd-12">updateACLRolewithRole</a></td>
+<td><div class="first last container">
+Refresh existing role-acl by ID to refer to antoher role</div>
+</td>
+</tr>
+<tr><td><a class="reference internal" href="agent/acl.html#cmd-13">updateACLWithRole</a></td>
+<td><div class="first last container">
+Refresh existing ACL by ID to use a role.</div>
 </td>
 </tr>
 </tbody>

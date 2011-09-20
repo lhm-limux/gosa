@@ -67,16 +67,17 @@
     <dt><a href="agent/acl.html#gosa.agent.acl.ACLResolver.add_acl_role">add_acl_role() (gosa.agent.acl.ACLResolver method)</a></dt>
     <dt><a href="agent/acl.html#gosa.agent.acl.ACLResolver.add_acl_set">add_acl_set() (gosa.agent.acl.ACLResolver method)</a></dt>
     <dt><a href="agent/acl.html#gosa.agent.acl.ACLResolver.add_acl_to_base">add_acl_to_base() (gosa.agent.acl.ACLResolver method)</a></dt>
+    <dt><a href="agent/acl.html#gosa.agent.acl.ACLResolver.add_acl_to_role">add_acl_to_role() (gosa.agent.acl.ACLResolver method)</a></dt>
     <dt><a href="agent/acl.html#gosa.agent.acl.ACLResolver.add_acl_to_set">add_acl_to_set() (gosa.agent.acl.ACLResolver method)</a></dt>
     <dt><a href="agent/acl.html#gosa.agent.acl.ACL.add_action">add_action() (gosa.agent.acl.ACL method)</a></dt>
-    <dt><a href="agent/acl.html#gosa.agent.acl.ACL.add_member">add_member() (gosa.agent.acl.ACL method)</a></dt>
-    <dd><dl>
-      <dt><a href="agent/acl.html#gosa.agent.acl.ACLRoleEntry.add_member">(gosa.agent.acl.ACLRoleEntry method)</a></dt>
-  </dl></dd>
+    <dt><a href="agent/acl.html#gosa.agent.acl.ACLRoleEntry.add_member">add_member() (gosa.agent.acl.ACLRoleEntry method)</a></dt>
+    <dt><a href="agent/acl.html#gosa.agent.acl.ACLResolver.addACL">addACL() (gosa.agent.acl.ACLResolver method)</a></dt>
 </dl></td>
   <td style="width: 33%" valign="top"><dl>
-    <dt><a href="agent/acl.html#gosa.agent.acl.ACLResolver.addACL">addACL() (gosa.agent.acl.ACLResolver method)</a></dt>
+    <dt><a href="agent/acl.html#gosa.agent.acl.ACLResolver.addACLRole">addACLRole() (gosa.agent.acl.ACLResolver method)</a></dt>
+    <dt><a href="agent/acl.html#gosa.agent.acl.ACLResolver.addACLToRole">addACLToRole() (gosa.agent.acl.ACLResolver method)</a></dt>
     <dt><a href="agent/acl.html#gosa.agent.acl.ACLResolver.addACLWithRole">addACLWithRole() (gosa.agent.acl.ACLResolver method)</a></dt>
+    <dt><a href="agent/acl.html#gosa.agent.acl.ACLResolver.addACLWithRoleToRole">addACLWithRoleToRole() (gosa.agent.acl.ACLResolver method)</a></dt>
     <dt><a href="client/amqp.html#gosa.client.amqp_service.AMQPClientService">AMQPClientService (class in gosa.client.amqp_service)</a></dt>
     <dt><a href="common/components.html#gosa.common.components.amqp_proxy.AMQPEventConsumer">AMQPEventConsumer (class in gosa.common.components.amqp_proxy)</a></dt>
     <dt><a href="common/components.html#gosa.common.components.amqp.AMQPHandler">AMQPHandler (class in gosa.common.components.amqp)</a></dt>
@@ -134,14 +135,13 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
     <dt><a href="common/components.html#gosa.common.components.dbus_runner.DBusRunner">DBusRunner (class in gosa.common.components.dbus_runner)</a></dt>
-    <dt><a href="agent/acl.html#gosa.agent.acl.ACL.del_member">del_member() (gosa.agent.acl.ACL method)</a></dt>
     <dt><a href="agent/objects.html#gosa.agent.objects.factory.GOsaObject.delete">delete() (gosa.agent.objects.factory.GOsaObject method)</a></dt>
-</dl></td>
-  <td style="width: 33%" valign="top"><dl>
     <dt><a href="agent/command.html#gosa.agent.command.CommandRegistry.dispatch">dispatch() (gosa.agent.command.CommandRegistry method)</a></dt>
     <dd><dl>
       <dt><a href="client/command.html#gosa.client.command.ClientCommandRegistry.dispatch">(gosa.client.command.ClientCommandRegistry method)</a></dt>
   </dl></dd>
+</dl></td>
+  <td style="width: 33%" valign="top"><dl>
     <dt><a href="agent/jsonrpc.html#gosa.agent.jsonrpc_objects.JSONRPCObjectMapper.dispatchObjectMethod">dispatchObjectMethod() (gosa.agent.jsonrpc_objects.JSONRPCObjectMapper method)</a></dt>
     <dt><a href="common/utils.html#gosa.common.utils.downloadFile">downloadFile() (in module gosa.common.utils)</a></dt>
 </dl></td>
@@ -185,6 +185,7 @@
       <dt><a href="dbus/index.html#gosa.dbus.utils.get_system_bus">(in module gosa.dbus.utils)</a></dt>
   </dl></dd>
     <dt><a href="common/utils.html#gosa.common.utils.get_timezone_delta">get_timezone_delta() (in module gosa.common.utils)</a></dt>
+    <dt><a href="agent/acl.html#gosa.agent.acl.ACLResolver.getACLRoles">getACLRoles() (gosa.agent.acl.ACLResolver method)</a></dt>
     <dt><a href="agent/acl.html#gosa.agent.acl.ACLResolver.getACLs">getACLs() (gosa.agent.acl.ACLResolver method)</a></dt>
     <dt><a href="agent/objects.html#gosa.agent.objects.factory.GOsaObject.getAttrType">getAttrType() (gosa.agent.objects.factory.GOsaObject method)</a></dt>
     <dt><a href="plugins/agent/goto.html#gosa.agent.plugins.goto.client_service.ClientService.getClientMethods">getClientMethods() (gosa.agent.plugins.goto.client_service.ClientService method)</a></dt>
@@ -215,9 +216,9 @@
     <dt><a href="plugins/agent/goto.html#gosa.agent.plugins.goto.client_service.ClientService.getUserClients">getUserClients() (gosa.agent.plugins.goto.client_service.ClientService method)</a></dt>
     <dt><a href="plugins/agent/goto.html#gosa.agent.plugins.goto.client_service.ClientService.getUserSessions">getUserSessions() (gosa.agent.plugins.goto.client_service.ClientService method)</a></dt>
     <dt><a href="agent/index.html#module-gosa.agent">gosa.agent (module)</a></dt>
-    <dt><a href="agent/acl.html#module-gosa.agent.acl">gosa.agent.acl (module)</a></dt>
 </dl></td>
   <td style="width: 33%" valign="top"><dl>
+    <dt><a href="agent/acl.html#module-gosa.agent.acl">gosa.agent.acl (module)</a></dt>
     <dt><a href="agent/amqp.html#module-gosa.agent.amqp_service">gosa.agent.amqp_service (module)</a></dt>
     <dt><a href="agent/command.html#module-gosa.agent.command">gosa.agent.command (module)</a></dt>
     <dt><a href="agent/http.html#module-gosa.agent.httpd">gosa.agent.httpd (module)</a></dt>
@@ -384,10 +385,12 @@
       <dt><a href="agent/acl.html#gosa.agent.acl.ACLSet.remove_acls_for_user">(gosa.agent.acl.ACLSet method)</a></dt>
   </dl></dd>
     <dt><a href="agent/acl.html#gosa.agent.acl.ACLResolver.remove_aclset_by_base">remove_aclset_by_base() (gosa.agent.acl.ACLResolver method)</a></dt>
+    <dt><a href="agent/acl.html#gosa.agent.acl.ACLResolver.remove_role">remove_role() (gosa.agent.acl.ACLResolver method)</a></dt>
 </dl></td>
   <td style="width: 33%" valign="top"><dl>
-    <dt><a href="agent/acl.html#gosa.agent.acl.ACLResolver.remove_role">remove_role() (gosa.agent.acl.ACLResolver method)</a></dt>
     <dt><a href="agent/acl.html#gosa.agent.acl.ACLResolver.removeACL">removeACL() (gosa.agent.acl.ACLResolver method)</a></dt>
+    <dt><a href="agent/acl.html#gosa.agent.acl.ACLResolver.removeRole">removeRole() (gosa.agent.acl.ACLResolver method)</a></dt>
+    <dt><a href="agent/acl.html#gosa.agent.acl.ACLResolver.removeRoleACL">removeRoleACL() (gosa.agent.acl.ACLResolver method)</a></dt>
     <dt><a href="agent/acl.html#gosa.agent.acl.ACL.repr_self">repr_self() (gosa.agent.acl.ACL method)</a></dt>
     <dd><dl>
       <dt><a href="agent/acl.html#gosa.agent.acl.ACLRole.repr_self">(gosa.agent.acl.ACLRole method)</a></dt>
@@ -468,9 +471,14 @@
   <td style="width: 33%" valign="top"><dl>
     <dt><a href="agent/ldap.html#gosa.agent.ldap_utils.unicode2utf8">unicode2utf8() (in module gosa.agent.ldap_utils)</a></dt>
     <dt><a href="common/components.html#gosa.common.components.zeroconf.ZeroconfService.unpublish">unpublish() (gosa.common.components.zeroconf.ZeroconfService method)</a></dt>
+    <dt><a href="agent/acl.html#gosa.agent.acl.ACLResolver.updateACL">updateACL() (gosa.agent.acl.ACLResolver method)</a></dt>
+    <dt><a href="agent/acl.html#gosa.agent.acl.ACLResolver.updateACLRole">updateACLRole() (gosa.agent.acl.ACLResolver method)</a></dt>
 </dl></td>
   <td style="width: 33%" valign="top"><dl>
+    <dt><a href="agent/acl.html#gosa.agent.acl.ACLResolver.updateACLRolewithRole">updateACLRolewithRole() (gosa.agent.acl.ACLResolver method)</a></dt>
+    <dt><a href="agent/acl.html#gosa.agent.acl.ACLResolver.updateACLWithRole">updateACLWithRole() (gosa.agent.acl.ACLResolver method)</a></dt>
     <dt><a href="agent/command.html#gosa.agent.command.CommandRegistry.updateNodes">updateNodes() (gosa.agent.command.CommandRegistry method)</a></dt>
+    <dt><a href="agent/acl.html#gosa.agent.acl.ACL.use_role">use_role() (gosa.agent.acl.ACL method)</a></dt>
 </dl></td>
 </tr></table>
 
