@@ -19,6 +19,60 @@ class TestACLResolver(unittest.TestCase):
         self.resolver.clear()
         self.ldap_base = self.resolver.base
 
+    def test_simple_exported_command(self):
+
+        # Create first role with some acls
+        self.resolver.addACLRole('hickert', 'rolle1')
+        self.resolver.addACLToRole('hickert', 'rolle1', 'sub', 0, [{'topic': 'com.wurstpelle.de', 'acls': 'rwcds'}])
+
+        # Create another role which uses the above defined role
+        self.resolver.addACLRole('hickert', 'rolle2')
+        self.resolver.addACLWithRoleToRole('hickert', 'rolle2', 0, 'rolle1')
+
+        # Now use the role 'rolle1' and check if it is resolved correclty
+        self.resolver.addACLWithRole('hickert', 'dc=gonicus,dc=de', 0, ['peter'], 'rolle2')
+        self.assertTrue(self.resolver.check('peter', 'com.wurstpelle.de', 'r', {}, 'dc=1,dc=gonicus,dc=de'),
+                "Resolving acl-roles using the exported gosa.agent commands does not work! The user should be able to read, but he cannot!")
+
+        # Set the currently added acl-rule to a non-role based acl and defined some actions
+        self.resolver.updateACL('hickert', 3, 'sub', 0, ['peter', 'cajus'], [{'topic': 'com.*', 'acls': 'rwcds'}])
+        self.assertTrue(self.resolver.check('peter', 'com.wurstpelle.de', 'r', {}, 'dc=1,dc=gonicus,dc=de'),
+                "Resolving acl-roles using the exported gosa.agent commands does not work! The user should be able to read, but he cannot!")
+
+        self.resolver.updateACL('hickert', 3, 'sub', 0, ['peter', 'cajus'], [{'topic': 'com.nope', 'acls': 'rwcds'}])
+        self.assertFalse(self.resolver.check('peter', 'com.wurstpelle.de', 'r', {}, 'dc=1,dc=gonicus,dc=de'),
+                "Resolving acl-roles using the exported gosa.agent commands does not work! The user should not be able to read, but he can!")
+
+        # Drop the actions and fall back to use a role.
+        self.resolver.updateACLWithRole('hickert', 3, 0, ['peter', 'cajus'], 'rolle2')
+        self.assertTrue(self.resolver.check('peter', 'com.wurstpelle.de', 'r', {}, 'dc=1,dc=gonicus,dc=de'),
+                "Resolving acl-roles using the exported gosa.agent commands does not work! The user should be able to read, but he cannot!")
+
+        # -----------------
+
+        # Now update the role-acl 1 to use another role.
+        self.resolver.addACLRole('hickert', 'dummy')
+        self.resolver.updateACLRoleWithRole('hickert', 1, 0, 'dummy')
+        self.assertFalse(self.resolver.check('peter', 'com.wurstpelle.de', 'r', {}, 'dc=1,dc=gonicus,dc=de'),
+                "Resolving acl-roles using the exported gosa.agent commands does not work! The user should not be able to read, but he can!")
+
+        # Now switch back to an action-based acl.
+        self.resolver.updateACLRole('hickert', 1, 'sub', 0, [{'topic': 'com.wurstpelle.de', 'acls': 'rwcds'}])
+        self.assertTrue(self.resolver.check('peter', 'com.wurstpelle.de', 'r', {}, 'dc=1,dc=gonicus,dc=de'),
+                "Resolving acl-roles using the exported gosa.agent commands does not work! The user should be able to read, but he cannot!")
+
+        #------------------
+
+        # Now remove the role-acl with id 1 from the resolver.
+        self.resolver.removeRoleACL('hickert', 1)
+        self.assertFalse(self.resolver.check('peter', 'com.wurstpelle.de', 'r', {}, 'dc=1,dc=gonicus,dc=de'),
+                "Resolving acl-roles using the exported gosa.agent commands does not work! The user should not be able to read, but he can!")
+
+        # -----------------
+
+        # Try to remove role 'roll2'
+        self.assertRaises(ACLException, self.resolver.removeRole, 'hickert', 'rolle2')
+
     def test_role_removal(self):
         """
         This test checks if an ACLRole objects can be removed!
