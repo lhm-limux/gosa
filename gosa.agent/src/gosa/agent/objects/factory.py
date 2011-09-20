@@ -75,6 +75,7 @@ class GOsaObjectFactory(object):
 
     def __init__(self, path):
         # Initialize parser
+        #pylint: disable=E1101
         schema_path = pkg_resources.resource_filename('gosa.common', 'data/objects/object.xsd')
         schema_doc = open(schema_path).read()
         schema_root = etree.XML(schema_doc)
@@ -93,6 +94,7 @@ class GOsaObjectFactory(object):
         These meta-classes are used for object instantiation later.
 
         """
+        #pylint: disable=E1101
         path = pkg_resources.resource_filename('gosa.common', 'data/objects')
 
         # Look on path and check for xml files
@@ -101,7 +103,7 @@ class GOsaObjectFactory(object):
 
     def __parse_schema(self, path):
         """
-        Parses a schema file using the 
+        Parses a schema file using the
         :meth:`gosa.agent.objects.factory.GOsaObjectFactory.__parser`
         method.
         """
@@ -141,15 +143,19 @@ class GOsaObjectFactory(object):
         """
         class klass(GOsaObject):
 
+            #pylint: disable=E0213
             def __init__(me, *args, **kwargs):
                 GOsaObject.__init__(me, *args, **kwargs)
 
+            #pylint: disable=E0213
             def __setattr__(me, name, value):
                 me._setattr_(name, value)
 
+            #pylint: disable=E0213
             def __getattr__(me, name):
                 return me._getattr_(name)
 
+            #pylint: disable=E0213
             def __del__(me):
                 me._del_()
 

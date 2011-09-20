@@ -44,5 +44,4 @@ class Clear(ElementFilter):
             return key, {key: ['']}
         else:
             raise ValueError("Unknown input type for filter %s. Type as '%s'!") % (
-                    self.__name__, type(value))
-
+                    self.__class__.__name__, type(value))
