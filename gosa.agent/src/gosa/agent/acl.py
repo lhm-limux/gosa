@@ -419,7 +419,7 @@ class ACL(object):
             if scope not in (ACL.ONE, ACL.SUB, ACL.PSUB, ACL.RESET):
                 raise(Exception("Invalid ACL type given"))
 
-            self.scope = scope
+            self.set_scope(scope)
 
     def use_role(self, rolename):
         """
@@ -457,6 +457,8 @@ class ACL(object):
 
         if scope not in [ACL.ONE, ACL.SUB, ACL.PSUB, ACL.RESET]:
             raise ACLException("Invalid scope value given!")
+
+        self.scope = scope
 
     def set_priority(self, priority):
         """
@@ -1394,7 +1396,7 @@ class ACLResolver(object):
                         raise ACLException("The requested operation is not allowed!")
 
                     # Remove the acl from the set.
-                    aclset.remove(acl);
+                    aclset.remove(acl)
 
                     # We've removed the last acl for this base,  remove the aclset.
                     if len(aclset) == 0:
@@ -1482,7 +1484,6 @@ class ACLResolver(object):
             self.add_acl_set(ACLSet(base))
 
         # Create a new acl with the given parameters
-        aclset = self.get_aclset_by_base(base)
         acl = ACL(scope_int)
         acl.set_members(members)
         for action in actions:
@@ -1639,9 +1640,9 @@ class ACLResolver(object):
             self.add_acl_set(ACLSet(base))
 
         # Create a new acl with the given parameters
-        aclset = self.get_aclset_by_base(base)
         acl = ACL(role=role)
         acl.set_members(members)
+        acl.set_priority(priority)
         self.add_acl_to_base(base, acl)
 
     @Command(needsUser=True, __help__=N_("List defined roles."))
@@ -1824,6 +1825,7 @@ class ACLResolver(object):
 
         # Create a new acl with the given parameters
         acl = ACLRoleEntry(role=role)
+        acl.set_priority(priority)
         self.add_acl_to_role(rolename, acl)
 
     @Command(needsUser=True, __help__=N_("Refresh existing role by ID."))
@@ -1902,11 +1904,12 @@ class ACLResolver(object):
 
         # Update the acl actions.
         acl.clear_actions()
+        acl.set_scope(scope_int)
         for action in actions:
             acl.add_action(action['topic'], action['acls'], action['options'])
 
     @Command(needsUser=True, __help__=N_("Refresh existing role-acl by ID to refer to another role"))
-    def updateACLRolewithRole(self, user, acl_id, priority, rolename):
+    def updateACLRoleWithRole(self, user, acl_id, priority, rolename):
         """
         Refresh existing role-acl by ID to refer to another role.
 
@@ -1940,6 +1943,7 @@ class ACLResolver(object):
                 if _acl.id == acl_id:
                     acl = _acl
 
+        acl.set_priority(priority)
         acl.use_role(rolename)
 
     @Command(needsUser=True, __help__=N_("Remove defined role-acl by ID."))
@@ -1962,7 +1966,6 @@ class ACLResolver(object):
             raise ACLException("The requested operation is not allowed!")
 
         # Try to find role-acl with the given ID.
-        acl = None
         for _aclrole in self.acl_roles:
             for _acl in self.acl_roles[_aclrole]:
                 if _acl.id == role_id:
