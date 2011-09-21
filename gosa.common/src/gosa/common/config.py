@@ -151,7 +151,7 @@ class Config(object):
         self.__registry['core'].update(dict([(k, items[k]) for k in items if items[k] != None]))
 
     def getBaseDir(self):
-        bd = os.path.basename(self.__registry['core']['config'])
+        bd = os.path.dirname(self.__registry['core']['config'])
         if bd == self.__registry['core']['config']:
             return ""
 
