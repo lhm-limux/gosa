@@ -287,7 +287,10 @@ def main(argv=sys.argv):
     service = GOsaService()
 
     # Check if connection could be established
-    service_uri, username, password = service.connect(service_uri, username, password)
+    try:
+        service_uri, username, password = service.connect(service_uri, username, password)
+    except KeyboardInterrupt:
+        sys.exit(1)
 
     # Prepare to enter the interactive console.
     # Make the the GOsaService instance available to the console via the
