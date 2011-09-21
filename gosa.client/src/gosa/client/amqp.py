@@ -4,6 +4,7 @@ import re
 import time
 import socket
 import thread
+import logging
 from urlparse import urlparse
 from qpid.messaging import *
 from qpid.messaging.util import auto_fetch_reconnect_urls
@@ -39,7 +40,8 @@ class AMQPClientHandler(AMQPHandler):
         @param env: L{Environment} object
         """
         env = Environment.getInstance()
-        env.log.debug("initializing AMQP client handler")
+        self.log = logging.getLogger(__name__)
+        self.log.debug("initializing AMQP client handler")
         self.env = env
 
         # Enable debugging for qpid if we're in debug mode
@@ -58,7 +60,7 @@ class AMQPClientHandler(AMQPHandler):
             o = urlparse(url)
             # pylint: disable-msg=E1101
             self.domain = o.path[1::]
-            self.env.log.info("using service '%s'" % url)
+            self.log.info("using service '%s'" % url)
 
             # Configure system
             user = self.env.config.get('amqp.id', default=None)
@@ -89,7 +91,7 @@ class AMQPClientHandler(AMQPHandler):
         Enable AMQP queueing. This method puts up the event processor and
         sets it to "active".
         """
-        self.env.log.debug("enabling AMQP queueing")
+        self.log.debug("enabling AMQP queueing")
 
         # Evaluate username
         user = self.env.config.get("amqp.id", default=None)
@@ -113,5 +115,5 @@ class AMQPClientHandler(AMQPHandler):
         self._eventProvider = EventProvider(self.env, self._conn)
 
     def __del__(self):
-        self.env.log.debug("shutting down AMQP client handler")
+        self.log.debug("shutting down AMQP client handler")
         self._conn.close()

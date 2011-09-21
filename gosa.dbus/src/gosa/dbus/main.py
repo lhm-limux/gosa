@@ -8,6 +8,7 @@ import codecs
 import traceback
 import gobject
 import dbus.mainloop.glib
+import logging
 
 from gosa.common import Environment
 from gosa.dbus import __version__ as VERSION
@@ -41,6 +42,8 @@ def handleSignal():
 def mainLoop(env):
     global loop
 
+    log = logging.getLogger(__name__)
+
     try:
         # connect to dbus and setup loop
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
@@ -54,9 +57,9 @@ def mainLoop(env):
         loop.run()
 
     except Exception as detail:
-        env.log.critical("unexpected error in mainLoop")
-        env.log.exception(detail)
-        env.log.debug(traceback.format_exc())
+        log.critical("unexpected error in mainLoop")
+        log.exception(detail)
+        log.debug(traceback.format_exc())
 
     finally:
         shutdown()

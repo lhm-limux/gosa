@@ -3,6 +3,7 @@
 import pkg_resources
 import gettext
 import re
+import logging
 from lxml import etree
 from zope.interface import implements
 from gosa.common.handler import IInterfaceHandler
@@ -31,12 +32,13 @@ class AsteriskNotificationReceiver(object):
 
     def __init__(self):
         self.env = env = Environment.getInstance()
-        self.env.log.debug("initializing asterisk number resolver")
+        self.log = logging.getLogger(__name__)
+        self.log.debug("initializing asterisk number resolver")
 
         # Load resolver
         for entry in pkg_resources.iter_entry_points("phone.resolver"):
             module = entry.load()
-            self.env.log.debug("loading resolver module '%s'" % module.__name__)
+            self.log.debug("loading resolver module '%s'" % module.__name__)
             obj = module()
             self.resolver[module.__name__] = {
                     'object': obj,
@@ -46,14 +48,14 @@ class AsteriskNotificationReceiver(object):
         # Load renderer
         for entry in pkg_resources.iter_entry_points("notification.renderer"):
             module = entry.load()
-            self.env.log.debug("loading renderer module '%s'" % module.__name__)
+            self.log.debug("loading renderer module '%s'" % module.__name__)
             self.renderer[module.__name__] = {
                     'object': module(),
                     'priority': module.priority,
             }
 
     def serve(self):
-        self.env.log.info("listening for asterisk events...")
+        self.log.info("listening for asterisk events...")
         amqp = PluginRegistry.getInstance('AMQPHandler')
         EventConsumer(self.env,
             amqp.getConnection(),

@@ -11,6 +11,7 @@ import urllib2
 import gettext
 import gzip
 import bz2
+import logging
 
 from urlparse import urlparse
 from types import StringTypes
@@ -56,6 +57,7 @@ class DebianHandler(DistributionHandler):
 
     def __init__(self, LibinstManager):
         self.env = Environment.getInstance()
+        self.log = logging.getLogger(__name__)
         self.manager = LibinstManager
 
     @staticmethod
@@ -124,7 +126,7 @@ class DebianHandler(DistributionHandler):
                 if isinstance(component, StringTypes):
                     component = self._getComponent(session, component)
                 packages = self.manager.getPackages(release=release, component=component)
-                self.env.log.info(N_("Searching for updates for release '{distribution}/{release}'").format(distribution=release.distribution.name, release=release.name))
+                self.log.info(N_("Searching for updates for release '{distribution}/{release}'").format(distribution=release.distribution.name, release=release.name))
 
                 # Binary
                 for architecture in architectures if architectures is not None else distribution.architectures:
@@ -140,7 +142,7 @@ class DebianHandler(DistributionHandler):
                                 if sections and package.has_key('Section') and package['Section'] not in sections:
                                     continue
                                 if not package['Package'] in [p['name'] for p in packages]:
-                                    self.env.log.debug("Adding package '%s' from URL '%s'" % (package['Package'], distribution.origin + "/" + package['Filename']))
+                                    self.log.debug("Adding package '%s' from URL '%s'" % (package['Package'], distribution.origin + "/" + package['Filename']))
                                     self.addPackage(
                                         session,
                                         distribution.origin + "/" + package['Filename'],
@@ -158,7 +160,7 @@ class DebianHandler(DistributionHandler):
                                 else:
                                     existing_packages = [p for p in packages if p['name']==package['Package']]
                                     if package['Architecture'] not in [p['arch'] for p in existing_packages]:
-                                        self.env.log.debug("Adding package '%s' from URL '%s'" % (package['Package'], distribution.origin + "/" + package['Filename']))
+                                        self.log.debug("Adding package '%s' from URL '%s'" % (package['Package'], distribution.origin + "/" + package['Filename']))
                                         self.addPackage(
                                             session,
                                             distribution.origin + "/" + package['Filename'],
@@ -174,7 +176,7 @@ class DebianHandler(DistributionHandler):
                                             session.rollback()
                                             raise
                                     elif package['Version'] not in [p['version'] for p in existing_packages]:
-                                        self.env.log.debug("Upgrading package '%s' from URL '%s'" % (package['Package'], distribution.origin + "/" + package['Filename']))
+                                        self.log.debug("Upgrading package '%s' from URL '%s'" % (package['Package'], distribution.origin + "/" + package['Filename']))
                                         self.addPackage(
                                             session,
                                             distribution.origin + "/" + package['Filename'],
@@ -203,7 +205,7 @@ class DebianHandler(DistributionHandler):
                             if sections and source.has_key('Section') and source['Section'] not in sections:
                                 continue
                             if not source['Package'] in [s['name'] for s in packages]:
-                                self.env.log.debug("Adding source package '%s' from URL '%s'" % (source['Package'], '/'.join((distribution.origin, source['Directory'], [f['name'] for f in source['Files']][0]))))
+                                self.log.debug("Adding source package '%s' from URL '%s'" % (source['Package'], '/'.join((distribution.origin, source['Directory'], [f['name'] for f in source['Files']][0]))))
                                 self.addPackage(
                                     session,
                                     '/'.join((distribution.origin, source['Directory'], [f['name'] for f in source['Files']][0])),
@@ -221,7 +223,7 @@ class DebianHandler(DistributionHandler):
                             else:
                                 existing_packages = [s for s in packages if s['name']==source['Package']]
                                 if source['Version'] not in [p['version'] for p in existing_packages]:
-                                    self.env.log.debug("Upgrading source package '%s' from URL '%s'" % (source['Package'], distribution.origin + "/" + [f['name'] for f in source['Files']][0]))
+                                    self.log.debug("Upgrading source package '%s' from URL '%s'" % (source['Package'], distribution.origin + "/" + [f['name'] for f in source['Files']][0]))
                                     self.addPackage(
                                         session,
                                         '/'.join((distribution.origin, source['Directory'], [f['name'] for f in source['Files']][0])),
@@ -239,7 +241,7 @@ class DebianHandler(DistributionHandler):
                     os.unlink(sourcelist)
 
                 self._updateInventory(session, release=release, distribution=distribution)
-                self.env.log.info(N_("Done searching for updates for release '{distribution}/{release}'").format(distribution=release.distribution.name, release=release.name))
+                self.log.info(N_("Done searching for updates for release '{distribution}/{release}'").format(distribution=release.distribution.name, release=release.name))
         try:
             session.commit()
         except:
@@ -269,7 +271,7 @@ class DebianHandler(DistributionHandler):
             upgrade = False
             for p in release.packages:
                 if p.name == result.name and p.arch.name == result.arch.name and p.version == result.version:
-                    self.env.log.warning("Package %s | version %s | arch %s already present!" % (result.name, result.version, result.arch.name))
+                    self.log.warning("Package %s | version %s | arch %s already present!" % (result.name, result.version, result.arch.name))
                     present = True
                 elif p.name == result.name and p.arch.name == result.arch.name and p.version != result.version:
                     upgrade = True
@@ -347,13 +349,13 @@ class DebianHandler(DistributionHandler):
 
         if isinstance(package, StringTypes) and arch is None:
             for p in self._getPackages(session, package):
-                self.env.log.debug("Removing package %s/%s/%s/%s" % (distribution, release, package if isinstance(package, StringTypes) else package.name), p.arch.name)
+                self.log.debug("Removing package %s/%s/%s/%s" % (distribution, release, package if isinstance(package, StringTypes) else package.name), p.arch.name)
                 self.removePackage(session, p, arch = p.arch, release=release, distribution=distribution)
         elif isinstance(package, StringTypes):
-            self.env.log.debug("Removing package %s/%s/%s/%s" % (distribution, release, package if isinstance(package, StringTypes) else package.name), arch.name)
+            self.log.debug("Removing package %s/%s/%s/%s" % (distribution, release, package if isinstance(package, StringTypes) else package.name), arch.name)
             package = self._getPackage(session, package, arch=arch)
         elif distribution is not None:
-            self.env.log.debug("Removing package %s/%s/%s/%s" % (distribution, release, package.name, package.arch.name))
+            self.log.debug("Removing package %s/%s/%s/%s" % (distribution, release, package.name, package.arch.name))
 
         if isinstance(release, StringTypes):
             release = self._getRelease(session, release)
@@ -376,10 +378,10 @@ class DebianHandler(DistributionHandler):
                             try:
                                 os.unlink(dists_path + os.sep + file.name)
                             except:
-                                self.env.log.error("Could not remove file %s" % dists_path + os.sep + file.name)
+                                self.log.error("Could not remove file %s" % dists_path + os.sep + file.name)
                                 raise
                         else:
-                            self.env.log.error("Strange: %s does not exist!" % dists_path + os.sep + file.name)
+                            self.log.error("Strange: %s does not exist!" % dists_path + os.sep + file.name)
                     release.packages.remove(package)
                     self._updateInventory(session, release=release)
                     result = True
@@ -416,7 +418,7 @@ class DebianHandler(DistributionHandler):
                                 session.delete(file)
                             session.delete(package)
                     except:
-                        self.env.log.error("Could not remove file %s" % package_path)
+                        self.log.error("Could not remove file %s" % package_path)
                         raise
 
                     try:
@@ -626,7 +628,7 @@ class DebianHandler(DistributionHandler):
                     result.origin = origin
                     if c.has_key('Files'):
                         for source_file in c['Files']:
-                            self.env.log.debug("Downloading additional file '%s'" % (base_url + source_file['name']))
+                            self.log.debug("Downloading additional file '%s'" % (base_url + source_file['name']))
                             request = urllib2.Request(base_url + source_file['name'])
                             try:
                                 file = urllib2.urlopen(request)
@@ -666,7 +668,7 @@ class DebianHandler(DistributionHandler):
                         cwd=download_dir)
                         unpack_result = os.waitpid(p.pid, 0)[1]
                         if unpack_result > 0:
-                            self.env.log.error(p.stderr)
+                            self.log.error(p.stderr)
                             result = False
                         dir_name = None
                         for line in p.stdout:
@@ -776,14 +778,14 @@ class DebianHandler(DistributionHandler):
         repository = session.query(Repository).filter_by(path=self.env.config.get('repository.path')).one()
         gpg = gnupg.GPG(gnupghome=work_dir)
         if not repository.keyring:
-            self.env.log.debug("Generating GPG Key")
+            self.log.debug("Generating GPG Key")
             input_data = gpg.gen_key_input(key_type="RSA", key_length=1024)
             key = gpg.gen_key(input_data)
             repository.keyring = RepositoryKeyring(name=key.fingerprint, data=gpg.export_keys(key, True))
-            self.env.log.debug("Exported key '%s' to repository" % key)
+            self.log.debug("Exported key '%s' to repository" % key)
         else:
             gpg.import_keys(repository.keyring.data)
-            #self.env.log.debug("Using existing secret key '%s'" % repository.keyring.name)
+            #self.log.debug("Using existing secret key '%s'" % repository.keyring.name)
         result = work_dir
         return result
 
@@ -825,7 +827,7 @@ class DebianHandler(DistributionHandler):
                             cwd=os.sep.join((release.distribution.path, "dists",  release.name.replace('/', os.sep), component.name, architecture.name)))
                         packages_result = os.waitpid(p.pid, 0)[1]
                         if packages_result > 0:
-                            self.env.log.error(p.stderr)
+                            self.log.error(p.stderr)
                             result = False
                         p = subprocess.Popen(
                             "gzip -c Sources > Sources.gz",
@@ -834,7 +836,7 @@ class DebianHandler(DistributionHandler):
                             cwd=os.sep.join((release.distribution.path, "dists",  release.name.replace('/', os.sep), component.name, architecture.name)))
                         packages_result = os.waitpid(p.pid, 0)[1]
                         if packages_result > 0:
-                            self.env.log.error(p.stderr)
+                            self.log.error(p.stderr)
                             result = False
                         p = subprocess.Popen(
                             "bzip2 -c Sources > Sources.bz2",
@@ -843,7 +845,7 @@ class DebianHandler(DistributionHandler):
                             cwd=os.sep.join((release.distribution.path, "dists",  release.name.replace('/', os.sep), component.name, architecture.name)))
                         packages_result = os.waitpid(p.pid, 0)[1]
                         if packages_result > 0:
-                            self.env.log.error(p.stderr)
+                            self.log.error(p.stderr)
                             result = False
                     else:
                         p = subprocess.Popen(
@@ -853,7 +855,7 @@ class DebianHandler(DistributionHandler):
                             cwd=os.sep.join((release.distribution.path, "dists",  release.name.replace('/', os.sep), component.name, 'binary-' + architecture.name)))
                         packages_result = os.waitpid(p.pid, 0)[1]
                         if packages_result > 0:
-                            self.env.log.error(p.stderr)
+                            self.log.error(p.stderr)
                             result = False
 
                         p = subprocess.Popen(
@@ -863,7 +865,7 @@ class DebianHandler(DistributionHandler):
                             cwd=os.sep.join((release.distribution.path, "dists",  release.name.replace('/', os.sep), component.name, 'binary-' + architecture.name)))
                         gzip_result = os.waitpid(p.pid, 0)[1]
                         if gzip_result > 0:
-                            self.env.log.error(p.stderr)
+                            self.log.error(p.stderr)
                             result = False
 
                         p = subprocess.Popen(
@@ -873,7 +875,7 @@ class DebianHandler(DistributionHandler):
                             cwd=os.sep.join((release.distribution.path, "dists",  release.name.replace('/', os.sep), component.name, 'binary-' + architecture.name)))
                         bzip_result = os.waitpid(p.pid, 0)[1]
                         if bzip_result > 0:
-                            self.env.log.error(p.stderr)
+                            self.log.error(p.stderr)
                             result = False
 
             # Create Release files
@@ -884,7 +886,7 @@ class DebianHandler(DistributionHandler):
                 cwd = os.sep.join((release.distribution.path, "dists",  release.name.replace('/', os.sep))))
             release_result = os.waitpid(p.pid, 0)[1]
             if release_result > 0:
-                self.env.log.error(p.stderr)
+                self.log.error(p.stderr)
                 result = False
 
             if os.path.exists(os.sep.join((release.distribution.path, "dists",  release.name.replace('/', os.sep), "Release"))):
@@ -908,12 +910,12 @@ class DebianHandler(DistributionHandler):
             source._rename(target)
             result = self._updateInventory(session, release=target)
             if not result:
-                self.env.log.error("Updating inventory for release '%s' failed!" % target)
+                self.log.error("Updating inventory for release '%s' failed!" % target)
             if os.path.exists(source_path):
                 shutil.rmtree(source_path)
             result = True
         except:
-            self.env.log.error("Caught unknown exception %s" % sys.exc_info()[0])
+            self.log.error("Caught unknown exception %s" % sys.exc_info()[0])
             raise
             result = False
         return result

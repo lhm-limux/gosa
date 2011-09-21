@@ -31,6 +31,7 @@ the client has passed away.
 import sys
 import netifaces
 import traceback
+import logging
 from netaddr import IPNetwork
 from zope.interface import implements
 from qpid.messaging import *
@@ -53,7 +54,8 @@ class AMQPClientService(object):
 
     def __init__(self):
         env = Environment.getInstance()
-        env.log.debug("initializing AMQP service provider")
+        self.log = logging.getLogger(__name__)
+        self.log.debug("initializing AMQP service provider")
         self.env = env
 
     def serve(self):
@@ -138,7 +140,7 @@ class AMQPClientService(object):
             except:
                 err = str(BadServiceRequest(message.content))
 
-        self.env.log.debug("received call [%s] for %s: %s(%s)" % (id_, message.user_id, name, args))
+        self.log.debug("received call [%s] for %s: %s(%s)" % (id_, message.user_id, name, args))
 
         # Try to execute
         if err == None:
@@ -149,9 +151,9 @@ class AMQPClientService(object):
 
                 # Write exception to log
                 exc_type, exc_value, exc_traceback = sys.exc_info()
-                self.env.log.error(traceback.format_exception(exc_type, exc_value, exc_traceback))
+                self.log.error(traceback.format_exception(exc_type, exc_value, exc_traceback))
 
-        self.env.log.debug("returning call [%s]: %s / %s" % (id_, res, err))
+        self.log.debug("returning call [%s]: %s / %s" % (id_, res, err))
 
         response = dumps({"result": res, "id": id_, "error": err})
         ssn.acknowledge()
@@ -163,7 +165,7 @@ class AMQPClientService(object):
         sender.send(Message(response))
 
     def __handleClientPoll(self, data):
-        self.env.log.debug("received client poll")
+        self.log.debug("received client poll")
         self.__announce()
 
     def __announce(self, initial=False):

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import StringIO
+import logging
 from lxml import etree
 from pkg_resources import *
 from gosa.common.handler import IInterfaceHandler
@@ -25,7 +26,7 @@ class PluginRegistry(object):
     def __init__(self, component="gosa.modules"):
         env = Environment.getInstance()
         self.env = env
-        self.log = env.log
+        self.log = logging.getLogger(__name__)
         self.log.debug("inizializing plugin registry")
 
         # Load common event resources

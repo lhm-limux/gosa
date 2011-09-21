@@ -8,6 +8,7 @@ is redirecting a path to a module.
 -------
 """
 import thread
+import logging
 from zope.interface import implements
 from webob import exc, Request, Response
 from paste import httpserver, wsgilib, request, response
@@ -30,6 +31,7 @@ class HTTPDispatcher(object):
 
     def __init__(self):
         self.__app = {}
+        self.log = logging.getLogger(__name__)
 
     def __call__(self, environ, start_response):
         path = environ.get('PATH_INFO')
@@ -40,17 +42,17 @@ class HTTPDispatcher(object):
                 return app.__call__(environ, start_response)
 
         # Nothing found
-        self.env.log.debug('no resource %s registered!' % path)
+        self.log.debug('no resource %s registered!' % path)
         resp = exc.HTTPNotFound('no resource %s registered!' % path)
         return resp(environ, start_response)
 
     def register(self, path, app):
-        self.env.log.debug("registering %s on %s" % (app.__class__.__name__, path))
+        self.log.debug("registering %s on %s" % (app.__class__.__name__, path))
         self.__app[path] = app
 
     def unregister(self, path):
         if path in self.__app:
-            self.env.log.debug("unregistering %s" % path)
+            self.log.debug("unregistering %s" % path)
             del(self.__app[path])
 
 
@@ -103,7 +105,8 @@ class HTTPService(object):
 
     def __init__(self):
         env = Environment.getInstance()
-        env.log.debug("initializing HTTP service provider")
+        self.log = logging.getLogger(__name__)
+        self.log.debug("initializing HTTP service provider")
         self.env = env
 
     def serve(self):
@@ -123,7 +126,7 @@ class HTTPService(object):
 
         # Fetch server
         self.srv = httpserver.serve(self.app, self.host, self.port, start_loop=False, ssl_pem=self.ssl_pem)
-        self.env.log.debug("serving http on %s://%s:%s" % (self.scheme, self.host, self.port))
+        self.log.debug("serving http on %s://%s:%s" % (self.scheme, self.host, self.port))
         thread.start_new_thread(self.srv.serve_forever, ())
 
         # Register all possible instances that have shown
@@ -135,7 +138,7 @@ class HTTPService(object):
         """
         Stop HTTP service thread.
         """
-        self.env.log.debug("shutting down HTTP service provider")
+        self.log.debug("shutting down HTTP service provider")
         self.srv.server_close()
 
     def register(self, path, obj):

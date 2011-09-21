@@ -8,6 +8,7 @@ make LDAP connections a little bit easier to use.
 import ldapurl
 import ldap.sasl
 import types
+import logging
 from contextlib import contextmanager
 from gosa.common import Environment
 
@@ -70,6 +71,7 @@ class LDAPHandler(object):
 
     def __init__(self):
         self.env = Environment.getInstance()
+        self.log = logging.getLogger(__name__)
 
         # Initialize from configuration
         get = self.env.config.get
@@ -110,7 +112,7 @@ class LDAPHandler(object):
         # Need to initialize?
         if not LDAPHandler.connection_handle[next_free]:
             get = self.env.config.get
-            self.env.log.debug("initializing LDAP connection to %s" %
+            self.log.debug("initializing LDAP connection to %s" %
                     str(self.__url))
             conn = ldap.ldapobject.ReconnectLDAPObject("%s://%s" % (self.__url.urlscheme,
                 self.__url.hostport),
@@ -122,25 +124,25 @@ class LDAPHandler(object):
                 try:
                     conn.start_tls_s()
                 except ldap.PROTOCOL_ERROR as detail:
-                    self.env.log.debug("cannot use TLS, falling back to unencrypted session")
+                    self.log.debug("cannot use TLS, falling back to unencrypted session")
 
             try:
                 # Simple bind?
                 if self.__bind_dn:
-                    self.env.log.debug("starting simple bind using '%s'" %
+                    self.log.debug("starting simple bind using '%s'" %
                         self.__bind_dn)
                     conn.simple_bind_s(self.__bind_dn, self.__bind_secret)
                 elif self.__bind_user:
-                    self.env.log.debug("starting SASL bind using '%s'" %
+                    self.log.debug("starting SASL bind using '%s'" %
                         self.__bind_user)
                     auth_tokens = ldap.sasl.digest_md5(self.__bind_user, self.__bind_secret)
                     conn.sasl_interactive_bind_s("", auth_tokens)
                 else:
-                    self.env.log.debug("starting anonymous bind")
+                    self.log.debug("starting anonymous bind")
                     conn.simple_bind_s()
 
             except ldap.INVALID_CREDENTIALS as detail:
-                self.env.log.error("LDAP authentication failed: %s" %
+                self.log.error("LDAP authentication failed: %s" %
                         str(detail))
 
             LDAPHandler.connection_handle[next_free] = conn

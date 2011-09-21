@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import logging
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Table, Column, Integer, String, ForeignKey, Sequence, LargeBinary
@@ -41,7 +42,8 @@ class Repository(Base, UseInnoDB):
             try:
                 os.makedirs(self.path)
             except:
-                self.env.log.fatal("Could not create directory %s" % self.path)
+                log = logging.getLogger(__name__)
+                log.critical("Could not create directory %s" % self.path)
                 raise
 
         for distribution in self.distributions:

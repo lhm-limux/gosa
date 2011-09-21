@@ -35,10 +35,11 @@ process.
 
 -------
 """
-import string
-import time
-import datetime
 import re
+import time
+import string
+import logging
+import datetime
 from lxml import etree, objectify
 from inspect import getargspec, getmembers, ismethod
 from zope.interface import implements
@@ -86,8 +87,9 @@ class CommandRegistry(object):
 
     def __init__(self):
         env = Environment.getInstance()
-        env.log.debug("initializing command registry")
         self.env = env
+        self.log = logging.getLogger("gosa.agent")
+        self.log.debug("initializing command registry")
 
     @Command(__help__=N_("List available service nodes on the bus."))
     def getNodes(self):
@@ -158,7 +160,7 @@ class CommandRegistry(object):
         if not force and queue == self.env.domain + '.command.core':
             return False
 
-        self.env.log.debug("received shutdown signal - waiting for threads to terminate")
+        self.log.debug("received shutdown signal - waiting for threads to terminate")
         self.env.active = False
         return True
 
@@ -437,7 +439,7 @@ class CommandRegistry(object):
         return sorted(self.nodes.items(), lambda x, y: cmp(x[1]['load'], y[1]['load']))
 
     def __del__(self):
-        self.env.log.debug("shutting down command registry")
+        self.log.debug("shutting down command registry")
 
     def __eventProcessor(self, data):
         eventType = stripNs(data.xpath('/g:Event/*', namespaces={'g': "http://www.gonicus.de/Events"})[0].tag)
@@ -446,7 +448,7 @@ class CommandRegistry(object):
 
     def _handleNodeAnnounce(self, data):
         data = data.NodeAnnounce
-        self.env.log.debug("received hello of node %s" % data.Id)
+        self.log.debug("received hello of node %s" % data.Id)
 
         # Reply with sending capabilities
         amqp = PluginRegistry.getInstance("AMQPHandler")
@@ -485,7 +487,7 @@ class CommandRegistry(object):
 
     def _handleNodeCapabilities(self, data):
         data = data.NodeCapabilities
-        self.env.log.debug("received capabilities of node %s" % data.Id)
+        self.log.debug("received capabilities of node %s" % data.Id)
 
         # Add methods
         for method in data.NodeMethod:
@@ -516,7 +518,7 @@ class CommandRegistry(object):
 
     def _handleNodeStatus(self, data):
         data = data.NodeStatus
-        self.env.log.debug("received status of node %s" % data.Id)
+        self.log.debug("received status of node %s" % data.Id)
 
         # Add recieve time to be able to sort out dead nodes
         t = datetime.datetime.utcnow()
@@ -530,7 +532,7 @@ class CommandRegistry(object):
         """ Receive goodbye messages and act accordingly. """
         data = data.NodeLeave
         sender = data.Id.text
-        self.env.log.debug("received goodbye of node %s" % sender)
+        self.log.debug("received goodbye of node %s" % sender)
 
         # Remove node from nodes
         if sender in self.nodes:
@@ -583,7 +585,7 @@ class CommandRegistry(object):
                         raise Exception("method '%s' has no documentation" % func)
                     doc = re.sub("(\s|\n)+", " ", method.__help__).strip()
 
-                    self.env.log.debug("registering %s" % func)
+                    self.log.debug("registering %s" % func)
                     info = {
                         'name': func,
                         'path': "%s.%s" % (clazz.__class__.__name__, mname),

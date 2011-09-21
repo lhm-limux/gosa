@@ -6,6 +6,7 @@ import pyinotify
 import ConfigParser
 import yaml
 import socket
+import logging
 from shutil import rmtree
 from fcntl import lockf, LOCK_UN, LOCK_EX
 from git import Repo
@@ -44,6 +45,7 @@ class PuppetClient(Plugin):
     def __init__(self):
         env = Environment.getInstance()
         self.env = env
+        self.log = logging.getLogger(__name__)
 
         # Read config values
         self.__puppet_user = env.config.get("puppet.user",
@@ -78,7 +80,7 @@ class PuppetClient(Plugin):
             with open(self.__base_dir + "/.ssh/authorized_keys") as f:
                 content = f.readlines()
         except IOError:
-            self.env.log.warn("No authorized keys available in '%s'" % \
+            self.log.warn("No authorized keys available in '%s'" % \
                 self.__base_dir + "/.ssh/authorized_keys")
             return result
 
@@ -103,7 +105,7 @@ class PuppetClient(Plugin):
             raise ValueError("Key id '%s' already exist" % key_id)
 
         # Add key
-        self.env.log.info("adding puppet key '%s'" % key_id)
+        self.log.info("adding puppet key '%s'" % key_id)
         keys[key_id] = {'type': key_type, 'data': key_data}
         self.__write_keys(keys)
 
@@ -119,7 +121,7 @@ class PuppetClient(Plugin):
             raise ValueError("Key id '%s' does not exist" % id)
 
         # Del key
-        self.env.log.info("removing puppet key '%s'" % id)
+        self.log.info("removing puppet key '%s'" % id)
         del keys[id]
         self.__write_keys(keys)
 
@@ -131,7 +133,7 @@ class PuppetClient(Plugin):
 
         # Eventually purge old data
         if purge:
-            self.env.log.info("puring git and ssh infrastructure")
+            self.log.info("puring git and ssh infrastructure")
             if os.path.exists(ssh_path):
                 rmtree(ssh_path)
             if os.path.exists(git_path):
@@ -145,27 +147,27 @@ class PuppetClient(Plugin):
                     for d in dirs:
                         rmtree(os.path.join(root, d))
 
-        self.env.log.info("initializing git and ssh infrastructure")
+        self.log.info("initializing git and ssh infrastructure")
 
         # Create .ssh container if it does not exist
         if not os.path.exists(ssh_path):
-            self.env.log.debug("creating %s" % ssh_path)
+            self.log.debug("creating %s" % ssh_path)
             os.mkdir(ssh_path, 0770)
 
         # Create target directory
         if not os.path.exists(self.__target_dir):
-            self.env.log.debug("creating %s" % self.__target_dir)
+            self.log.debug("creating %s" % self.__target_dir)
             os.mkdir(self.__target_dir, 0770)
 
         # Create git container if it does not exist
         if not os.path.exists(git_path):
             # Initialize a bare git repository
-            self.env.log.debug("creating bare git repository at '%s'" % git_path)
+            self.log.debug("creating bare git repository at '%s'" % git_path)
             repo = Repo.init_bare(git_path)
             os.chmod(git_path, 0770)
 
             # Create post-update hook
-            self.env.log.debug("installing post-update hook")
+            self.log.debug("installing post-update hook")
             with open(git_path + "/hooks/post-update", "w") as f:
                 f.write("#!/bin/sh\ngit archive --format=tar HEAD | (cd %s && tar xf -)\ndbus-send --system --type=method_call --dest=com.gonicus.gosa /com/gonicus/gosa/puppet com.gonicus.gosa.run_puppet" % self.__target_dir)
 
@@ -174,7 +176,7 @@ class PuppetClient(Plugin):
     @Command()
     def puppetRun(self):
         """ Perform a manual puppet run """
-        self.env.log.debug("calling dbus run_puppet method")
+        self.log.debug("calling dbus run_puppet method")
         bus = dbus.SystemBus()
         gosa_dbus = bus.get_object('com.gonicus.gosa', '/com/gonicus/gosa/puppet')
         return bool(gosa_dbus.run_puppet(dbus_interface = "com.gonicus.gosa"))
@@ -213,7 +215,7 @@ class PuppetClient(Plugin):
         return "%s@%s:%s" % (user, fqdn, self.__base_dir + "/data.git")
 
     def __write_keys(self, keys):
-        self.env.log.debug("writing authorized_keys")
+        self.log.debug("writing authorized_keys")
         with open(self.__base_dir + "/.ssh/authorized_keys", "w") as f:
             lockf(f, LOCK_EX)
             for id, key in keys.iteritems():
@@ -225,13 +227,14 @@ class PuppetLogWatcher(pyinotify.ProcessEvent):
 
     def __init__(self):
         self.env = Environment.getInstance()
+        self.log = logging.getLogger(__name__)
 
     def process_IN_CREATE(self, event):
-        self.env.log.debug("logwatch detected change for '%s'" % event.pathname)
+        self.log.debug("logwatch detected change for '%s'" % event.pathname)
         if event.pathname.endswith(".yaml"):
             sleep(1)
             amqp = PluginRegistry.getInstance("AMQPClientHandler")
-            self.env.log.debug("puppet logwatch detected change for '%s', producing event" % event.pathname)
+            self.log.debug("puppet logwatch detected change for '%s', producing event" % event.pathname)
             amqp.sendEvent(self.report_to_event(event.pathname))
 
     def report_to_event(self, file_name):

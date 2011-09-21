@@ -9,8 +9,9 @@ registering the WSGI application to the
 ------
 """
 import sys
-import traceback
 import uuid
+import traceback
+import logging
 from types import MethodType
 from zope.interface import implements
 from gosa.common.json import loads, dumps
@@ -53,8 +54,9 @@ class JSONRPCService(object):
 
     def __init__(self):
         env = Environment.getInstance()
-        env.log.debug("initializing JSON RPC service provider")
         self.env = env
+        self.log = logging.getLogger("gosa.agent.JSONRPCService")
+        self.log.debug("initializing JSON RPC service provider")
         self.path = self.env.config.get('jsonrpc.path', default="/rpc")
 
     def serve(self):
@@ -79,7 +81,7 @@ class JSONRPCService(object):
 
     def stop(self):
         """ Stop serving the JSONRPC service for this GOsa service provider. """
-        self.env.log.debug("shutting down JSON RPC service provider")
+        self.log.debug("shutting down JSON RPC service provider")
         self.__http.app.unregister(self.path)
 
 
@@ -95,6 +97,7 @@ class JsonRpcApp(object):
     def __init__(self, dispatcher):
         self.dispatcher = dispatcher
         self.env = Environment.getInstance()
+        self.log = logging.getLogger("gosa.agent.JsonRpcApp")
 
     def __call__(self, environ, start_response):
         req = Request(environ)
@@ -154,14 +157,14 @@ class JsonRpcApp(object):
                 environ['REMOTE_USER'] = user
                 environ['REMOTE_SESSION'] = sid
                 result = True
-                self.env.log.info("login succeeded for user '%s'" % user)
+                self.log.info("login succeeded for user '%s'" % user)
             else:
                 # Remove current sid if present
                 if 'REMOTE_SESSION' in environ and sid in self.__session:
                     del self.__session[sid]
 
                 result = False
-                self.env.log.error("login failed for user '%s'" % user)
+                self.log.error("login failed for user '%s'" % user)
                 raise exc.HTTPUnauthorized(
                     "Login failed",
                     allow='POST').exception
@@ -175,7 +178,7 @@ class JsonRpcApp(object):
 
         # Don't let calls pass beyond this point if we've no valid session ID
         if not environ.get('REMOTE_SESSION') in self.__session:
-            self.env.log.error("blocked unauthenticated call of method '%s'" % method)
+            self.log.error("blocked unauthenticated call of method '%s'" % method)
             raise exc.HTTPUnauthorized(
                     "Please use the login method to authorize yourself.",
                     allow='POST').exception
@@ -189,7 +192,7 @@ class JsonRpcApp(object):
 
             # Show logout message
             if 'REMOTE_USER' in environ:
-                self.env.log.info("logout for user '%s' succeeded" % environ.get('REMOTE_USER'))
+                self.log.info("logout for user '%s' succeeded" % environ.get('REMOTE_USER'))
 
             return Response(
                 content_type='application/json',
@@ -206,7 +209,7 @@ class JsonRpcApp(object):
                 code=100,
                 message=text,
                 error=text)
-            self.env.log.warning(text)
+            self.log.warning(text)
 
             return Response(
                 status=500,
@@ -216,7 +219,7 @@ class JsonRpcApp(object):
                                 error=error_value,
                                 id=id)))
         try:
-            self.env.log.debug("calling method %s(%s)" % (method, params))
+            self.log.debug("calling method %s(%s)" % (method, params))
             user = environ.get('REMOTE_USER')
 
             # Automatically prepend queue option for current
@@ -241,7 +244,7 @@ class JsonRpcApp(object):
                 code=100,
                 message=str(exc_value),
                 error=e.error)
-            self.env.log.error(e.error)
+            self.log.error(e.error)
             return Response(
                 status=500,
                 content_type='application/json',
@@ -268,8 +271,8 @@ class JsonRpcApp(object):
                 message=str(exc_value),
                 error=err)
 
-            self.env.log.error("returning call [%s]: %s / %s" % (id, None, f_print(err)))
-            self.env.log.error(text)
+            self.log.error("returning call [%s]: %s / %s" % (id, None, f_print(err)))
+            self.log.error(text)
 
             return Response(
                 content_type='application/json',
@@ -278,7 +281,7 @@ class JsonRpcApp(object):
                                 error=error_value,
                                 id=id)))
 
-        self.env.log.debug("returning call [%s]: %s / %s" % (id, result,
+        self.log.debug("returning call [%s]: %s / %s" % (id, result,
             None))
 
         return Response(

@@ -15,6 +15,7 @@ via the :meth:`gosa.agent.plugins.goto.client_service.ClientService.clientDispat
 import re
 import string
 import inspect
+import logging
 from zope.interface import implements
 
 from gosa.common.handler import IInterfaceHandler
@@ -36,7 +37,8 @@ class ClientCommandRegistry(object):
 
     def __init__(self):
         env = Environment.getInstance()
-        env.log.debug("initializing command registry")
+        log = self.log = logging.getLogger(__name__)
+        self.log.debug("initializing command registry")
         self.env = env
 
         for clazz in PluginRegistry.modules.values():
@@ -48,7 +50,7 @@ class ClientCommandRegistry(object):
                         raise Exception("method '%s' has no documentation" % func)
                     doc = re.sub("(\s|\n)+" , " ", method.__doc__).strip()
 
-                    env.log.debug("registering %s" % func)
+                    log.debug("registering %s" % func)
                     info = {
                         'path': "%s.%s" % (clazz.__name__, method.__name__),
                         'sig': inspect.getargspec(method).args,
@@ -86,7 +88,7 @@ class ClientCommandRegistry(object):
             raise CommandInvalid("no method '%s' available" % func)
 
     def __del__(self):
-        self.env.log.debug("shutting down command registry")
+        self.log.debug("shutting down command registry")
 
     @Command()
     def getMethods(self):

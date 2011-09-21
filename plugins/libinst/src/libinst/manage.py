@@ -23,6 +23,7 @@ import gettext
 import ldap
 import platform
 import datetime
+import logging
 
 from base64 import encodestring as encode
 from types import StringTypes, DictType, ListType
@@ -78,6 +79,7 @@ class LibinstManager(Plugin):
     def __init__(self):
         env = Environment.getInstance()
         self.env = env
+        self.log = logging.getLogger(__name__)
         engine = env.getDatabaseEngine("repository")
         Session = scoped_session(sessionmaker(autoflush=True, bind=engine))
         self.path = env.config.get('repository.path')
@@ -94,7 +96,7 @@ class LibinstManager(Plugin):
         self.type_reg = {}
         for entry in pkg_resources.iter_entry_points("libinst.repository"):
             module = entry.load()
-            self.env.log.info("repository handler %s included" % module.__name__)
+            self.log.info("repository handler %s included" % module.__name__)
             for module_type in module.getRepositoryTypes():
                 self.type_reg[module_type] = module(self)
 
@@ -102,14 +104,14 @@ class LibinstManager(Plugin):
         self.install_method_reg = {}
         for entry in pkg_resources.iter_entry_points("libinst.methods"):
             module = entry.load()
-            self.env.log.info("installation method %s included " % module.__name__)
+            self.log.info("installation method %s included " % module.__name__)
             self.install_method_reg[module.getInfo()['name'].lower()] = module(self)
 
         # Load all base installation methods
         self.base_install_method_reg = {}
         for entry in pkg_resources.iter_entry_points("libinst.base_methods"):
             module = entry.load()
-            self.env.log.info("base installation method %s included " % module.__name__)
+            self.log.info("base installation method %s included " % module.__name__)
             self.base_install_method_reg[module.getInfo()['name'].lower()] = module()
 
         # Purge DB if wanted
@@ -735,7 +737,7 @@ class LibinstManager(Plugin):
                     raise ValueError("Name and Type are both needed for creating a distribution!")
                 session.commit()
             except:
-                self.env.log.error("Problem creating distribution %s" % name)
+                self.log.error("Problem creating distribution %s" % name)
                 session.rollback()
                 raise
             finally:
@@ -778,7 +780,7 @@ class LibinstManager(Plugin):
                 for release in distribution.releases[:]:
                     # We only remove top-level releases
                     if not '/' in release.name:
-                        self.env.log.debug("Removing release %s/%s" % (distribution.name,  release.name))
+                        self.log.debug("Removing release %s/%s" % (distribution.name,  release.name))
                         self.removeRelease(release, recursive=recursive)
                 session.expire(distribution)
 
@@ -892,7 +894,7 @@ class LibinstManager(Plugin):
                 raise ValueError("Won't remove a parent release without being recursived!")
             elif release.children and recursive is True:
                 for child_release in release.children[:]:
-                    self.env.log.debug("Removing child release %s" % child_release)
+                    self.log.debug("Removing child release %s" % child_release)
                     self.removeRelease(child_release, recursive=True)
                 session.expire(release)
             else:
@@ -900,23 +902,23 @@ class LibinstManager(Plugin):
                 for package in release.packages[:]:
                     result = self.removePackage(package, arch=package.arch.name, release=release)
                     if result is not True:
-                        self.env.log.error("Could not remove package %s from release %s" % (package.name, release.name))
+                        self.log.error("Could not remove package %s from release %s" % (package.name, release.name))
                     else:
-                        self.env.log.debug("Package %s/%s/%s was removed from release %s" % (package.name, package.version, package.arch.name, release.name))
+                        self.log.debug("Package %s/%s/%s was removed from release %s" % (package.name, package.version, package.arch.name, release.name))
                 session.expire(release)
 
             if release.distribution.installation_method is not None:
                 self.install_method_reg[release.distribution.installation_method].removeRelease(release.name, recursive=recursive)
                 session.expire(release)
 
-            self.env.log.debug("Removing release %s" % release.name)
+            self.log.debug("Removing release %s" % release.name)
             result = self.type_reg[release.distribution.type.name].removeRelease(session, release.name, recursive=recursive)
             if result is not None:
                 session.commit()
                 release.distribution.releases.remove(release)
                 session.delete(release)
                 session.commit()
-                self.env.log.info("Removed release %s" % release.name)
+                self.log.info("Removed release %s" % release.name)
         except:
             session.rollback()
             raise
@@ -2967,7 +2969,7 @@ class LibinstManager(Plugin):
                 #TODO: Config options for key type and length?
                 key_type = "RSA"
                 key_length = 1024
-                self.env.log.debug("Generating GPG Key, type %s and length %s Bit" % (key_type, key_length))
+                self.log.debug("Generating GPG Key, type %s and length %s Bit" % (key_type, key_length))
                 input_data = gpg.gen_key_input(key_type=key_type, key_length=key_length)
                 key = gpg.gen_key(input_data)
                 self._addRepositoryKeyring(repository=repository, keyring=RepositoryKeyring(name=key.fingerprint, data=gpg.export_keys(key, True)))

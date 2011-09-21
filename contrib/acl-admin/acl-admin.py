@@ -20,6 +20,8 @@ import sys
 
 class ACLAdmin(object):
     def __init__(self):
+        Environment.noargs = True
+        Environment.config = "/etc/gosa/config"
         self.env = Environment.getInstance()
         self.resolver = ACLResolver()
         self.ldap_base = self.resolver.base
@@ -69,9 +71,7 @@ def main():
     parser.add_argument("-l", dest="listAcls", action="store_true", help="Show ACls")
 
     # Check if at least 'message' and 'title' are given.
-    print sys.argv
     args = parser.parse_args()
-
 
     if args.listAcls:
         r = ACLAdmin()

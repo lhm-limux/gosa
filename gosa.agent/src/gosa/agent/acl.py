@@ -24,6 +24,7 @@ import re
 import os
 import json
 import ldap
+import logging
 
 from zope.interface import implements
 from gosa.common.handler import IInterfaceHandler
@@ -66,6 +67,7 @@ class ACLSet(list):
 
     def __init__(self, base=None):
         super(ACLSet, self).__init__()
+        self.log = logging.getLogger(__name__)
 
         # If no base is given use the default one.
         if not base:
@@ -251,6 +253,7 @@ class ACLRole(list):
 
     def __init__(self, name):
         super(ACLRole, self).__init__()
+        self.log = logging.getLogger(__name__)
         self.name = name
 
     def add(self, item):
@@ -404,6 +407,7 @@ class ACL(object):
 
     def __init__(self, scope=SUB, role=None):
         self.env = Environment.getInstance()
+        self.log = logging.getLogger(__name__)
 
         self.actions = []
         self.members = []
@@ -658,11 +662,11 @@ class ACL(object):
                 # Resolve acls used in the role.
                 used_roles.append(self.role)
                 r = ACLResolver.instance
-                self.env.log.debug("checking ACL role entries for role: %s" % self.role)
+                self.log.debug("checking ACL role entries for role: %s" % self.role)
                 for acl in r.acl_roles[self.role]:
                     (match, scope) = acl.match(user, topic, acls, options if options else {}, True, used_roles)
                     if match:
-                        self.env.log.debug("ACL role entry matched for role '%s'" % self.role)
+                        self.log.debug("ACL role entry matched for role '%s'" % self.role)
                         return (match, scope)
             else:
                 for act in self.actions:
@@ -685,18 +689,18 @@ class ACL(object):
 
                         # Check for missing options
                         if entry not in options:
-                            self.env.log.debug("ACL option '%s' is missing" % entry)
+                            self.log.debug("ACL option '%s' is missing" % entry)
                             continue
 
                         # Simply match string options.
                         if type(act['options'][entry]) == str and not re.match(act['options'][entry], options[entry]):
-                            self.env.log.debug("ACL option '%s' with value '%s' does not match with '%s'" % (entry,
+                            self.log.debug("ACL option '%s' with value '%s' does not match with '%s'" % (entry,
                                         act['options'][entry], options[entry]))
                             continue
 
                         # Simply match string options.
                         elif act['options'][entry] != options[entry]:
-                            self.env.log.debug("ACL option '%s' with value '%s' does not match with '%s'" % (entry,
+                            self.log.debug("ACL option '%s' with value '%s' does not match with '%s'" % (entry,
                                         act['options'][entry], options[entry]))
                             continue
 
@@ -728,6 +732,7 @@ class ACLRoleEntry(ACL):
 
     def __init__(self, scope=ACL.SUB, role=None):
         super(ACLRoleEntry, self).__init__(scope=scope, role=role)
+        self.log = logging.getLogger(__name__)
 
     def add_member(self, member):
         """
@@ -781,13 +786,14 @@ class ACLResolver(object):
     def __init__(self):
         ACLResolver.instance = self
         self.env = Environment.getInstance()
-        self.env.log.debug("initializing ACL resolver")
+        self.log = logging.getLogger(__name__)
+        self.log.debug("initializing ACL resolver")
 
         # Load override admins from configuration
         admins = self.env.config.get("core.admins", default=None)
         if admins:
             admins = re.sub(r'\s', '', admins)
-            self.env.log.info("adding users to the ACL override: %s" % admins)
+            self.log.info("adding users to the ACL override: %s" % admins)
             self.admins = admins.split(",")
 
         # Load default LDAP base
@@ -1055,7 +1061,7 @@ class ACLResolver(object):
         allowed = False
         reset = False
 
-        self.env.log.debug("checking ACL for %s/%s/%s" % (user, base, str(topic)))
+        self.log.debug("checking ACL for %s/%s/%s" % (user, base, str(topic)))
 
         # Remove the first part of the dn, until we reach the ldap base.
         orig_loc = base
@@ -1074,29 +1080,29 @@ class ACLResolver(object):
                     (match, scope) = acl.match(user, topic, acls, options)
                     if match:
 
-                        self.env.log.debug("found matching ACL in '%s'" % base)
+                        self.log.debug("found matching ACL in '%s'" % base)
                         if scope == ACL.RESET:
-                            self.env.log.debug("found ACL reset for topic '%s'" % topic)
+                            self.log.debug("found ACL reset for topic '%s'" % topic)
                             reset = True
                         else:
 
                             if scope == ACL.PSUB:
-                                self.env.log.debug("found permanent ACL for topic '%s'" % topic)
+                                self.log.debug("found permanent ACL for topic '%s'" % topic)
                                 return True
 
                             elif (scope == ACL.SUB):
                                 if not reset:
-                                    self.env.log.debug("found ACL for topic '%s' (SUB)" % topic)
+                                    self.log.debug("found ACL for topic '%s' (SUB)" % topic)
                                     return True
                                 else:
-                                    self.env.log.debug("ACL DO NOT match due to reset. (SUB)")
+                                    self.log.debug("ACL DO NOT match due to reset. (SUB)")
 
                             elif (scope == ACL.ONE and orig_loc == acl_set.base):
                                 if not reset:
-                                    self.env.log.debug("found ACL for topic '%s' (ONE)" % topic)
+                                    self.log.debug("found ACL for topic '%s' (ONE)" % topic)
                                     return True
                                 else:
-                                    self.env.log.debug("ACL DO NOT match due to reset. (ONE)")
+                                    self.log.debug("ACL DO NOT match due to reset. (ONE)")
 
             # Remove the first part of the dn
             base = ','.join(ldap.dn.explode_dn(base)[1::])

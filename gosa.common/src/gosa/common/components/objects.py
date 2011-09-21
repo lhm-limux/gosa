@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import pkg_resources
+import logging
 from gosa.common import Environment
 
 
@@ -36,8 +37,8 @@ class ObjectRegistry(object):
         if oid in  ObjectRegistry._objects:
             raise ValueError("OID '%s' is already registerd!" % oid)
 
-        env = Environment.getInstance()
-        env.log.debug("registered object OID '%s'" % oid)
+        log = logging.getLogger(__name__)
+        log.debug("registered object OID '%s'" % oid)
         ObjectRegistry._objects[oid] = {
             'object': obj,
             'signature': None}

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import platform
+import logging
 from threading import Thread
 from qpid.messaging import *
 from qpid.messaging.util import auto_fetch_reconnect_urls
@@ -27,10 +28,10 @@ class AMQPHandler(object):
 
     def __init__(self):
         env = Environment.getInstance()
-        env.log.debug("initializing AMQP handler")
+        self.log = logging.getLogger(__name__)
+        self.log.debug("initializing AMQP handler")
         self.env = env
         self.config = env.config
-        self.log = env.log
 
         # Enable debugging for qpid if we're in debug mode
         #if self.config.get('core.loglevel') == 'DEBUG':
@@ -190,7 +191,7 @@ class AMQPWorker(object):
 
     def __init__(self, env, connection, s_address=None, r_address=None, workers=0, callback=None):
         self.env = env
-        self.log = env.log
+        self.log = logging.getLogger(__name__)
 
         self.callback = callback
 
@@ -253,7 +254,7 @@ class EventProvider(object):
 
     def __init__(self, env, conn):
         self.env = env
-        self.log = env.log
+        self.log = logging.getLogger(__name__)
 
         # Prepare session and sender
         self.__sess = conn.session()
@@ -271,7 +272,7 @@ class EventConsumer(object):
 
     def __init__(self, env, conn, xquery=".", callback=None):
         self.env = env
-        self.log = env.log
+        self.log = logging.getLogger(__name__)
 
         # Assemble subscription query
         queue = 'event-listener-%s' % uuid4()

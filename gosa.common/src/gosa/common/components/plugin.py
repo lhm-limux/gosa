@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from pkg_resources import resource_listdir, resource_isdir
 
 
 class Plugin(object):

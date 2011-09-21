@@ -6,6 +6,7 @@ import logging
 import pkg_resources
 import codecs
 import traceback
+import logging
 
 from gosa.common import Environment
 from gosa.client import __version__ as VERSION
@@ -41,6 +42,8 @@ def mainLoop(env):
     """ Main event loop which will process all registerd threads in a loop.
         It will run as long env.active is set to True."""
     try:
+        log = logging.getLogger(__name__)
+
         # Load plugins
         pr = PluginRegistry(component='gosa_client.modules')
         amqp = PluginRegistry.getInstance("AMQPClientHandler")
@@ -70,9 +73,9 @@ def mainLoop(env):
             break
 
     except Exception as detail:
-        env.log.critical("unexpected error in mainLoop")
-        env.log.exception(detail)
-        env.log.debug(traceback.format_exc())
+        log.critical("unexpected error in mainLoop")
+        log.exception(detail)
+        log.debug(traceback.format_exc())
 
     finally:
         for p in env.threads:

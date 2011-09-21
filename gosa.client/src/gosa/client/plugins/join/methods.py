@@ -6,6 +6,7 @@ import gettext
 import netifaces
 import ConfigParser
 import socket
+import logging
 from urlparse import urlparse
 from pkg_resources import resource_filename
 from urllib import quote_plus as quote
@@ -43,6 +44,7 @@ class join_method(object):
 
     def __init__(self):
         self.env = Environment.getInstance()
+        self.log = logging.getLogger(__name__)
         self.uuid = dmi_system("uuid")
         self.mac = self.get_mac_address()
         self.get_service()
@@ -58,7 +60,7 @@ class join_method(object):
     def test_login(self):
         # No key set? Go away...
         if not self.key:
-            self.env.log.warning("no machine key available - join required")
+            self.log.warning("no machine key available - join required")
             return False
 
         # Prepare URL for login
@@ -67,10 +69,10 @@ class join_method(object):
         # Try to log in with provided credentials
         try:
             proxy = AMQPServiceProxy(url)
-            self.env.log.debug("machine key is valid")
+            self.log.debug("machine key is valid")
             return True
         except ConnectionError:
-            self.env.log.warning("machine key is invalid - join required")
+            self.log.warning("machine key is invalid - join required")
             return False
 
     def join(self, username, password, data=None):
@@ -82,7 +84,7 @@ class join_method(object):
         try:
             proxy = AMQPServiceProxy(url)
         except ConnectionError as e:
-            self.env.log.error("connection to AMQP failed: %s" % str(e))
+            self.log.error("connection to AMQP failed: %s" % str(e))
             self.show_error(_("Cannot join client: check user name or password!"))
             return None
 
@@ -91,12 +93,12 @@ class join_method(object):
             key, uuid = proxy.joinClient(u"" + self.uuid, self.mac, data)
         except JSONRPCException as e:
             self.show_error(e.error.capitalize())
-            self.env.log.error(e.error)
+            self.log.error(e.error)
             return None
 
         # If key is present, write info back to file
         if key:
-            self.env.log.debug("client '%s' joined with key '%s'" % (self.uuid, key))
+            self.log.debug("client '%s' joined with key '%s'" % (self.uuid, key))
             config = self.env.config.get("core.config")
             parser = ConfigParser.RawConfigParser()
             parser.read(config)

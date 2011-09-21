@@ -7,6 +7,7 @@ import os
 import gettext
 import grp
 import pkg_resources
+import logging
 from os.path import isdir, exists
 from pkg_resources import resource_filename
 from gosa.common import Environment
@@ -78,7 +79,6 @@ def main():
         # Nothing important here yet, but lock us down
         os.chmod(config_file, 0600)
         env = Environment.getInstance()
-
 
     # Instanciate joiner and ask for help
     joiner = modules[module]()

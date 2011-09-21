@@ -18,6 +18,7 @@ which may be scheduled by a user or by indirectly by a script or the web fronten
 
 ------
 """
+import logging
 from zope.interface import implements
 from datetime import datetime, timedelta
 from gosa.common.handler import IInterfaceHandler
@@ -46,7 +47,8 @@ class SchedulerService(object):
 
     def __init__(self):
         env = Environment.getInstance()
-        env.log.debug("initializing scheduler")
+        self.log = logging.getLogger("gosa.agent.scheduler")
+        self.log.debug("initializing scheduler")
         self.env = env
 
         self.sched = Scheduler(origin=self.env.id)
@@ -84,7 +86,7 @@ class SchedulerService(object):
         self.sched.shutdown()
 
     def migrate(self):
-        self.env.log.debug("scheduler: looking for stale jobs")
+        self.log.debug("scheduler: looking for stale jobs")
         grace = datetime.now() + timedelta(seconds=int(self.env.config.get('scheduler.gracetime', default='30')))
         count = 0
 

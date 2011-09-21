@@ -62,6 +62,7 @@ class Distribution(Base, UseInnoDB):
 
     def __init__(self, name):
         self.name = name
+        self.log = logging.getLogger(__name__)
 
     def __repr__(self):
         return self.name
@@ -90,13 +91,13 @@ class Distribution(Base, UseInnoDB):
                 try:
                     os.makedirs(self.path)
                 except:
-                    self.env.log.error("Could not create directory %s" % self.path)
+                    self.log.error("Could not create directory %s" % self.path)
                     raise
 
             for release in self.releases:
                 release._initDirs()
         else:
-            self.env.log.fatal("Distribution %s has no repository" % self.name)
+            self.log.fatal("Distribution %s has no repository" % self.name)
 
     def _sync(self):
         pass

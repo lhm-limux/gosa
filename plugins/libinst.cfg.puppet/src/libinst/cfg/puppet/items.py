@@ -2,6 +2,7 @@
 import os
 import re
 import shutil
+import logging
 from libinst.interface import InstallItem
 from gosa.common import Environment
 
@@ -52,6 +53,7 @@ class PuppetModule(InstallItem):
 
     def __init__(self, path, name):
         self.env = Environment.getInstance()
+        self.log = logging.getLogger(__name__)
         self.__base = path
         self.__path = os.path.join(path, self._prefix, name)
         self.__name = name
@@ -59,7 +61,7 @@ class PuppetModule(InstallItem):
 
     def load(self):
         self.set("name", self.__name)
-        self.env.log.info("loading module %s" % self.__name)
+        self.log.info("loading module %s" % self.__name)
 
         # Is new? Just live with the defaults...
         if not os.path.exists(self.__path):
@@ -93,7 +95,7 @@ class PuppetModule(InstallItem):
 
         # Write back module file
         if self._changed:
-            self.env.log.info("saving changes for module %s" % self.__name)
+            self.log.info("saving changes for module %s" % self.__name)
 
             modulefile = os.path.join(self.__path, "Modulefile")
             with open(modulefile, "w") as f:
@@ -202,6 +204,7 @@ class PuppetManifest(InstallItem):
 
     def __init__(self, path, name):
         self.env = Environment.getInstance()
+        self.log = logging.getLogger(__name__)
         self.__base = path
         self.__path = os.path.join(path, self._prefix)
         self.__name = name
@@ -209,7 +212,7 @@ class PuppetManifest(InstallItem):
 
     def load(self):
         self.set("name", self.__name)
-        self.env.log.info("loading manifest %s" % self.__name)
+        self.log.info("loading manifest %s" % self.__name)
 
         # Is new? Just live with the defaults...
         manifest_file = os.path.join(self.__path, self.__name + ".pp")
@@ -241,7 +244,7 @@ class PuppetManifest(InstallItem):
 
         # Write back module file
         if self._changed:
-            self.env.log.info("saving changes for manifest %s" % self.__name)
+            self.log.info("saving changes for manifest %s" % self.__name)
 
             manifest_file = os.path.join(self.__path, self.__name + ".pp")
             with open(manifest_file, "w") as f:
@@ -396,13 +399,14 @@ class PuppetFile(InstallItem):
 
     def __init__(self, path, name):
         self.env = Environment.getInstance()
+        self.log = logging.getLogger(__name__)
         self.__path = os.path.join(path, self._prefix)
         self.__name = name
         self.load()
 
     def load(self):
         self.set("name", self.__name)
-        self.env.log.info("loading file %s" % self.__name)
+        self.log.info("loading file %s" % self.__name)
 
         # Is new? Just live with the defaults...
         puppet_file = os.path.join(self.__path, self.__name)
@@ -434,7 +438,7 @@ class PuppetFile(InstallItem):
 
         # Write back module file
         if self._changed:
-            self.env.log.info("saving changes for file %s" % self.__name)
+            self.log.info("saving changes for file %s" % self.__name)
 
             puppet_file = os.path.join(self.__path, self.__name)
             with open(puppet_file, "w") as f:
@@ -493,13 +497,14 @@ class PuppetTemplate(InstallItem):
 
     def __init__(self, path, name):
         self.env = Environment.getInstance()
+        self.log = logging.getLogger(__name__)
         self.__path = os.path.join(path, self._prefix)
         self.__name = name
         self.load()
 
     def load(self):
         self.set("name", self.__name)
-        self.env.log.info("loading template %s" % self.__name)
+        self.log.info("loading template %s" % self.__name)
 
         # Is new? Just live with the defaults...
         manifest_file = os.path.join(self.__path, self.__name + ".erb")
@@ -531,7 +536,7 @@ class PuppetTemplate(InstallItem):
 
         # Write back module file
         if self._changed:
-            self.env.log.info("saving changes for template %s" % self.__name)
+            self.log.info("saving changes for template %s" % self.__name)
 
             manifest_file = os.path.join(self.__path, self.__name + ".erb")
             with open(manifest_file, "w") as f:

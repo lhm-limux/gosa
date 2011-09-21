@@ -2,6 +2,7 @@ import os
 import gobject
 import dbus.service
 import ConfigParser
+import logging
 from datetime import datetime
 from subprocess import Popen, PIPE
 from gosa.common import Environment
@@ -21,6 +22,7 @@ class PuppetDBusHandler(dbus.service.Object, Plugin):
         conn = get_system_bus()
         dbus.service.Object.__init__(self, conn, '/com/gonicus/gosa/puppet')
         self.env = Environment.getInstance()
+        self.log = logging.getLogger(__name__)
         self.logdir = self.env.config.get("puppet.report-dir",
                 "/var/log/puppet")
 
@@ -55,18 +57,18 @@ report=true
 reportdir=%s
 reports=store_gosa
 """ % self.logdir
-        self.env.log.warning(msg)
+        self.log.warning(msg)
 
     @dbus.service.method('com.gonicus.gosa', in_signature='', out_signature='i')
     def run_puppet(self):
         """ Perform a puppet run using the current configuration """
-        self.env.log.info("executing puppet")
+        self.log.info("executing puppet")
 
         command = "%s -d %s" % (
             self.env.config.get("puppet.command", default="/usr/bin/puppet"),
             self.env.config.get("puppet.manifest", default="/etc/puppet/manifests/site.pp"),
             )
-        self.env.log.debug("running puppet: %s" % command)
+        self.log.debug("running puppet: %s" % command)
 
         msg = Popen(command, stdout=PIPE, stderr=PIPE, shell=True).stderr.read()
         hostname = self.env.id
@@ -99,8 +101,8 @@ reports=store_gosa
       version: &id001 2.6.0
 """ % {'hostname':hostname, 'message':msg, 'time':ftime})
 
-            self.env.log.error("running puppet failed, see '%s' for more information" % output_file)
+            self.log.error("running puppet failed, see '%s' for more information" % output_file)
             return False
 
-        self.env.log.debug("running puppet succeeded")
+        self.log.debug("running puppet succeeded")
         return True

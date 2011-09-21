@@ -59,6 +59,7 @@ and dispatches command calls to the *CommandRegistry*.
 import sys
 import re
 import traceback
+import logging
 from zope.interface import implements
 from qpid.messaging import *
 
@@ -97,7 +98,8 @@ class AMQPService(object):
 
     def __init__(self):
         env = Environment.getInstance()
-        env.log.debug("initializing AMQP service provider")
+        self.log = logging.getLogger("gosa.amqp.AMQPService")
+        self.log.debug("initializing AMQP service provider")
         self.env = env
 
     def serve(self):
@@ -184,7 +186,7 @@ class AMQPService(object):
         p = re.compile(r';.*$')
         queue = p.sub('', message._receiver.source)
 
-        self.env.log.debug("received call [%s/%s] for %s: %s(%s)" % (id_, queue, message.user_id, name, args))
+        self.log.debug("received call [%s/%s] for %s: %s(%s)" % (id_, queue, message.user_id, name, args))
 
         # Try to execute
         if err == None:
@@ -196,7 +198,7 @@ class AMQPService(object):
 
             except Exception, e:
                 text = traceback.format_exc()
-                self.env.log.error(text)
+                self.log.exception(text)
                 err = str(e)
                 exc_value = sys.exc_info()[1]
 
@@ -212,7 +214,7 @@ class AMQPService(object):
                         message=str(exc_value),
                         error=err)
 
-        self.env.log.debug("returning call [%s]: %s / %s" % (id_, res, err))
+        self.log.debug("returning call [%s]: %s / %s" % (id_, res, err))
 
         response = dumps({"result": res, "id": id_, "error": err})
         ssn.acknowledge()

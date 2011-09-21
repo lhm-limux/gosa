@@ -5,6 +5,7 @@ import sys
 import logging
 import pkg_resources
 import codecs
+import logging
 
 from gosa.common import Environment
 from gosa.common.utils import SystemLoad
@@ -39,6 +40,8 @@ def mainLoop(env):
     """ Main event loop which will process all registerd threads in a loop.
         It will run as long env.active is set to True."""
     try:
+        log = logging.getLogger(__name__)
+
         # Load plugins
         pr = PluginRegistry()
         cr = PluginRegistry.getInstance("CommandRegistry")
@@ -67,7 +70,7 @@ def mainLoop(env):
                     load = loadAvg.getLoad()
                     latency = 0
                     workers = len(env.threads)
-                    env.log.debug("load %s, latency %s, workers %s" %
+                    log.debug("load %s, latency %s, workers %s" %
                             (load, latency, workers))
 
                     e = EventMaker()
@@ -94,8 +97,8 @@ def mainLoop(env):
             break
 
     except Exception as detail:
-        env.log.critical("unexpected error in mainLoop")
-        env.log.exception(detail)
+        log.critical("unexpected error in mainLoop")
+        log.exception(detail)
 
     finally:
         shutdown()

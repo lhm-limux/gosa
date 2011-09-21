@@ -3,6 +3,7 @@ import re
 import os
 import ldap
 import sys
+import logging
 from copy import copy
 from inspect import stack
 from types import StringTypes
@@ -30,6 +31,7 @@ class InstallMethod(object):
 
     def __init__(self, manager):
         self.env = Environment.getInstance()
+        self.log = logging.getLogger(__name__)
         self._manager = manager
         self.rev_attributes = dict((v,k) for k, v in self.attributes.iteritems())
 
@@ -82,9 +84,9 @@ class InstallMethod(object):
             session = self._manager.getSession()
             if parent:
                 parent = session.merge(parent)
-                self.env.log.info("creating release '%s' with parent '%s'" % (name, parent))
+                self.log.info("creating release '%s' with parent '%s'" % (name, parent))
             else:
-                self.env.log.info("creating release '%s'" % name)
+                self.log.info("creating release '%s'" % name)
 
             # Add root node
             release = self._manager._getRelease(name)
@@ -114,7 +116,7 @@ class InstallMethod(object):
 
         ``Return:`` True on success
         """
-        self.env.log.info("Removing release '%s'" % name)
+        self.log.info("Removing release '%s'" % name)
 
     def renameRelease(self, old_name, new_name):
         """
@@ -135,7 +137,7 @@ class InstallMethod(object):
         if old_name.rsplit("/", 1)[0] != new_name.rsplit("/", 1)[0]:
             raise ValueError("moving of releases is not allowed")
 
-        self.env.log.info("renaming release '%s' to '%s'" % (old_name, new_name))
+        self.log.info("renaming release '%s' to '%s'" % (old_name, new_name))
 
     def getItemTypes(self):
         """
@@ -359,7 +361,7 @@ class InstallMethod(object):
 
             result = True
         except:
-            self.env.log.error("Caught unknown exception %s" % sys.exc_info()[0])
+            self.log.error("Caught unknown exception %s" % sys.exc_info()[0])
             session.rollback()
             raise
         finally:

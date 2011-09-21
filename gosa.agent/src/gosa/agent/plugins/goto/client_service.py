@@ -8,6 +8,7 @@ import ldap
 import time
 import datetime
 import types
+import logging
 from threading import Timer
 from zope.interface import implements
 from gosa.common.components.jsonrpc_proxy import JSONRPCException
@@ -62,7 +63,8 @@ class ClientService(Plugin):
         stored in the environment.
         """
         env = Environment.getInstance()
-        env.log.debug("initializing client service")
+        self.log = logging.getLogger(__name__)
+        self.log.debug("initializing client service")
         self.env = env
 
     def serve(self):
@@ -137,7 +139,7 @@ class ClientService(Plugin):
 
         # Generate tage queue name
         queue = '%s.client.%s' % (self.env.domain, client)
-        self.env.log.debug("got client dispatch: '%s(%s)', sending to %s" % (method, arg, queue))
+        self.log.debug("got client dispatch: '%s(%s)', sending to %s" % (method, arg, queue))
 
         # client queue -> amqp rpc proxy
         if not client in self.__proxy:
@@ -379,7 +381,7 @@ class ClientService(Plugin):
                 default="ou=systems"), base])
             conn.add_s(dn, record)
 
-        self.env.log.info("UUID '%s' joined as %s" % (device_uuid, dn))
+        self.log.info("UUID '%s' joined as %s" % (device_uuid, dn))
         return [key, cn]
 
     def __encrypt_key(self, key, data):
@@ -406,7 +408,7 @@ class ClientService(Plugin):
 
     def _handleUserSession(self, data):
         data = data.UserSession
-        self.env.log.debug("updating client '%s' user session information" % data.Id)
+        self.log.debug("updating client '%s' user session information" % data.Id)
         if hasattr(data.User, 'Name'):
             self.__user_session[str(data.Id)] = map(lambda x: str(x), data.User.Name)
             self.systemSetStatus(str(data.Id), "+B")
@@ -417,7 +419,7 @@ class ClientService(Plugin):
     def _handleClientAnnounce(self, data):
         data = data.ClientAnnounce
         client = data.Id.text
-        self.env.log.debug("client '%s' is joining us" % client)
+        self.log.debug("client '%s' is joining us" % client)
         self.systemSetStatus(client, "+O")
 
         # Remove remaining proxy values for this client
@@ -465,7 +467,7 @@ class ClientService(Plugin):
     def _handleClientLeave(self, data):
         data = data.ClientLeave
         client = data.Id.text
-        self.env.log.debug("client '%s' is leaving" % client)
+        self.log.debug("client '%s' is leaving" % client)
         self.systemSetStatus(client, "-O")
 
         if client in self.__client:

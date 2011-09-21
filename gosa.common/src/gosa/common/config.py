@@ -14,18 +14,20 @@ Here is an example on how to use the common module::
 
     >>> from gosa.common import Environment
     >>> cfg = Environment.getInstance().config
-    >>> cfg.get('core.loglevel')
-    DEBUG
+    >>> cfg.get('core.id')
+    amqp
 
 If no configuration is present, the system will raise a
 :class:`gosa.common.config.ConfigNoFile` exception.
 
 -----------
 """
-import ConfigParser
 import os
 import re
 import platform
+import StringIO
+import ConfigParser
+import logging.config
 from optparse import OptionParser, OptionGroup, OptionValueError
 from gosa.common import __version__ as VERSION
 
@@ -58,10 +60,7 @@ class Config(object):
     __registry = {'core': {
                     'foreground': False,
                     'pidfile': '/var/run/gosa/gosa.pid',
-                    'loglevel': 1,
                     'profile': 0,
-                    'log': 'syslog',
-                    'logfile': None,
                     'umask': 0o002,
                 }
             }
@@ -95,14 +94,6 @@ class Config(object):
         if not self.__noargs:
             self.__parseCmdOptions()
 
-    def __setLogLevel(self, option, opt_str, value, parser):
-        levelMap = {0: "INFO", 1: "WARNING", 2: "ERROR",
-                    3: "CRITICAL", 4: "DEBUG"}
-        if value in levelMap:
-            setattr(parser.values, option.dest, levelMap[value])
-        else:
-            raise OptionValueError("loglevel needs to be < %d" % len(levelMap))
-
     def __parseCmdOptions(self):
         parser = OptionParser(usage="%prog - the GOsa core daemon",
                     version="%prog " + VERSION)
@@ -124,18 +115,6 @@ class Config(object):
                           metavar="FILE")
         parser.add_option("--profile", action="store_true", dest="profile",
                           help="write profiling information (only if daemon runs in foreground mode [%default]")
-
-        logging = OptionGroup(parser, "Logging options")
-        logging.add_option("-v", "--log-level", dest="loglevel", type="int",
-                          action="callback", callback=self.__setLogLevel,
-                          help="log level 0 - INFO, 1 - WARNING, 2 - ERROR, 4 - CRITICAL, 5 - DEBUG")
-        logging.add_option("-l", "--log-mode", dest="log",
-                          help="method used for logging (syslog, stderr, file) [%default]",
-                          metavar="METHOD")
-        logging.add_option("--log-file", dest="logfile",
-                          help="if the file method is used, log to FILE",
-                          metavar="FILE")
-        parser.add_option_group(logging)
 
         group = OptionGroup(parser, "Advanced options")
         group.add_option("--umask", dest="umask",
@@ -187,10 +166,10 @@ class Config(object):
         If the desired value is not defined, you can specify a default
         value.
 
-        For example, if you want to access the *loglevel* option located
+        For example, if you want to access the *id* option located
         in the section *[core]*, the path is:
 
-            core.loglevel
+            core.id
 
         ========= ============
         Parameter Description
@@ -227,7 +206,7 @@ class Config(object):
         configFiles = self.__getCfgFiles(configFile + ".d")
         configFiles.insert(0, configFile)
 
-        config = ConfigParser.ConfigParser()
+        config = ConfigParser.RawConfigParser()
         filesRead = config.read(configFiles)
 
         # Bail out if there's no configuration file
@@ -239,3 +218,9 @@ class Config(object):
             if not section in self.__registry:
                 self.__registry[section] = {}
             self.__registry[section].update(config.items(section))
+
+        # Initialize the logging module on the fly
+        tmp = StringIO.StringIO()
+        config.write(tmp)
+        tmp2 = StringIO.StringIO(tmp.getvalue())
+        logging.config.fileConfig(tmp2)

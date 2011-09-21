@@ -12,6 +12,7 @@ You can import it to your own code like this::
 --------
 """
 import config
+import logging
 import platform
 try:
     from sqlalchemy.orm import sessionmaker, scoped_session
@@ -19,7 +20,6 @@ try:
 except ImportError:
     pass
 from gosa.common.utils import dmi_system
-import gosa.common.log
 
 
 class Environment:
@@ -40,10 +40,7 @@ class Environment:
     def __init__(self):
         # Load configuration
         self.config = config.Config(config=Environment.config,  noargs=Environment.noargs)
-        self.log = gosa.common.log.getLogger(
-                logtype=self.config.get("core.log"),
-                logfile=self.config.get("core.logfile"),
-                loglevel=self.config.get("core.loglevel"))
+        self.log = logging.getLogger(__name__)
 
         self.id = platform.node()
         self.log.info("server id %s" % self.id)

@@ -7,6 +7,7 @@ import StringIO
 import ConfigParser
 import ldap
 import ldap.filter
+import logging
 from datetime import datetime
 from libinst.interface import InstallMethod
 from git import Repo
@@ -34,6 +35,7 @@ class PuppetInstallMethod(InstallMethod):
 
     def __init__(self, manager):
         super(PuppetInstallMethod, self).__init__(manager)
+        self.log = logging.getLogger(__name__)
 
         # Use effective agent user's home directory
         self.__path = pwd.getpwuid(os.getuid()).pw_dir
@@ -41,7 +43,7 @@ class PuppetInstallMethod(InstallMethod):
         # Load install items
         for entry in pkg_resources.iter_entry_points("puppet.items"):
             module = entry.load()
-            self.env.log.info("repository handler %s included" % module.__name__)
+            self.log.info("repository handler %s included" % module.__name__)
             self._supportedItems.update({
                 module.__name__ : {
                         'name': module._name,
@@ -158,24 +160,24 @@ reportdir=$logdir
                     parent = parent.replace("/", "@")
                 else:
                     parent = parent.name.replace("/", "@")
-                self.env.log.debug("cloning new git branch '%s' from '%s'"
+                self.log.debug("cloning new git branch '%s' from '%s'"
                         % (name, parent))
                 cmd.clone(self.__repo_path, name, b=parent)
             else:
-                self.env.log.debug("creating new git branch '%s'" % name)
+                self.log.debug("creating new git branch '%s'" % name)
                 cmd.clone(self.__repo_path, name)
 
             # Switch branch, add information
             cmd = Git(os.path.join(self.__work_path, name))
             host = self.env.id
             cmd.config("--global", "user.name", "GOsa management agent on %s" % host)
-            self.env.log.debug("switching to newly created branch")
+            self.log.debug("switching to newly created branch")
             cmd.checkout(b=name)
 
             # Remove refs if there's no parent
             current_dir = os.path.join(self.__work_path, name)
             if not parent:
-                self.env.log.debug("no parent set - removing refs")
+                self.log.debug("no parent set - removing refs")
                 cmd.symbolic_ref("HEAD", "refs/heads/newbranch")
                 os.remove(os.path.join(current_dir, ".git", "index"))
                 files = os.listdir(current_dir)
@@ -190,18 +192,18 @@ reportdir=$logdir
                         os.unlink(os.path.join(current_dir, f))
 
             # Create release info file
-            self.env.log.debug("writing release info file in %s" % current_dir)
+            self.log.debug("writing release info file in %s" % current_dir)
             with open(os.path.join(current_dir, "release.info"), "w") as f:
                 now = datetime.now()
                 f.write("Release: %s\n" % orig_name)
                 f.write("Date: %s\n" % now.strftime("%Y-%m-%d %H:%M:%S"))
 
-            self.env.log.debug("comitting new release")
+            self.log.debug("comitting new release")
             cmd.add("release.info")
             cmd.commit(m="Created release information")
 
             # Push to origin
-            self.env.log.debug("pushing change to central repository")
+            self.log.debug("pushing change to central repository")
             cmd.push("origin", name)
 
         return True
@@ -310,13 +312,13 @@ reportdir=$logdir
             if not comment:
                 comment = "Change made with no comment"
 
-            self.env.log.info("commiting changes for module %s" % target_name)
+            self.log.info("commiting changes for module %s" % target_name)
             cmd = Git(target_path)
             try:
                 cmd.commit("-a", "-m", comment)
                 cmd.push("origin")
             except GitCommandError as e:
-                self.env.log.debug("no commit for %s: %s" % (target_name, str(e)))
+                self.log.debug("no commit for %s: %s" % (target_name, str(e)))
             session.commit()
             result = True
         except:
@@ -430,7 +432,7 @@ reportdir=$logdir
             for line in cmd.status("--porcelain").splitlines():
                 changed = True
                 line = line.lstrip()
-                self.env.log.info("staging changes for %s" % line.split(" ", 1)[1:])
+                self.log.info("staging changes for %s" % line.split(" ", 1)[1:])
 
                 mode, file_path = line.split(" ", 1)
                 file_path = os.path.join(*file_path.split("/")[0:])
@@ -451,7 +453,7 @@ reportdir=$logdir
             if not comment:
                 comment = "Change made with no comment"
 
-            self.env.log.info("committing changes for module %s" % path)
+            self.log.info("committing changes for module %s" % path)
             cmd.commit("-m", comment)
             cmd.push("origin")
 
