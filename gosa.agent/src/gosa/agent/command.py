@@ -88,7 +88,7 @@ class CommandRegistry(object):
     def __init__(self):
         env = Environment.getInstance()
         self.env = env
-        self.log = logging.getLogger("gosa.agent")
+        self.log = logging.getLogger(__name__)
         self.log.debug("initializing command registry")
 
     @Command(__help__=N_("List available service nodes on the bus."))

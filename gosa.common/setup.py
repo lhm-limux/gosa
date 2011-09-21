@@ -75,6 +75,7 @@ setup(
 
     setup_requires = [
         'nose==0.11.1',
+        'coverage',
         'NoseXUnit',
         'pylint',
         'babel',

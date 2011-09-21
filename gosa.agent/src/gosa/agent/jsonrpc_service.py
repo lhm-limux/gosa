@@ -55,7 +55,7 @@ class JSONRPCService(object):
     def __init__(self):
         env = Environment.getInstance()
         self.env = env
-        self.log = logging.getLogger("gosa.agent.JSONRPCService")
+        self.log = logging.getLogger(__name__)
         self.log.debug("initializing JSON RPC service provider")
         self.path = self.env.config.get('jsonrpc.path', default="/rpc")
 
@@ -97,7 +97,7 @@ class JsonRpcApp(object):
     def __init__(self, dispatcher):
         self.dispatcher = dispatcher
         self.env = Environment.getInstance()
-        self.log = logging.getLogger("gosa.agent.JsonRpcApp")
+        self.log = logging.getLogger(__name__)
 
     def __call__(self, environ, start_response):
         req = Request(environ)

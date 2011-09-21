@@ -47,7 +47,7 @@ class SchedulerService(object):
 
     def __init__(self):
         env = Environment.getInstance()
-        self.log = logging.getLogger("gosa.agent.scheduler")
+        self.log = logging.getLogger(__name__)
         self.log.debug("initializing scheduler")
         self.env = env
 
