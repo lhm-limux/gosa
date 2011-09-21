@@ -779,6 +779,7 @@ class ACLResolver(object):
     _target_ = 'core'
 
     def __init__(self):
+        ACLResolver.instance = self
         self.env = Environment.getInstance()
         self.env.log.debug("initializing ACL resolver")
 
@@ -797,7 +798,6 @@ class ACLResolver(object):
         # Load initial ACL information from file
         self.clear()
         self.load_from_file()
-        ACLResolver.instance = self
 
     def list_admin_accounts(self):
         return self.admins
