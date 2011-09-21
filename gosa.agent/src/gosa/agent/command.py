@@ -39,6 +39,7 @@ import string
 import time
 import datetime
 import re
+from lxml import etree, objectify
 from inspect import getargspec, getmembers, ismethod
 from zope.interface import implements
 from gosa.common.components import PluginRegistry, ObjectRegistry, Command
@@ -564,6 +565,12 @@ class CommandRegistry(object):
         Start serving the command registry to the outside world. Send
         hello and register event callbacks.
         """
+        # Initialize parser
+        schema_root = etree.XML(PluginRegistry.getEventSchema())
+        schema = etree.XMLSchema(schema_root)
+        self._parser = objectify.makeparser(schema=schema)
+
+        # Prepare amqp handler
         amqp = PluginRegistry.getInstance("AMQPHandler")
 
         for clazz in PluginRegistry.modules.values():
@@ -626,5 +633,6 @@ class CommandRegistry(object):
         *sendEvent* will indirectly validate the event against the bundled "XSD".
         """
         #TODO: check for permission
+
         amqp = PluginRegistry.getInstance("AMQPHandler")
         amqp.sendEvent(data)

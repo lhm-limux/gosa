@@ -7,7 +7,7 @@ from qpid.util import connect, ssl
 from qpid.connection import Connection as DirectConnection
 from lxml import etree, objectify
 
-from gosa.common.utils import parseURL, makeAuthURL, buildXMLSchema
+from gosa.common.utils import parseURL, makeAuthURL
 from gosa.common import Environment
 
 # Import pythoncom for win32com / threads
@@ -47,15 +47,6 @@ class AMQPHandler(object):
         self.reconnect = self.config.get('amqp.reconnect', True)
         self.reconnect_interval = self.config.get('amqp.reconnect_interval', 3)
         self.reconnect_limit = self.config.get('amqp.reconnect_limit', 0)
-
-        # Load defined event schema files
-        schema_doc = buildXMLSchema(['gosa.common'], 'data/events',
-                'gosa.common', 'data/stylesheets/events.xsl')
-
-        # Initialize parser
-        schema_root = etree.XML(schema_doc)
-        schema = etree.XMLSchema(schema_root)
-        self._parser = objectify.makeparser(schema=schema)
 
         # Go for it
         self.start()
@@ -270,7 +261,6 @@ class EventProvider(object):
         self.__sender = self.__sess.sender("%s/event" % env.domain)
 
     def send(self, data):
-        #TODO: reject if not permitted
         self.log.debug("sending event: %s" % data)
         msg = Message(data)
         msg.user_id = self.__user
@@ -282,15 +272,6 @@ class EventConsumer(object):
     def __init__(self, env, conn, xquery=".", callback=None):
         self.env = env
         self.log = env.log
-
-        # Load defined event schema files
-        schema_doc = buildXMLSchema(['gosa.common'], 'data/events',
-                'gosa.common', 'data/stylesheets/events.xsl')
-
-        # Initialize parser
-        schema_root = etree.XML(schema_doc)
-        schema = etree.XMLSchema(schema_root)
-        self._parser = objectify.makeparser(schema=schema)
 
         # Assemble subscription query
         queue = 'event-listener-%s' % uuid4()
@@ -331,7 +312,7 @@ class EventConsumer(object):
 
         # Validate event and let it pass if it matches the schema
         try:
-            xml = objectify.fromstring(data.content, self._parser)
+            xml = objectify.fromstring(data.content)
             self.log.debug("event received: %s" % data.content)
             self.__callback(xml)
         except etree.XMLSyntaxError as e:

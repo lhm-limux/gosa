@@ -12,7 +12,7 @@
 
 			<!-- Include schema for each event -->
 			<xsl:for-each select="/events/path">
-				<include schemaLocation="{/events/@prefix}{text()}" />
+				<include schemaLocation="{text()}" />
 			</xsl:for-each>
 
 			<complexType name="Event">
@@ -27,7 +27,7 @@
 					<!-- Create the possible Events -->
 					<xsl:for-each select="/events/path">
 						<xsl:variable name="nodename">
-							<xsl:value-of select="substring-before(text(), '.xsd')" />
+							<xsl:value-of select="@name" />
 						</xsl:variable>
 						<element name="{$nodename}" type="gosa:{$nodename}"></element>
 					</xsl:for-each>

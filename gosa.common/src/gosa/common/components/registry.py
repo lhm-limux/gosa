@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
-import pkg_resources
+import StringIO
+from lxml import etree
+from pkg_resources import *
 from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
 
@@ -18,23 +20,28 @@ class PluginRegistry(object):
     """
     modules = {}
     handlers = {}
+    evreg = {}
 
     def __init__(self, component="gosa.modules"):
         env = Environment.getInstance()
         self.env = env
         self.log = env.log
-        self.evreg = {}
         self.log.debug("inizializing plugin registry")
 
         # Load common event resources
-        base_dir = pkg_resources.resource_filename('gosa.common', 'data/events')
-        for res in pkg_resources.resource_listdir('gosa.common', 'data/events'):
-            filename = os.path.join(base_dir, res)
-            self.log.debug("loading common event from '%s'" % filename)
-            self.evreg[filename] = open(filename).read()
+        base_dir = resource_filename('gosa.common', 'data/events') + os.sep
+        if os.sep == "\\":
+            base_dir = "file:///" + "/".join(base_dir.split("\\"))
+
+        files = [ev for ev in resource_listdir('gosa.common', 'data/events')
+                if ev[-4:] == '.xsd']
+        for f in files:
+            event = os.path.splitext(f)[0]
+            self.log.debug("adding common event '%s'" % event)
+            PluginRegistry.evreg[event] = os.path.join(base_dir, f)
 
         # Get module from setuptools
-        for entry in pkg_resources.iter_entry_points(component):
+        for entry in iter_entry_points(component):
             module = entry.load()
             self.log.info("module %s included" % module.__name__)
             PluginRegistry.modules[module.__name__] = module
@@ -53,14 +60,18 @@ class PluginRegistry(object):
         for module, clazz  in PluginRegistry.modules.iteritems():
 
             # Check for event resources
-            if pkg_resources.resource_isdir(clazz.__module__, 'data/events'):
-                base_dir = pkg_resources.resource_filename(clazz.__module__, 'data/events')
+            if resource_isdir(clazz.__module__, 'data/events'):
+                base_dir = resource_filename(clazz.__module__, 'data/events')
+                if os.sep == "\\":
+                    base_dir = "file:///" + "/".join(base_dir.split("\\"))
 
-                for res in pkg_resources.resource_listdir(clazz.__module__, 'data/events'):
-                    filename = os.path.join(base_dir, res)
-                    if not filename in self.evreg:
-                        self.evreg[filename] = open(filename).read()
-                        self.log.debug("loading module event from '%s'" % filename)
+                for filename in resource_listdir(clazz.__module__, 'data/events'):
+                    if ev[-4:] != '.xsd':
+                        continue
+                    event = os.path.splitext(filename)[0]
+                    if not event in PluginRegistry.evreg:
+                        PluginRegistry.evreg[event] = os.path.join(base_dir, filename)
+                        self.log.debug("adding module event '%s'" % event)
 
             # Register modules
             if module in PluginRegistry.handlers:
@@ -106,3 +117,27 @@ class PluginRegistry(object):
             raise ValueError("no module '%s' available" % name)
 
         return PluginRegistry.modules[name]
+
+    @staticmethod
+    def getEventSchema():
+        stylesheet = resource_filename('gosa.common', 'data/stylesheets/events.xsl')
+        eventsxml = "<events>"
+
+        for file_path in PluginRegistry.evreg.values():
+
+            # Build a tree of all event paths
+            eventsxml += '<path name="%s">%s</path>' % (os.path.splitext(os.path.basename(file_path))[0], file_path)
+
+        eventsxml += '</events>'
+
+        # Parse the string with all event paths
+        eventsxml = StringIO.StringIO(eventsxml)
+        xml_doc = etree.parse(eventsxml)
+
+        # Parse XSLT stylesheet and create a transform object
+        xslt_doc = etree.parse(stylesheet)
+        transform = etree.XSLT(xslt_doc)
+
+        # Transform the tree of all event paths into the final XSD
+        res = transform(xml_doc)
+        return str(res)

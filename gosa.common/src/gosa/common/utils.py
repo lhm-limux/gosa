@@ -15,7 +15,6 @@ import tempfile
 from subprocess import Popen, PIPE
 from qpid.messaging.constants import AMQP_PORT, AMQPS_PORT
 from urlparse import urlparse
-from lxml import etree
 from pkg_resources import *
 from datetime import datetime
 
@@ -106,60 +105,6 @@ def parseURL(url):
         'path':path,
         'transport':ssl,
         'url':url}
-
-
-def buildXMLSchema(resources, prefix, s_resource, stylesheet):
-    """
-    Assembles single schema files to a final schema using a stylesheet.
-
-    ========== ============
-    Parameter  Description
-    ========== ============
-    resources  List of setuptools resources to look for XSD fragments
-    prefix     Directory to load XSD fragments from
-    s_resource Stylesheet resource
-    stylesheet Name of the stylesheet
-    ========== ============
-
-    ``Return``: Target XML schema processed by stylesheet as string.
-    """
-    res = ''
-
-    try:
-        stylesheet = resource_filename(s_resource, stylesheet)
-        eventsxml = ""
-
-        for resource in resources:
-
-            # Initialize prefix and get filenames
-            real_prefix = resource_filename(resource, prefix) + os.sep
-            if os.sep == "\\":
-                real_prefix = "file:///" + "/".join(real_prefix.split("\\"))
-
-            files = [ev for ev in resource_listdir(resource, prefix)
-                if ev[-4:] == '.xsd']
-
-            # Build a tree of all event paths
-            eventsxml += '<events prefix="' + urllib.quote(real_prefix) + '">'
-            for file in files:
-                eventsxml += '<path>' + file + '</path>'
-            eventsxml += '</events>'
-            eventsxml = StringIO.StringIO(eventsxml)
-
-        # Parse the string with all event paths
-        xml_doc = etree.parse(eventsxml)
-
-        # Parse XSLT stylesheet and create a transform object
-        xslt_doc = etree.parse(stylesheet)
-        transform = etree.XSLT(xslt_doc)
-
-        # Transform the tree of all event paths into the final XSD
-        res = transform(xml_doc)
-
-    except IOError:
-        traceback.print_exc()
-
-    return str(res)
 
 
 def N_(message):
