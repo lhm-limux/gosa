@@ -28,7 +28,7 @@ import platform
 import StringIO
 import ConfigParser
 import logging.config
-from optparse import OptionParser, OptionGroup, OptionValueError
+from argparse import ArgumentParser, ArgumentError
 from gosa.common import __version__ as VERSION
 
 # Only import pwd/grp stuff if we're not on windows
@@ -95,37 +95,37 @@ class Config(object):
             self.__parseCmdOptions()
 
     def __parseCmdOptions(self):
-        parser = OptionParser(usage="%prog - the GOsa core daemon",
-                    version="%prog " + VERSION)
+        parser = ArgumentParser(usage="%(prog)s - the GOsa core daemon",
+                    version="%(prog)s " + VERSION)
 
-        parser.add_option("-c", "--config", dest="config",
+        parser.add_argument("-c", "--config", dest="config",
                           default="/etc/gosa/config",
                           help="read configuration from FILE [%default]",
                           metavar="FILE")
-        parser.add_option("-f", action="store_true", dest="foreground",
+        parser.add_argument("-f", action="store_true", dest="foreground",
                           help="run daemon in foreground [%default]")
-        parser.add_option("-u", "--user", dest="user",
+        parser.add_argument("-u", "--user", dest="user",
                           help="run daemon as USER [%default]",
                           metavar="USER")
-        parser.add_option("-g", "--group", dest="group",
+        parser.add_argument("-g", "--group", dest="group",
                           help="run daemon as GROUP [%default]",
                           metavar="GROUP")
-        parser.add_option("-p", "--pid-file", dest="pidfile",
+        parser.add_argument("-p", "--pid-file", dest="pidfile",
                           help="store PID information into FILE [%default]",
                           metavar="FILE")
-        parser.add_option("--profile", action="store_true", dest="profile",
+        parser.add_argument("--profile", action="store_true", dest="profile",
                           help="write profiling information (only if daemon runs in foreground mode [%default]")
 
-        group = OptionGroup(parser, "Advanced options")
-        group.add_option("--umask", dest="umask",
+        group = parser.add_argument_group("Advanced options")
+        group.add_argument("--umask", dest="umask",
                           help="run daemon with UMASK [%default]",
                           metavar="UMASK")
-        group.add_option("--workdir", dest="workdir",
+        group.add_argument("--workdir", dest="workdir",
                           help="change directory to DIR after starting up [%default]",
                           metavar="DIR")
-        parser.add_option_group(group)
 
-        (options, args) = parser.parse_args()
+        options = parser.parse_args()
+
         items = options.__dict__
         self.__registry['core'].update(dict([(k, items[k]) for k in items if items[k] != None]))
 
