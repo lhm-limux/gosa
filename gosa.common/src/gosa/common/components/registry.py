@@ -66,7 +66,7 @@ class PluginRegistry(object):
                     base_dir = "file:///" + "/".join(base_dir.split("\\"))
 
                 for filename in resource_listdir(clazz.__module__, 'data/events'):
-                    if ev[-4:] != '.xsd':
+                    if filename[-4:] != '.xsd':
                         continue
                     event = os.path.splitext(filename)[0]
                     if not event in PluginRegistry.evreg:
@@ -120,7 +120,7 @@ class PluginRegistry(object):
 
     @staticmethod
     def getEventSchema():
-        stylesheet = resource_filename('gosa.common', 'data/stylesheets/events.xsl')
+        stylesheet = resource_filename('gosa.common', 'data/events/events.xsl')
         eventsxml = "<events>"
 
         for file_path in PluginRegistry.evreg.values():
