@@ -4,7 +4,7 @@ from types import DictType
 from gosa.common.components.jsonrpc_proxy import JSONRPCException
 from gosa.common.json import dumps, loads
 from gosa.common.components.amqp import AMQPProcessor
-from gosa.common.utils import parseURL, buildXMLSchema
+from gosa.common.utils import parseURL
 from lxml import etree, objectify
 from jsonrpc_proxy import ObjectFactory
 
@@ -262,14 +262,6 @@ class AMQPEventConsumer(object):
         self.__conn = Connection(url['url'], transport=url['transport'], reconnect=True)
         self.__conn.open()
 
-        # Load defined event schema files
-        schema_doc = buildXMLSchema(['gosa.common'], 'data/events', 'gosa.common', 'data/stylesheets/events.xsl')
-
-        # Initialize parser
-        schema_root = etree.XML(schema_doc)
-        schema = etree.XMLSchema(schema_root)
-        self.__parser = objectify.makeparser(schema=schema)
-
         # Assemble subscription query
         queue = 'event-listener-%s' % uuid4()
         address = """%s; {
@@ -307,7 +299,7 @@ class AMQPEventConsumer(object):
 
     def __eventProcessor(self, ssn, data):
         # Call callback, let exceptions pass to the caller
-        xml = objectify.fromstring(data.content, self.__parser)
+        xml = objectify.fromstring(data.content)
         self.__callback(xml)
 
     def join(self):
