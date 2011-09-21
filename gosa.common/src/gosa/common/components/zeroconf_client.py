@@ -75,7 +75,7 @@ class ZeroconfClient(object):
             self.stop = self.stopAvahi
         else:
             self.start = self.startPybonjour
-            self.start = self.stopPybonjour
+            self.stop = self.stopPybonjour
 
 
     def __get_path(self, txt):
