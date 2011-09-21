@@ -43,7 +43,7 @@ setup(
 
     include_package_data = True,
     package_data = {
-        'gosa.agent': ['data/agent.conf'],
+        'gosa.agent': ['data/agent.conf', 'data/events'],
         'gosa.agent.plugins.goto': ['data/events'],
     },
 

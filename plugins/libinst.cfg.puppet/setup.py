@@ -32,6 +32,7 @@ for various systems in your setup.
 
     include_package_data = True,
     package_data = {
+        'libinst.cfg.puppet': ['data/events']
     },
 
     test_suite = "nose.collector",

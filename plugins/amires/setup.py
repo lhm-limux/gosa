@@ -36,7 +36,7 @@ setup(
 
     include_package_data = True,
     package_data = {
-        'gosa.common': ['data/AsteriskNotification.xsd'],
+        'amires': ['data/events'],
     },
 
     install_requires = [
