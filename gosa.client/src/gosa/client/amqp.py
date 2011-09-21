@@ -11,7 +11,7 @@ from lxml import etree, objectify
 
 from gosa.common.components.amqp import AMQPHandler, EventProvider
 from gosa.common.components.zeroconf_client import ZeroconfClient
-from gosa.common.utils import parseURL, buildXMLSchema
+from gosa.common.utils import parseURL
 from gosa.common import Environment
 
 # Global lock
@@ -80,15 +80,6 @@ class AMQPClientHandler(AMQPHandler):
         # Check if credentials are supplied
         if not self.env.config.get("amqp.key"):
             raise Exception("no key supplied - please join the client")
-
-        # Load defined event schema files
-        schema_doc = buildXMLSchema(['gosa.common'], 'data/events',
-                'gosa.common', 'data/stylesheets/events.xsl')
-
-        # Initialize parser
-        schema_root = etree.XML(schema_doc)
-        schema = etree.XMLSchema(schema_root)
-        self._parser = objectify.makeparser(schema=schema)
 
         # Start connection
         self.start()
