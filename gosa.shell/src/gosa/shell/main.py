@@ -301,6 +301,7 @@ def main(argv=sys.argv):
     try:
         service_uri, username, password = service.connect(service_uri, username, password)
     except KeyboardInterrupt:
+        print()
         sys.exit(1)
 
     # Prepare to enter the interactive console.
