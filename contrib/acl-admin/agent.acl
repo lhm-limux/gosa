@@ -1,0 +1,25 @@
+{
+  "roles": {}, 
+  "acl": {
+    "dc=intranet,dc=gonicus,dc=de": [
+      {
+        "acls": [
+          {
+            "priority": 0, 
+            "scope": "sub", 
+            "members": [
+              "hickert"
+            ], 
+            "actions": [
+              {
+                "topic": "wurst.pelle", 
+                "acls": "rwcdm", 
+                "options": {}
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
