@@ -66,7 +66,7 @@ def main():
     parser = argparse.ArgumentParser(description="Administrate GOsa-ng permissions from the command line.",
             prog="acl-admin")
 
-    parser.add_argument("-l", dest="listAcls", action="store_true")
+    parser.add_argument("-l", dest="listAcls", action="store_true", help="Show ACls")
 
     # Check if at least 'message' and 'title' are given.
     print sys.argv
