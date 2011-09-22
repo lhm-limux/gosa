@@ -147,14 +147,44 @@ class ACLAdmin(object):
 
         help_msgs = {
                 "base": _("The base parameter specifies the position acls are active for. For example: dc=example,dc=de"),
-                "scope": _("Possible scope values are:"
+                "scope": _("The scope value specifies how the acl role influences sub-directories"
+                    "\n Possible scope values are:"
                     "\n  one   - For acls that are active only for the current base"
                     "\n          this can be revoked using the 'reset' scope!"
                     "\n  sub   - For acls that are active only for the complete subtree"
                     "\n          this can be revoked using the 'reset' scope!"
                     "\n  psub  - For acls that are active only for the complete subtree"
                     "\n          this can NOT be revoked using the 'reset' scope!"
-                    "\n  reset - Revokes previously defined acls, except for those with scope 'psub'")
+                    "\n  reset - Revokes previously defined acls, except for those with scope 'psub'"),
+                "priority": _("An integer value to prioritize an acl-rule. (Lower values mean higher priority)"
+                    "\n  highest priority: -100"
+                    "\n  lowest priority: -100"),
+                "members": _("The names of the users/clients the acl-rule should be valid for. "
+                    "\n  A comma separated list:"
+                    "\n   e.g.: hubert,peter,klaus"),
+                "topic": _("The topic defines the target-action this acl includes"
+                    "\n Topics can contain placeholder to be more flexible when it come to resolving acls."
+                    "\n You can use `#` and `*` where `#` matches for one level and `*` for multiple topic levels."
+                    "\n  e.g.: "
+                    "\n   com.gosa.*        for all topics included in com.gosa"
+                    "\n   com.gosa.#.help   allows to call help methods for modules under com.gosa"),
+                "acl": _("The acl parameter defines which operations can be executed on a given topic."
+                    "\n  e.g.:"
+                    "\n   rwcd    -> allows to read, write, create and delete"
+                    "\n"
+                    "\n  Possible values are:"
+                    "\n    * r - Read"
+                    "\n    * w - Write"
+                    "\n    * m - Move"
+                    "\n    * c - Create"
+                    "\n    * d - Delete"
+                    "\n    * s - Search - or beeing found"
+                    "\n    * x - Execute"
+                    "\n    * e - Receive event"),
+                "options": _("Options are additional checks, please read the GOsa documentation for details."
+                    "\n The format is:  key:value;key:value;..."
+                    "\n e.g. (Do not forget to use quotes!)"
+                    "\n  'uid:peter;eventType:start;'")
                 }
 
         # Return the help message, if it exists.

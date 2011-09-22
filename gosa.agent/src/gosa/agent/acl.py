@@ -535,7 +535,7 @@ class ACL(object):
 
         **Topic**
 
-        Targets can contain placeholder to be more flexible when it come to resolving acls.
+        Topics can contain placeholder to be more flexible when it come to resolving acls.
         You can use ``#`` and ``*`` where ``#`` matches for one level and ``*`` for multiple topic levels.
 
         For example ``gosa.#.factory`` would match for:
