@@ -12,17 +12,14 @@ import sys
 import uuid
 import traceback
 import logging
-from types import MethodType
 from zope.interface import implements
 from gosa.common.json import loads, dumps
 from webob import exc, Request, Response
-from paste import httpserver, wsgilib, request, response
-from paste.auth.cookie import AuthCookieHandler, AuthCookieSigner
-from gosa.common.utils import N_, repr2json, f_print
+from paste.auth.cookie import AuthCookieHandler
+from gosa.common.utils import repr2json, f_print
 from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
-from gosa.common.components import Command, PluginRegistry, ObjectRegistry, \
-    ZeroconfService, AMQPServiceProxy, JSONRPCException
+from gosa.common.components import PluginRegistry, ZeroconfService, JSONRPCException
 
 
 class JSONRPCService(object):
@@ -59,6 +56,9 @@ class JSONRPCService(object):
         self.log.debug("initializing JSON RPC service provider")
         self.path = self.env.config.get('jsonrpc.path', default="/rpc")
 
+        self.__zeroconf = None
+        self.__http = None
+
     def serve(self):
         """ Start JSONRPC service for this GOsa service provider. """
 
@@ -70,7 +70,9 @@ class JSONRPCService(object):
         app = JsonRpcApp(cr)
         self.__http.app.register(self.path, AuthCookieHandler(app,
             timeout=self.env.config.get('jsonrpc.cookie-lifetime',
-            default=1800), cookie_name='GOsaRPC'))
+            default=1800), cookie_name='GOsaRPC',
+            secret=self.env.config.get('http.cookie_secret',
+                default="TecloigJink4")))
 
         # Announce service
         self.__zeroconf = ZeroconfService(name="GOsa JSONRPC command service",
@@ -135,7 +137,7 @@ class JsonRpcApp(object):
         try:
             method = json['method']
             params = json['params']
-            id = json['id']
+            jid = json['id']
         except KeyError, e:
             raise ValueError(
                 "JSON body missing parameter: %s" % e)
@@ -174,7 +176,7 @@ class JsonRpcApp(object):
                 charset='utf8',
                 body=dumps(dict(result=result,
                                 error=None,
-                                id=id)))
+                                id=jid)))
 
         # Don't let calls pass beyond this point if we've no valid session ID
         if not environ.get('REMOTE_SESSION') in self.__session:
@@ -199,7 +201,7 @@ class JsonRpcApp(object):
                 charset='utf8',
                 body=dumps(dict(result=True,
                                 error=None,
-                                id=id)))
+                                id=jid)))
 
         # Try to call method with local dispatcher
         if not self.dispatcher.hasMethod(method):
@@ -217,7 +219,7 @@ class JsonRpcApp(object):
                 charset='utf8',
                 body=dumps(dict(result=None,
                                 error=error_value,
-                                id=id)))
+                                id=jid)))
         try:
             self.log.debug("calling method %s(%s)" % (method, params))
             user = environ.get('REMOTE_USER')
@@ -251,7 +253,7 @@ class JsonRpcApp(object):
                 charset='utf8',
                 body=dumps(dict(result=None,
                                 error=error_value,
-                                id=id)))
+                                id=jid)))
         except Exception as e:
             text = traceback.format_exc()
             exc_value = sys.exc_info()[1]
@@ -271,7 +273,7 @@ class JsonRpcApp(object):
                 message=str(exc_value),
                 error=err)
 
-            self.log.error("returning call [%s]: %s / %s" % (id, None, f_print(err)))
+            self.log.error("returning call [%s]: %s / %s" % (jid, None, f_print(err)))
             self.log.error(text)
 
             return Response(
@@ -279,9 +281,9 @@ class JsonRpcApp(object):
                 charset='utf8',
                 body=dumps(dict(result=None,
                                 error=error_value,
-                                id=id)))
+                                id=jid)))
 
-        self.log.debug("returning call [%s]: %s / %s" % (id, result,
+        self.log.debug("returning call [%s]: %s / %s" % (jid, result,
             None))
 
         return Response(
@@ -289,7 +291,7 @@ class JsonRpcApp(object):
             charset='utf8',
             body=dumps(dict(result=result,
                             error=None,
-                            id=id)))
+                            id=jid)))
 
     def authenticate(self, user=None, password=None):
         """

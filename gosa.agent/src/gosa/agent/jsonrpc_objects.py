@@ -224,6 +224,7 @@ class JSONRPCObjectMapper(Plugin):
         # Choose a possible node
         cr = PluginRegistry.getInstance('CommandRegistry')
         nodes = cr.get_load_sorted_nodes()
+        provider = None
 
         # Get first match that is a provider for this object
         for provider in nodes.keys():
