@@ -167,7 +167,7 @@ class AMQPHandler(object):
             if user:
                 acl = PluginRegistry.getInstance("ACLResolver")
                 topic = ".".join([self.env.domain, 'event', xml.__dict__.keys()[0]])
-                if not self.aclr.check(user, topic, "x"):
+                if not acl.check(user, topic, "x"):
                     raise EventNotAuthorized("sending the event '%s' is not permitted" % topic)
 
             return self._eventProvider.send(event)

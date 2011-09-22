@@ -101,7 +101,7 @@ class AMQPServiceProxy(object):
                 for queue in queues:
                     for i in range(0, workers):
                         ssn = conn.session(str(uuid4()))
-                        AMQPServiceProxy.worker[queue]= {}
+                        AMQPServiceProxy.worker[queue] = {}
                         AMQPServiceProxy.worker[queue][i] = {
                                 'ssn': ssn,
                                 'sender': ssn.sender("%s.command.%s" %
@@ -142,16 +142,16 @@ class AMQPServiceProxy(object):
             raise JSONRPCException("JSON-RPC does not support positional and keyword arguments at the same time")
 
         # Default to 'core' queue
-        queue= "core"
+        queue = "core"
 
         if AMQPServiceProxy.methods[self.__serviceAddress]:
             if not self.__serviceName in AMQPServiceProxy.methods[self.__serviceAddress]:
                 raise NameError("name '%s' not defined" % self.__serviceName)
 
             if AMQPServiceProxy.domain:
-                queue= AMQPServiceProxy.methods[self.__serviceAddress][self.__serviceName]['target']
+                queue = AMQPServiceProxy.methods[self.__serviceAddress][self.__serviceName]['target']
             else:
-                queue= self.__serviceAddress
+                queue = self.__serviceAddress
 
         # Find free session for requested queue
         for sess, dsc in AMQPServiceProxy.worker[self.__serviceAddress].iteritems():
