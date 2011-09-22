@@ -57,7 +57,7 @@ class ACLAdmin(object):
         if sid in acl_scope_map:
             return(acl_scope_map[sid])
         else:
-            return("UNKNOWN")
+            return(_("unknown"))
 
     def strToScopeId(self, sid):
         """
@@ -109,15 +109,14 @@ class ACLAdmin(object):
 
         """
         print
-        print("<%s> parameter is missing!" % name)
+        print(_("<%s> parameter is missing!") % name)
         desc = self.get_para_help(name)
         if len(desc):
-            for line in desc:
-                print("      %s"  % line)
+            print " %s" % desc
 
     def para_invalid(self, name):
         """
-        Helper method which prints out a warning method that a parameter 
+        Helper method which prints out a warning method that a parameter
         was passend in an invalid format.
 
         =========== =============
@@ -128,11 +127,10 @@ class ACLAdmin(object):
         """
 
         print
-        print("<%s> parameter is invalid!" % name)
+        print(_("<%s> parameter is invalid!") % name)
         desc = self.get_para_help(name)
         if len(desc):
-            for line in desc:
-                print("      %s"  % line)
+            print " %s" % desc
 
     def get_para_help(self, para):
         """
@@ -148,25 +146,22 @@ class ACLAdmin(object):
         """
 
         help_msgs = {
-                "base":[
-                    "The base parameter specifies the position acls are active for",
-                    "For example: dc=example,dc=de"],
-                "scope":[
-                    "Possible scope values are",
-                    " one   - For acls that are active only for the current base",
-                    "         this can be revoked using the 'reset' scope!",
-                    " sub   - For acls that are active only for the complete subtree",
-                    "         this can be revoked using the 'reset' scope!",
-                    " psub  - For acls that are active only for the complete subtree",
-                    "         this can NOT be revoked using the 'reset' scope!",
-                    " reset - Revokes previously defined acls, except for those with scope 'psub'"]
+                "base": _("The base parameter specifies the position acls are active for. For example: dc=example,dc=de"),
+                "scope": _("Possible scope values are:"
+                    "\n  one   - For acls that are active only for the current base"
+                    "\n          this can be revoked using the 'reset' scope!"
+                    "\n  sub   - For acls that are active only for the complete subtree"
+                    "\n          this can be revoked using the 'reset' scope!"
+                    "\n  psub  - For acls that are active only for the complete subtree"
+                    "\n          this can NOT be revoked using the 'reset' scope!"
+                    "\n  reset - Revokes previously defined acls, except for those with scope 'psub'")
                 }
 
         # Return the help message, if it exists.
         if para in help_msgs:
             return(help_msgs[para])
         else:
-            return(["no help for %s ..." % para])
+            return(_("no help for %s ...") % para)
 
     def get_value_from_args(self, name, args):
         """
@@ -269,7 +264,7 @@ class ACLAdmin(object):
         else:
             raise(Exception("Unknown parameter to extract: %s" %name))
 
-    @helpDecorator("Adds a new ACL rule", "add acl <base> <scope> <priority> <members> <action> <acls> [options]")
+    @helpDecorator(_("Adds a new ACL rule"), _("add acl <base> <scope> <priority> <members> <action> <acls> [options]"))
     def add_acl(self, args):
         """
         This method creates a new ACL rule depending on the passes arguments-list.
@@ -296,7 +291,7 @@ class ACLAdmin(object):
         self.resolver.addACL('tmp_admin', base, scope, priority, members, actions)
         self.resolver.save_to_file()
 
-    @helpDecorator("List all defined acls")
+    @helpDecorator(_("List all defined acls"))
     def list_acls(self, args):
         """
         This method list all defined acls.
@@ -313,13 +308,13 @@ class ACLAdmin(object):
         self.printReportHeader(_("Listing of active GOsa-ng acls"))
         allSets = self.resolver.list_acls()
         if not len(allSets):
-            print("   ... none")
+            print(_("   ... none"))
         for aclset in allSets:
             for acl in aclset:
                 print("ID: %i \tBASE: %s \t SCOPE (%s)" % (acl.id, aclset.base, self.idToScopeStr(acl.scope)))
                 print("       \tMEMBER: %s" % (" ".join(acl.members)))
                 if acl.uses_role:
-                    print("\trefers to role: %s" % acl.role)
+                    print(_("\trefers to role: %s") % acl.role)
                 else:
                     cnt = 1
                     print("     \tACTIONS:")
@@ -327,7 +322,7 @@ class ACLAdmin(object):
                         print("        - %s. %s (%s)  %s" % (cnt, action['topic'], action['acls'], action['options']))
                         cnt += 1
 
-    @helpDecorator("List all defined roles")
+    @helpDecorator(_("List all defined roles"))
     def list_roles(self, args):
         """
         This method list all defined acl roles.
@@ -348,7 +343,7 @@ class ACLAdmin(object):
             for acl in aclrole:
                 print("ID: %i \tROLENAME: %s \t SCOPE (%s)" % (acl.id, aclset.name, self.idToScopeStr(acl.scope)))
                 if acl.uses_role:
-                    print("\trefers to role: %s" % acl.role)
+                    print(_("\trefers to role: %s") % acl.role)
                 else:
                     cnt = 1
                     print("     \tACTIONS:")
@@ -363,7 +358,7 @@ def print_help():
     """
 
     # Define cli-script parameters
-    print(
+    print(_(
         "\nAdministrate GOsa-ng permissions from the command line."
         "\n"
         "\nusage: acl-admin [-c CFGFILE] <list/add/update/remove> <acl/role> [parameters]"
@@ -371,7 +366,7 @@ def print_help():
         "\noptional arguments:"
         "\n  -c CFGFILE, --config CFGFILE"
         "\n    the agent-config file to use"
-        "\n")
+        "\n"))
 
     for method in helpDecorator.method_list:
         sh = helpDecorator.method_list[method][0]
@@ -433,7 +428,7 @@ def main():
             called = True
 
     if not called:
-        print("Invalid argument list: %s" % (" ".join(my_args)))
+        print(_("Invalid argument list: %s") % (" ".join(my_args)))
         print_help()
         sys.exit(1)
 
