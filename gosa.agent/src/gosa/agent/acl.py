@@ -948,6 +948,7 @@ class ACLResolver(Plugin):
                         # Add a normal (non-role) base acl entry
                         acl = ACLRoleEntry(acl_scope_map[acl_entry['scope']])
                         acl.id = acl_entry['id']
+                        acl.set_priority(acl_entry['priority'])
                         for action in acl_entry['actions']:
                             acl.add_action(action['topic'], action['acls'], action['options'])
                         roles[name].add(acl)
