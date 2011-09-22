@@ -2,7 +2,7 @@
 import platform
 import logging
 from threading import Thread
-from qpid.messaging import *
+from qpid.messaging import Connection, ConnectionError, Message, uuid4
 from qpid.messaging.util import auto_fetch_reconnect_urls
 from qpid.util import connect, ssl
 from qpid.connection import Connection as DirectConnection
@@ -307,9 +307,8 @@ class EventConsumer(object):
                         workers=1,
                         callback=self.__eventProcessor)
 
+    #pylint: disable=W0613
     def __eventProcessor(self, ssn, data):
-        #TODO: reject if sender is not permitted
-        #print(data.user_id)
 
         # Validate event and let it pass if it matches the schema
         try:
