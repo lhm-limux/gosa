@@ -567,10 +567,6 @@ class CommandRegistry(object):
         Start serving the command registry to the outside world. Send
         hello and register event callbacks.
         """
-        # Initialize parser
-        schema_root = etree.XML(PluginRegistry.getEventSchema())
-        schema = etree.XMLSchema(schema_root)
-        self._parser = objectify.makeparser(schema=schema)
 
         # Prepare amqp handler
         amqp = PluginRegistry.getInstance("AMQPHandler")
@@ -620,8 +616,8 @@ class CommandRegistry(object):
         announce = e.Event(e.NodeAnnounce(e.Id(self.env.id)))
         amqp.sendEvent(announce)
 
-    @Command(__help__=N_("Send event to the bus."))
-    def sendEvent(self, data):
+    @Command(needsUser=True, __help__=N_("Send event to the bus."))
+    def sendEvent(self, user, data):
         """
         Sends an event to the AMQP bus. Data must be in XML format,
         see :ref:`Events handling <events>` for details.
@@ -634,7 +630,5 @@ class CommandRegistry(object):
 
         *sendEvent* will indirectly validate the event against the bundled "XSD".
         """
-        #TODO: check for permission
-
         amqp = PluginRegistry.getInstance("AMQPHandler")
-        amqp.sendEvent(data)
+        amqp.sendEvent(data, user)

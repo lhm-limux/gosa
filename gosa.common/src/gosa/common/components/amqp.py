@@ -2,7 +2,7 @@
 import platform
 import logging
 from threading import Thread
-from qpid.messaging import *
+from qpid.messaging import Connection, ConnectionError, Message, uuid4
 from qpid.messaging.util import auto_fetch_reconnect_urls
 from qpid.util import connect, ssl
 from qpid.connection import Connection as DirectConnection
@@ -10,6 +10,7 @@ from lxml import etree, objectify
 
 from gosa.common.utils import parseURL, makeAuthURL
 from gosa.common import Environment
+from gosa.common.components.registry import PluginRegistry
 
 # Import pythoncom for win32com / threads
 if platform.system() == "Windows":
@@ -33,9 +34,10 @@ class AMQPHandler(object):
         self.env = env
         self.config = env.config
 
-        # Enable debugging for qpid if we're in debug mode
-        #if self.config.get('core.loglevel') == 'DEBUG':
-        #    enable('qpid', DEBUG)
+        # Initialize parser
+        schema_root = etree.XML(PluginRegistry.getEventSchema())
+        schema = etree.XMLSchema(schema_root)
+        self._parser = objectify.makeparser(schema=schema)
 
         # Evaluate username
         user = self.config.get("amqp.id", default=None)
@@ -139,7 +141,7 @@ class AMQPHandler(object):
 
         return True
 
-    def sendEvent(self, data):
+    def sendEvent(self, data, user=None):
         """
         Send and validate an event thru AMQP service.
 
@@ -157,13 +159,24 @@ class AMQPHandler(object):
                 event += data
             else:
                 event += etree.tostring(data, pretty_print=True)
+
+            # Validate event
+            xml = objectify.fromstring(event, self._parser)
+
+            # If a user was supplied, check if she's authorized...
+            if user:
+                acl = PluginRegistry.getInstance("ACLResolver")
+                topic = ".".join([self.env.domain, 'event', xml.__dict__.keys()[0]])
+                if not self.aclr.check(user, topic, "x"):
+                    raise EventNotAuthorized("sending the event '%s' is not permitted" % topic)
+
             return self._eventProvider.send(event)
 
         except etree.XMLSyntaxError as e:
             if not isinstance(data, basestring):
                 data = data.content
             if self.env:
-                self.log.debug("event rejected (%s): %s" % (str(e), data))
+                self.log.error("event rejected (%s): %s" % (str(e), data))
             raise
 
 
@@ -250,6 +263,10 @@ class AMQPProcessor(Thread):
         return self.__callback(self.__ssn, msg)
 
 
+class EventNotAuthorized(Exception):
+    pass
+
+
 class EventProvider(object):
 
     def __init__(self, env, conn):
@@ -307,9 +324,8 @@ class EventConsumer(object):
                         workers=1,
                         callback=self.__eventProcessor)
 
+    #pylint: disable=W0613
     def __eventProcessor(self, ssn, data):
-        #TODO: reject if sender is not permitted
-        #print(data.user_id)
 
         # Validate event and let it pass if it matches the schema
         try:
