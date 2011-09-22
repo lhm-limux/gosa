@@ -9,6 +9,9 @@ case "$1" in
         --home /var/lib/gosa \
         --gecos "GOsa daemon account" --group gosa
     fi
+
+    chmod o-rwx /var/lib/gosa || /bin/true
+    chown gosa.gosa /var/lib/gosa || /bin/true
   ;;
   abort-upgrade|abort-remove|abort-deconfigure)
   ;;
@@ -19,12 +22,3 @@ case "$1" in
 esac
 
 #DEBHELPER#
-
-if [ -x "/etc/init.d/gosa.client" ]; then
-        update-rc.d gosa.client defaults >/dev/null
-        if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
-                invoke-rc.d gosa.client start || exit $?
-        else
-                /etc/init.d/gosa.client start || exit $?
-        fi
-fi
