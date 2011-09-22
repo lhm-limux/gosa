@@ -101,8 +101,8 @@ class SessionKeeper(Plugin):
         # Build event
         amqp = PluginRegistry.getInstance("AMQPClientHandler")
         e = EventMaker()
-        more = set(map(lambda x: x['uid'], self.__sessions.values()))
-        more = map(lambda x: e.Name(x), more)
+        more = set([x['uid'] for x in self.__sessions.values()])
+        more = map(e.Name, more)
         info = e.Event(
             e.UserSession(
                 e.Id(self.env.uuid),

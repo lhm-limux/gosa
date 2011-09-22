@@ -34,7 +34,7 @@ import traceback
 import logging
 from netaddr import IPNetwork
 from zope.interface import implements
-from qpid.messaging import *
+from qpid.messaging import Message
 
 from gosa.common.json import loads, dumps, ServiceRequestNotTranslatable, BadServiceRequest
 from gosa.common.handler import IInterfaceHandler
@@ -57,6 +57,8 @@ class AMQPClientService(object):
         self.log = logging.getLogger(__name__)
         self.log.debug("initializing AMQP service provider")
         self.env = env
+        self.__cr = None
+        self.__cmdWorker = None
 
     def serve(self):
         """ Start AMQP service for this GOsa service provider. """
@@ -65,7 +67,7 @@ class AMQPClientService(object):
         self.__cr = PluginRegistry.getInstance('ClientCommandRegistry')
 
         # Add private processor for client queue
-        # pylint: disable-msg=E1101
+        # pylint: disable=E1101
         self.__cmdWorker = AMQPWorker(self.env, connection=amqp.getConnection(),
                 r_address="""%s.client.%s; {
                     create:always,
@@ -137,7 +139,8 @@ class AMQPClientService(object):
                 id_ = req['id']
                 name = req['method']
                 args = req['params']
-            except:
+
+            except KeyError:
                 err = str(BadServiceRequest(message.content))
 
         self.log.debug("received call [%s] for %s: %s(%s)" % (id_, message.user_id, name, args))
@@ -146,7 +149,7 @@ class AMQPClientService(object):
         if err == None:
             try:
                 res = self.__cr.dispatch(name, *args)
-            except Exception, e:
+            except Exception as e:
                 err = str(e)
 
                 # Write exception to log
@@ -225,8 +228,8 @@ class AMQPClientService(object):
         amqp.sendEvent(info)
 
         if not initial:
-                try:
-                    sk = PluginRegistry.getInstance('SessionKeeper')
-                    sk.sendSessionNotification()
-                except:
-                    pass
+            try:
+                sk = PluginRegistry.getInstance('SessionKeeper')
+                sk.sendSessionNotification()
+            except:
+                pass

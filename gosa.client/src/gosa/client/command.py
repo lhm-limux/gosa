@@ -13,13 +13,12 @@ via the :meth:`gosa.agent.plugins.goto.client_service.ClientService.clientDispat
 -------
 """
 import re
-import string
 import inspect
 import logging
 from zope.interface import implements
 
 from gosa.common.handler import IInterfaceHandler
-from gosa.common.components import Command, CommandInvalid, CommandNotAuthorized
+from gosa.common.components import Command, CommandInvalid
 from gosa.common.components.registry import PluginRegistry
 from gosa.common import Environment
 
@@ -107,4 +106,4 @@ class ClientCommandRegistry(object):
 
         ``Return:`` the method name
         """
-        return string.rsplit(path, '.')
+        return path.rsplit('.')

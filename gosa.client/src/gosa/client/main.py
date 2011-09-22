@@ -6,7 +6,6 @@ import logging
 import pkg_resources
 import codecs
 import traceback
-import logging
 
 from gosa.common import Environment
 from gosa.client import __version__ as VERSION
@@ -17,7 +16,7 @@ from gosa.common.event import EventMaker
 def shutdown(a=None, b=None):
     env = Environment.getInstance()
 
-    """ Function to shut down the client. Do some clean up and close sockets."""
+    # Function to shut down the client. Do some clean up and close sockets.
     amqp = PluginRegistry.getInstance("AMQPClientHandler")
 
     # Tell others that we're away now
@@ -45,8 +44,7 @@ def mainLoop(env):
         log = logging.getLogger(__name__)
 
         # Load plugins
-        pr = PluginRegistry(component='gosa_client.modules')
-        amqp = PluginRegistry.getInstance("AMQPClientHandler")
+        PluginRegistry(component='gosa_client.modules')
 
         #TODO:
         # Check if we're a client
@@ -122,7 +120,7 @@ def main():
             gre = grp.getgrnam(group)
             try:
                 s = os.stat(piddir)
-            except Exception as e:
+            except OSError as e:
                 env.log.critical("cannot stat pid directory '%s' - %s" % (piddir, str(e)))
                 exit(1)
             mode = s[stat.ST_MODE]
