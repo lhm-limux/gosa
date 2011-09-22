@@ -811,9 +811,17 @@ class ACLResolver(Plugin):
     def list_admin_accounts(self):
         return self.admins
 
-    def get_next_acl_id(self):
+    def __acl_id_is_used(self, aid):
 
-        self.next_acl_id += 1
+        for aclset in self.acl_sets:
+            for acl in aclset:
+                if acl.id == aid:
+                    return(True)
+        return(False)
+
+    def get_next_acl_id(self):
+        while self.__acl_id_is_used(self.next_acl_id):
+            self.next_acl_id += 1
         return(self.next_acl_id)
 
     def clear(self):
