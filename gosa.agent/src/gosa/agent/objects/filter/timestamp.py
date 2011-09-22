@@ -10,7 +10,7 @@ class ToUnixTime(ElementFilter):
         super(ToUnixTime, self).__init__(obj)
 
     def process(self, obj, key, value):
-        new_val = map(lambda x: mktime(x.timetuple()), value[key])
+        new_val = [mktime(x.timetuple()) for x in value[key]]
         return key, {key: new_val}
 
 
@@ -20,5 +20,5 @@ class FromUnixTime(ElementFilter):
         super(FromUnixTime, self).__init__(obj)
 
     def process(self, obj, key, value):
-        new_val = map(lambda x: datetime.datetime.fromtimestamp(x), value[key])
+        new_val = [datetime.datetime.fromtimestamp(x) for x in value[key]]
         return key, {key: new_val}

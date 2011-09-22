@@ -19,6 +19,7 @@ class LoadAttr(ElementFilter):
         super(LoadAttr, self).__init__(obj)
 
     def process(self, obj, key, value, attr):
+        #FIXME
         return key, 854711
 
 
@@ -43,5 +44,5 @@ class Clear(ElementFilter):
         elif type(value[key]) in [dict, list]:
             return key, {key: ['']}
         else:
-            raise ValueError("Unknown input type for filter %s. Type as '%s'!") % (
-                    self.__class__.__name__, type(value))
+            raise ValueError("Unknown input type for filter %s. Type as '%s'!" % (
+                    self.__class__.__name__, type(value)))

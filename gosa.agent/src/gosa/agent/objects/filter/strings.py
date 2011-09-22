@@ -19,10 +19,11 @@ class ConcatString(ElementFilter):
         elif type(value[key]) in [dict, list]:
             new_val = {}
             if position == "right":
-                new_val = map(lambda x: x + appstr, value[key])
+                new_val = [x + appstr for x in value[key]]
             else:
-                new_val = map(lambda x: appstr + x, value[key])
+                new_val = [appstr + x for x in value[key]]
         else:
-            raise ValueError("Unknown input type for filter %s. Type as '%s'!") % (
-                    self.__class__.__name__, type(value))
+            raise ValueError("Unknown input type for filter %s. Type as '%s'!" % (
+                    self.__class__.__name__, type(value)))
+
         return key, {key: new_val}
