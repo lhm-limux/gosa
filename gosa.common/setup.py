@@ -19,6 +19,7 @@ common_install_requires = [
     'pyOpenSSL',
     'lxml',
     'qpid-python',
+    'argparse',
     ],
 
 if platform.system() == "Windows":
