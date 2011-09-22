@@ -3,7 +3,8 @@ import os
 import StringIO
 import logging
 from lxml import etree
-from pkg_resources import *
+#pylint: disable=E0611
+from pkg_resources import resource_filename, resource_listdir, iter_entry_points, resource_isdir
 from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
 

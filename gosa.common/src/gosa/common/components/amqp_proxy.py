@@ -8,6 +8,10 @@ from gosa.common.utils import parseURL
 from lxml import objectify
 
 
+class AMQPException(Exception):
+    pass
+
+
 class AMQPServiceProxy(object):
     """
     The AMQPServiceProxy provides a simple way to use GOsa RPC
@@ -56,11 +60,11 @@ class AMQPServiceProxy(object):
                 self.__serviceAddress = '%s.command.core' % AMQPServiceProxy.domain
 
             if not self.__serviceAddress:
-                raise Exception("no serviceAddress or domain specified")
+                raise AMQPException("no serviceAddress or domain specified")
 
             try:
                 AMQPServiceProxy.worker[self.__serviceAddress]
-            except:
+            except KeyError:
                 AMQPServiceProxy.worker[self.__serviceAddress] = {}
 
             # Pre instanciate core sessions
@@ -75,18 +79,21 @@ class AMQPServiceProxy(object):
         # Store connection
         self.__conn = conn
         self.__ssn = None
+        self.__sender = None
+        self.__receiver = None
+        self.__worker = None
 
         # Retrieve methods
         try:
             AMQPServiceProxy.methods
-        except:
+        except AttributeError:
             AMQPServiceProxy.methods = None
             AMQPServiceProxy.methods = {}
 
         # Retrieve methods
         try:
             AMQPServiceProxy.methods[self.__serviceAddress]
-        except:
+        except KeyError:
             AMQPServiceProxy.methods[self.__serviceAddress] = None
             AMQPServiceProxy.methods[self.__serviceAddress] = self.getMethods()
 
@@ -141,7 +148,7 @@ class AMQPServiceProxy(object):
         if len(kwargs) > 0 and len(args) > 0:
             raise JSONRPCException("JSON-RPC does not support positional and keyword arguments at the same time")
 
-        # Default to 'core' queue
+        # Default to 'core' queue, pylint: disable=W0612
         queue = "core"
 
         if AMQPServiceProxy.methods[self.__serviceAddress]:
@@ -165,7 +172,7 @@ class AMQPServiceProxy(object):
 
         # No free session?
         if not self.__ssn:
-            raise Exception('no free session - increase workers')
+            raise AMQPException('no free session - increase workers')
 
         # Send
         if len(kwargs):
@@ -297,6 +304,7 @@ class AMQPEventConsumer(object):
         self.__eventWorker.join()
         self.__conn.close()
 
+    #pylint: disable=W0613
     def __eventProcessor(self, ssn, data):
         # Call callback, let exceptions pass to the caller
         xml = objectify.fromstring(data.content)

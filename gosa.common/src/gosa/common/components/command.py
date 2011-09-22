@@ -1,4 +1,4 @@
-from inspect import getargspec
+#-*- coding: utf-8 -*-
 
 # Global command types
 NORMAL = 1
@@ -50,12 +50,12 @@ def Command(**d_kwargs):
         # Tweak docstrings
         doc = getattr(f, '__doc__')
         if doc:
-            lines = map(lambda x: x.lstrip(' '), doc.split('\n'))
+            lines = [x.lstrip(' ') for x in doc.split('\n')]
             name = getattr(f, '__name__')
             try:
                 hlp = getattr(f, '__help__')
                 setattr(f, '__doc__', ".. command:: agent %s\n\n    %s\n\n.. note::\n    **This method will be exported by the CommandRegistry.**\n\n%s" % (name, hlp, "\n".join(lines)))
-            except:
+            except AttributeError:
                 setattr(f, '__doc__', ".. command:: client %s\n\n    %s\n\n..  note::\n    **This method will be exported by the CommandRegistry.**\n\n%s" % (name, "\n%s" % doc, "\n".join(lines)))
 
         return f
