@@ -3,10 +3,10 @@ import uuid
 from types import MethodType
 from gosa.common import Environment
 from gosa.common.utils import N_
-from gosa.common.components import Command, PluginRegistry, ObjectRegistry, AMQPServiceProxy
+from gosa.common.components import Command, PluginRegistry, ObjectRegistry, AMQPServiceProxy, Plugin
 
 
-class JSONRPCObjectMapper(object):
+class JSONRPCObjectMapper(Plugin):
     """
     The *JSONRPCObjectMapper* is a GOsa agent plugin that implements a stack
     which can handle object instances. These can be passed via JSONRPC using

@@ -25,7 +25,7 @@ from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
 from gosa.common.utils import N_
 from gosa.common.event import EventMaker
-from gosa.common.components import Command, PluginRegistry
+from gosa.common.components import Command, PluginRegistry, Plugin
 from gosa.common.components.scheduler import Scheduler, set_job_property
 from gosa.common.components.scheduler.job import JOB_RUNNING
 from gosa.common.components.scheduler.jobstores.sqlalchemy_store import SQLAlchemyJobStore
@@ -34,7 +34,7 @@ from gosa.common.components.scheduler.events import EVENT_JOBSTORE_JOB_REMOVED, 
 from gosa.common.components.amqp import EventConsumer
 
 
-class SchedulerService(object):
+class SchedulerService(Plugin):
     """
     The scheduler service provider.
     """

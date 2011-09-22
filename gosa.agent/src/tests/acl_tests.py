@@ -4,6 +4,10 @@ import os
 from gosa.agent.acl import ACL, ACLSet, ACLRole, ACLRoleEntry, ACLResolver, ACLException
 from gosa.common import Environment
 
+Environment.reset()
+Environment.config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test-acl.conf")
+Environment.noargs = True
+
 
 class TestACLResolver(unittest.TestCase):
 
@@ -12,9 +16,8 @@ class TestACLResolver(unittest.TestCase):
 
     def setUp(self):
         """ Stuff to be run before every test """
-        Environment.config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test-acl.conf")
-        Environment.noargs = True
         self.env = Environment.getInstance()
+
         self.resolver = ACLResolver()
         self.resolver.clear()
         self.ldap_base = self.resolver.base

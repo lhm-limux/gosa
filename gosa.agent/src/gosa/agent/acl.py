@@ -30,7 +30,7 @@ from zope.interface import implements
 from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
 from gosa.agent.ldap_utils import LDAPHandler
-from gosa.common.components import Command
+from gosa.common.components import Command, Plugin
 from gosa.common.utils import N_
 
 
@@ -747,7 +747,7 @@ class ACLRoleEntry(ACL):
         raise ACLException("Role ACLs do not support direct members")
 
 
-class ACLResolver(object):
+class ACLResolver(Plugin):
     """
     The ACLResolver is responsible for loading, saving and resolving
     permission::
@@ -1059,6 +1059,7 @@ class ACLResolver(object):
 
         # Admin users are allowed to do anything.
         if user in self.admins:
+            self.log.warning("ACL check override active for %s/%s/%s" % (user, base, str(topic)))
             return True
 
         # Load default base if needed

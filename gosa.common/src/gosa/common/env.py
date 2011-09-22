@@ -121,3 +121,8 @@ class Environment:
         if not Environment.__instance:
             Environment.__instance = Environment()
         return Environment.__instance
+
+    @staticmethod
+    def reset():
+        if Environment.__instance:
+            Environment.__instance = None

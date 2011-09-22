@@ -46,7 +46,7 @@ from gosa.common.handler import IInterfaceHandler
 from gosa.common import Environment
 from gosa.common.event import EventMaker
 from gosa.common.utils import stripNs, N_
-from gosa.common.components import AMQPServiceProxy
+from gosa.common.components import AMQPServiceProxy, Plugin
 from gosa.common.components.amqp import EventConsumer
 
 
@@ -66,7 +66,7 @@ class CommandNotAuthorized(Exception):
     pass
 
 
-class CommandRegistry(object):
+class CommandRegistry(Plugin):
     """
     This class covers the registration and invocation of methods
     imported thru plugins.
