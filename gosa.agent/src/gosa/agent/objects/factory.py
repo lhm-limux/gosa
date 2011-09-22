@@ -632,7 +632,7 @@ class GOsaObject(object):
 
             try:
                 attrs = loadAttrs(obj, propsByBackend[backend], backend)
-            except ValueError as e:
+            except ValueError:
                 print "Error reading property: %s!" % (backend,)
                 continue
 
@@ -703,7 +703,7 @@ class GOsaObject(object):
             object.__getattribute__(self, name)
             self.__dict__[name] = value
             return
-        except:
+        except AttributeError:
             pass
 
         # Try to save as property value
@@ -892,9 +892,6 @@ class GOsaObject(object):
         key = prop['name']
         value = prop['value']
 
-        orig_value = value
-        orig_key = key
-
         # Our filter result stack
         stack = list()
 
@@ -966,7 +963,7 @@ class GOsaObject(object):
         # Walk trough each line of the process list an replace placeholders.
         for line in fltr:
             if 'params' in fltr[line]:
-                fltr[line]['params'] = map(lambda x: _placeHolder(x),
+                fltr[line]['params'] = map(_placeHolder,
                         fltr[line]['params'])
         return fltr
 
@@ -974,11 +971,12 @@ class GOsaObject(object):
         """
         Removes this object.
         """
-        #TODO:
+        #TODO
         print "--> built in delete method"
 
     def _del_(self):
         """
         Internal cleanup method ...
         """
+        #TODO
         print "--> cleanup"

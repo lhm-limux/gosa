@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import socket
 import dumbnet
+from netaddr import EUI, NotRegisteredError
 from telnetlib import Telnet
-from netaddr import *
 
 from gosa.common.components import Plugin
 from gosa.common.utils import N_
@@ -30,7 +30,7 @@ class NetworkUtils(Plugin):
         try:
             tn = Telnet(protocolAddress, 139, 1)
             tn.close()
-        except:
+        except Exception:
             pass
 
     def getMacFromARP(self, protocolAddress):
@@ -44,12 +44,13 @@ class NetworkUtils(Plugin):
             result = self.getMacFromARP(protocolAddress)
         return str(result)
 
-    """ This function uses the ieee file provided at
-        http://standards.ieee.org/regauth/oui/oui.txt """
     @Command(__help__=N_("Resolve mac address to the producer of the"+
         " network card if possible."))
     def getMacManufacturer(self, mac):
         """
+        This function uses the ieee file provided at
+        http://standards.ieee.org/regauth/oui/oui.txt
+
         TODO
         """
         try:
@@ -57,5 +58,5 @@ class NetworkUtils(Plugin):
             oui = mac.oui.registration()
         except NotRegisteredError:
             return None
-        # pylint: disable-msg=E1101
+        # pylint: disable=E1101
         return oui.org

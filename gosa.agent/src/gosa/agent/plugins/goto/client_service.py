@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 import os
+#pylint: disable=W0401
 import string
 import random
 import hashlib
@@ -12,7 +13,7 @@ import logging
 from threading import Timer
 from zope.interface import implements
 from gosa.common.components.jsonrpc_proxy import JSONRPCException
-from qpid.messaging import *
+from qpid.messaging import uuid4
 
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.event import EventMaker
@@ -21,7 +22,7 @@ from gosa.common.utils import stripNs, N_
 from gosa.common.components.registry import PluginRegistry
 from gosa.common.components.amqp import EventConsumer
 from gosa.common.components import AMQPServiceProxy, Plugin
-from gosa.common.components.command import CUMULATIVE, FIRSTRESULT, Command
+from gosa.common.components.command import Command
 from gosa.agent.ldap_utils import LDAPHandler
 from base64 import encodestring as encode
 from Crypto.Cipher import AES
@@ -66,6 +67,7 @@ class ClientService(Plugin):
         self.log = logging.getLogger(__name__)
         self.log.debug("initializing client service")
         self.env = env
+        self.__cr = None
 
     def serve(self):
         # Add event processor
@@ -206,7 +208,8 @@ class ClientService(Plugin):
                     try:
                         self.clientDispatch(client, "notify", user, title, message,
                                 timeout, level, icon)
-                    except:
+                    #pylint: disable=W0141
+                    except Exception:
                         pass
 
         else:
@@ -215,7 +218,8 @@ class ClientService(Plugin):
                 try:
                     self.clientDispatch(client, "notify_all", title, message,
                             timeout, level, icon)
-                except:
+                #pylint: disable=W0141
+                except Exception:
                     pass
 
     @Command(__help__=N_("Set system status"))
@@ -410,7 +414,7 @@ class ClientService(Plugin):
         data = data.UserSession
         self.log.debug("updating client '%s' user session information" % data.Id)
         if hasattr(data.User, 'Name'):
-            self.__user_session[str(data.Id)] = map(lambda x: str(x), data.User.Name)
+            self.__user_session[str(data.Id)] = map(str, data.User.Name)
             self.systemSetStatus(str(data.Id), "+B")
         else:
             self.__user_session[str(data.Id)] = []

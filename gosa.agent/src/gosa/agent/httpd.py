@@ -10,8 +10,8 @@ is redirecting a path to a module.
 import thread
 import logging
 from zope.interface import implements
-from webob import exc, Request, Response
-from paste import httpserver, wsgilib, request, response
+from webob import exc
+from paste import httpserver
 
 from gosa.common import Environment
 from gosa.common.handler import IInterfaceHandler
@@ -31,6 +31,7 @@ class HTTPDispatcher(object):
 
     def __init__(self):
         self.__app = {}
+        self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
 
     def __call__(self, environ, start_response):
@@ -108,13 +109,19 @@ class HTTPService(object):
         self.log = logging.getLogger(__name__)
         self.log.debug("initializing HTTP service provider")
         self.env = env
+        self.srv = None
+        self.ssl_pem = None
+        self.app = None
+        self.host = None
+        self.scheme = None
+        self.port = None
 
     def serve(self):
         """
         Start HTTP service thread.
         """
         self.app = HTTPDispatcher()
-        self.app.env = self.env
+
         self.host = self.env.config.get('http.host', default="localhost")
         self.port = self.env.config.get('http.port', default=8080)
         self.ssl_pem = self.env.config.get('http.sslpemfile', default=None)

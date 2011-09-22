@@ -5,7 +5,6 @@ import sys
 import logging
 import pkg_resources
 import codecs
-import logging
 
 from gosa.common import Environment
 from gosa.common.utils import SystemLoad
@@ -96,6 +95,7 @@ def mainLoop(env):
             # Break, leave main loop
             break
 
+    # Catchall, pylint: disable=W0703
     except Exception as detail:
         log.critical("unexpected error in mainLoop")
         log.exception(detail)
@@ -141,7 +141,7 @@ def main():
             gre = grp.getgrnam(group)
             try:
                 s = os.stat(piddir)
-            except Exception as e:
+            except OSError as e:
                 env.log.critical("cannot stat pid directory '%s' - %s" % (piddir, str(e)))
                 exit(1)
             mode = s[stat.ST_MODE]
