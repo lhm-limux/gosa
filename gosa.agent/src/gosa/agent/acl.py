@@ -1795,7 +1795,7 @@ class ACLResolver(Plugin):
             self.add_acl_to_role(rolename, acl)
 
     @Command(needsUser=True, __help__=N_("Refresh existing role by ID."))
-    def updateACLRole(self, user, acl_id, scope=None, priority=None, actions=None):
+    def updateACLRole(self, user, acl_id, scope=None, priority=None, actions=None, use_role=None):
         """
         Updates an role-acl by ID.
 
@@ -1806,6 +1806,7 @@ class ACLResolver(Plugin):
         scope          The 'scope' defines how an acl is inherited by sub-bases. See :ref:`Scope values <scope_description>` for details.
         priority       An integer value to prioritize this acl-rule. (Lower values mean higher priority)
         actions        A dictionary which includes the topic and the acls this rule includes.
+        use_role       The role-name to use if we do not assign actions directly using the actions parameter.
         ============== =============
 
         For details about ``scope``, ``topic``, ``options`` and ``acls``, click here:
@@ -1825,19 +1826,6 @@ class ACLResolver(Plugin):
         if not self.check(user, 'org.gosa.acl', 'w', self.base):
             raise ACLException("The requested operation is not allowed!")
 
-        # Validate the given scope
-        if scope != None:
-            acl_scope_map = {}
-            acl_scope_map['one'] = ACL.ONE
-            acl_scope_map['sub'] = ACL.SUB
-            acl_scope_map['psub'] = ACL.PSUB
-            acl_scope_map['reset'] = ACL.RESET
-
-            if scope not in acl_scope_map:
-                raise ACLException("Invalid scope given! Expected on of 'one', 'sub', 'psub' and 'reset'!")
-
-            scope_int = acl_scope_map[scope]
-
         # Validate the priority
         if priority != None and type(priority) != int:
             raise ACLException("Expected priority to be of type int!")
@@ -1845,44 +1833,70 @@ class ACLResolver(Plugin):
         if priority != None and priority < -100 or priority > 100:
             raise ACLException("Priority it out of range! (-100, 100)")
 
-        # Validate given actions
+        # Validate the given scope and actions
         if actions:
-            if type(actions) != list:
-                raise ACLException("Expected actions to be of type list!")
-            else:
-                for action in actions:
-                    if 'acls' not in action:
-                        raise ACLException("An action is missing the 'acls' key! %s" % action)
-                    if 'topic' not in action:
-                        raise ACLException("An action is missing the 'topic' key! %s" % action)
-                    if 'options' not in action:
-                        action['options'] = {}
-                    if type(action['options']) != dict:
-                        raise ACLException("Options have to be of type dict! %s" % action)
-                    if len(set(action['acls']) - set("rwcdmxse")) != 0:
-                        raise ACLException("Unsupported acl type found '%s'!" % "".join((set(action['acls']) - set("rwcdmxse"))))
+            if scope != None:
+                acl_scope_map = {}
+                acl_scope_map['one'] = ACL.ONE
+                acl_scope_map['sub'] = ACL.SUB
+                acl_scope_map['psub'] = ACL.PSUB
+                acl_scope_map['reset'] = ACL.RESET
+
+                if scope not in acl_scope_map:
+                    raise ACLException("Invalid scope given! Expected on of 'one', 'sub', 'psub' and 'reset'!")
+
+                scope_int = acl_scope_map[scope]
+
+            # Validate given actions
+            if actions:
+                if type(actions) != list:
+                    raise ACLException("Expected actions to be of type list!")
+                else:
+                    for action in actions:
+                        if 'acls' not in action:
+                            raise ACLException("An action is missing the 'acls' key! %s" % action)
+                        if 'topic' not in action:
+                            raise ACLException("An action is missing the 'topic' key! %s" % action)
+                        if 'options' not in action:
+                            action['options'] = {}
+                        if type(action['options']) != dict:
+                            raise ACLException("Options have to be of type dict! %s" % action)
+                        if len(set(action['acls']) - set("rwcdmxse")) != 0:
+                            raise ACLException("Unsupported acl type found '%s'!" % "".join((set(action['acls']) - set("rwcdmxse"))))
 
         # Try to find role-acl with the given ID.
         acl = None
+        role = None
         for _aclrole in self.acl_roles:
             for _acl in self.acl_roles[_aclrole]:
                 if _acl.id == acl_id:
                     acl = _acl
+                    role = _aclrole
+                    break;
+
         if acl:
 
-            # Update the scope value.
-            if scope:
-                acl.set_scope(scope_int)
+            # Check that we do not point to ourselves
+            if use_role and use_role == role.name:
+                raise ACLException("The same roles cannot point to each other")
+
+                acl.clear_actions()
+                acl.use_role(rolename)
+            else:
+                # Update the scope value.
+                if scope:
+                    acl.set_scope(scope_int)
+
+                # Update the acl actions
+                if actions:
+                    acl.clear_actions()
+                    for action in actions:
+                        acl.add_action(action['topic'], action['acls'], action['options'])
 
             # Update the priority
             if priority:
                 acl.set_priority(priority)
 
-            # Update the acl actions
-            if actions:
-                acl.clear_actions()
-                for action in actions:
-                    acl.add_action(action['topic'], action['acls'], action['options'])
         else:
             raise ACLException("An acl with the given id does not exists! (%s)" % (acl_id,))
 
