@@ -185,7 +185,15 @@ class ACLAdmin(object):
                     "\n The format is:  key:value;key:value;..."
                     "\n  e.g. (Do not forget to use quotes!)"
                     "\n   'uid:peter;eventType:start;'"),
-                "id": _("ID parameters have to be of type int!")
+                "id": _("ID parameters have to be of type int!"),
+                "rolename": _("The name of the acl role you want to set"),
+                "acl-update-action": _("You can specify the upate-action for the acl."
+                    "\n  Possible values are:"
+                    "\n    * set-scope      Update the scope of an acl-rule"
+                    "\n    * set-members    Set a new list of members for an acl-rule"
+                    "\n    * set-priority   Set another priority level for the acl-rule"
+                    "\n    * set-action     Set a new action for the acl"
+                    "\n    * set-role       Let the acl-rule point to a role")
                 }
 
         # Return the help message, if it exists.
@@ -308,6 +316,16 @@ class ACLAdmin(object):
                 self.para_missing('acl')
                 sys.exit(1)
 
+        # Check rolename
+        elif name == "rolename":
+            if len(args):
+                rolename = args[0]
+                del(args[0])
+                return(rolename)
+            else:
+                self.para_missing('rolename')
+                sys.exit(1)
+
         # Check for options
         elif name == "options":
             if len(args):
@@ -325,8 +343,60 @@ class ACLAdmin(object):
                 del(args[0])
                 return(opts)
             return({})
+
+        # Check for acl-update-actions
+        elif name == "acl-update-action":
+            if len(args):
+                action = args[0]
+                if action not in ["set-scope","set-members", "set-priority", "set-action", "set-role"]:
+                    self.para_invalid('acl-update-action')
+                    sys.exit(1)
+
+                del(args[0])
+                return(action)
+            else:
+                self.para_missing('acl-update-action')
+                sys.exit(1)
+
         else:
             raise(Exception("Unknown parameter to extract: %s" %name))
+
+    @helpDecorator(_("Updates an ACL rule entry"), _("update acl <update-action> <ID> [parameters]"))
+    def update_acl(self, args):
+
+        action_type = self.get_value_from_args("acl-update-action", args)
+        aid = self.get_value_from_args("id", args)
+
+        try:
+            if "set-scope" == action_type:
+                scope = self.get_value_from_args("scope", args)
+                self.resolver.updateACL('tmp_admin', aid, scope=scope)
+                self.resolver.save_to_file()
+
+            if "set-members" == action_type:
+                members = self.get_value_from_args("members", args)
+                self.resolver.updateACL('tmp_admin', aid, members=members)
+                self.resolver.save_to_file()
+
+            if "set-priority" == action_type:
+                priority = self.get_value_from_args("priority", args)
+                self.resolver.updateACL('tmp_admin', aid, priority=priority)
+                self.resolver.save_to_file()
+
+            if "set-action" == action_type:
+                topic = self.get_value_from_args("topic", args)
+                acls = self.get_value_from_args("acls", args)
+                options = self.get_value_from_args("options", args)
+                actions = [{'topic': topic, 'acls': acls, 'options': options}]
+                self.resolver.updateACL('tmp_admin', aid, actions=actions)
+                self.resolver.save_to_file()
+
+            if "set-role" == action_type:
+                rolename = self.get_value_from_args("rolename", args)
+                self.resolver.updateACL('tmp_admin', aid, rolename=rolename)
+                self.resolver.save_to_file()
+        except ACLException as e:
+            print e
 
     @helpDecorator(_("Removes an ACL rule entry"), _("remove acl <ID>"))
     def remove_acl(self, args):
@@ -342,10 +412,11 @@ class ACLAdmin(object):
         =========== =============
         """
         rid = self.get_value_from_args("id", args)
-        if self.resolver.removeACL('tmp_admin', rid):
+        try:
+            self.resolver.removeACL('tmp_admin', rid)
             self.resolver.save_to_file()
-        else:
-            print "No such ACL with ID: %s" % rid
+        except ACLException as e:
+            print e
 
     @helpDecorator(_("Adds a new ACL rule"), _("add acl <base> <scope> <priority> <members> <topic> <acls> [options]"))
     def add_acl(self, args):
@@ -394,7 +465,7 @@ class ACLAdmin(object):
             print(_("   ... none"))
         for aclset in allSets:
             for acl in aclset:
-                print("ID: %i \tBASE: %s \t SCOPE (%s)" % (acl.id, aclset.base, self.idToScopeStr(acl.scope)))
+                print("ID: %i \tSCOPE(%s)\tPRIORITY: %s \t BASE (%s)" % (acl.id, self.idToScopeStr(acl.scope), acl.priority, aclset.base))
                 print("       \tMEMBER: %s" % (", ".join(acl.members)))
                 if acl.uses_role:
                     print(_("\trefers to role: %s") % acl.role)
@@ -424,7 +495,7 @@ class ACLAdmin(object):
             print("   ... none")
         for aclrole in allRoles:
             for acl in aclrole:
-                print("ID: %i \tROLENAME: %s \t SCOPE (%s)" % (acl.id, aclset.name, self.idToScopeStr(acl.scope)))
+                print("ID: %i \tROLENAME: %s \t SCOPE (%s) \t PRIORITY (%S)" % (acl.id, aclset.name, self.idToScopeStr(acl.scope), str(acl.priority)))
                 if acl.uses_role:
                     print(_("\trefers to role: %s") % acl.role)
                 else:
