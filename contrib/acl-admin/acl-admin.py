@@ -294,12 +294,18 @@ class ACLAdmin(object):
         elif name == "options":
             if len(args):
                 options = args[0]
-                if not re.match(r"^([a-z0-9]*:[a-z0-9]*;)*$", options):
+                if not re.match(r"^([a-z0-9]*:[^:;]*;)*$", options):
                     self.para_invalid('options')
                     sys.exit(1)
 
+                opts = {}
+                for item in options.split(";"):
+                    if len(item):
+                        tmp = item.split(":")
+                        opts[tmp[0]] = tmp[1]
+
                 del(args[0])
-                return(options)
+                return(opts)
             return({})
         else:
             raise(Exception("Unknown parameter to extract: %s" %name))
