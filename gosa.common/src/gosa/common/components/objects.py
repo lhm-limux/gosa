@@ -22,7 +22,7 @@ class ObjectRegistry(object):
     In this case, all objects are registered after the agent is fired
     up automatically.
     """
-    _objects = {}
+    objects = {}
     _instance = None
 
     def __init__(self):
