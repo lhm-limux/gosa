@@ -194,6 +194,12 @@ class ACLAdmin(object):
                     "\n    * set-priority   Set another priority level for the acl-rule"
                     "\n    * set-action     Set a new action for the acl"
                     "\n    * set-role       Let the acl-rule point to a role"),
+                "roleacl-update-action": _("You can specify the upate-action for the role-acl."
+                    "\n  Possible values are:"
+                    "\n    * set-scope      Update the scope of an acl-rule"
+                    "\n    * set-priority   Set another priority level for the acl-rule"
+                    "\n    * set-action     Set a new action for the acl"
+                    "\n    * set-role       Let the acl-rule point to a role"),
                 "acl-update-action": _("You can either create acl-rule that contain direkt permissions settings"
                     " or you can use previously defined roles"
                     "\n  Possible values are:"
@@ -362,6 +368,21 @@ class ACLAdmin(object):
             else:
                 self.para_missing('acl-update-action')
                 sys.exit(1)
+
+        # Check for roleacl-update-actions
+        elif name == "roleacl-update-action":
+            if len(args):
+                action = args[0]
+                if action not in ["set-scope", "set-priority", "set-action", "set-role"]:
+                    self.para_invalid('roleacl-update-action')
+                    sys.exit(1)
+
+                del(args[0])
+                return(action)
+            else:
+                self.para_missing('roleacl-update-action')
+                sys.exit(1)
+
 
         # Check for acl-add-actions
         elif name == "acl-add-action":
@@ -537,6 +558,50 @@ class ACLAdmin(object):
             self.resolver.save_to_file()
         except ACLException as e:
             print e
+
+    @helpDecorator(_("Updates an ACL ROLE entry"), _("update roleacl [set-scope|set-priority|set-action|set-role] <ID> [parameters]"))
+    def update_roleacl(self, args):
+        """
+        This method updates an existing ACL ROLE entry.
+
+        (It can be accessed via parameter 'update roleacl')
+
+        =========== =============
+        key         description
+        =========== =============
+        args        The arguments-list we use as information basis
+        =========== =============
+        """
+
+        action_type = self.get_value_from_args("roleacl-update-action", args)
+        aid = self.get_value_from_args("id", args)
+
+        try:
+            if "set-scope" == action_type:
+                scope = self.get_value_from_args("scope", args)
+                self.resolver.updateACLRole('tmp_admin', aid, scope=scope)
+                self.resolver.save_to_file()
+
+            if "set-priority" == action_type:
+                priority = self.get_value_from_args("priority", args)
+                self.resolver.updateACLRole('tmp_admin', aid, priority=priority)
+                self.resolver.save_to_file()
+
+            if "set-action" == action_type:
+                topic = self.get_value_from_args("topic", args)
+                acls = self.get_value_from_args("acls", args)
+                options = self.get_value_from_args("options", args)
+                actions = [{'topic': topic, 'acls': acls, 'options': options}]
+                self.resolver.updateACLRole('tmp_admin', aid, actions=actions)
+                self.resolver.save_to_file()
+
+            if "set-role" == action_type:
+                rolename = self.get_value_from_args("rolename", args)
+                self.resolver.updateACLRole('tmp_admin', aid, rolename=rolename)
+                self.resolver.save_to_file()
+        except ACLException as e:
+            print e
+
 
     @helpDecorator(_("List all defined acls"))
     def list_acls(self, args):
