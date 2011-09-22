@@ -5,7 +5,7 @@ from gosa.agent.acl import ACL, ACLSet, ACLRole, ACLRoleEntry, ACLResolver, ACLE
 from gosa.common import Environment
 
 Environment.reset()
-Environment.config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test-acl.conf")
+Environment.config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test.conf")
 Environment.noargs = True
 
 

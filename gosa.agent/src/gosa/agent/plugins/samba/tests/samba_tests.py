@@ -1,5 +1,11 @@
+import os
 import unittest
+from gosa.common import Environment
 from gosa.agent.plugins.samba.utils import SambaUtils
+
+Environment.reset()
+Environment.config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test.conf")
+Environment.noargs = True
 
 class TestSambaPlugin(unittest.TestCase):
 
