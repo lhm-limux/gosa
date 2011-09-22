@@ -483,6 +483,40 @@ class ACLAdmin(object):
         except ACLException as e:
             print e
 
+    @helpDecorator(_("Adds a new ACL-rule to an ACL-ROLE"), _("add roleacl [with-role|with-actions] <rolename> <priority> [rolename|<scope> <topic> <acls> [options]]"))
+    def add_roleacl(self, args):
+        """
+        This method creates a new ACLRole entry for a given role.
+
+        (It can be accessed via parameter 'add roleacl')
+
+        =========== =============
+        key         description
+        =========== =============
+        args        The arguments-list we use as information basis
+        =========== =============
+        """
+
+        try:
+            action_type = self.get_value_from_args("acl-add-action", args)
+            actions = rolename = scope = members = None
+            rolename = self.get_value_from_args("rolename", args)
+            priority = self.get_value_from_args("priority", args)
+            if action_type == "with-actions":
+                scope = self.get_value_from_args("scope", args)
+                topic = self.get_value_from_args("topic", args)
+                acls = self.get_value_from_args("acls", args)
+                options = self.get_value_from_args("options", args)
+                actions = [{'topic': topic, 'acls': acls, 'options': options}]
+                self.resolver.addACLToRole('tmp_admin', rolename, priority, actions=actions, scope=scope)
+            else:
+                use_role = self.get_value_from_args("rolename", args)
+                self.resolver.addACLToRole('tmp_admin', rolename, priority, use_role=use_role)
+
+            self.resolver.save_to_file()
+        except ACLException as e:
+            print e
+
     @helpDecorator(_("Adds a new ACL ROLE"), _("add role <rolename>"))
     def add_role(self, args):
         """
@@ -555,7 +589,7 @@ class ACLAdmin(object):
         for aclrole in allRoles:
             print("  Entries for role: %s" % aclrole)
             for acl in allRoles[aclrole]:
-                print("ID: %i \tROLENAME: %s \t SCOPE (%s) \t PRIORITY (%S)" % (acl.id, aclset.name, self.idToScopeStr(acl.scope), str(acl.priority)))
+                print("ID: %i \tROLENAME: %s \t SCOPE (%s) \t PRIORITY (%s)" % (acl.id, allRoles[aclrole].name, self.idToScopeStr(acl.scope), str(acl.priority)))
                 if acl.uses_role:
                     print(_("\trefers to role: %s") % acl.role)
                 else:

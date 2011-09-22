@@ -939,7 +939,7 @@ class ACLResolver(Plugin):
                         # Add the acl entry entry which refers to the role.
                         acl = ACLRoleEntry(role=roles[rn])
                         acl.id = acl_entry['id']
-                        acl.use_role(roles[rn])
+                        acl.use_role(roles[rn].name)
                         acl.set_priority(acl_entry['priority'])
                         roles[name].add(acl)
                         self.add_acl_role(roles[name])
@@ -1705,7 +1705,7 @@ class ACLResolver(Plugin):
         self.add_acl_role(role)
 
     @Command(needsUser=True, __help__=N_("Add new acl to an existing role."))
-    def addACLToRole(self, user, rolename, scope, priority, actions):
+    def addACLToRole(self, user, rolename, priority, actions=None, scope=None, use_role=None):
         """
         Adds a new acl to an existing role.
 
@@ -1713,9 +1713,10 @@ class ACLResolver(Plugin):
         Key            Description
         ============== =============
         rolename       The name of the acl-role we want to add to.
-        scope          The 'scope' defines how an acl is inherited by sub-bases. See :ref:`Scope values <scope_description>` for details.
         priority       An integer value to prioritize this acl-rule. (Lower values mean higher priority)
         actions        A dictionary which includes the topic and the acls this rule includes.
+        scope          The 'scope' defines how an acl is inherited by sub-bases. See :ref:`Scope values <scope_description>` for details.
+        use_role       The role-name to use if we do not assign actions directly using the actions parameter.
         ============== =============
 
         For details about ``scope``, ``topic``, ``options`` and ``acls``, click here:
@@ -1739,18 +1740,6 @@ class ACLResolver(Plugin):
         if rolename not in self.acl_roles:
             raise ACLException("A role with the given name already exists! (%s)" % (rolename,))
 
-        # Validate the given scope
-        acl_scope_map = {}
-        acl_scope_map['one'] = ACL.ONE
-        acl_scope_map['sub'] = ACL.SUB
-        acl_scope_map['psub'] = ACL.PSUB
-        acl_scope_map['reset'] = ACL.RESET
-
-        if scope not in acl_scope_map:
-            raise ACLException("Invalid scope given! Expected on of 'one', 'sub', 'psub' and 'reset'!")
-
-        scope_int = acl_scope_map[scope]
-
         # Validate the priority
         if type(priority) != int:
             raise ACLException("Expected priority to be of type int!")
@@ -1758,63 +1747,52 @@ class ACLResolver(Plugin):
         if priority < -100 or priority > 100:
             raise ACLException("Priority it out of range! (-100, 100)")
 
-        # Validate given actions
-        if type(actions) != list:
-            raise ACLException("Expected actions to be of type list!")
-        else:
-            for action in actions:
-                if 'acls' not in action:
-                    raise ACLException("An action is missing the 'acls' key! %s" % action)
-                if 'topic' not in action:
-                    raise ACLException("An action is missing the 'topic' key! %s" % action)
-                if 'options' not in action:
-                    action['options'] = {}
-                if type(action['options']) != dict:
-                    raise ACLException("Options have to be of type dict! %s" % action)
-                if len(set(action['acls']) - set("rwcdmxse")) != 0:
-                    raise ACLException("Unsupported acl type found '%s'!" % "".join((set(action['acls']) - set("rwcdmxse"))))
+        # Validate the given scope and actions
+        if actions:
+            acl_scope_map = {}
+            acl_scope_map['one'] = ACL.ONE
+            acl_scope_map['sub'] = ACL.SUB
+            acl_scope_map['psub'] = ACL.PSUB
+            acl_scope_map['reset'] = ACL.RESET
+
+            if scope not in acl_scope_map:
+                raise ACLException("Invalid scope given! Expected on of 'one', 'sub', 'psub' and 'reset'!")
+            scope_int = acl_scope_map[scope]
+
+            if type(actions) != list:
+                raise ACLException("Expected actions to be of type list!")
+            else:
+                for action in actions:
+                    if 'acls' not in action:
+                        raise ACLException("An action is missing the 'acls' key! %s" % action)
+                    if 'topic' not in action:
+                        raise ACLException("An action is missing the 'topic' key! %s" % action)
+                    if 'options' not in action:
+                        action['options'] = {}
+                    if type(action['options']) != dict:
+                        raise ACLException("Options have to be of type dict! %s" % action)
+                    if len(set(action['acls']) - set("rwcdmxse")) != 0:
+                        raise ACLException("Unsupported acl type found '%s'!" % "".join((set(action['acls']) - set("rwcdmxse"))))
+
+        # We can either set actions or a role, but not both.
+        if actions and use_role:
+            raise ACLException("You can either use the actions or the the rolename parameter, but not both!")
+
+        if use_role and use_role == rolename:
+            raise ACLException("The same roles cannot point to each other")
 
         # All checks passed now add the new ACL.
 
         # Create a new acl with the given parameters
-        acl = ACLRoleEntry(scope_int)
-        for action in actions:
-            acl.add_action(action['topic'], action['acls'], action['options'])
+        if actions:
+            acl = ACLRoleEntry(scope_int)
+            for action in actions:
+                acl.add_action(action['topic'], action['acls'], action['options'])
             self.add_acl_to_role(rolename, acl)
 
-    @Command(needsUser=True, __help__=N_("Add a new role-based acl to an existing role."))
-    def addACLWithRoleToRole(self, user, rolename, priority, role):
-        """
-        Adds a new role-based acl to an existing role.
-
-        ============== =============
-        Key            Description
-        ============== =============
-        rolename       The name of the role we want to add this acl to.
-        priority       An integer value to prioritize this acl-rule. (Lower values mean higher priority)
-        role           The name of the role to use.
-        ============== =============
-
-        This example let role1 to point to role2:
-
-        >>> addACLWithRoleToRole("role1", 0, "role2")
-
-        """
-        # Check permissions
-        if not self.check(user, 'org.gosa.acl', 'w', self.base):
-            raise ACLException("The requested operation is not allowed!")
-
-        # Check if the given rolename exists
-        if rolename not in self.acl_roles:
-            raise ACLException("A role with the given name already exists! (%s)" % (rolename,))
-
-        # Create a new acl with the given parameters
-        acl = ACLRoleEntry(role=role)
-        self.add_acl_to_role(rolename, acl)
-
-        # Set the priority
-        if priority:
-            acl.set_priority(priority)
+        elif use_role:
+            acl = ACLRoleEntry(role=use_role)
+            self.add_acl_to_role(rolename, acl)
 
     @Command(needsUser=True, __help__=N_("Refresh existing role by ID."))
     def updateACLRole(self, user, acl_id, scope=None, priority=None, actions=None):
