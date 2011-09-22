@@ -112,8 +112,7 @@ class ClientService(Plugin):
                 #     ... load client capabilities and store them localy
                 raise Exception("getting client information from other nodes is not implmeneted!")
 
-        #TODO: check for old clients
-        # Register some task at the scheduler for that
+        #TODO: register scheduler task to remove outdated clients
 
     def stop(self):
         pass
@@ -121,7 +120,9 @@ class ClientService(Plugin):
     @Command(__help__=N_("List available clients."))
     def getClients(self):
         """
-        TODO
+        List available domain clients.
+
+        ``Return:`` dict with name and timestamp informatio, indexed by UUID
         """
         res = {}
         for uuid, info in self.__client.iteritems():
@@ -131,7 +132,17 @@ class ClientService(Plugin):
     @Command(__help__=N_("Call method exposed by client."))
     def clientDispatch(self, client, method, *arg, **larg):
         """
-        TODO
+        Dispatch a method on the client.
+
+        ========= ================================
+        Parameter Description
+        ========= ================================
+        client    Device UUID of the client
+        method    Method name to call
+        *         Method arguments
+        ========= ================================
+
+        ``Return:`` varies
         """
 
         # Bail out if the client is not available
@@ -157,7 +168,16 @@ class ClientService(Plugin):
     @Command(__help__=N_("Get the client Interface/IP/Netmask/Broadcast/MAC list."))
     def getClientNetInfo(self, client):
         """
-        TODO
+        Get brief information about the client network setup.
+
+        Example::
+
+            >>> gosa.getClientNetInfo('eb5e72d4-c53f-4612-81a3-602b14a8da69')
+            {'eth0': {'Broadcast': '10.89.1.255', 'MAC': '00:01:6c:9d:b9:fa',
+            'IPAddress': '10.89.1.31', 'Netmask': '255.255.255.0', 'IPv6Address':
+            'fe80::201:6cff:fe9d:b9fa\\/64'}}
+
+        ``Return:`` dict with network information
         """
         if not client in self.__client:
             return []
@@ -168,7 +188,9 @@ class ClientService(Plugin):
     @Command(__help__=N_("List available client methods for specified client."))
     def getClientMethods(self, client):
         """
-        TODO
+        Get list of available client methods and their signature.
+
+        ``Return:`` dict of client methods
         """
         if not client in self.__client:
             return []

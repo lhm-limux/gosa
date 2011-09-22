@@ -34,12 +34,12 @@
 """
 from __future__ import print_function
 import sys
-import time
 import traceback
 import code
 import getopt
 import socket
 import getpass
+#pylint: disable=W0611
 import readline
 import gettext
 import textwrap
@@ -114,7 +114,7 @@ class MyConsole(code.InteractiveConsole):
             # Check for error member
             try:
                 err = e.error["error"]
-            except:
+            except KeyError:
                 err = str(e)
             if isinstance(err, ListType):
                 print(err[0] % tuple(err[1:]))
@@ -123,6 +123,7 @@ class MyConsole(code.InteractiveConsole):
             if softspace(sys.stdout, 0):
                 print()
         except Exception as e:
+            #pylint: disable=W0612
             exc_type, exc_obj, exc_tb = sys.exc_info()
             self.showtraceback()
         else:
@@ -354,7 +355,7 @@ del os, histfile, readline, rlcompleter
             cake = sys.stdin.read()
             pyconsole.runcode(cake)
             letRun = 0
-        except:
+        except Exception:
             traceback.print_exc()
             return 1
     # Use one-shot mode
@@ -365,7 +366,7 @@ del os, histfile, readline, rlcompleter
             for cake in commands:
                 pyconsole.runcode(wrap % cake)
             letRun = 0
-        except:
+        except Exception:
             return 1
     # Use interactive mode
     else:
