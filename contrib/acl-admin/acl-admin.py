@@ -380,7 +380,7 @@ class ACLAdmin(object):
         else:
             raise(Exception("Unknown parameter to extract: %s" %name))
 
-    @helpDecorator(_("Updates an ACL rule entry"), _("update acl <update-action> <ID> [parameters]"))
+    @helpDecorator(_("Updates an ACL rule entry"), _("update acl [set-scope|set-members|set-priority|set-action|set-role] <ID> [parameters]"))
     def update_acl(self, args):
 
         action_type = self.get_value_from_args("acl-update-action", args)
@@ -437,7 +437,7 @@ class ACLAdmin(object):
         except ACLException as e:
             print e
 
-    @helpDecorator(_("Adds a new ACL rule"), _("add acl [with-role|with-actions] <base> [<scope>] <priority> <members> [rolename|<topic> <acls> [options]]"))
+    @helpDecorator(_("Adds a new ACL rule"), _("add acl [with-role|with-actions] <base> <priority> <members> [rolename|<scope> <topic> <acls> [options]]"))
     def add_acl(self, args):
         """
         This method creates a new ACL rule depending on the passes arguments-list.
@@ -454,20 +454,17 @@ class ACLAdmin(object):
         try:
             action_type = self.get_value_from_args("acl-add-action", args)
             actions = rolename = scope = members = None
+            base = self.get_value_from_args("base", args)
+            priority = self.get_value_from_args("priority", args)
+            members = self.get_value_from_args("members", args)
             if action_type == "with-actions":
-                base = self.get_value_from_args("base", args)
                 scope = self.get_value_from_args("scope", args)
-                priority = self.get_value_from_args("priority", args)
-                members = self.get_value_from_args("members", args)
                 topic = self.get_value_from_args("topic", args)
                 acls = self.get_value_from_args("acls", args)
                 options = self.get_value_from_args("options", args)
                 actions = [{'topic': topic, 'acls': acls, 'options': options}]
                 self.resolver.addACL('tmp_admin', base, priority, members, actions=actions, scope=scope)
             else:
-                base = self.get_value_from_args("base", args)
-                priority = self.get_value_from_args("priority", args)
-                members = self.get_value_from_args("members", args)
                 rolename = self.get_value_from_args("rolename", args)
                 self.resolver.addACL('tmp_admin', base, priority, members, rolename=rolename)
 
