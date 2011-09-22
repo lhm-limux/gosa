@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
 import os
-#pylint: disable=W0401
 import string
 import random
 import hashlib

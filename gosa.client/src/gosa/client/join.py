@@ -7,7 +7,6 @@ import os
 import gettext
 import grp
 import pkg_resources
-import logging
 from os.path import isdir, exists
 from pkg_resources import resource_filename
 from gosa.common import Environment

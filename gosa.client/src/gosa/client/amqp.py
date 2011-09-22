@@ -1,15 +1,10 @@
 # -*- coding: utf-8 -*-
-
-import re
-import time
 import socket
 import thread
 import logging
 from urlparse import urlparse
-from qpid.messaging import *
+from qpid.messaging import Connection
 from qpid.messaging.util import auto_fetch_reconnect_urls
-from lxml import etree, objectify
-
 from gosa.common.components.amqp import AMQPHandler, EventProvider
 from gosa.common.components.zeroconf_client import ZeroconfClient
 from gosa.common.utils import parseURL
@@ -58,7 +53,7 @@ class AMQPClientHandler(AMQPHandler):
             url = ZeroconfClient.discover(['_amqps._tcp', '_amqp._tcp'], domain=self.domain)[0]
 
             o = urlparse(url)
-            # pylint: disable-msg=E1101
+            # pylint: disable=E1101
             self.domain = o.path[1::]
             self.log.info("using service '%s'" % url)
 
@@ -69,7 +64,7 @@ class AMQPClientHandler(AMQPHandler):
 
             key = self.env.config.get('amqp.key')
             if key:
-                # pylint: disable-msg=E1101
+                # pylint: disable=E1101
                 self.url = parseURL('%s://%s:%s@%s' % (o.scheme, user, key, o.netloc))
             else:
                 self.url = parseURL(url)

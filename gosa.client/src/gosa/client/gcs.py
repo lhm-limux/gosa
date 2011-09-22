@@ -48,7 +48,7 @@ class GOsaClientService(win32serviceutil.ServiceFramework):
 
         try:
             # Load plugins
-            pr = PluginRegistry(component='gosa_client.modules')
+            PluginRegistry(component='gosa_client.modules')
             amqp = PluginRegistry.getInstance("AMQPClientHandler")
 
             #TODO:
