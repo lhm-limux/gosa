@@ -53,6 +53,11 @@ class ACLAdmin(object):
         print(string)
         print("-" * len(string))
 
+
+    @helpDecorator("Adds a new ACL rule", "add acl <base> <scope> <priority> <actions> <acls> [options]")
+    def add_acl(self, args):
+        pass
+
     @helpDecorator("List all defined acls")
     def list_acls(self, args):
         """
@@ -99,24 +104,24 @@ class ACLAdmin(object):
 
 
 def print_help():
-    
+
     # Define cli-script parameters
     print("""
-usage: acl-admin [-c CFGFILE] <list/add/update/remove> <acl/role> [parameters]
-
 Administrate GOsa-ng permissions from the command line.
 
+usage: acl-admin [-c CFGFILE] <list/add/update/remove> <acl/role> [parameters]
+
 optional arguments:
-  -h, --help            show this help message and exit
   -c CFGFILE, --config CFGFILE
-                        the agent-config file to use
-""")
+    the agent-config file to use
+
+Actions:""")
 
     for method in helpDecorator.method_list:
         sh = helpDecorator.method_list[method][0]
         lh = helpDecorator.method_list[method][1]
         if lh != "":
-            print("  %s %s\n    %s" % (method.ljust(20), sh, lh))
+            print("  %s %s\n    %s\n" % (method.ljust(20), sh, lh))
         else:
             print("  %s %s" % (method.ljust(20), sh))
 
