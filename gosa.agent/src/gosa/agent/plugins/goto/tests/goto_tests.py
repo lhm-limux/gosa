@@ -1,5 +1,11 @@
+import os
 import unittest
+from gosa.common import Environment
 from gosa.agent.plugins.goto.network import NetworkUtils
+
+Environment.reset()
+Environment.config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test.conf")
+Environment.noargs = True
 
 class TestGOtoPlugin(unittest.TestCase):
 
