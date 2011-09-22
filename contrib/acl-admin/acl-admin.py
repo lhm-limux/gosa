@@ -183,8 +183,8 @@ class ACLAdmin(object):
                     "\n    * e - Receive event"),
                 "options": _("Options are additional checks, please read the GOsa documentation for details."
                     "\n The format is:  key:value;key:value;..."
-                    "\n e.g. (Do not forget to use quotes!)"
-                    "\n  'uid:peter;eventType:start;'")
+                    "\n  e.g. (Do not forget to use quotes!)"
+                    "\n   'uid:peter;eventType:start;'")
                 }
 
         # Return the help message, if it exists.
