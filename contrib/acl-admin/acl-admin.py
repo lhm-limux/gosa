@@ -13,10 +13,8 @@ import copy
 _ = gettext.gettext
 
 class helpDecorator(object):
-
     largeHelp = ""
     smallHelp = ""
-
     method_list = {}
 
     def __init__(self, smallHelp, largeHelp=""):
@@ -26,6 +24,7 @@ class helpDecorator(object):
     def __call__(self, f):
         helpDecorator.method_list[f.__name__] = (self.smallHelp, self.largeHelp)
         return f
+
 
 class ACLAdmin(object):
     def __init__(self, cfgFile):
@@ -53,10 +52,107 @@ class ACLAdmin(object):
         print(string)
         print("-" * len(string))
 
+    def para_missing(self, name):
+        print
+        print("<%s> parameter is missing!" % name)
+        desc = self.get_para_help(name)
+        if len(desc):
+            for line in desc:
+                print("      %s"  % line)
 
-    @helpDecorator("Adds a new ACL rule", "add acl <base> <scope> <priority> <actions> <acls> [options]")
+    def para_invalid(self, name):
+        print
+        print("<%s> parameter is invalid!" % name)
+        desc = self.get_para_help(name)
+        if len(desc):
+            for line in desc:
+                print("      %s"  % line)
+
+    def get_para_help(self, para):
+
+        help_msgs = {"base":[
+                    "The base parameter specifies the position acls are active for",
+                    "For example: dc=example,dc=de"],
+                "scope":[
+                    "Possible scope values are",
+                    " one   - For acls that are active only for the current base",
+                    "         this can be revoked using the 'reset' scope!",
+                    " sub   - For acls that are active only for the complete subtree",
+                    "         this can be revoked using the 'reset' scope!",
+                    " psub  - For acls that are active only for the complete subtree",
+                    "         this can NOT be revoked using the 'reset' scope!",
+                    " reset - Revokes previously defined acls, except for those with scope 'psub'"]
+                }
+        if para in help_msgs:
+            return(help_msgs[para])
+        else:
+            return(["no help for %s ..." % para])
+
+    @helpDecorator("Adds a new ACL rule", "add acl <base> <scope> <priority> <action> <acls> [options]")
     def add_acl(self, args):
-        pass
+
+        # Validate given parameters
+
+        # Validate the base value
+        if len(args):
+            base = args[0]
+            del(args[0])
+        else:
+            self.para_missing('base')
+            sys.exit(1)
+
+        # Validate the scope value
+        if len(args):
+            if args[0] not in ['one', 'sub', 'psub', 'reset']:
+                self.para_invalid('scope')
+                sys.exit(1)
+            else:
+                scope = args[0]
+                del(args[0])
+        else:
+            self.para_missing('scope')
+            sys.exit(1)
+
+        # Check for priority
+        if len(args):
+            try:
+                if int(args[0]) < -100 or int(args[0]) > 100:
+                    self.para_invalid('priority')
+                    sys.exit(1)
+            except:
+                self.para_invalid('priority')
+                sys.exit(1)
+
+            scope = int(args[0])
+            del(args[0])
+        else:
+            self.para_missing('priority')
+            sys.exit(1)
+
+        # Check action
+        if len(args):
+            action = args[0]
+            del(args[0])
+        else:
+            self.para_missing('action')
+            sys.exit(1)
+
+        # Check acls
+        if len(args):
+            acls = args[0]
+            del(args[0])
+        else:
+            self.para_missing('acl')
+            sys.exit(1)
+
+        # Check for options
+        if len(args):
+            options = args[0]
+            if not re.match(r"^([a-z0-9]*:[a-z0-9]*;)*$", options):
+                self.para_invalid('options')
+                sys.exit(1)
+
+            del(args[0])
 
     @helpDecorator("List all defined acls")
     def list_acls(self, args):
