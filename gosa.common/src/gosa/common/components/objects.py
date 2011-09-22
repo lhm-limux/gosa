@@ -22,7 +22,7 @@ class ObjectRegistry(object):
     In this case, all objects are registered after the agent is fired
     up automatically.
     """
-    _objects = {}
+    objects = {}
     _instance = None
 
     def __init__(self):
@@ -34,12 +34,12 @@ class ObjectRegistry(object):
         """
         Register the given object at the provided OID.
         """
-        if oid in  ObjectRegistry._objects:
+        if oid in  ObjectRegistry.objects:
             raise ValueError("OID '%s' is already registerd!" % oid)
 
         log = logging.getLogger(__name__)
         log.debug("registered object OID '%s'" % oid)
-        ObjectRegistry._objects[oid] = {
+        ObjectRegistry.objects[oid] = {
             'object': obj,
             'signature': None}
 

@@ -35,6 +35,16 @@ class JSONRPCObjectMapper(object):
     __store = {}
     __proxy = {}
 
+    @Command(__help__=N_("List available object OIDs"))
+    def listObjectOIDs(self):
+        """
+        Provide a list of domain wide available object OIDs.
+
+        ``Return:`` list
+        """
+        cr = PluginRegistry.getInstance('CommandRegistry')
+        return cr.objects.keys()
+
     @Command(__help__=N_("Close object and remove it from stack"))
     def closeObject(self, ref):
         """
@@ -168,7 +178,7 @@ class JSONRPCObjectMapper(object):
         # Build property dict
         propvals = {}
         if properties:
-            propvals = dict(map(lambda p: (p, getattr(obj, p)), properties))
+            propvals = dict([(p, getattr(obj, p)) for p in properties])
 
         # Build result
         result = {"__jsonclass__":["json.ObjectFactory", [obj_type.__name__, ref, oid, methods, properties]]}
@@ -177,10 +187,10 @@ class JSONRPCObjectMapper(object):
         return result
 
     def __get_object_type(self, oid):
-        if not oid in ObjectRegistry._objects:
+        if not oid in ObjectRegistry.objects:
             raise ValueError("Unknown object OID %s" % oid)
 
-        return ObjectRegistry._objects[oid]['object']
+        return ObjectRegistry.objects[oid]['object']
 
     def __inspect(self, clazz):
         methods = []
@@ -202,9 +212,9 @@ class JSONRPCObjectMapper(object):
                 JSONRPCObjectMapper.__store[ref]['oid'])
 
     def __can_oid_be_handled_locally(self, oid):
-        if not oid in ObjectRegistry._objects:
+        if not oid in ObjectRegistry.objects:
             raise ValueError("Unknown object OID %s" % oid)
-        return oid in ObjectRegistry._objects
+        return oid in ObjectRegistry.objects
 
     def __get_proxy(self, ref):
         return self.__get_proxy_by_oid(
@@ -217,7 +227,7 @@ class JSONRPCObjectMapper(object):
 
         # Get first match that is a provider for this object
         for provider in nodes.keys():
-            if provider in ObjectRegistry._objects[oid]:
+            if provider in cr.objects[oid]:
                 break
 
         if not provider in self.__proxy:

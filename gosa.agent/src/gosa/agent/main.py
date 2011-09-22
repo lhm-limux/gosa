@@ -43,9 +43,9 @@ def mainLoop(env):
         log = logging.getLogger(__name__)
 
         # Load plugins
+        oreg = ObjectRegistry.getInstance()
         pr = PluginRegistry()
         cr = PluginRegistry.getInstance("CommandRegistry")
-        oreg = ObjectRegistry.getInstance()
         amqp = PluginRegistry.getInstance("AMQPHandler")
 
         wait = 2
