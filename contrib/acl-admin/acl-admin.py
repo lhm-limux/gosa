@@ -34,6 +34,9 @@ class ACLAdmin(object):
         self.resolver = ACLResolver()
         self.ldap_base = self.resolver.base
 
+        # Tell the resolver to ignore acls for us (temporarily)
+        self.resolver.admins.append('tmp_admin')
+
     def idToScopeStr(self, sid):
         """
         Helper method which converts a given scope value from int to string.
@@ -232,6 +235,16 @@ class ACLAdmin(object):
                 self.para_missing('action')
                 sys.exit(1)
 
+        # Check action
+        elif name == "members":
+            if len(args):
+                members = args[0]
+                del(args[0])
+                return(members.split(" "))
+            else:
+                self.para_missing('members')
+                sys.exit(1)
+
         # Check acls
         elif name == "acls":
             if len(args):
@@ -256,8 +269,7 @@ class ACLAdmin(object):
         else:
             raise(Exception("Unknown parameter to extract: %s" %name))
 
-
-    @helpDecorator("Adds a new ACL rule", "add acl <base> <scope> <priority> <action> <acls> [options]")
+    @helpDecorator("Adds a new ACL rule", "add acl <base> <scope> <priority> <members> <action> <acls> [options]")
     def add_acl(self, args):
         """
         This method creates a new ACL rule depending on the passes arguments-list.
@@ -274,13 +286,15 @@ class ACLAdmin(object):
         base = self.get_value_from_args("base", args)
         scope = self.get_value_from_args("scope", args)
         priority = self.get_value_from_args("priority", args)
+        members = self.get_value_from_args("members", args)
         action = self.get_value_from_args("action", args)
         acls = self.get_value_from_args("acls", args)
         options = self.get_value_from_args("options", args)
 
-        print([base,scope,priority,action,acls,options])
+        actions = [{'topic': action, 'acls': acls, 'options': options}]
 
-        pass
+        self.resolver.addACL('tmp_admin', base, scope, priority, members, actions)
+        self.resolver.save_to_file()
 
     @helpDecorator("List all defined acls")
     def list_acls(self, args):
@@ -371,6 +385,7 @@ def print_help():
 
 def main():
 
+    # Print out help if no args is given.
     if "-h" in sys.argv:
         print_help()
         sys.exit(0)
@@ -421,8 +436,6 @@ def main():
         print("Invalid argument list: %s" % (" ".join(my_args)))
         print_help()
         sys.exit(1)
-
-
 
 
 if __name__ == '__main__':
