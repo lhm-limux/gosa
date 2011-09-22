@@ -220,17 +220,17 @@ class ACLAdmin(object):
                 self.para_missing('priority')
                 sys.exit(1)
 
-        # Check action
-        elif name == "action":
+        # Check topic
+        elif name == "topic":
             if len(args):
-                action = args[0]
+                topic = args[0]
                 del(args[0])
-                return(action)
+                return(topic)
             else:
-                self.para_missing('action')
+                self.para_missing('topic')
                 sys.exit(1)
 
-        # Check action
+        # Check member
         elif name == "members":
             if len(args):
                 members = args[0]
@@ -264,7 +264,7 @@ class ACLAdmin(object):
         else:
             raise(Exception("Unknown parameter to extract: %s" %name))
 
-    @helpDecorator(_("Adds a new ACL rule"), _("add acl <base> <scope> <priority> <members> <action> <acls> [options]"))
+    @helpDecorator(_("Adds a new ACL rule"), _("add acl <base> <scope> <priority> <members> <topic> <acls> [options]"))
     def add_acl(self, args):
         """
         This method creates a new ACL rule depending on the passes arguments-list.
@@ -282,11 +282,11 @@ class ACLAdmin(object):
         scope = self.get_value_from_args("scope", args)
         priority = self.get_value_from_args("priority", args)
         members = self.get_value_from_args("members", args)
-        action = self.get_value_from_args("action", args)
+        topic = self.get_value_from_args("topic", args)
         acls = self.get_value_from_args("acls", args)
         options = self.get_value_from_args("options", args)
 
-        actions = [{'topic': action, 'acls': acls, 'options': options}]
+        actions = [{'topic': topic, 'acls': acls, 'options': options}]
 
         self.resolver.addACL('tmp_admin', base, scope, priority, members, actions)
         self.resolver.save_to_file()
