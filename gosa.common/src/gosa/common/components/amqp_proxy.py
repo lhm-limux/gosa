@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-from qpid.messaging import *
+from qpid.messaging import Connection, Message, uuid4
 from types import DictType
-from gosa.common.components.jsonrpc_proxy import JSONRPCException
+from gosa.common.components.jsonrpc_proxy import JSONRPCException, ObjectFactory
 from gosa.common.json import dumps, loads
 from gosa.common.components.amqp import AMQPProcessor
 from gosa.common.utils import parseURL
-from lxml import etree, objectify
-from jsonrpc_proxy import ObjectFactory
+from lxml import objectify
 
 
 class AMQPServiceProxy(object):
@@ -54,7 +53,7 @@ class AMQPServiceProxy(object):
 
             # Prefill __serviceAddress correctly if domain is given
             if AMQPServiceProxy.domain:
-                self.__serviceAddress= '%s.command.core' % AMQPServiceProxy.domain
+                self.__serviceAddress = '%s.command.core' % AMQPServiceProxy.domain
 
             if not self.__serviceAddress:
                 raise Exception("no serviceAddress or domain specified")
@@ -93,7 +92,7 @@ class AMQPServiceProxy(object):
 
             # If we've no direct queue, we need to push to different queues
             if AMQPServiceProxy.domain:
-                queues= set([
+                queues = set([
                         x['target'] for x in AMQPServiceProxy.methods[self.__serviceAddress].itervalues()
                         if x['target'] != 'core'
                     ])
@@ -124,6 +123,7 @@ class AMQPServiceProxy(object):
 
         self.__conn.close()
 
+    #pylint: disable=W0613
     def login(self, user, password):
         return True
 
@@ -141,6 +141,9 @@ class AMQPServiceProxy(object):
         if len(kwargs) > 0 and len(args) > 0:
             raise JSONRPCException("JSON-RPC does not support positional and keyword arguments at the same time")
 
+        # Default to 'core' queue
+        queue= "core"
+
         if AMQPServiceProxy.methods[self.__serviceAddress]:
             if not self.__serviceName in AMQPServiceProxy.methods[self.__serviceAddress]:
                 raise NameError("name '%s' not defined" % self.__serviceName)
@@ -149,9 +152,6 @@ class AMQPServiceProxy(object):
                 queue= AMQPServiceProxy.methods[self.__serviceAddress][self.__serviceName]['target']
             else:
                 queue= self.__serviceAddress
-        else:
-            # Default to 'core' queue
-            queue= "core"
 
         # Find free session for requested queue
         for sess, dsc in AMQPServiceProxy.worker[self.__serviceAddress].iteritems():
@@ -341,8 +341,9 @@ class AMQPStandaloneWorker(object):
 
         # ... start receive workers
         else:
+            #pylint: disable=W0612
             for i in range(workers):
-                rcv = ssn.receiver(r_address, capacity=100)
+                ssn.receiver(r_address, capacity=100)
                 proc = AMQPProcessor(ssn, self.callback)
                 proc.start()
                 self.threads.append(proc)
