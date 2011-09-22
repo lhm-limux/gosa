@@ -8,7 +8,6 @@ if platform.system() != "Windows":
     import dbus
     import avahi
 else:
-    raise NotImplemented("pybonjour support is currently disabled")
     from threading import Thread
     #pylint: disable=F0401
     import pybonjour
@@ -69,6 +68,10 @@ class ZeroconfClient(object):
         self.__callback = callback
         self.__regtypes = regtypes
         self.__domain = domain
+        self.__server = None
+        self.__thread = None
+        self.__runner = None
+        self.active = False
 
         if platform.system() != "Windows":
             self.start = self.startAvahi
@@ -159,8 +162,10 @@ class ZeroconfClient(object):
         sbrowser.connect_to_signal("AllForNow", self.__allForNowAvahi)
         #sbrowser.connect_to_signal("Failure", self.__errorCallbackAvahi)
 
-    def __newServiceAvahi(self, interface, protocol, name, type, domain, flags):
-        interface, protocol, name, type, domain, host, aprotocol, address, port, txt, flags = self.__server.ResolveService(interface, protocol, name, type, domain, avahi.PROTO_UNSPEC, dbus.UInt32(0))
+    #pylint: disable=W0613
+    def __newServiceAvahi(self, interface, protocol, name, stype, domain, flags):
+        #pylint: disable=W0612
+        interface, protocol, name, stype, domain, host, aprotocol, address, port, txt, flags = self.__server.ResolveService(interface, protocol, name, stype, domain, avahi.PROTO_UNSPEC, dbus.UInt32(0))
 
         # Conversation to URL
         if port == 80:
@@ -170,11 +175,11 @@ class ZeroconfClient(object):
 
         if self.__get_service(txt) == "gosa":
             path = self.__get_path(txt)
-            url = "%s://%s%s%s" % (type[1:].split(".")[0], host, port, path)
-            self.__services[(interface, protocol, name, type, domain)] = url.encode('ascii')
+            url = "%s://%s%s%s" % (stype[1:].split(".")[0], host, port, path)
+            self.__services[(interface, protocol, name, stype, domain)] = url.encode('ascii')
 
-    def __removeServiceAvahi(self, interface, protocol, name, type, domain):
-        del self.__services[(interface, protocol, name, type, domain)]
+    def __removeServiceAvahi(self, interface, protocol, name, stype, domain):
+        del self.__services[(interface, protocol, name, stype, domain)]
 
     def __allForNowAvahi(self):
         self.__callback(self.__services.values())
@@ -187,12 +192,14 @@ class ZeroconfClient(object):
         browse_sdRefs = []
 
         # Start the bonjour event processing.
+        #pylint: disable=W0612
         for reg_type in self.__regtypes:
             browse_sdRefs.append(pybonjour.DNSServiceBrowse(regtype=self.__regtypes,
                 callBack=self.__browseCallback))
 
         def runner():
             try:
+                browse_sdRef = None
                 while self.active:
                     ready = select.select(browse_sdRefs, [], [],
                         self.__timeout)
@@ -201,7 +208,8 @@ class ZeroconfClient(object):
                         if browse_sdRef in ready[0]:
                             pybonjour.DNSServiceProcessResult(browse_sdRef)
             finally:
-                browse_sdRef.close()
+                if browse_sdRef:
+                    browse_sdRef.close()
 
         self.__thread = Thread(target=runner)
         self.__thread.start()

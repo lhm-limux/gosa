@@ -5,6 +5,7 @@ Job store methods are also documented here.
 
 
 class JobStore(object):
+
     def add_job(self, job):
         """Adds the given job from this store."""
         raise NotImplementedError

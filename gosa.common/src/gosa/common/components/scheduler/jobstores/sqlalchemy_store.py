@@ -8,7 +8,7 @@ from gosa.common.components.scheduler.jobstores.base import JobStore
 from gosa.common.components.scheduler.job import Job, JOB_WAITING, JOB_ERROR
 
 try:
-    from sqlalchemy import *
+    from sqlalchemy import create_engine, Table, MetaData, Column, Integer, Sequence, PickleType, Boolean, BigInteger, select, and_, String, Unicode, DateTime
 except ImportError:  # pragma: nocover
     raise ImportError('SQLAlchemyJobStore requires SQLAlchemy installed')
 

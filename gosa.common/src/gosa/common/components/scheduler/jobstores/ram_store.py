@@ -6,6 +6,7 @@ from gosa.common.components.scheduler.jobstores.base import JobStore
 
 
 class RAMJobStore(JobStore):
+
     def __init__(self):
         self.jobs = []
 

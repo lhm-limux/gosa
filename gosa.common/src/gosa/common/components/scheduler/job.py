@@ -140,6 +140,7 @@ class Job(object):
         state['func'] = ref_to_obj(state.pop('func_ref'))
         state['callback'] = ref_to_obj(state.pop('callback_ref'))
         state['_lock'] = Lock()
+        #pylint: disable=W0201
         self.__dict__ = state
 
     def __eq__(self, other):

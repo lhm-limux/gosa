@@ -11,12 +11,12 @@ You can import it to your own code like this::
 
 --------
 """
-import config
 import logging
 import platform
+from gosa.common.config import Config
 try:
     from sqlalchemy.orm import sessionmaker, scoped_session
-    from sqlalchemy import *
+    from sqlalchemy import create_engine
 except ImportError:
     pass
 from gosa.common.utils import dmi_system
@@ -39,7 +39,7 @@ class Environment:
 
     def __init__(self):
         # Load configuration
-        self.config = config.Config(config=Environment.config,  noargs=Environment.noargs)
+        self.config = Config(config=Environment.config,  noargs=Environment.noargs)
         self.log = logging.getLogger(__name__)
 
         self.id = platform.node()

@@ -37,6 +37,7 @@ class ZeroconfService:
         self.host = host
         self.port = port
         self.text = text[::-1]
+        self.group = None
 
     def publish(self):
         """

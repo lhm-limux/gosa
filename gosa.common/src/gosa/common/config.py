@@ -28,7 +28,7 @@ import platform
 import StringIO
 import ConfigParser
 import logging.config
-from argparse import ArgumentParser, ArgumentError
+from argparse import ArgumentParser
 from gosa.common import __version__ as VERSION
 
 # Only import pwd/grp stuff if we're not on windows
@@ -186,18 +186,18 @@ class Config(object):
                 tmp = tmp[pos.lower()]
             return tmp
 
-        except:
+        except KeyError:
             pass
 
         return default
 
-    def __getCfgFiles(self, dir):
+    def __getCfgFiles(self, cdir):
         conf = re.compile(r"^[a-z0-9_.-]+\.conf$", re.IGNORECASE)
         try:
-            return [os.path.join(dir,file)
-                for file in os.listdir(dir)
-                if os.path.isfile(os.path.join(dir, file)) and conf.match(file)]
-        except:
+            return [os.path.join(cdir, cfile)
+                for cfile in os.listdir(cdir)
+                if os.path.isfile(os.path.join(cdir, cfile)) and conf.match(cfile)]
+        except OSError:
             return []
 
     def __parseCfgOptions(self):

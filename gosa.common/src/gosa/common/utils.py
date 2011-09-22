@@ -8,14 +8,11 @@ import time
 import StringIO
 from tokenize import generate_tokens
 from token import STRING
-import traceback
-import urllib
 import urllib2
 import tempfile
 from subprocess import Popen, PIPE
 from qpid.messaging.constants import AMQP_PORT, AMQPS_PORT
 from urlparse import urlparse
-from pkg_resources import *
 from datetime import datetime
 
 
@@ -152,7 +149,7 @@ def locate(program):
 
     fpath = os.path.dirname(program)
     if fpath and is_exe(program):
-            return program
+        return program
 
     else:
         for path in os.environ["PATH"].split(os.pathsep):
@@ -181,6 +178,7 @@ def dmi_system(item, data=None):
 # Re-define dmi_system depending on capabilites
 try:
     import dmidecode
+    #pylint: disable=E1101
     dmidecode.clear_warnings()
 
     #pylint: disable=E0102
@@ -200,7 +198,8 @@ try:
                     return value
 
         return None
-except:
+
+except ImportError:
 
     for ext in ["dmidecode", "dmidecode.exe"]:
         if locate(ext):
@@ -254,13 +253,11 @@ def downloadFile(url, download_dir=None, use_filename=False):
 
     if not url:
         raise ValueError(N_("URL is mandatory!"))
-        return result
 
     try:
         o = urlparse(url)
     except:
         raise ValueError(N_("Invalid url specified: %s"), url)
-        return result
 
     #pylint: disable=E1101
     if o.scheme in ('http', 'https', 'ftp'):
@@ -278,9 +275,9 @@ def downloadFile(url, download_dir=None, use_filename=False):
                     f = tempfile.NamedTemporaryFile(delete=False).name
 
             request = urllib2.Request(url)
-            file = urllib2.urlopen(request)
+            dfile = urllib2.urlopen(request)
             local_file = open(f, "w")
-            local_file.write(file.read())
+            local_file.write(dfile.read())
             local_file.close()
             result = f
 
