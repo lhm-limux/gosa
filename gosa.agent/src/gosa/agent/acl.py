@@ -1631,39 +1631,6 @@ class ACLResolver(Plugin):
             acl.clear_actions()
             acl.use_role(rolename)
 
-    @Command(needsUser=True, __help__=N_("Add a new ACL based on role."))
-    def addACLWithRole(self, user, base, priority, members, role):
-        """
-        Add a new ACL based on role.
-
-        ============== =============
-        Key            Description
-        ============== =============
-        base           The base this acl works on. E.g. 'dc=example,dc=de'
-        priority       An integer value to prioritize this acl-rule. (Lower values mean higher priority)
-        members        A list of members this acl affects. E.g. [u'Herbert', u'klaus']
-        role           The name of the role to use.
-        ============== =============
-
-        Example:
-
-        >>> addACLWithRole("dc=gonicus,dc=de", 0, [u'user1', 'role1'])
-
-        """
-        # Check permissions
-        if not self.check(user, 'org.gosa.acl', 'w', base):
-            raise ACLException("The requested operation is not allowed!")
-
-        # Do we have an ACLSet for the given base, No?
-        if not self.aclset_exists_by_base(base):
-            self.add_acl_set(ACLSet(base))
-
-        # Create a new acl with the given parameters
-        acl = ACL(role=role)
-        acl.set_members(members)
-        acl.set_priority(priority)
-        self.add_acl_to_base(base, acl)
-
     @Command(needsUser=True, __help__=N_("List defined roles."))
     def getACLRoles(self, user):
         """

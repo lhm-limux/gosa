@@ -382,6 +382,17 @@ class ACLAdmin(object):
 
     @helpDecorator(_("Updates an ACL rule entry"), _("update acl [set-scope|set-members|set-priority|set-action|set-role] <ID> [parameters]"))
     def update_acl(self, args):
+        """
+        This method updates an existing  ACL-rule
+
+        (It can be accessed via parameter 'update acl')
+
+        =========== =============
+        key         description
+        =========== =============
+        args        The arguments-list we use as information basis
+        =========== =============
+        """
 
         action_type = self.get_value_from_args("acl-update-action", args)
         aid = self.get_value_from_args("id", args)
@@ -440,7 +451,7 @@ class ACLAdmin(object):
     @helpDecorator(_("Adds a new ACL rule"), _("add acl [with-role|with-actions] <base> <priority> <members> [rolename|<scope> <topic> <acls> [options]]"))
     def add_acl(self, args):
         """
-        This method creates a new ACL rule depending on the passes arguments-list.
+        This method creates a new ACL rule
 
         (It can be accessed via parameter 'add acl')
 
@@ -468,6 +479,27 @@ class ACLAdmin(object):
                 rolename = self.get_value_from_args("rolename", args)
                 self.resolver.addACL('tmp_admin', base, priority, members, rolename=rolename)
 
+            self.resolver.save_to_file()
+        except ACLException as e:
+            print e
+
+    @helpDecorator(_("Adds a new ACL ROLE"), _("add role <rolename>"))
+    def add_role(self, args):
+        """
+        This method creates a new ACL ROLE
+
+        (It can be accessed via parameter 'add role')
+
+        =========== =============
+        key         description
+        =========== =============
+        args        The arguments-list we use as information basis
+        =========== =============
+        """
+
+        rolename = self.get_value_from_args("rolename", args)
+        try:
+            self.resolver.addACLRole('tmp_admin', rolename)
             self.resolver.save_to_file()
         except ACLException as e:
             print e
@@ -521,7 +553,8 @@ class ACLAdmin(object):
         if not len(allRoles):
             print("   ... none")
         for aclrole in allRoles:
-            for acl in aclrole:
+            print("  Entries for role: %s" % aclrole)
+            for acl in allRoles[aclrole]:
                 print("ID: %i \tROLENAME: %s \t SCOPE (%s) \t PRIORITY (%S)" % (acl.id, aclset.name, self.idToScopeStr(acl.scope), str(acl.priority)))
                 if acl.uses_role:
                     print(_("\trefers to role: %s") % acl.role)
