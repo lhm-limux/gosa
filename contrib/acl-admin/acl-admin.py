@@ -184,7 +184,8 @@ class ACLAdmin(object):
                 "options": _("Options are additional checks, please read the GOsa documentation for details."
                     "\n The format is:  key:value;key:value;..."
                     "\n  e.g. (Do not forget to use quotes!)"
-                    "\n   'uid:peter;eventType:start;'")
+                    "\n   'uid:peter;eventType:start;'"),
+                "id": _("ID parameters have to be of type int!")
                 }
 
         # Return the help message, if it exists.
@@ -207,6 +208,23 @@ class ACLAdmin(object):
         args        The arguments-list we want to extract from.
         =========== =============
         """
+
+        # Validate given id-parameters
+        if name in ["id"]:
+            if len(args):
+                try:
+                    if int(args[0]) < -100 or int(args[0]) > 100:
+                        self.para_invalid(name)
+                        sys.exit(1)
+                except:
+                    self.para_invalid(name)
+                    sys.exit(1)
+                aid = int(args[0])
+                del(args[0])
+                return(aid)
+            else:
+                self.para_missing(name)
+                sys.exit(1)
 
         # Validate the base value
         if name == "base":
@@ -309,6 +327,25 @@ class ACLAdmin(object):
             return({})
         else:
             raise(Exception("Unknown parameter to extract: %s" %name))
+
+    @helpDecorator(_("Removes an ACL rule entry"), _("remove acl <ID>"))
+    def remove_acl(self, args):
+        """
+        This method removes an ACL-rule entry by ID.
+
+        (It can be accessed via parameter 'remove acl')
+
+        =========== =============
+        key         description
+        =========== =============
+        args        The arguments-list we use as information basis
+        =========== =============
+        """
+        rid = self.get_value_from_args("id", args)
+        if self.resolver.removeACL('tmp_admin', rid):
+            self.resolver.save_to_file()
+        else:
+            print "No such ACL with ID: %s" % rid
 
     @helpDecorator(_("Adds a new ACL rule"), _("add acl <base> <scope> <priority> <members> <topic> <acls> [options]"))
     def add_acl(self, args):
