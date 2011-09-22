@@ -193,7 +193,12 @@ class ACLAdmin(object):
                     "\n    * set-members    Set a new list of members for an acl-rule"
                     "\n    * set-priority   Set another priority level for the acl-rule"
                     "\n    * set-action     Set a new action for the acl"
-                    "\n    * set-role       Let the acl-rule point to a role")
+                    "\n    * set-role       Let the acl-rule point to a role"),
+                "acl-update-action": _("You can either create acl-rule that contain direkt permissions settings"
+                    " or you can use previously defined roles"
+                    "\n  Possible values are:"
+                    "\n    * with-actions   To directly specify the topic, acls and options this defintions includes"
+                    "\n    * with-role      To use a rolename instead of defining actions directly")
                 }
 
         # Return the help message, if it exists.
@@ -358,10 +363,24 @@ class ACLAdmin(object):
                 self.para_missing('acl-update-action')
                 sys.exit(1)
 
+        # Check for acl-add-actions
+        elif name == "acl-add-action":
+            if len(args):
+                action = args[0]
+                if action not in ["with-actions","with-role"]:
+                    self.para_invalid('acl-add-action')
+                    sys.exit(1)
+
+                del(args[0])
+                return(action)
+            else:
+                self.para_missing('acl-update-action')
+                sys.exit(1)
+
         else:
             raise(Exception("Unknown parameter to extract: %s" %name))
 
-    @helpDecorator(_("Updates an ACL rule entry"), _("update acl <update-action> <ID> [parameters]"))
+    @helpDecorator(_("Updates an ACL rule entry"), _("update acl [set-scope|set-members|set-priority|set-action|set-role] <ID> [parameters]"))
     def update_acl(self, args):
 
         action_type = self.get_value_from_args("acl-update-action", args)
@@ -418,7 +437,7 @@ class ACLAdmin(object):
         except ACLException as e:
             print e
 
-    @helpDecorator(_("Adds a new ACL rule"), _("add acl <base> <scope> <priority> <members> <topic> <acls> [options]"))
+    @helpDecorator(_("Adds a new ACL rule"), _("add acl [with-role|with-actions] <base> <priority> <members> [rolename|<scope> <topic> <acls> [options]]"))
     def add_acl(self, args):
         """
         This method creates a new ACL rule depending on the passes arguments-list.
@@ -432,18 +451,26 @@ class ACLAdmin(object):
         =========== =============
         """
 
-        base = self.get_value_from_args("base", args)
-        scope = self.get_value_from_args("scope", args)
-        priority = self.get_value_from_args("priority", args)
-        members = self.get_value_from_args("members", args)
-        topic = self.get_value_from_args("topic", args)
-        acls = self.get_value_from_args("acls", args)
-        options = self.get_value_from_args("options", args)
+        try:
+            action_type = self.get_value_from_args("acl-add-action", args)
+            actions = rolename = scope = members = None
+            base = self.get_value_from_args("base", args)
+            priority = self.get_value_from_args("priority", args)
+            members = self.get_value_from_args("members", args)
+            if action_type == "with-actions":
+                scope = self.get_value_from_args("scope", args)
+                topic = self.get_value_from_args("topic", args)
+                acls = self.get_value_from_args("acls", args)
+                options = self.get_value_from_args("options", args)
+                actions = [{'topic': topic, 'acls': acls, 'options': options}]
+                self.resolver.addACL('tmp_admin', base, priority, members, actions=actions, scope=scope)
+            else:
+                rolename = self.get_value_from_args("rolename", args)
+                self.resolver.addACL('tmp_admin', base, priority, members, rolename=rolename)
 
-        actions = [{'topic': topic, 'acls': acls, 'options': options}]
-
-        self.resolver.addACL('tmp_admin', base, scope, priority, members, actions)
-        self.resolver.save_to_file()
+            self.resolver.save_to_file()
+        except ACLException as e:
+            print e
 
     @helpDecorator(_("List all defined acls"))
     def list_acls(self, args):
