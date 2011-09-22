@@ -1127,7 +1127,7 @@ class ACLResolver(object):
         """
         Returns all bases we've acls attached to
         """
-        return map(lambda entry: entry.base, self.acl_sets)
+        return [entry.base for entry in self.acl_sets]
 
     def list_role_names(self):
         return(self.acl_roles.keys())

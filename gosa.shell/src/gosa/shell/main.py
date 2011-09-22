@@ -48,6 +48,7 @@ import thread
 from types import ListType
 from urllib2 import HTTPError
 from pkg_resources import resource_filename
+from dbus.exceptions import DBusException
 
 from gosa.common.components import AMQPServiceProxy
 from gosa.common.components import JSONServiceProxy, JSONRPCException
@@ -148,8 +149,13 @@ class GOsaService():
 
         if len(service_uri) <= 0:
             print(_("Searching service provider..."))
-            service_uri = ZeroconfClient.discover(['_amqps._tcp', '_amqp._tcp',
-                '_https._tcp', '_http._tcp'], domain=self.domain)[0]
+            try:
+                service_uri = ZeroconfClient.discover(['_amqps._tcp', '_amqp._tcp',
+                    '_https._tcp', '_http._tcp'], domain=self.domain)[0]
+
+            except DBusException as e:
+                print(_("DBUS error: %s") % str(e))
+                sys.exit(1)
 
         # Test if one argument is still needed.
         if len(service_uri) <= 0:
