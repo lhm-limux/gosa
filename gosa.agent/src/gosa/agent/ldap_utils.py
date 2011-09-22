@@ -209,7 +209,7 @@ def map_ldap_value(value):
     if type(value) == types.UnicodeType:
         return value.encode('utf-8')
     if type(value) == types.ListType:
-        return map(lambda x: map_ldap_value(x), value)
+        return map(map_ldap_value, value)
     return value
 
 

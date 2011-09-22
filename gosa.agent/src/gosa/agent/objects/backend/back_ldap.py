@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import ldap
 import ldap.schema
-from backend import ObjectBackend
+from gosa.agent.objects.backend.backend import ObjectBackend
 from gosa.agent.ldap_utils import LDAPHandler
 
 
