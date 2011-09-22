@@ -134,8 +134,11 @@ class ACLSet(list):
         for cur_acl in self:
             if cur_acl == acl:
                 self.remove(acl)
-                return True
-        return False
+                return
+
+        # Raise an exception about the unknown ID
+        raise ACLException("There is no such acl")
+
 
     def add(self, item):
         """
@@ -1254,7 +1257,6 @@ class ACLResolver(Plugin):
                 return True
         else:
             raise ACLException("No such role '%s', removal aborted!" % name)
-        return False
 
     def add_acl_to_base(self, base, acl):
         """
@@ -1421,7 +1423,7 @@ class ACLResolver(Plugin):
                     return True
 
         # Nothing removed
-        return False
+        raise ACLException("No such acl-id (%s) removal aborted!" % (acl_id))
 
     @Command(needsUser=True, __help__=N_("Add a new ACL."))
     def addACL(self, user, base, scope, priority, members, actions):
@@ -1506,50 +1508,8 @@ class ACLResolver(Plugin):
             acl.add_action(action['topic'], action['acls'], action['options'])
             self.add_acl_to_base(base, acl)
 
-    @Command(needsUser=True, __help__=N_("Refresh existing ACL by ID to use a role."))
-    def updateACLWithRole(self, user, acl_id, priority=None, members=None, rolename=None):
-        """
-        Updates an acl by ID to use an acl-role.
-
-        ============== =============
-        Key            Description
-        ============== =============
-        id             The ID of the acl we want to update.
-        priority       An integer value to prioritize this acl-rule. (Lower values mean higher priority)
-        members        A new list of members.
-        rolename       The name of the role to use.
-        ============== =============
-        """
-
-        # Check if there is a with the given and and whether we've write permissions to it or not.
-        acl = None
-        for _aclset in self.acl_sets:
-            for _acl in _aclset:
-                if _acl.id == acl_id:
-
-                    # Check permissions
-                    if not self.check(user, 'org.gosa.acl', 'w', _aclset.base):
-                        raise ACLException("The requested operation is not allowed!")
-
-                    acl = _acl
-
-        # Check if we've found a valid acl object with the given id.
-        if not acl:
-            raise ACLException("No such acl definition with id %s" % acl_id)
-
-        # Update the acl properties
-        if members:
-            acl.set_members(members)
-
-        if priority:
-            acl.set_priority(priority)
-
-        if rolename:
-            acl.clear_actions()
-            acl.use_role(rolename)
-
     @Command(needsUser=True, __help__=N_("Refresh existing ACL by ID."))
-    def updateACL(self, user, acl_id, scope=None, priority=None, members=None, actions=None):
+    def updateACL(self, user, acl_id, scope=None, priority=None, members=None, actions=None, rolename=None):
         """
         Updates an acl by ID.
 
@@ -1561,6 +1521,7 @@ class ACLResolver(Plugin):
         priority       An integer value to prioritize this acl-rule. (Lower values mean higher priority)
         members        A new list of members.
         actions        A dictionary which includes the topic and the acls this rule includes.
+        rolename       The name of the role to use.
         ============== =============
 
         For details about ``scope``, ``topic``, ``options`` and ``acls``, click here:
@@ -1628,6 +1589,9 @@ class ACLResolver(Plugin):
         if not acl:
             raise ACLException("No such acl definition with id %s" % acl_id)
 
+        if actions and rolename:
+            raise ACLException("You can either use the actions or the the rolename parameter, but not both!")
+
         # Update properties
         if scope:
             acl.set_scope(scope_int)
@@ -1642,6 +1606,10 @@ class ACLResolver(Plugin):
             acl.clear_actions()
             for action in new_actions:
                 acl.add_action(action['topic'], action['acls'], action['options'])
+
+        if rolename:
+            acl.clear_actions()
+            acl.use_role(rolename)
 
     @Command(needsUser=True, __help__=N_("Add a new ACL based on role."))
     def addACLWithRole(self, user, base, priority, members, role):
