@@ -209,7 +209,7 @@ class AMQPWorker(object):
         else:
             for i in range(workers):
                 self.log.debug("creating AMQP receiver (%d) for %s" % (i, r_address))
-                rcv = ssn.receiver(r_address, capacity=100)
+                ssn.receiver(r_address, capacity=100)
                 proc = AMQPProcessor(ssn, self.callback)
                 proc.start()
                 self.env.threads.append(proc)
