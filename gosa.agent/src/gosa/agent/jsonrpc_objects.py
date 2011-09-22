@@ -217,7 +217,7 @@ class JSONRPCObjectMapper(object):
 
         # Get first match that is a provider for this object
         for provider in nodes.keys():
-            if provider in ObjectRegistry._objects[oid]:
+            if provider in cr.objects[oid]:
                 break
 
         if not provider in self.__proxy:
