@@ -235,7 +235,17 @@ class ACLAdmin(object):
             if len(args):
                 members = args[0]
                 del(args[0])
-                return(members.split(" "))
+
+                # Validate the found member valus
+                members = members.split(",")
+                m_list = []
+                for member in members:
+                    member = member.strip()
+                    if not re.match("^[a-zA-Z][a-zA-Z0-9\.-]*$", member):
+                        self.para_invalid('members')
+                        sys.exit(1)
+                    m_list.append(member)
+                return(m_list)
             else:
                 self.para_missing('members')
                 sys.exit(1)
@@ -312,7 +322,7 @@ class ACLAdmin(object):
         for aclset in allSets:
             for acl in aclset:
                 print("ID: %i \tBASE: %s \t SCOPE (%s)" % (acl.id, aclset.base, self.idToScopeStr(acl.scope)))
-                print("       \tMEMBER: %s" % (" ".join(acl.members)))
+                print("       \tMEMBER: %s" % (", ".join(acl.members)))
                 if acl.uses_role:
                     print(_("\trefers to role: %s") % acl.role)
                 else:
