@@ -58,7 +58,7 @@ class TestACLResolver(unittest.TestCase):
     #            "Resolving acl-roles using the exported gosa.agent commands does not work! The user should not be able to read, but he can!")
 
     #    # Drop the actions and fall back to use a role.
-    #    self.resolver.updateACLWithRole('acl_tester', 4, 0, ['peter', 'cajus'], 'rolle2')
+    #    self.resolver.updateACL('acl_tester', 4, rolename = 'rolle2')
     #    self.assertTrue(self.resolver.check('peter', 'com.wurstpelle.de', 'r', {}, 'dc=1,dc=gonicus,dc=de'),
     #            "Resolving acl-roles using the exported gosa.agent commands does not work! The user should be able to read, but he cannot!")
 
