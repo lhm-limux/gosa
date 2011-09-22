@@ -61,8 +61,7 @@ import re
 import traceback
 import logging
 from zope.interface import implements
-from qpid.messaging import *
-
+from qpid.messaging import Message
 from gosa.common.json import loads, dumps, ServiceRequestNotTranslatable, BadServiceRequest
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.components import PluginRegistry, AMQPWorker, ZeroconfService
@@ -101,6 +100,10 @@ class AMQPService(object):
         self.log = logging.getLogger(__name__)
         self.log.debug("initializing AMQP service provider")
         self.env = env
+
+        self.__cr = None
+        self.__zeroconf = None
+        self.__cmdWorker = None
 
     def serve(self):
         """ Start AMQP service for this GOsa service provider. """
@@ -159,7 +162,7 @@ class AMQPService(object):
 
         # Check for id
         if not message.user_id:
-            raise Exception("incoming message without user_id")
+            raise ValueError("incoming message without user_id")
 
         err = None
         res = None
@@ -176,7 +179,8 @@ class AMQPService(object):
                 id_ = req['id']
                 name = req['method']
                 args = req['params']
-            except:
+
+            except KeyError:
                 err = str(BadServiceRequest(message.content))
 
         if not isinstance(args, list) and not isinstance(args, dict):
@@ -188,7 +192,7 @@ class AMQPService(object):
 
         self.log.debug("received call [%s/%s] for %s: %s(%s)" % (id_, queue, message.user_id, name, args))
 
-        # Try to execute
+        # Try to execute either with or without keyword arguments
         if err == None:
             try:
                 if isinstance(args, dict):
@@ -196,7 +200,8 @@ class AMQPService(object):
                 else:
                     res = self.__cr.dispatch(message.user_id, queue, name, *args)
 
-            except Exception, e:
+            # Catch everything that might happen in the dispatch, pylint: disable=W0703
+            except Exception as e:
                 text = traceback.format_exc()
                 self.log.exception(text)
                 err = str(e)

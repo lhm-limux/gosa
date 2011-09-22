@@ -29,3 +29,6 @@ class Plugin(object):
 
     """
     _target_ = None
+
+    def get_target(self):
+        return self._target_

@@ -37,10 +37,8 @@ process.
 """
 import re
 import time
-import string
 import logging
 import datetime
-from lxml import etree, objectify
 from inspect import getargspec, getmembers, ismethod
 from zope.interface import implements
 from gosa.common.components import PluginRegistry, ObjectRegistry, Command
@@ -290,6 +288,7 @@ class CommandRegistry(object):
                         __getattribute__(method)(*arg, **larg)
             else:
                 # Sort nodes by load, use first which is in [func][provider]
+                provider = None
                 nodes = self.get_load_sorted_nodes()
 
                 # Get first match that is a provider for this function
@@ -346,8 +345,9 @@ class CommandRegistry(object):
                             result = {}
 
                         result[node] = tmp
-                except:
-                    # We do not care, go to the next entry...
+
+                # We do not care, go to the next..., pylint: disable=W0703
+                except Exception:
                     pass
 
             return result
@@ -367,7 +367,7 @@ class CommandRegistry(object):
 
         ``Return:`` the method name
         """
-        return string.rsplit(path, '.')
+        return path.rsplit('.')
 
     def callNeedsUser(self, func):
         """
@@ -425,10 +425,11 @@ class CommandRegistry(object):
         if not func in self.commands:
             raise CommandInvalid("no function '%s' defined" % func)
 
+        #pylint: disable=W0612
         (clazz, method) = self.path2method(self.commands[func]['path'])
         p = re.compile(r'\.' + self.env.id + '$')
         p.sub('', queue)
-        return self.env.domain + '.command.%s' % PluginRegistry.modules[clazz].__getattribute__('_target_') == p.sub('', queue)
+        return self.env.domain + '.command.%s' % PluginRegistry.modules[clazz].get_target() == p.sub('', queue)
 
     def get_load_sorted_nodes(self):
         """
@@ -497,7 +498,7 @@ class CommandRegistry(object):
                 self.capabilities[methodName] = {
                     'path': method.Path.text,
                     'target': method.Target.text,
-                    'sig': string.split(method.Signature.text, ',') if method.Signature.text else [],
+                    'sig': method.Signature.text.split(',') if method.Signature.text else [],
                     'type': mtype[method.Type.text],
                     'needsQueue': method.QueueRequired.text == "true",
                     'doc': method.Documentation.text}
@@ -585,7 +586,7 @@ class CommandRegistry(object):
                     info = {
                         'name': func,
                         'path': "%s.%s" % (clazz.__class__.__name__, mname),
-                        'target': clazz._target_,
+                        'target': clazz.get_target(),
                         'sig': [] if not getargspec(method).args else getargspec(method).args,
                         'type': getattr(method, "type", NORMAL),
                         'needsQueue': getattr(method, "needsQueue", False),

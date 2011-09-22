@@ -177,8 +177,10 @@ class Scheduler(object):
         try:
             try:
                 del self._jobstores[alias]
+
             except KeyError:
-                raise KeyError('No such job store: %s' % alias)
+                raise ValueError('No such job store: %s' % alias)
+
         finally:
             self._jobstores_lock.release()
 
