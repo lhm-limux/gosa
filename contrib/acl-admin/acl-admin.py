@@ -12,6 +12,14 @@ _ = gettext.gettext
 
 
 class helpDecorator(object):
+    """
+    A method decoratot which allows to mark those methods that can be used
+    as script parameters.
+
+    e.g.
+        @helpDecorator(_("Short help msg"), _("A longer help message"))
+
+    """
     largeHelp = ""
     smallHelp = ""
     method_list = {}
@@ -26,6 +34,11 @@ class helpDecorator(object):
 
 
 class ACLAdmin(object):
+    """
+    This class privides all necessary action for the 'acl-admin' script.
+
+    All script actions will be forwarded to exported gosa commands.
+    """
 
     acl_scope_map = {
         'one': ACL.ONE,
@@ -45,7 +58,7 @@ class ACLAdmin(object):
         self.resolver.admins.append('tmp_admin')
 
         # Build reverse scope map
-        self.rev_acl_scope_map = dict((v,k) for k,v in
+        self.rev_acl_scope_map = dict((v, k) for k, v in
                 self.acl_scope_map.iteritems())
 
     def idToScopeStr(self, sid):
@@ -203,8 +216,7 @@ class ACLAdmin(object):
                     " or you can use previously defined roles"
                     "\n  Possible values are:"
                     "\n    * with-actions   To directly specify the topic, acls and options this defintions includes"
-                    "\n    * with-role      To use a rolename instead of defining actions directly")
-                }
+                    "\n    * with-role      To use a rolename instead of defining actions directly")}
 
         # Return the help message, if it exists.
         if para in help_msgs:
@@ -275,7 +287,7 @@ class ACLAdmin(object):
                     if int(args[0]) < -100 or int(args[0]) > 100:
                         self.para_invalid('priority')
                         sys.exit(1)
-                except KeyError:
+                except Exception:
                     self.para_invalid('priority')
                     sys.exit(1)
 
@@ -293,10 +305,10 @@ class ACLAdmin(object):
                 del(args[0])
                 return(topic)
             else:
-                self.para_missing('topic')
+                self.para_missing(name)
                 sys.exit(1)
 
-        # Check member
+        # Check members
         elif name == "members":
             if len(args):
                 members = args[0]
@@ -308,12 +320,12 @@ class ACLAdmin(object):
                 for member in members:
                     member = member.strip()
                     if not re.match("^[a-zA-Z][a-zA-Z0-9\.-]*$", member):
-                        self.para_invalid('members')
+                        self.para_invalid(name)
                         sys.exit(1)
                     m_list.append(member)
                 return(m_list)
             else:
-                self.para_missing('members')
+                self.para_missing(name)
                 sys.exit(1)
 
         # Check acls
@@ -323,7 +335,7 @@ class ACLAdmin(object):
                 del(args[0])
                 return(acls)
             else:
-                self.para_missing('acl')
+                self.para_missing(name)
                 sys.exit(1)
 
         # Check rolename
@@ -333,7 +345,7 @@ class ACLAdmin(object):
                 del(args[0])
                 return(rolename)
             else:
-                self.para_missing('rolename')
+                self.para_missing(name)
                 sys.exit(1)
 
         # Check for options
@@ -358,14 +370,14 @@ class ACLAdmin(object):
         elif name == "acl-update-action":
             if len(args):
                 action = args[0]
-                if action not in ["set-scope","set-members", "set-priority", "set-action", "set-role"]:
-                    self.para_invalid('acl-update-action')
+                if action not in ["set-scope", "set-members", "set-priority", "set-action", "set-role"]:
+                    self.para_invalid(name)
                     sys.exit(1)
 
                 del(args[0])
                 return(action)
             else:
-                self.para_missing('acl-update-action')
+                self.para_missing(name)
                 sys.exit(1)
 
         # Check for roleacl-update-actions
@@ -373,37 +385,36 @@ class ACLAdmin(object):
             if len(args):
                 action = args[0]
                 if action not in ["set-scope", "set-priority", "set-action", "set-role"]:
-                    self.para_invalid('roleacl-update-action')
+                    self.para_invalid(name)
                     sys.exit(1)
 
                 del(args[0])
                 return(action)
             else:
-                self.para_missing('roleacl-update-action')
+                self.para_missing(name)
                 sys.exit(1)
-
 
         # Check for acl-add-actions
         elif name == "acl-add-action":
             if len(args):
                 action = args[0]
-                if action not in ["with-actions","with-role"]:
-                    self.para_invalid('acl-add-action')
+                if action not in ["with-actions", "with-role"]:
+                    self.para_invalid(name)
                     sys.exit(1)
 
                 del(args[0])
                 return(action)
             else:
-                self.para_missing('acl-add-action')
+                self.para_missing(name)
                 sys.exit(1)
 
         else:
-            raise(Exception("Unknown parameter to extract: %s" %name))
+            raise(Exception("Unknown parameter to extract: %s" % (name,)))
 
     @helpDecorator(_("Updates an acl entry"), _("update acl [set-scope|set-members|set-priority|set-action|set-role] <ID> [parameters]"))
     def update_acl(self, args):
         """
-        This method updates an existing  ACL-rule
+        This method updates an existing ACL-rule
 
         (It can be accessed via parameter 'update acl')
 
@@ -446,6 +457,7 @@ class ACLAdmin(object):
                 rolename = self.get_value_from_args("rolename", args)
                 self.resolver.updateACL('tmp_admin', aid, rolename=rolename)
                 self.resolver.save_to_file()
+
         except ACLException as e:
             print e
 
@@ -489,6 +501,8 @@ class ACLAdmin(object):
             base = self.get_value_from_args("base", args)
             priority = self.get_value_from_args("priority", args)
             members = self.get_value_from_args("members", args)
+
+            # Do we create an acl with direct actions or do we use a role.
             if action_type == "with-actions":
                 scope = self.get_value_from_args("scope", args)
                 topic = self.get_value_from_args("topic", args)
@@ -523,6 +537,8 @@ class ACLAdmin(object):
             actions = rolename = scope = members = None
             rolename = self.get_value_from_args("rolename", args)
             priority = self.get_value_from_args("priority", args)
+
+            # Do we create an acl with direct actions or do we use a role.
             if action_type == "with-actions":
                 scope = self.get_value_from_args("scope", args)
                 topic = self.get_value_from_args("topic", args)
@@ -641,11 +657,10 @@ class ACLAdmin(object):
         except ACLException as e:
             print e
 
-
     @helpDecorator(_("List all defined acls"))
     def list_acls(self, args):
         """
-        This method list all defined acls.
+        This method lists all defined acls.
 
         (It can be accessed via parameter 'list acls')
 
@@ -676,7 +691,7 @@ class ACLAdmin(object):
     @helpDecorator(_("List all defined roles"))
     def list_roles(self, args):
         """
-        This method list all defined acl roles.
+        This method lists all defined acl roles.
 
         (It can be accessed via parameter 'list acls')
 
@@ -720,11 +735,12 @@ def print_help():
         "\n    the agent-config file to use"
         "\n"))
 
+    # Add methods marked with the helpDecorator
     mlist = sorted(helpDecorator.method_list)
     for method in mlist:
         sh = helpDecorator.method_list[method][0]
         lh = helpDecorator.method_list[method][1]
-        method = re.sub("_"," ", method)
+        method = re.sub("_", " ", method)
         if lh != "":
             print("  %s %s\n    %s\n" % (method.ljust(20), sh, lh))
         else:
@@ -749,7 +765,7 @@ def main():
         if "--config" in my_args:
             pos = my_args.index("--config")
 
-        if len(my_args)-1 <= pos:
+        if (len(my_args) - 1) <= pos:
             print(_("Missing config file parameter!"))
             sys.exit(1)
         else:
