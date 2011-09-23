@@ -434,16 +434,17 @@ class ACLAdmin(object):
                 self.resolver.save_to_file()
 
             if "set-action" == action_type:
+                scope = self.get_value_from_args("scope", args)
                 topic = self.get_value_from_args("topic", args)
                 acls = self.get_value_from_args("acls", args)
                 options = self.get_value_from_args("options", args)
                 actions = [{'topic': topic, 'acls': acls, 'options': options}]
-                self.resolver.updateACL('tmp_admin', aid, actions=actions)
+                self.resolver.updateACL('tmp_admin', aid, actions=actions, scope=scope)
                 self.resolver.save_to_file()
 
             if "set-role" == action_type:
                 rolename = self.get_value_from_args("rolename", args)
-                self.resolver.updateACL('tmp_admin', aid, rolename=rolename)
+                self.resolver.updateACLWithRole('tmp_admin', aid, rolename=rolename)
                 self.resolver.save_to_file()
         except ACLException as e:
             print e

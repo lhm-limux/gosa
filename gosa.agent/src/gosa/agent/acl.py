@@ -1509,6 +1509,7 @@ class ACLResolver(Plugin):
             self.add_acl_to_base(base, acl)
 
     def __updateACL(self, user, acl_id, priority=None, members=None, actions=None, scope=None, rolename=None):
+
         # Validate the given scope
         if scope:
             acl_scope_map = {}
@@ -1565,12 +1566,6 @@ class ACLResolver(Plugin):
         if actions and rolename:
             raise ACLException("You can either use the actions or the the rolename parameter, but not both!")
 
-        # Update properties
-        if scope:
-            if acl.uses_role:
-                raise ACLException("A scope can only set for non-role bases ACLs.")
-            acl.set_scope(scope_int)
-
         if members:
             acl.set_members(members)
 
@@ -1585,6 +1580,12 @@ class ACLResolver(Plugin):
         if rolename:
             acl.clear_actions()
             acl.use_role(rolename)
+
+        if scope:
+            if acl.uses_role:
+                raise ACLException("A scope can only set for non-role bases ACLs.")
+            acl.set_scope(scope_int)
+
 
     @Command(needsUser=True, __help__=N_("List defined roles."))
     def getACLRoles(self, user):
@@ -1914,7 +1915,7 @@ class ACLResolver(Plugin):
         return(self.__addACL(user, base, priority, members, None, None, role))
 
     @Command(needsUser=True, __help__=N_("Refresh existing ACL by ID."))
-    def updateACL(self, user, acl_id, scope=None, priority=None, members=None, actions=None, rolename=None):
+    def updateACL(self, user, acl_id, priority=None, members=None, actions=None, scope=None):
         """
         Updates an acl by ID.
 
