@@ -1891,7 +1891,7 @@ class ACLResolver(Plugin):
             for _acl in self.acl_roles[_aclrole]:
                 if _acl.id == acl_id:
                     acl = _acl
-                    role = _aclrole
+                    role = self.acl_roles[_aclrole]
                     break;
 
         if acl:
@@ -1907,7 +1907,7 @@ class ACLResolver(Plugin):
             # Let this acl point to a role
             if use_role:
                 acl.clear_actions()
-                acl.use_role(rolename)
+                acl.use_role(use_role)
 
             elif actions:
 
