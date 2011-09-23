@@ -504,7 +504,7 @@ class Scheduler(object):
                                    'reached (%d)', job, job.max_instances)
                     break
 
-                logger.info('running job "%s" (scheduled at %s)', job,
+                logger.debug('running job "%s" (scheduled at %s)', job,
                             run_time)
 
                 try:
@@ -536,7 +536,7 @@ class Scheduler(object):
                                      retval=retval)
                     self._notify_listeners(event)
 
-                    logger.info('job "%s" executed successfully', job)
+                    logger.debug('job "%s" executed successfully', job)
 
                 job.remove_instance()
 
