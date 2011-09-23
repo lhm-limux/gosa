@@ -11,7 +11,7 @@ class TelekomNumberResolver(PhoneNumberResolver):
     priority = 99
 
     def __init__(self):
-        # Todo: calling super will replace number with not international format
+        #TODO: calling super will replace number with not international format
         #super(TelekomNumberResolver, self).__init__()
 
         try:

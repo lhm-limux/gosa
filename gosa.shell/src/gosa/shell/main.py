@@ -250,7 +250,8 @@ class GOsaService():
     def help(self):
         """ Prints some help """
         mlist = {}
-        for method, info in self.proxy.getMethods(None, locale.getdefaultlocale()).iteritems():
+        for method, info in self.proxy.getMethods(None,
+                ".".join(locale.getdefaultlocale())).iteritems():
 
             # Get the name of the module.
             module = info['target']

@@ -39,6 +39,8 @@ import re
 import time
 import logging
 import datetime
+import gettext
+from pkg_resources import resource_filename
 from threading import Event
 from inspect import getargspec, getmembers, ismethod
 from zope.interface import implements
@@ -124,7 +126,6 @@ class CommandRegistry(Plugin):
         else:
             node = queue.split('.')[-1]
 
-        #TODO: handle locale for __help__
         for name, info in self.capabilities.iteritems():
 
             # Only list local methods
@@ -137,6 +138,15 @@ class CommandRegistry(Plugin):
             else:
                 if self.isAvailable(info['provider']):
                     res[name] = info
+
+            # Adapt to locale if required
+            if locale:
+                #TODO: replace "gosa.agent" by the proper module name
+                t = gettext.translation('messages',
+                        resource_filename("gosa.agent", "locale"),
+                        fallback=True,
+                        languages=[locale])
+                res[name]['doc'] = t.ugettext(res[name]['doc'])
 
         return res
 
