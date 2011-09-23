@@ -39,6 +39,7 @@ import re
 import time
 import logging
 import datetime
+from threading import Event
 from inspect import getargspec, getmembers, ismethod
 from zope.interface import implements
 from gosa.common.components import PluginRegistry, ObjectRegistry, Command
@@ -88,6 +89,7 @@ class CommandRegistry(Plugin):
         self.env = env
         self.log = logging.getLogger(__name__)
         self.log.debug("initializing command registry")
+        self.processing = Event()
 
     @Command(__help__=N_("List available service nodes on the bus."))
     def getNodes(self):
@@ -517,6 +519,12 @@ class CommandRegistry(Plugin):
                 # Append the sender as a new provider
                 self.objects[oid].append(data.Id.text)
 
+        # We've received at least one capability event, so we're
+        # theoretically ready to serve...
+        if not self.processing.is_set():
+            self.processing.set()
+
+
     def _handleNodeStatus(self, data):
         data = data.NodeStatus
         self.log.debug("received status of node %s" % data.Id)
@@ -633,3 +641,6 @@ class CommandRegistry(Plugin):
         """
         amqp = PluginRegistry.getInstance("AMQPHandler")
         amqp.sendEvent(data, user)
+
+    def is_ready(self):
+        return self.__ready

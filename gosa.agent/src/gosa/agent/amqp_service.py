@@ -62,6 +62,8 @@ import traceback
 import logging
 from zope.interface import implements
 from qpid.messaging import Message
+from qpid.messaging.message import Disposition
+from qpid.messaging.constants import RELEASED
 from gosa.common.json import loads, dumps, ServiceRequestNotTranslatable, BadServiceRequest
 from gosa.common.handler import IInterfaceHandler
 from gosa.common.components import PluginRegistry, AMQPWorker, ZeroconfService
@@ -191,6 +193,14 @@ class AMQPService(object):
         queue = p.sub('', message._receiver.source)
 
         self.log.debug("received call [%s/%s] for %s: %s(%s)" % (id_, queue, message.user_id, name, args))
+
+        # Don't process messages if the command registry thinks it's not ready
+        if not self.__cr.processing.is_set():
+            self.log.warning("waiting for registry to get ready")
+            if not self.__cr.processing.wait(5):
+                self.log.error("releasing call [%s/%s] for %s: %s(%s) - timed out" % (id_, queue, message.user_id, name, args))
+                ssn.acknowledge(message, Disposition(RELEASED, set_redelivered=True))
+                return
 
         # Try to execute either with or without keyword arguments
         if err == None:
