@@ -29,10 +29,13 @@ def shutdown(a=None, b=None):
     exit(0)
 
 
-def handleSignal():
+def handleTermSignal():
     """ Signal handler which will shut down the whole machinery """
-    #TODO: Fine grained handling of signals
     Environment.getInstance().active = False
+
+
+def handleHupSignal():
+    pass
 
 
 def mainLoop(env):
@@ -163,8 +166,8 @@ def main():
             )
 
             context.signal_map = {
-                signal.SIGTERM: handleSignal,
-                signal.SIGHUP: handleSignal,
+                signal.SIGTERM: handleTermSignal,
+                signal.SIGHUP: handleHupSignal,
             }
 
             context.uid = pwd.getpwnam(user).pw_uid
