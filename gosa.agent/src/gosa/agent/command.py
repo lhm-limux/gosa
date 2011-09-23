@@ -141,12 +141,12 @@ class CommandRegistry(Plugin):
 
             # Adapt to locale if required
             if locale:
-                #TODO: replace "gosa.agent" by the proper module name
+                mod = PluginRegistry.getInstance(info['path'].split(".")[0]).get_locale_module()
                 t = gettext.translation('messages',
-                        resource_filename("gosa.agent", "locale"),
+                        resource_filename(mod, "locale"),
                         fallback=True,
                         languages=[locale])
-                res[name]['doc'] = t.ugettext(res[name]['doc'])
+                res[name]['doc'] = t.ugettext(info['doc'])
 
         return res
 
