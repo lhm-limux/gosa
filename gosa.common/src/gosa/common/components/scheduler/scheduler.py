@@ -227,7 +227,7 @@ class Scheduler(object):
                 try:
                     cb(event)
                 except:
-                    logger.exception('Error notifying listener')
+                    logger.exception('error notifying listener')
 
     def _real_add_job(self, job, jobstore, wakeup):
         job.compute_next_run_time(datetime.now())
@@ -249,7 +249,7 @@ class Scheduler(object):
         event = JobStoreEvent(EVENT_JOBSTORE_JOB_ADDED, jobstore, job)
         self._notify_listeners(event)
 
-        logger.debug('Added job "%s" to job store "%s"', job, jobstore)
+        logger.info('added job "%s" to job store "%s"', job, jobstore)
 
         # Notify the scheduler about the new job
         if wakeup:
@@ -272,7 +272,7 @@ class Scheduler(object):
                   options.pop('coalesce', self.coalesce), **options)
         if not self.running:
             self._pending_jobs.append((job, jobstore))
-            logger.info('Adding job tentatively -- it will be properly '
+            logger.info('adding job tentatively -- it will be properly '
                         'scheduled when the scheduler starts')
         else:
             self._real_add_job(job, jobstore, True)
@@ -286,7 +286,7 @@ class Scheduler(object):
         event = JobStoreEvent(EVENT_JOBSTORE_JOB_REMOVED, alias, job)
         self._notify_listeners(event)
 
-        logger.debug('Removed job "%s"', job)
+        logger.info('removed job "%s"', job)
 
     def add_date_job(self, func, date, args=None, kwargs=None, **options):
         """
@@ -491,7 +491,7 @@ class Scheduler(object):
                 # Notify listeners about a missed run
                 event = JobEvent(EVENT_JOB_MISSED, job, run_time)
                 self._notify_listeners(event)
-                logger.warning('Run time of job "%s" was missed by %s',
+                logger.warning('run time of job "%s" was missed by %s',
                                job, difference)
             else:
                 try:
@@ -499,12 +499,12 @@ class Scheduler(object):
                 except MaxInstancesReachedError:
                     event = JobEvent(EVENT_JOB_MISSED, job, run_time)
                     self._notify_listeners(event)
-                    logger.warning('Execution of job "%s" skipped: '
+                    logger.warning('execution of job "%s" skipped: '
                                    'maximum number of running instances '
                                    'reached (%d)', job, job.max_instances)
                     break
 
-                logger.debug('Running job "%s" (scheduled at %s)', job,
+                logger.info('running job "%s" (scheduled at %s)', job,
                             run_time)
 
                 try:
@@ -523,7 +523,7 @@ class Scheduler(object):
                                      exception=exc, traceback=tb)
                     self._notify_listeners(event)
 
-                    logger.error('Job "%s" raised an exception' % job)
+                    logger.error('job "%s" raised an exception' % job)
                     logger.exception(e)
 
                 else:
@@ -536,7 +536,7 @@ class Scheduler(object):
                                      retval=retval)
                     self._notify_listeners(event)
 
-                    logger.debug('job "%s" executed successfully', job)
+                    logger.info('job "%s" executed successfully', job)
 
                 job.remove_instance()
 

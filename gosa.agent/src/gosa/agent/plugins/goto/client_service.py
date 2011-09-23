@@ -64,7 +64,7 @@ class ClientService(Plugin):
         """
         env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
-        self.log.debug("initializing client service")
+        self.log.info("initializing client service")
         self.env = env
         self.__cr = None
 
@@ -433,7 +433,6 @@ class ClientService(Plugin):
 
     def _handleUserSession(self, data):
         data = data.UserSession
-        self.log.debug("updating client '%s' user session information" % data.Id)
         if hasattr(data.User, 'Name'):
             self.__user_session[str(data.Id)] = map(str, data.User.Name)
             self.systemSetStatus(str(data.Id), "+B")
@@ -441,10 +440,13 @@ class ClientService(Plugin):
             self.__user_session[str(data.Id)] = []
             self.systemSetStatus(str(data.Id), "-B")
 
+        self.log.debug("updating client '%s' user session: %s" % (data.Id,
+                ','.join(self.__user_session[str(data.Id)])))
+
     def _handleClientAnnounce(self, data):
         data = data.ClientAnnounce
         client = data.Id.text
-        self.log.debug("client '%s' is joining us" % client)
+        self.log.info("client '%s' is joining us" % client)
         self.systemSetStatus(client, "+O")
 
         # Remove remaining proxy values for this client
@@ -492,7 +494,7 @@ class ClientService(Plugin):
     def _handleClientLeave(self, data):
         data = data.ClientLeave
         client = data.Id.text
-        self.log.debug("client '%s' is leaving" % client)
+        self.log.info("client '%s' is leaving" % client)
         self.systemSetStatus(client, "-O")
 
         if client in self.__client:
