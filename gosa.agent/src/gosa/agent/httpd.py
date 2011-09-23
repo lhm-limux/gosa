@@ -107,7 +107,7 @@ class HTTPService(object):
     def __init__(self):
         env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
-        self.log.debug("initializing HTTP service provider")
+        self.log.info("initializing HTTP service provider")
         self.env = env
         self.srv = None
         self.ssl_pem = None

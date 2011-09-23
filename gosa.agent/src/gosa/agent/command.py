@@ -88,7 +88,7 @@ class CommandRegistry(Plugin):
         env = Environment.getInstance()
         self.env = env
         self.log = logging.getLogger(__name__)
-        self.log.debug("initializing command registry")
+        self.log.info("initializing command registry")
         self.processing = Event()
 
     @Command(__help__=N_("List available service nodes on the bus."))

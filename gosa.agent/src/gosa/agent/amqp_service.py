@@ -100,7 +100,7 @@ class AMQPService(object):
     def __init__(self):
         env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
-        self.log.debug("initializing AMQP service provider")
+        self.log.info("initializing AMQP service provider")
         self.env = env
 
         self.__cr = None

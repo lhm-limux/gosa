@@ -53,7 +53,7 @@ class JSONRPCService(object):
         env = Environment.getInstance()
         self.env = env
         self.log = logging.getLogger(__name__)
-        self.log.debug("initializing JSON RPC service provider")
+        self.log.info("initializing JSON RPC service provider")
         self.path = self.env.config.get('jsonrpc.path', default="/rpc")
 
         self.__zeroconf = None
