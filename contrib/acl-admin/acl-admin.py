@@ -174,6 +174,47 @@ class ACLAdmin(object):
                 "members": _("The names of the users/clients the acl-rule should be valid for. "
                     "\n  A comma separated list:"
                     "\n   e.g.: hubert,peter,klaus"),
+                "acl-definition": _("The <acl-defintion> parameter specifies what actions can be performed on a given topic."
+                    "\n"
+                    "\n Syntax {<topic>:<acls>:<option1>: ... :<option N>,}"
+                    "\n"
+                    "\n <topic> "
+                    "\n ========"
+                    "\n The topic defines the target-action this acl includes"
+                    "\n Topics can contain placeholder to be more flexible when it come to resolving acls."
+                    "\n You can use `#` and `*` where `#` matches for one level and `*` for multiple topic levels."
+                    "\n  e.g.: "
+                    "\n   org.gosa.*        for all topics included in org.gosa"
+                    "\n   org.gosa.#.help   allows to call help methods for modules under org.gosa"
+                    "\n"
+                    "\n <acls>"
+                    "\n ======"
+                    "\n The acl parameter defines which operations can be executed on a given topic."
+                    "\n  e.g.:"
+                    "\n   rwcd    -> allows to read, write, create and delete"
+                    "\n"
+                    "\n  Possible values are:"
+                    "\n    r - Read             w - Write           m - Move"
+                    "\n    c - Create           d - Delete          s - Search - or beeing found"
+                    "\n    x - Execute          e - Receive event"
+                    "\n"
+                    "\n <options>"
+                    "\n ========="
+                    "\n Options are additional checks, please read the GOsa documentation for details."
+                    "\n The format is:  key:value;key:value;..."
+                    "\n  e.g. (Do not forget to use quotes!)"
+                    "\n   'uid:peter;eventType:start;'"
+                    "\n"
+                    "\n Command examples:"
+                    "\n   A single definition without options:"
+                    "\n       org.gosa.*:rwcdm"
+                    "\n"
+                    "\n   A single definition with options:"
+                    "\n       org.gosa.*:rwcdm:uid=user_*:tag=event"
+                    "\n"
+                    "\n   A multi action defintion"
+                    "\n       org.gosa.events:rwcdm,org.gosa.factory:rw,org.gosa.something:rw"
+                    "\n"),
                 "topic": _("The topic defines the target-action this acl includes"
                     "\n Topics can contain placeholder to be more flexible when it come to resolving acls."
                     "\n You can use `#` and `*` where `#` matches for one level and `*` for multiple topic levels."
@@ -257,7 +298,7 @@ class ACLAdmin(object):
                 sys.exit(1)
 
         # Validate the base value
-        if name == "base":
+        elif name == "base":
             if len(args):
                 base = args[0]
                 del(args[0])
@@ -300,6 +341,16 @@ class ACLAdmin(object):
 
         # Check topic
         elif name == "topic":
+            if len(args):
+                topic = args[0]
+                del(args[0])
+                return(topic)
+            else:
+                self.para_missing(name)
+                sys.exit(1)
+
+        # Check topic
+        elif name == "acl-definition":
             if len(args):
                 topic = args[0]
                 del(args[0])
@@ -505,11 +556,14 @@ class ACLAdmin(object):
             # Do we create an acl with direct actions or do we use a role.
             if action_type == "with-actions":
                 scope = self.get_value_from_args("scope", args)
-                topic = self.get_value_from_args("topic", args)
-                acls = self.get_value_from_args("acls", args)
-                options = self.get_value_from_args("options", args)
-                actions = [{'topic': topic, 'acls': acls, 'options': options}]
-                self.resolver.addACL('tmp_admin', base, priority, members, actions=actions, scope=scope)
+                actions = self.get_value_from_args("acl-definition", args)
+                #topic = self.get_value_from_args("topic", args)
+                #acls = self.get_value_from_args("acls", args)
+                #options = self.get_value_from_args("options", args)
+                #actions = [{'topic': topic, 'acls': acls, 'options': options}]
+                #self.resolver.addACL('tmp_admin', base, priority, members, actions=actions, scope=scope)
+
+                print actions
             else:
                 rolename = self.get_value_from_args("rolename", args)
                 self.resolver.addACL('tmp_admin', base, priority, members, rolename=rolename)
