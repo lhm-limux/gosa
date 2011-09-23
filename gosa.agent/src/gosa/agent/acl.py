@@ -1964,3 +1964,45 @@ class ACLResolver(Plugin):
 
         # Try to find role-acl with the given ID.
         self.remove_role(rolename)
+
+    @Command(needsUser=True, __help__=N_("Add a new ACL based on role."))
+    def addACLWithRole(self, user, base, priority, members, role):
+        """
+        Add a new ACL based on role.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        base           The base this acl works on. E.g. 'dc=example,dc=de'
+        priority       An integer value to prioritize this acl-rule. (Lower values mean higher priority)
+        members        A list of members this acl affects. E.g. [u'Herbert', u'klaus']
+        role           The name of the role to use.
+        ============== =============
+
+        Example:
+
+        >>> addACLWithRole("dc=gonicus,dc=de", 0, [u'user1', 'role1'])
+
+        """
+        return(self.addACL(user, base, priority, members, None, None, role))
+
+    @Command(needsUser=True, __help__=N_("Add a new role-based acl to an existing role."))
+    def addACLWithRoleToRole(self, user, rolename, priority, role):
+        """
+        Adds a new role-based acl to an existing role.
+
+        ============== =============
+        Key            Description
+        ============== =============
+        rolename       The name of the role we want to add this acl to.
+        priority       An integer value to prioritize this acl-rule. (Lower values mean higher priority)
+        role           The name of the role to use.
+        ============== =============
+
+        This example let role1 to point to role2:
+
+        >>> addACLWithRoleToRole("role1", 0, "role2")
+
+        """
+        return self.addACLToRole(rolename, priority, None, None, role)
+
