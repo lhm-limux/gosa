@@ -158,6 +158,9 @@ class GOsaService():
                 print(_("DBUS error: %s") % str(e))
                 sys.exit(1)
 
+            except Exception as e:
+                print(e.__dict__)
+
         # Test if one argument is still needed.
         if len(service_uri) <= 0:
             tmp = service_uri

@@ -43,7 +43,6 @@ class Environment:
         self.log = logging.getLogger(__name__)
 
         self.id = platform.node()
-        self.log.info("server id %s" % self.id)
 
         # Dump configuration
         if self.config.get("core.loglevel") == "DEBUG":

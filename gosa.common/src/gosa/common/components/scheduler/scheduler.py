@@ -249,7 +249,7 @@ class Scheduler(object):
         event = JobStoreEvent(EVENT_JOBSTORE_JOB_ADDED, jobstore, job)
         self._notify_listeners(event)
 
-        logger.info('Added job "%s" to job store "%s"', job, jobstore)
+        logger.debug('Added job "%s" to job store "%s"', job, jobstore)
 
         # Notify the scheduler about the new job
         if wakeup:
@@ -286,7 +286,7 @@ class Scheduler(object):
         event = JobStoreEvent(EVENT_JOBSTORE_JOB_REMOVED, alias, job)
         self._notify_listeners(event)
 
-        logger.info('Removed job "%s"', job)
+        logger.debug('Removed job "%s"', job)
 
     def add_date_job(self, func, date, args=None, kwargs=None, **options):
         """
@@ -504,7 +504,7 @@ class Scheduler(object):
                                    'reached (%d)', job, job.max_instances)
                     break
 
-                logger.info('Running job "%s" (scheduled at %s)', job,
+                logger.debug('Running job "%s" (scheduled at %s)', job,
                             run_time)
 
                 try:
@@ -512,24 +512,20 @@ class Scheduler(object):
                     retval = job.func(*job.args, **job.kwargs)
                     job.progress = 100
                     job.status = JOB_DONE
-                except:
+
+                except Exception as e:
                     job.status = JOB_ERROR
 
                     # Notify listeners about the exception
                     exc, tb = sys.exc_info()[1:]
 
-                    #TODO: remove me
-                    print "-"*80
-                    print exc
-                    print tb
-                    print "-"*80
-                    #TODO: remove me
-
                     event = JobEvent(EVENT_JOB_ERROR, job, run_time,
                                      exception=exc, traceback=tb)
                     self._notify_listeners(event)
 
-                    logger.exception('Job "%s" raised an exception', job)
+                    logger.error('Job "%s" raised an exception' % job)
+                    logger.exception(e)
+
                 else:
                     # Run direct callback?
                     if job.callback:
@@ -540,7 +536,7 @@ class Scheduler(object):
                                      retval=retval)
                     self._notify_listeners(event)
 
-                    logger.info('Job "%s" executed successfully', job)
+                    logger.debug('job "%s" executed successfully', job)
 
                 job.remove_instance()
 
@@ -600,12 +596,12 @@ class Scheduler(object):
     def _main_loop(self):
         """Executes jobs on schedule."""
 
-        logger.info('Scheduler started')
+        logger.info('starting scheduler')
         self._notify_listeners(SchedulerEvent(EVENT_SCHEDULER_START))
 
         self._wakeup.clear()
         while not self._stopped:
-            logger.debug('Looking for jobs to run')
+            logger.debug('looking for jobs to run')
             now = datetime.now()
             next_wakeup_time = self._process_jobs(now)
 
@@ -613,15 +609,15 @@ class Scheduler(object):
             # a new job is added or the scheduler is stopped
             if next_wakeup_time is not None:
                 wait_seconds = time_difference(next_wakeup_time, now)
-                logger.debug('Next wakeup is due at %s (in %f seconds)',
+                logger.debug('next wakeup is due at %s (in %f seconds)',
                              next_wakeup_time, wait_seconds)
                 self._wakeup.wait(wait_seconds)
             else:
-                logger.debug('No jobs; waiting until a job is added')
+                logger.debug('no jobs; waiting until a job is added')
                 self._wakeup.wait()
             self._wakeup.clear()
 
-        logger.info('Scheduler has been shut down')
+        logger.info('scheduler has been shut down')
         self._notify_listeners(SchedulerEvent(EVENT_SCHEDULER_SHUTDOWN))
 
 

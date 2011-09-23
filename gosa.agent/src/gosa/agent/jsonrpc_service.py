@@ -81,6 +81,8 @@ class JSONRPCService(object):
             text="path=%s\001service=gosa" % self.path)
         self.__zeroconf.publish()
 
+        self.log.info("ready to process incoming requests")
+
     def stop(self):
         """ Stop serving the JSONRPC service for this GOsa service provider. """
         self.log.debug("shutting down JSON RPC service provider")
