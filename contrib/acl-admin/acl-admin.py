@@ -400,7 +400,7 @@ class ACLAdmin(object):
         else:
             raise(Exception("Unknown parameter to extract: %s" %name))
 
-    @helpDecorator(_("Updates an ACL rule entry"), _("update acl [set-scope|set-members|set-priority|set-action|set-role] <ID> [parameters]"))
+    @helpDecorator(_("Updates an acl entry"), _("update acl [set-scope|set-members|set-priority|set-action|set-role] <ID> [parameters]"))
     def update_acl(self, args):
         """
         This method updates an existing  ACL-rule
@@ -449,7 +449,7 @@ class ACLAdmin(object):
         except ACLException as e:
             print e
 
-    @helpDecorator(_("Removes an ACL rule entry"), _("remove acl <ID>"))
+    @helpDecorator(_("Removes an acl entry"), _("remove acl <ID>"))
     def remove_acl(self, args):
         """
         This method removes an ACL-rule entry by ID.
@@ -469,7 +469,7 @@ class ACLAdmin(object):
         except ACLException as e:
             print e
 
-    @helpDecorator(_("Adds a new ACL rule"), _("add acl [with-role|with-actions] <base> <priority> <members> [rolename|<scope> <topic> <acls> [options]]"))
+    @helpDecorator(_("Adds a new acl entry"), _("add acl [with-role|with-actions] <base> <priority> <members> [rolename|<scope> <topic> <acls> [options]]"))
     def add_acl(self, args):
         """
         This method creates a new ACL rule
@@ -504,7 +504,7 @@ class ACLAdmin(object):
         except ACLException as e:
             print e
 
-    @helpDecorator(_("Adds a new ACL-rule to an ACL-ROLE"), _("add roleacl [with-role|with-actions] <rolename> <priority> [rolename|<scope> <topic> <acls> [options]]"))
+    @helpDecorator(_("Adds a new acl entry to an existing role"), _("add roleacl [with-role|with-actions] <rolename> <priority> [rolename|<scope> <topic> <acls> [options]]"))
     def add_roleacl(self, args):
         """
         This method creates a new ACLRole entry for a given role.
@@ -538,7 +538,7 @@ class ACLAdmin(object):
         except ACLException as e:
             print e
 
-    @helpDecorator(_("Adds a new ACL ROLE"), _("add role <rolename>"))
+    @helpDecorator(_("Adds a new role"), _("add role <rolename>"))
     def add_role(self, args):
         """
         This method creates a new ACL ROLE
@@ -559,7 +559,7 @@ class ACLAdmin(object):
         except ACLException as e:
             print e
 
-    @helpDecorator(_("Removes a given role-acl"), _("remove roleacl <ID>"))
+    @helpDecorator(_("Removes an acl entry from a role"), _("remove roleacl <ID>"))
     def remove_roleacl(self, args):
         """
         This method removes an ACL from an ROLE
@@ -597,7 +597,7 @@ class ACLAdmin(object):
         except ACLException as e:
             print e
 
-    @helpDecorator(_("Updates an ACL ROLE entry"), _("update roleacl [set-scope|set-priority|set-action|set-role] <ID> [parameters]"))
+    @helpDecorator(_("Updates an acl entry of a role"), _("update roleacl [set-scope|set-priority|set-action|set-role] <ID> [parameters]"))
     def update_roleacl(self, args):
         """
         This method updates an existing ACL ROLE entry.
