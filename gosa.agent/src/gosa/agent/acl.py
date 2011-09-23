@@ -974,8 +974,7 @@ class ACLResolver(Plugin):
                     for acl_entry in acls_data['acls']:
 
                         if 'role' in acl_entry:
-                            acl_rule_set = self.acl_roles[acl_entry['role']]
-                            acl = ACL(role=acl_rule_set)
+                            acl = ACL(role=acl_entry['role'])
                             acl.set_members(acl_entry['members'])
                             acl.set_priority(acl_entry['priority'])
                             acl.id = acl_entry['id']
@@ -1476,7 +1475,7 @@ class ACLResolver(Plugin):
             raise ACLException("The requested operation is not allowed!")
 
         # Validate the given scope
-        if actions:
+        if scope:
             acl_scope_map = {}
             acl_scope_map['one'] = ACL.ONE
             acl_scope_map['sub'] = ACL.SUB
@@ -1526,6 +1525,7 @@ class ACLResolver(Plugin):
         if actions:
             acl = ACL(scope_int)
             acl.set_members(members)
+            acl.set_priority(priority)
             for action in actions:
                 acl.add_action(action['topic'], action['acls'], action['options'])
                 self.add_acl_to_base(base, acl)
@@ -1533,7 +1533,8 @@ class ACLResolver(Plugin):
         if rolename:
             acl = ACL(role=rolename)
             acl.set_members(members)
-            acl.use_role(rolename)
+            acl.set_priority(priority)
+            self.add_acl_to_base(base, acl)
 
     @Command(needsUser=True, __help__=N_("Refresh existing ACL by ID."))
     def updateACL(self, user, acl_id, scope=None, priority=None, members=None, actions=None, rolename=None):

@@ -718,7 +718,8 @@ def print_help():
         "\n    the agent-config file to use"
         "\n"))
 
-    for method in helpDecorator.method_list:
+    mlist = sorted(helpDecorator.method_list)
+    for method in mlist:
         sh = helpDecorator.method_list[method][0]
         lh = helpDecorator.method_list[method][1]
         method = re.sub("_"," ", method)
