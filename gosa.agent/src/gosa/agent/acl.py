@@ -255,6 +255,7 @@ class ACLRole(list):
     priority = None
 
     def __init__(self, name):
+        name = unicode(name)
         super(ACLRole, self).__init__()
         self.log = logging.getLogger(__name__)
         self.name = name
@@ -1162,7 +1163,7 @@ class ACLResolver(Plugin):
         ============== =============
         """
 
-        if type(rolename) != str:
+        if type(rolename) != unicode:
             raise ACLException("Expected parameter to be of type 'str'!")
 
         for aclset in self.acl_sets:
@@ -1252,6 +1253,9 @@ class ACLResolver(Plugin):
         # Allow to remove roles by passing ACLRole-objects.
         if type(name) == ACLRole:
             name = name.name
+
+        # Ensure we've got a unicode value
+        name = unicode(name)
 
         # Check if we've got a valid name type.
         if type(name) not in [str, unicode]:
@@ -1906,49 +1910,6 @@ class ACLResolver(Plugin):
                     for action in actions:
                         acl.add_action(action['topic'], action['acls'], action['options'])
 
-        else:
-            raise ACLException("An acl with the given id does not exists! (%s)" % (acl_id,))
-
-    @Command(needsUser=True, __help__=N_("Refresh existing role-acl by ID to refer to another role"))
-    def updateACLRoleWithRole(self, user, acl_id, priority, rolename):
-        """
-        Refresh existing role-acl by ID to refer to another role.
-
-        (You can use getACLRoles() to list the role-acl IDs)
-
-        ============== =============
-        Key            Description
-        ============== =============
-        acl_id         The ID of the role-acl we want to update.
-        priority       An integer value to prioritize this acl-rule. (Lower values mean higher priority)
-        rolename       The name of the role to use.
-        ============== =============
-
-        Example: Let the role-acl with ID:1 point to role2:
-
-        >>> updateACLRolewithRole(1, 0, "role2")
-
-        """
-        # Check permissions
-        if not self.check(user, 'org.gosa.acl', 'w', self.base):
-            raise ACLException("The requested operation is not allowed!")
-
-        # Check if the given rolename exists
-        if rolename not in self.acl_roles:
-            raise ACLException("A role with the given name already exists! (%s)" % (rolename,))
-
-        # Try to find role-acl with the given ID.
-        acl = None
-        for _aclrole in self.acl_roles:
-            for _acl in self.acl_roles[_aclrole]:
-                if _acl.id == acl_id:
-                    acl = _acl
-
-        if acl:
-            acl.use_role(rolename)
-
-            if priority:
-                acl.set_priority(priority)
         else:
             raise ACLException("An acl with the given id does not exists! (%s)" % (acl_id,))
 

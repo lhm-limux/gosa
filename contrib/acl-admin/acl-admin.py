@@ -559,6 +559,44 @@ class ACLAdmin(object):
         except ACLException as e:
             print e
 
+    @helpDecorator(_("Removes a given role-acl"), _("remove roleacl <ID>"))
+    def remove_roleacl(self, args):
+        """
+        This method removes an ACL from an ROLE
+
+        =========== =============
+        key         description
+        =========== =============
+        args        The arguments-list we use as information basis
+        =========== =============
+        """
+
+        aid = self.get_value_from_args("id", args)
+        try:
+            self.resolver.removeRoleACL('tmp_admin', aid)
+            self.resolver.save_to_file()
+        except ACLException as e:
+            print e
+
+    @helpDecorator(_("Removes a role"), _("remove role <rolename>"))
+    def remove_role(self, args):
+        """
+        This method removes an ACLRole
+
+        =========== =============
+        key         description
+        =========== =============
+        args        The arguments-list we use as information basis
+        =========== =============
+        """
+
+        rolename = self.get_value_from_args("rolename", args)
+        try:
+            self.resolver.removeRole('tmp_admin', rolename)
+            self.resolver.save_to_file()
+        except ACLException as e:
+            print e
+
     @helpDecorator(_("Updates an ACL ROLE entry"), _("update roleacl [set-scope|set-priority|set-action|set-role] <ID> [parameters]"))
     def update_roleacl(self, args):
         """
