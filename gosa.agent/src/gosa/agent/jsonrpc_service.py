@@ -236,6 +236,15 @@ class JsonRpcApp(object):
                 else:
                     params.insert(0, queue)
 
+            self.log.info("received call [%s] for %s: %s(%s)" % (jid, user, method, params))
+
+            # Don't process messages if the command registry thinks it's not ready
+            if not self.dispatcher.processing.is_set():
+                self.log.warning("waiting for registry to get ready")
+                if not self.__cr.processing.wait(5):
+                    self.log.error("aborting call [%s] for %s: %s(%s) - timed out" % (jid, user, method, params))
+                    raise RuntimeError("registry not ready")
+
             if isinstance(params, dict):
                 result = self.dispatcher.dispatch(user, None, method, **params)
             else:
@@ -285,8 +294,7 @@ class JsonRpcApp(object):
                                 error=error_value,
                                 id=jid)))
 
-        self.log.debug("returning call [%s]: %s / %s" % (jid, result,
-            None))
+        self.log.debug("returning call [%s]: %s / %s" % (jid, result, None))
 
         return Response(
             content_type='application/json',
