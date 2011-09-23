@@ -53,25 +53,32 @@ class ACLAdmin(object):
         Environment.noargs = True
         Environment.config = cfgFile
         self.env = Environment.getInstance()
-
         acl_file = os.path.join(self.env.config.getBaseDir(), "agent.acl")
+        self.acl_file = acl_file
+
+        # Drop an existing agent.acl file
         if drop:
 
-            backup_name = "agent.acl._back_" + time.strftime("%d.%m.%Y")
-            new_name = backup_name
-            cnt = 1
-            while os.path.exists(os.path.join(self.env.config.getBaseDir(), new_name)):
-                new_name = backup_name + "_" + str(cnt)
-                cnt += 1
+            if os.path.exists(self.acl_file):
+                # Create a unique nackup name for the  existing acl file
+                backup_name = "agent.acl._back_" + time.strftime("%d.%m.%Y")
+                new_name = backup_name
+                cnt = 1
+                while os.path.exists(os.path.join(self.env.config.getBaseDir(), new_name)):
+                    new_name = backup_name + "_" + str(cnt)
+                    cnt += 1
 
-            try:
-                os.rename(acl_file, os.path.join(self.env.config.getBaseDir(), new_name))
-            except Exception as e:
-                print e
-                print("\n... maybe you are not allowed to access the acls file! (%s)" % acl_file)
+                try:
+                    os.rename(acl_file, os.path.join(self.env.config.getBaseDir(), new_name))
+                except Exception as e:
+                    print e
+                    print("\n... maybe you are not allowed to access the acls file! (%s)" % acl_file)
+                    print
+                    sys.exit(1)
+            else:
+                print "\n... no old acl-file found, nothing dropped!"
                 print
                 sys.exit(1)
-
 
         try:
             self.resolver = ACLResolver()
@@ -385,7 +392,7 @@ class ACLAdmin(object):
                                 self.para_missing(name)
                                 sys.exit(1)
                             else:
-                                on,ov = opt_entries
+                                on, ov = opt_entries
                                 action['options'][on] = ov
                         actions.append(action)
                 del(args[0])
