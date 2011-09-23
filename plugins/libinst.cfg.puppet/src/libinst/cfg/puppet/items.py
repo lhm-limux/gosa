@@ -549,11 +549,6 @@ class PuppetTemplate(InstallItem):
         os.remove(manifest_file)
 
     @staticmethod
-    def manifest_validator(value):
-        #TODO: validate stuff
-        return True
-
-    @staticmethod
     def scan(path):
         items = {}
         manifest_dir = os.path.join(path, PuppetTemplate._prefix)

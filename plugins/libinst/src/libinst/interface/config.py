@@ -320,7 +320,7 @@ class InstallMethod(object):
 
             # Load instance of ConfigItem
             item = self._manager._getConfigItem(name=name, item_type=item_type, release=release, add=True)
-            session.commit() # FIXME: Does not work without this commit??
+            session.commit()
             item = session.merge(item)
             item.path = path
 

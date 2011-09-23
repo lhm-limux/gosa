@@ -49,7 +49,7 @@ from gosa.common import Environment
 from gosa.common.components.command import Command
 from gosa.agent.ldap_utils import LDAPHandler
 from gosa.common.components import Plugin
-from gosa.common.utils import N_
+from gosa.common.utils import N_, parseURL
 
 # Include locales
 t = gettext.translation('messages', resource_filename("libinst", "locale"), fallback=True)
@@ -434,7 +434,6 @@ class LibinstManager(Plugin):
 
         ``Return:`` dictionary describing the distribution
         """
-        #TODO: reason for m_hash in signature?
         result = None
         session = None
 
@@ -480,7 +479,6 @@ class LibinstManager(Plugin):
 
         ``Return:`` list of dicts
         """
-        #TODO: what's the reason for m_hash here?
         result = None
         session = None
 
@@ -536,7 +534,6 @@ class LibinstManager(Plugin):
 
         ``Return:`` dict with information
         """
-        #TODO: reason for m_hash?
         result = None
         session = None
 
@@ -586,7 +583,6 @@ class LibinstManager(Plugin):
 
         ``Return:`` dict describing the architectures
         """
-        #TODO: reason for m_hash?
         result = None
         session = None
 
@@ -644,7 +640,6 @@ class LibinstManager(Plugin):
 
         ``Return:`` dict describing the sections
         """
-        #TODO: reason for m_hash?
         result = None
         session = None
         try:
@@ -705,17 +700,13 @@ class LibinstManager(Plugin):
         p = re.compile(ALLOWED_CHARS_DISTRIBUTION)
         if not name:
             raise ValueError("name cannot be empty!")
-            return result != None
         if not p.match(name):
             raise ValueError("%s contains invalid characters!" % name)
-            return result != None
         if name == "master":
             raise ValueError("master is a reserved keyword!")
-            return result != None
         if install_method is not None:
             if not type in self.install_method_reg[install_method]._supportedTypes:
                 raise ValueError("Distribution Type %s is not supported by installation method %s" % (type, install_method))
-                return result != None
 
         if not self._getDistribution(name):
             try:
@@ -898,7 +889,7 @@ class LibinstManager(Plugin):
                     self.removeRelease(child_release, recursive=True)
                 session.expire(release)
             else:
-                # pylint: disable-msg=E1101
+                # pylint: disable=E1101
                 for package in release.packages[:]:
                     result = self.removePackage(package, arch=package.arch.name, release=release)
                     if result is not True:
@@ -1232,7 +1223,7 @@ class LibinstManager(Plugin):
                     result = self.type_reg[distribution.type.name].updateMirror(
                         session,
                         distribution=distribution,
-                        releases=releases,
+                        releases=distribution.releases,
                         components=components,
                         architectures=architectures,
                         sections=sections)
@@ -1614,7 +1605,7 @@ class LibinstManager(Plugin):
             else:
                 work_dir = self._getGPGEnvironment()
                 gpg = gnupg.GPG(gnupghome=work_dir)
-                # pylint: disable-msg=E1101
+                # pylint: disable=E1101
                 import_result = gpg.import_keys(keys)
                 if import_result.count > 0:
                     result = True
@@ -2166,8 +2157,10 @@ class LibinstManager(Plugin):
         if "deviceKey" in data:
             params.append("svc_key=%s" % encode(data["deviceKey"][0]))
 
-        #TODO: for non DNS/zeroconf setups, it might be a good idea to
-        #      send a connection URI, too
+        # Optionally add the service URL
+        if self.env.config.get("goto.send_uri").upper() == "TRUE":
+            url = parseURL(self.env.config.get("amqp.url"))
+            params.append("svn_url={scheme}://{host}:{port}{path}".format(**url))
 
         return inst_m.getBootString(device_uuid) % " ".join(params)
 
@@ -2409,7 +2402,7 @@ class LibinstManager(Plugin):
                 ["cn", "description", "installMethod"])
 
         for entry in res:
-            entry = dict(map(lambda x: (self.template_map[x[0]], x[1][0]), entry[1].items()))
+            entry = dict([(self.template_map[x[0]], x[1][0]) for x in entry[1].items()])
             result[entry['name']] = {'description': entry['description'], 'method': entry['method']}
 
         return result
@@ -2447,7 +2440,7 @@ class LibinstManager(Plugin):
         if len(res) != 1:
             raise ValueError("no template named '%s' available" % name)
 
-        entry = dict(map(lambda x: (self.template_map[x[0]], x[1][0]), res[0][1].items()))
+        entry = dict([(self.template_map[x[0]], x[1][0]) for x in res[0][1].items()])
         if 'data' in entry:
             entry['data'] = unicode(entry['data'], "utf-8")
         return entry
@@ -2569,7 +2562,7 @@ class LibinstManager(Plugin):
             config_m = self.install_method_reg[method]
             try:
                 config_m.addClient(device_uuid)
-            except:
+            except Exception:
                 pass
 
     def _getArchitecture(self, name, add=False):
@@ -2639,7 +2632,7 @@ class LibinstManager(Plugin):
         try:
             try:
                 session = self.getSession()
-                result = self._session.query(File).filter_by(name=os.path.basename(url)).one()
+                result = session.query(File).filter_by(name=os.path.basename(url)).one()
             except NoResultFound:
                 if add:
                     result = File(name=os.path.basename(url))
