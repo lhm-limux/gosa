@@ -1939,6 +1939,9 @@ class ACLResolver(Plugin):
             for _acl in self.acl_roles[_aclrole]:
                 if _acl.id == role_id:
                     self.acl_roles[_aclrole].remove(_acl)
+                    return
+
+        raise ACLException("No such roleacl-id (%s) removal aborted!" % (role_id))
 
     @Command(needsUser=True, __help__=N_("Remove a defined acl-role by name"))
     def removeRole(self, user, rolename):
