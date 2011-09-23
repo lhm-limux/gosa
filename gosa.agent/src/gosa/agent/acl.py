@@ -1621,6 +1621,8 @@ class ACLResolver(Plugin):
 
         # Update properties
         if scope:
+            if acl.uses_role:
+                raise ACLException("A scope can only set for non-role bases ACLs.")
             acl.set_scope(scope_int)
 
         if members:
