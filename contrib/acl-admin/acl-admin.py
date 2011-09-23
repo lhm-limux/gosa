@@ -1,16 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import re
+import sys
+import copy
+import gettext
 import argparse
 from gosa.agent.acl import ACL, ACLSet, ACLRole, ACLRoleEntry, ACLResolver, ACLException
 from gosa.common import Environment
-import sys
-import inspect
-import gettext
-import re
-import copy
 
 _ = gettext.gettext
+
 
 class helpDecorator(object):
     largeHelp = ""
@@ -200,7 +199,7 @@ class ACLAdmin(object):
                     "\n    * set-priority   Set another priority level for the acl-rule"
                     "\n    * set-action     Set a new action for the acl"
                     "\n    * set-role       Let the acl-rule point to a role"),
-                "acl-update-action": _("You can either create acl-rule that contain direkt permissions settings"
+                "acl-add-action": _("You can either create acl-rule that contain direkt permissions settings"
                     " or you can use previously defined roles"
                     "\n  Possible values are:"
                     "\n    * with-actions   To directly specify the topic, acls and options this defintions includes"
@@ -235,7 +234,7 @@ class ACLAdmin(object):
                     if int(args[0]) < -100 or int(args[0]) > 100:
                         self.para_invalid(name)
                         sys.exit(1)
-                except:
+                except KeyError:
                     self.para_invalid(name)
                     sys.exit(1)
                 aid = int(args[0])
@@ -276,7 +275,7 @@ class ACLAdmin(object):
                     if int(args[0]) < -100 or int(args[0]) > 100:
                         self.para_invalid('priority')
                         sys.exit(1)
-                except:
+                except KeyError:
                     self.para_invalid('priority')
                     sys.exit(1)
 
