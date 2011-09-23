@@ -268,10 +268,3 @@ class BaseInstallMethod(object):
         lh = LDAPHandler.get_instance()
         with lh.get_handle() as conn:
             conn.modify_s(data['dn'], mods)
-
-    #TODO: getter and setter for that...
-    #  installMirrorDN        -> DN des Mirror Systems
-    #  installMirrorPoolDN    -> DN einer Mirror-Pool-Definition
-    #  installTemplateDN      -> DN eines Templates
-    #  installRecipeDN        -> Cascadiertes Rezept
-    #--------------------------------------------------------------------------

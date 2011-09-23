@@ -234,7 +234,7 @@ class AMQPService(object):
         self.log.debug("returning call [%s]: %s / %s" % (id_, res, err))
 
         response = dumps({"result": res, "id": id_, "error": err})
-        ssn.acknowledge()
+        ssn.acknowledge(message)
 
         # Talk to client generated reply queue
         sender = ssn.sender(message.reply_to)
