@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
 import os
-import platform
 
 try:
     from babel.messages import frontend as babel
@@ -59,7 +58,6 @@ setup(
         'http://oss.gonicus.de/pub/gosa/eggs',
         ],
 
-    #TODO: some modules are windows dependent
     entry_points = """
         [console_scripts]
         gosa-dbus = gosa.dbus.main:main

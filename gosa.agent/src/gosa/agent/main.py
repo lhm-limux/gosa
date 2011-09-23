@@ -25,16 +25,17 @@ def shutdown(a=None, b=None):
     # Shutdown plugins
     PluginRegistry.shutdown()
 
+    logging.info("shut down")
     logging.shutdown()
     exit(0)
 
 
-def handleTermSignal():
+def handleTermSignal(a=None, b=None):
     """ Signal handler which will shut down the whole machinery """
     Environment.getInstance().active = False
 
 
-def handleHupSignal():
+def handleHupSignal(a=None, b=None):
     pass
 
 

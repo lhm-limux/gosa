@@ -31,7 +31,7 @@ def shutdown(a=None, b=None):
     exit(0)
 
 
-def sighup():
+def sighup(a=None, b=None):
     pass
 
 def mainLoop(env):
@@ -42,11 +42,6 @@ def mainLoop(env):
 
         # Load plugins
         PluginRegistry(component='gosa_client.modules')
-
-        #TODO:
-        # Check if we're a client
-        # -> no: shutdown, client should be joined by administrator before
-        #        calling the client
 
         # Sleep and slice
         wait = 2
