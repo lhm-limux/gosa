@@ -27,6 +27,14 @@ class helpDecorator(object):
 
 
 class ACLAdmin(object):
+
+    acl_scope_map = {
+        'one': ACL.ONE,
+        'sub': ACL.SUB,
+        'psub': ACL.PSUB,
+        'reset': ACL.RESET,
+        }
+
     def __init__(self, cfgFile):
         Environment.noargs = True
         Environment.config = cfgFile
@@ -36,6 +44,10 @@ class ACLAdmin(object):
 
         # Tell the resolver to ignore acls for us (temporarily)
         self.resolver.admins.append('tmp_admin')
+
+        # Build reverse scope map
+        self.rev_acl_scope_map = dict((v,k) for k,v in
+                self.acl_scope_map.iteritems())
 
     def idToScopeStr(self, sid):
         """
@@ -48,14 +60,8 @@ class ACLAdmin(object):
         =========== =============
 
         """
-        acl_scope_map = {}
-        acl_scope_map[ACL.ONE] = 'one'
-        acl_scope_map[ACL.SUB] = 'sub'
-        acl_scope_map[ACL.PSUB] = 'psub'
-        acl_scope_map[ACL.RESET] = 'reset'
-
-        if sid in acl_scope_map:
-            return(acl_scope_map[sid])
+        if sid in self.rev_acl_scope_map:
+            return(self.rev_acl_scope_map[sid])
         else:
             return(_("unknown"))
 
@@ -70,14 +76,8 @@ class ACLAdmin(object):
         =========== =============
 
         """
-        acl_scope_map = {}
-        acl_scope_map['one'] = ACL.ONE
-        acl_scope_map['sub'] = ACL.SUB
-        acl_scope_map['psub'] = ACL.PSUB
-        acl_scope_map['reset'] = ACL.RESET
-
-        if sid in acl_scope_map:
-            return(acl_scope_map[sid])
+        if sid in self.acl_scope_map:
+            return(self.acl_scope_map[sid])
         else:
             return(None)
 
@@ -166,8 +166,8 @@ class ACLAdmin(object):
                     "\n Topics can contain placeholder to be more flexible when it come to resolving acls."
                     "\n You can use `#` and `*` where `#` matches for one level and `*` for multiple topic levels."
                     "\n  e.g.: "
-                    "\n   com.gosa.*        for all topics included in com.gosa"
-                    "\n   com.gosa.#.help   allows to call help methods for modules under com.gosa"),
+                    "\n   org.gosa.*        for all topics included in org.gosa"
+                    "\n   org.gosa.#.help   allows to call help methods for modules under org.gosa"),
                 "acl": _("The acl parameter defines which operations can be executed on a given topic."
                     "\n  e.g.:"
                     "\n   rwcd    -> allows to read, write, create and delete"
@@ -252,7 +252,7 @@ class ACLAdmin(object):
         # Validate the scope value
         elif name == "scope":
             if len(args):
-                if args[0] not in ['one', 'sub', 'psub', 'reset']:
+                if args[0] not in self.acl_scope_map:
                     self.para_invalid('scope')
                     sys.exit(1)
                 else:
