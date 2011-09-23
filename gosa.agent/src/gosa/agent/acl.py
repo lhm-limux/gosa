@@ -1533,7 +1533,7 @@ class ACLResolver(Plugin):
             acl.set_priority(priority)
             for action in actions:
                 acl.add_action(action['topic'], action['acls'], action['options'])
-                self.add_acl_to_base(base, acl)
+            self.add_acl_to_base(base, acl)
 
         if rolename:
             acl = ACL(role=rolename)
