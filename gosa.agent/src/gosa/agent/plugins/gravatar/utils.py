@@ -7,6 +7,7 @@ from gosa.common.components import Plugin
 from gosa.common.utils import N_
 from gosa.common import Environment
 
+
 class GravatarUtils(Plugin):
     """
     Utility class that contains methods needed to retrieve gravatar
@@ -22,7 +23,18 @@ class GravatarUtils(Plugin):
         "from the supplied password."))
     def getGravatarURL(self, mail, size=40, url="http://www.gonicus.de"):
         """
-        TODO
+        Generate the gravatar URL to be used for user pictures on
+        demand.
+
+        ========= ======================================
+        Parameter Description
+        ========= ======================================
+        mail      Gravatar's mail address
+        size      desired image size
+        url       Clickable URL
+        ========= ======================================
+
+        ``Return:`` Image URL
         """
         gravatar_url = "http://www.gravatar.com/avatar.php?"
         gravatar_url += urllib.urlencode({

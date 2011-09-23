@@ -11,7 +11,17 @@ class MiscUtils(Plugin):
     @Command(__help__=N_("Transliterate a given string"))
     def transliterate(self, string):
         """
-        TODO
+        Deliver a plain ASCII value of the given string by
+        additionaly replacing a couple of known characters
+        by their ASCII versions.
+
+        ========= =========================
+        Parameter Description
+        ========= =========================
+        string    String to be ASCIIfied
+        ========= =========================
+
+        ``Return:`` ASCII string
         """
         table = {
             ord(u'ä'): u'ae',

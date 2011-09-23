@@ -95,7 +95,6 @@ setup(
         'http://oss.gonicus.de/pub/gosa/eggs',
         ],
 
-    #TODO: some modules are windows dependent
     entry_points = """
         [console_scripts]
         gosa-client = gosa.client.main:main

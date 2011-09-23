@@ -31,11 +31,8 @@ def shutdown(a=None, b=None):
     exit(0)
 
 
-def handleSignal():
-    """ Signal handler which will shut down the whole machinery """
-    #TODO: Fine grained handling of signals
-    shutdown()
-
+def sighup():
+    pass
 
 def mainLoop(env):
     """ Main event loop which will process all registerd threads in a loop.
@@ -144,7 +141,7 @@ def main():
 
             context.signal_map = {
                 signal.SIGTERM: shutdown,
-                signal.SIGHUP: shutdown,
+                signal.SIGHUP: sighup,
             }
 
             context.uid = pwd.getpwnam(user).pw_uid
