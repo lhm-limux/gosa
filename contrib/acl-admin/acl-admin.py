@@ -444,7 +444,7 @@ class ACLAdmin(object):
 
             if "set-role" == action_type:
                 rolename = self.get_value_from_args("rolename", args)
-                self.resolver.updateACLWithRole('tmp_admin', aid, rolename=rolename)
+                self.resolver.updateACL('tmp_admin', aid, rolename=rolename)
                 self.resolver.save_to_file()
         except ACLException as e:
             print e
@@ -482,6 +482,7 @@ class ACLAdmin(object):
         args        The arguments-list we use as information basis
         =========== =============
         """
+
         try:
             action_type = self.get_value_from_args("acl-add-action", args)
             actions = rolename = scope = members = None
@@ -494,10 +495,10 @@ class ACLAdmin(object):
                 acls = self.get_value_from_args("acls", args)
                 options = self.get_value_from_args("options", args)
                 actions = [{'topic': topic, 'acls': acls, 'options': options}]
-                self.resolver.addACL('tmp_admin', base, priority, members, actions, scope)
+                self.resolver.addACL('tmp_admin', base, priority, members, actions=actions, scope=scope)
             else:
                 rolename = self.get_value_from_args("rolename", args)
-                self.resolver.addACLWithRole('tmp_admin', base, priority, members, rolename)
+                self.resolver.addACL('tmp_admin', base, priority, members, rolename=rolename)
 
             self.resolver.save_to_file()
         except ACLException as e:
@@ -528,10 +529,10 @@ class ACLAdmin(object):
                 acls = self.get_value_from_args("acls", args)
                 options = self.get_value_from_args("options", args)
                 actions = [{'topic': topic, 'acls': acls, 'options': options}]
-                self.resolver.addACLToRole('tmp_admin', rolename, priority, actions, scope)
+                self.resolver.addACLToRole('tmp_admin', rolename, priority, actions=actions, scope=scope)
             else:
                 use_role = self.get_value_from_args("rolename", args)
-                self.resolver.addACLWithRoleToRole('tmp_admin', rolename, priority, use_role)
+                self.resolver.addACLToRole('tmp_admin', rolename, priority, use_role=use_role)
 
             self.resolver.save_to_file()
         except ACLException as e:
