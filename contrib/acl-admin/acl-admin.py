@@ -73,11 +73,11 @@ class ACLAdmin(object):
                     os.rename(acl_file, os.path.join(self.env.config.getBaseDir(), new_name))
                 except Exception as e:
                     print e
-                    print("\n... maybe you are not allowed to access the acls file! (%s)" % acl_file)
+                    print(_("\n... maybe you are not allowed to access the acls file! (%s))" % acl_file)
                     print
                     sys.exit(1)
             else:
-                print "\n... no old acl-file found, nothing dropped!"
+                print(_("\n... no old acl-file found, nothing dropped!"))
                 print
                 sys.exit(1)
 
@@ -86,13 +86,15 @@ class ACLAdmin(object):
             self.resolver = ACLResolver()
         except IOError as e:
             print e
-            print("\n... maybe you are not allowed to access the acls file! (%s)" % acl_file)
+            print
+            print(_("... maybe you are not allowed to access the acls file! (%s)") % acl_file)
             print
             sys.exit(1)
         except ValueError as e:
             print e
-            print("\n... the file seems to be corrupt!")
-            print("You could try the --drop-all-permissions to create a new and clean acl-file! (%s)" % acl_file)
+            print(_("... the file seems to be corrupt!"))
+            print
+            print(_("You could try the --drop-all-permissions to create a new and clean acl-file! (%s)") % acl_file)
             print
             sys.exit(1)
 
