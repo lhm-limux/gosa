@@ -807,9 +807,13 @@ class ACLResolver(Plugin):
         lh = LDAPHandler.get_instance()
         self.base = lh.get_base()
         self.acl_file = os.path.join(self.env.config.getBaseDir(), "agent.acl")
+        self.clear()
+
+        # Try to create an new and empty acl file, if there was none yet!
+        if not os.path.exists(self.acl_file):
+            self.save_to_file()
 
         # Load initial ACL information from file
-        self.clear()
         self.load_from_file()
 
     def list_admin_accounts(self):
@@ -911,93 +915,89 @@ class ACLResolver(Plugin):
         acl_scope_map['psub'] = ACL.PSUB
         acl_scope_map['reset'] = ACL.RESET
 
-        try:
-            data = json.loads(open(self.acl_file).read())
+        data = json.loads(open(self.acl_file).read())
 
-            # Add ACLRoles
-            roles = {}
-            unresolved = []
-            for name in data['roles']:
+        # Add ACLRoles
+        roles = {}
+        unresolved = []
+        for name in data['roles']:
 
-                # Create a new role object on demand.
-                if name not in roles:
-                    roles[name] = ACLRole(name)
+            # Create a new role object on demand.
+            if name not in roles:
+                roles[name] = ACLRole(name)
 
-                # Check if this role was referenced before but not initialized
-                if name in unresolved:
-                    unresolved.remove(name)
+            # Check if this role was referenced before but not initialized
+            if name in unresolved:
+                unresolved.remove(name)
 
-                # Append the role acls to the ACLRole object
-                acls = data['roles'][name]
-                for acl_entry in acls:
+            # Append the role acls to the ACLRole object
+            acls = data['roles'][name]
+            for acl_entry in acls:
 
-                    # The acl entry refers to another role ebtry.
+                # The acl entry refers to another role ebtry.
+                if 'role' in acl_entry:
+
+                    # If the role was'nt loaded yet, the create and attach requested role
+                    #  to the list of roles, but mark it as unresolved
+                    rn = str(acl_entry['role'])
+                    if rn not in roles:
+                        unresolved.append(rn)
+                        roles[rn] = ACLRole(rn)
+                        self.add_acl_role(roles[rn])
+
+                    # Add the acl entry entry which refers to the role.
+                    acl = ACLRoleEntry()
+                    acl.uses_role = True
+                    acl.scope = None
+                    acl.role = rn
+                    acl.id = acl_entry['id']
+                    acl.set_priority(acl_entry['priority'])
+                    roles[name].add(acl)
+                    self.add_acl_role(roles[name])
+                else:
+
+                    # Add a normal (non-role) base acl entry
+                    acl = ACLRoleEntry(acl_scope_map[acl_entry['scope']])
+                    acl.id = acl_entry['id']
+                    acl.set_priority(acl_entry['priority'])
+                    for action in acl_entry['actions']:
+                        acl.add_action(action['topic'], action['acls'], action['options'])
+                    roles[name].add(acl)
+
+        # Check if we've got unresolved roles!
+        if len(unresolved):
+            raise ACLException("Loading ACls failed, we've got unresolved roles references: '%s'!" % (str(unresolved), ))
+
+        # Add the recently created roles.
+        for role_name in roles:
+            self.add_acl_role(roles[role_name])
+
+        # Add ACLSets
+        for base in data['acl']:
+
+            # The ACL defintion is based on an acl role.
+            for acls_data in data['acl'][base]:
+
+                acls = ACLSet(base)
+                for acl_entry in acls_data['acls']:
+
                     if 'role' in acl_entry:
-
-                        # If the role was'nt loaded yet, the create and attach requested role
-                        #  to the list of roles, but mark it as unresolved
-                        rn = str(acl_entry['role'])
-                        if rn not in roles:
-                            unresolved.append(rn)
-                            roles[rn] = ACLRole(rn)
-                            self.add_acl_role(roles[rn])
-
-                        # Add the acl entry entry which refers to the role.
-                        acl = ACLRoleEntry()
-                        acl.uses_role = True
-                        acl.scope = None
-                        acl.role = rn
-                        acl.id = acl_entry['id']
+                        acl = ACL(role=acl_entry['role'])
+                        acl.set_members(acl_entry['members'])
                         acl.set_priority(acl_entry['priority'])
-                        roles[name].add(acl)
-                        self.add_acl_role(roles[name])
+                        acl.id = acl_entry['id']
+                        acls.add(acl)
                     else:
-
-                        # Add a normal (non-role) base acl entry
-                        acl = ACLRoleEntry(acl_scope_map[acl_entry['scope']])
-                        acl.id = acl_entry['id']
+                        acl = ACL(acl_scope_map[acl_entry['scope']])
+                        acl.set_members(acl_entry['members'])
                         acl.set_priority(acl_entry['priority'])
+                        acl.id = acl_entry['id']
+
                         for action in acl_entry['actions']:
                             acl.add_action(action['topic'], action['acls'], action['options'])
-                        roles[name].add(acl)
 
-            # Check if we've got unresolved roles!
-            if len(unresolved):
-                raise ACLException("Loading ACls failed, we've got unresolved roles references: '%s'!" % (str(unresolved), ))
-
-            # Add the recently created roles.
-            for role_name in roles:
-                self.add_acl_role(roles[role_name])
-
-            # Add ACLSets
-            for base in data['acl']:
-
-                # The ACL defintion is based on an acl role.
-                for acls_data in data['acl'][base]:
-
-                    acls = ACLSet(base)
-                    for acl_entry in acls_data['acls']:
-
-                        if 'role' in acl_entry:
-                            acl = ACL(role=acl_entry['role'])
-                            acl.set_members(acl_entry['members'])
-                            acl.set_priority(acl_entry['priority'])
-                            acl.id = acl_entry['id']
-                            acls.add(acl)
-                        else:
-                            acl = ACL(acl_scope_map[acl_entry['scope']])
-                            acl.set_members(acl_entry['members'])
-                            acl.set_priority(acl_entry['priority'])
-                            acl.id = acl_entry['id']
-
-                            for action in acl_entry['actions']:
-                                acl.add_action(action['topic'], action['acls'], action['options'])
-
-                            acls.add(acl)
-                    self.add_acl_set(acls)
-
-        except IOError:
-            return {}
+                        acls.add(acl)
+                self.add_acl_set(acls)
 
     def save_to_file(self):
         """

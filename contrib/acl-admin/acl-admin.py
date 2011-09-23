@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import re
+import os
+import time
 import sys
 import copy
 import gettext
@@ -47,11 +49,44 @@ class ACLAdmin(object):
         'reset': ACL.RESET,
         }
 
-    def __init__(self, cfgFile):
+    def __init__(self, cfgFile, drop=False):
         Environment.noargs = True
         Environment.config = cfgFile
         self.env = Environment.getInstance()
-        self.resolver = ACLResolver()
+
+        acl_file = os.path.join(self.env.config.getBaseDir(), "agent.acl")
+        if drop:
+
+            backup_name = "agent.acl._back_" + time.strftime("%d.%m.%Y")
+            new_name = backup_name
+            cnt = 1
+            while os.path.exists(os.path.join(self.env.config.getBaseDir(), new_name)):
+                new_name = backup_name + "_" + str(cnt)
+                cnt += 1
+
+            try:
+                os.rename(acl_file, os.path.join(self.env.config.getBaseDir(), new_name))
+            except Exception as e:
+                print e
+                print("\n... maybe you are not allowed to access the acls file! (%s)" % acl_file)
+                print
+                sys.exit(1)
+
+
+        try:
+            self.resolver = ACLResolver()
+        except IOError as e:
+            print e
+            print("\n... maybe you are not allowed to access the acls file! (%s)" % acl_file)
+            print
+            sys.exit(1)
+        except ValueError as e:
+            print e
+            print("\n... the file seems to be corrupt!")
+            print("You could try the --drop-all-permissions to create a new and clean acl-file! (%s)" % acl_file)
+            print
+            sys.exit(1)
+
         self.ldap_base = self.resolver.base
 
         # Tell the resolver to ignore acls for us (temporarily)
@@ -772,6 +807,9 @@ def print_help():
         "\noptional arguments:"
         "\n  -c CFGFILE, --config CFGFILE"
         "\n    the agent-config file to use"
+        "\n"
+        "\n  --drop-all-permissions"
+        "\n    drops all defined acls and roles"
         "\n"))
 
     # Add methods marked with the helpDecorator
@@ -811,6 +849,11 @@ def main():
             cfgFile = my_args[pos]
             del(my_args[pos])
             del(my_args[pos])
+
+    # Check if we've to drop all acls and roles
+    if "--drop-all-permissions" in my_args:
+        a = ACLAdmin(cfgFile, drop=True)
+        sys.exit(1)
 
     # Remove the first element of my_args, we don't need it.
     del(my_args[0])
