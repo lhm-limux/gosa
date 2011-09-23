@@ -29,6 +29,10 @@ class Plugin(object):
 
     """
     _target_ = None
+    _locale_module_ = 'gosa.common'
 
     def get_target(self):
         return self._target_
+
+    def get_locale_module(self):
+        return self._locale_module_

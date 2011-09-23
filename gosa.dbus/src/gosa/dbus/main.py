@@ -32,13 +32,6 @@ def shutdown(a=None, b=None):
     logging.shutdown()
     exit(0)
 
-
-def handleSignal():
-    """ Signal handler which will shut down the whole machinery """
-    #TODO: Fine grained handling of signals
-    shutdown()
-
-
 def mainLoop(env):
     global loop
 

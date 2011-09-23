@@ -31,11 +31,8 @@ def shutdown(a=None, b=None):
     exit(0)
 
 
-def handleSignal():
-    """ Signal handler which will shut down the whole machinery """
-    #TODO: Fine grained handling of signals
-    shutdown()
-
+def sighup(a=None, b=None):
+    pass
 
 def mainLoop(env):
     """ Main event loop which will process all registerd threads in a loop.
@@ -45,11 +42,6 @@ def mainLoop(env):
 
         # Load plugins
         PluginRegistry(component='gosa_client.modules')
-
-        #TODO:
-        # Check if we're a client
-        # -> no: shutdown, client should be joined by administrator before
-        #        calling the client
 
         # Sleep and slice
         wait = 2
@@ -144,7 +136,7 @@ def main():
 
             context.signal_map = {
                 signal.SIGTERM: shutdown,
-                signal.SIGHUP: shutdown,
+                signal.SIGHUP: sighup,
             }
 
             context.uid = pwd.getpwnam(user).pw_uid

@@ -143,8 +143,7 @@ class join_method(object):
             self.key = svc_key
             return
 
-        #TODO: Not M$ compatible - not sure if we'll ever join
-        #      these kind of clients
+        # Check for svc information
         with open("/proc/cmdline", "r") as f:
             line = f.readlines()[0]
 

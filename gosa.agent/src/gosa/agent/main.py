@@ -25,14 +25,18 @@ def shutdown(a=None, b=None):
     # Shutdown plugins
     PluginRegistry.shutdown()
 
+    logging.info("shut down")
     logging.shutdown()
     exit(0)
 
 
-def handleSignal():
+def handleTermSignal(a=None, b=None):
     """ Signal handler which will shut down the whole machinery """
-    #TODO: Fine grained handling of signals
     Environment.getInstance().active = False
+
+
+def handleHupSignal(a=None, b=None):
+    pass
 
 
 def mainLoop(env):
@@ -163,8 +167,8 @@ def main():
             )
 
             context.signal_map = {
-                signal.SIGTERM: handleSignal,
-                signal.SIGHUP: handleSignal,
+                signal.SIGTERM: handleTermSignal,
+                signal.SIGHUP: handleHupSignal,
             }
 
             context.uid = pwd.getpwnam(user).pw_uid
