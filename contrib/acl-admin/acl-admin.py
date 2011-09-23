@@ -6,8 +6,7 @@ import time
 import sys
 import copy
 import gettext
-import argparse
-from gosa.agent.acl import ACL, ACLSet, ACLRole, ACLRoleEntry, ACLResolver, ACLException
+from gosa.agent.acl import ACLResolver, ACLException
 from gosa.common import Environment
 
 _ = gettext.gettext
@@ -73,7 +72,7 @@ class ACLAdmin(object):
                     os.rename(acl_file, os.path.join(self.env.config.getBaseDir(), new_name))
                 except Exception as e:
                     print e
-                    print(_("\n... maybe you are not allowed to access the acls file! (%s))" % acl_file)
+                    print(_("\n... maybe you are not allowed to access the acls file! (%s)") % acl_file)
                     print
                     sys.exit(1)
             else:
