@@ -140,6 +140,8 @@ class AMQPService(object):
                 text="path=%s\001service=gosa" % url['path'])
         self.__zeroconf.publish()
 
+        self.log.info("ready to process incoming requests")
+
     def stop(self):
         """ Stop AMQP service for this GOsa service provider. """
         self.__zeroconf.unpublish()

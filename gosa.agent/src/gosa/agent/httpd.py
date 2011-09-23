@@ -133,7 +133,7 @@ class HTTPService(object):
 
         # Fetch server
         self.srv = httpserver.serve(self.app, self.host, self.port, start_loop=False, ssl_pem=self.ssl_pem)
-        self.log.debug("serving http on %s://%s:%s" % (self.scheme, self.host, self.port))
+        self.log.info("now serving on %s://%s:%s" % (self.scheme, self.host, self.port))
         thread.start_new_thread(self.srv.serve_forever, ())
 
         # Register all possible instances that have shown

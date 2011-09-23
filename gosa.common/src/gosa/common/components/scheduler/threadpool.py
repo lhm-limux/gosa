@@ -50,7 +50,7 @@ class ThreadPool(object):
         self._shutdown = False
 
         _threadpools.add(ref(self))
-        logger.info('Started thread pool with %d core threads and %s maximum '
+        logger.debug('Started thread pool with %d core threads and %s maximum '
                     'threads', core_threads, max_threads or 'unlimited')
 
     def _adjust_threadcount(self):
@@ -110,7 +110,7 @@ class ThreadPool(object):
         if self._shutdown:
             return
 
-        logging.info('Shutting down thread pool')
+        logging.debug('Shutting down thread pool')
         self._shutdown = True
         _threadpools.remove(ref(self))
 

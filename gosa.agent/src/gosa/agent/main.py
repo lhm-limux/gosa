@@ -110,7 +110,7 @@ def main():
 
     # Inizialize core environment
     env = Environment.getInstance()
-    env.log.info("GOsa is starting up")
+    env.log.info("GOsa %s is starting up (server id: %s)" % (VERSION, env.id))
 
     # Configured in daemon mode?
     if not env.config.get('core.foreground'):

@@ -95,8 +95,8 @@ class Config(object):
             self.__parseCmdOptions()
 
     def __parseCmdOptions(self):
-        parser = ArgumentParser(usage="%(prog)s - the GOsa core daemon",
-                    version="%(prog)s " + VERSION)
+        parser = ArgumentParser(usage="%(prog)s - the GOsa core daemon")
+        parser.add_argument("--version", action='version', version=VERSION)
 
         parser.add_argument("-c", "--config", dest="config",
                           default="/etc/gosa/config",

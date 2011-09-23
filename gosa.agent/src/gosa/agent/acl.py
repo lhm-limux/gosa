@@ -797,7 +797,7 @@ class ACLResolver(Plugin):
         admins = self.env.config.get("core.admins", default=None)
         if admins:
             admins = re.sub(r'\s', '', admins)
-            self.log.info("adding users to the ACL override: %s" % admins)
+            self.log.warning("adding users to the ACL override: %s" % admins)
             self.admins = admins.split(",")
 
         # Load default LDAP base
