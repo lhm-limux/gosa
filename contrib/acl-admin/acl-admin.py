@@ -58,8 +58,8 @@ class ACLAdmin(object):
 
         # Drop an existing agent.acl file
         if drop:
-
             if os.path.exists(self.acl_file):
+
                 # Create a unique nackup name for the  existing acl file
                 backup_name = "agent.acl._back_" + time.strftime("%d.%m.%Y")
                 new_name = backup_name
@@ -68,6 +68,7 @@ class ACLAdmin(object):
                     new_name = backup_name + "_" + str(cnt)
                     cnt += 1
 
+                # Now try to rename the existing agent.acl file
                 try:
                     os.rename(acl_file, os.path.join(self.env.config.getBaseDir(), new_name))
                 except Exception as e:
@@ -80,6 +81,7 @@ class ACLAdmin(object):
                 print
                 sys.exit(1)
 
+        # Try to load the ACLResolver class.
         try:
             self.resolver = ACLResolver()
         except IOError as e:
