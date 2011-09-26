@@ -77,7 +77,7 @@ class PxeFS(Fuse):
         self.boot_method_reg = {}
         for entry in pkg_resources.iter_entry_points("fts.methods"):
             module = entry.load()
-            print("boot method %s included " % module.__name__)
+            self.env.log.info("boot method {method} included ".format(method=module.__name__))
             self.boot_method_reg[module.__name__] = module
 
     def getattr(self, path):
@@ -121,7 +121,6 @@ class PxeFS(Fuse):
         if os.path.exists(os.sep.join((static, path))):
             result = os.path.getsize(os.sep.join((static, path)))
         elif macaddress.match(path[4:]):
-            print "Found a macaddress"
             result = len(self.getBootParams(path))
         elif path.lstrip(os.sep) in self.filesystem[self.root].keys():
             result = len(str(self.filesystem[self.root][path.lstrip(os.sep)]['content']))
@@ -131,7 +130,7 @@ class PxeFS(Fuse):
         if not path in self.filesystem[self.root].keys() or self.filesystem[self.root][path]['timestamp'] < int(time()) - int(self.positive_cache_timeout):
             self.filesystem[self.root][path] = {}
             for method in self.boot_method_reg:
-                print "calling method", method
+                self.env.log.debug("Calling boot method {method}".format(method=method))
                 try:
                     # Need to transform /01-00-00-00-00-00-00 into 00:00:00:00:00:00
                     content = self.boot_method_reg[method]().getBootParams(path[4:].replace('-', ':'))
@@ -141,7 +140,7 @@ class PxeFS(Fuse):
                         self.filesystem[self.root][path]['timestamp'] = time()
                         break
                 except:
-                    raise
+                    continue
         return self.filesystem[self.root][path]['content']
 
 def main():
