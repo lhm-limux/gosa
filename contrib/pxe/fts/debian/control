@@ -1,0 +1,14 @@
+Source: fts
+Section: misc
+Priority: optional
+Maintainer: Cajus Pollmeier <cajus@debian.org>
+Build-Depends: debhelper (>= 5.0.37.1), cdbs (>= 0.4.41), python-all (>= 2.6), python-support (>= 0.6.4), python-nose, python-kid, python-coverage
+Build-Depends-Indep: python-setuptools (>= 0.6a9)
+Standards-Version: 3.8.3
+Homepage: http://oss.gonicus.de
+
+Package: fts
+Architecture: all
+Depends: ${python:Depends}, ${misc:Depends}, python-pkg-resources, python-gnupg, python-tz
+Description: PXELINUX/TFTP Supplicant based on Fuse
+ Generates pxelinux config files on demand.

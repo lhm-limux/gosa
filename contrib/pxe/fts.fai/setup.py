@@ -43,7 +43,8 @@ setup(
         'fuse-python',
     ],
 
-
-    #entry_points = """
-    #"""
+    entry_points = """
+    [fts.methods]
+    fai = fts.fai.main:FAI
+""",
 )
