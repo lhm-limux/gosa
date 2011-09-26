@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from gosa.common import Environment
-from gosa.common.components import AMQPServiceProxy
 
 from time import time
 
@@ -25,11 +24,8 @@ if not hasattr(fuse, '__version__'):
         "your fuse-py doesn't know of fuse.__version__, probably it's too old."
 
 fuse.feature_assert('stateful_files', 'has_init')
-macaddress = re.compile("^[0-9a-f]{1,2}-[0-9a-f]{1,2}-[0-9a-f]{1,2}-[0-9a-f]{1,2}-[0-9a-f]{1,2}-[0-9a-f]{1,2}$")
+macaddress = re.compile("^[0-9a-f]{1,2}-[0-9a-f]{1,2}-[0-9a-f]{1,2}-[0-9a-f]{1,2}-[0-9a-f]{1,2}-[0-9a-f]{1,2}$", re.IGNORECASE)
 static=os.getcwd()+'/pxelinux.static'
-
-# Create connection to service
-# proxy = AMQPServiceProxy('amqps://cajus:tester@amqp.intranet.gonicus.de/org.gosa')
 
 def getDepth(path):
     """
@@ -75,7 +71,7 @@ class PxeFS(Fuse):
         }
         Environment.config="fts.conf"
         Environment.noargs=True
-        env = Environment.getInstance()
+        self.env = Environment.getInstance()
         self.positive_cache_timeout = 10
         # Load all boot methods
         self.boot_method_reg = {}
@@ -125,24 +121,27 @@ class PxeFS(Fuse):
         if os.path.exists(os.sep.join((static, path))):
             result = os.path.getsize(os.sep.join((static, path)))
         elif macaddress.match(path[4:]):
+            print "Found a macaddress"
             result = len(self.getBootParams(path))
         elif path.lstrip(os.sep) in self.filesystem[self.root].keys():
             result = len(str(self.filesystem[self.root][path.lstrip(os.sep)]['content']))
         return result
 
     def getBootParams(self, path):
-        # Need to transform /01-00-00-00-00-00-00 into 00:00:00:00:00:00
         if not path in self.filesystem[self.root].keys() or self.filesystem[self.root][path]['timestamp'] < int(time()) - int(self.positive_cache_timeout):
             self.filesystem[self.root][path] = {}
             for method in self.boot_method_reg:
+                print "calling method", method
                 try:
-                    content = str(self.boot_method_reg[method]().getBootParams(path[4:].replace('-', ':')))
-                    if content:
-                        self.filesystem[self.root][path]['content'] = content
+                    # Need to transform /01-00-00-00-00-00-00 into 00:00:00:00:00:00
+                    content = self.boot_method_reg[method]().getBootParams(path[4:].replace('-', ':'))
+                    if content is not None:
+                        print "Found content", content
+                        self.filesystem[self.root][path]['content'] = str(content)
+                        self.filesystem[self.root][path]['timestamp'] = time()
                         break
                 except:
-                    continue
-            self.filesystem[self.root][path]['timestamp'] = time()
+                    raise
         return self.filesystem[self.root][path]['content']
 
 def main():
