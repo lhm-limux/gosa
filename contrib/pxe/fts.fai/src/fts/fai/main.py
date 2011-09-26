@@ -23,8 +23,12 @@ class FAI(object):
                 ldap.SCOPE_SUBTREE,
                 ldap.filter.filter_format("(&(macAddress=%s)(objectClass=FAIobject))", [address]),
                 [ 'FAIstate', 'gotoBootKernel', 'gotoKernelParameters', 'gotoLdapServer', 'cn', 'ipHostNumber' ])
-            if res:
+            if res.count()==0:
                 result = "localboot"
+            elif res.count()>1:
+                self.env.log.error("{address} - MAC lookup error: too many LDAP results ({count})".format(address=address, count=res.count()))
+            else:
+                self.env.log.info("No FAI configuration for client with MAC {address}".format(address=address))
         return result
 
     def getInfo(self):
