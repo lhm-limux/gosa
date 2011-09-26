@@ -45,6 +45,6 @@ setup(
 
     entry_points = """
     [fts.methods]
-    fai = fts.gosa.main:GosaHandler
+    gosa = fts.gosa.main:GosaHandler
 """,
 )
