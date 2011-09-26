@@ -127,7 +127,9 @@ class PxeFS(Fuse):
         return result
 
     def getBootParams(self, path):
-        if not path in self.filesystem[self.root].keys() or self.filesystem[self.root][path]['timestamp'] < int(time()) - int(self.positive_cache_timeout):
+        if not path in self.filesystem[self.root] 
+        or not timestamp in self.filesystem[self.root][path]
+        or self.filesystem[self.root][path]['timestamp'] < int(time()) - int(self.positive_cache_timeout):
             self.filesystem[self.root][path] = {}
             for method in self.boot_method_reg:
                 self.env.log.debug("Calling boot method {method}".format(method=method))
@@ -141,7 +143,7 @@ class PxeFS(Fuse):
                         break
                 except:
                     continue
-        return self.filesystem[self.root][path]['content']
+        return self.filesystem[self.root][path]['content'] if 'content' in self.filesystem[self.root][path] else None
 
 def main():
     usage = """
