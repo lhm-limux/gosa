@@ -13,5 +13,4 @@ without any messages.
 
 Additionally you can make use of the nosetests in the complete code:
 
-# setup.py nosetests
-
+# nosetests

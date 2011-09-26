@@ -2158,7 +2158,7 @@ class LibinstManager(Plugin):
             params.append("svc_key=%s" % encode(data["deviceKey"][0]))
 
         # Optionally add the service URL
-        if self.env.config.get("goto.send_uri").upper() == "TRUE":
+        if self.env.config.get("goto.send_uri", "False").upper() == "TRUE":
             url = parseURL(self.env.config.get("amqp.url"))
             params.append("svn_url={scheme}://{host}:{port}{path}".format(**url))
 
