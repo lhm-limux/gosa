@@ -253,9 +253,13 @@ class PuppetLogWatcher(pyinotify.ProcessEvent):
                 ]
 
                 # Append tags
-                #TODO: Fix XML schema to keep tags
-                #for tag in log.tags:
-                #    data.append(e.Tag(tag))
+                try:
+                    tags = e.Tag()
+                    for tag in log.tags:
+                        tags.append(e.value(tag))
+                    data.append(tags)
+                except:
+                    pass
 
                 # Add optional tags
                 try:
