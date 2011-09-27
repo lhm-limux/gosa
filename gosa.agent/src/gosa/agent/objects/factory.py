@@ -163,7 +163,7 @@ class GOsaObjectFactory(object):
         setattr(klass, '__name__', name)
         setattr(klass, '_backend', str(self.__xml_defs[name].Object.DefaultBackend))
 
-        # What kind of properties do we have?
+        # Prepare property and method list.
         classr = self.__xml_defs[name].Object
         props = {}
         methods = {}
@@ -177,9 +177,10 @@ class GOsaObjectFactory(object):
         if "DefaultBackend" in classr.__dict__:
             defaultBackend = str(classr.DefaultBackend)
 
+        # Append attributes
         for prop in classr['Attributes']['Attribute']:
 
-            # Read backend definitions per property (if they exists)
+            # Read backend definition per property (if it exists)
             out_b = defaultBackend
             in_b = defaultBackend
             if "Backend" in prop.__dict__:
@@ -208,7 +209,7 @@ class GOsaObjectFactory(object):
                 raise Exception("Cannot detect a valid output backend for "
                         "attribute %s!" % (prop['Name'],))
 
-            # Read for a validator
+            # Read and build up validators
             validator =  None
             if "Validators" in prop.__dict__:
                 validator = self.__build_filter(prop['Validators'])
@@ -319,7 +320,7 @@ class GOsaObjectFactory(object):
 
                     parameterList.append(value)
 
-                # Execute real-stuff later
+                #TODO: Execute real-stuff later
                 print "Calling class method:", parameterList, command
 
             # Append the method to the list of registered methods for this
@@ -579,7 +580,7 @@ class GOsaObject(object):
     """
     This class is the base class for all GOsa-objects.
 
-    It contains a getter and setter methods for the objects
+    It contains getter and setter methods for the object
     attributes and it is able to initialize itself by reading data from
     backends.
 
@@ -681,6 +682,7 @@ class GOsaObject(object):
         changed a properties name, but did not change its index in the
         self.__properties list.
         """
+
         new_props = {}
         props = getattr(self, '__properties')
         for entry in props:
@@ -694,8 +696,6 @@ class GOsaObject(object):
         This is the setter method for GOsa-object attributes.
         Each given attribute value is validated with the given set of
         validators.
-
-
         """
 
         # Store non property values
@@ -772,7 +772,7 @@ class GOsaObject(object):
 
         props = getattr(self, '__properties')
 
-        # Collect value by store and process the property filters
+        # Collect values by store and process the property filters
         toStore = {}
         for key in props:
 
