@@ -252,7 +252,7 @@ class PuppetLogWatcher(pyinotify.ProcessEvent):
                     e.Message(log.message),
                 ]
 
-                # Append tags
+                # Append <Tag> tag
                 try:
                     tags = e.Tag()
                     for tag in log.tags:
