@@ -29,10 +29,17 @@
     		<element name="Source" type="string" maxOccurs="1" minOccurs="0"></element>
     		<element name="File" type="string" maxOccurs="1" minOccurs="0"></element>
     		<element name="Line" type="int" maxOccurs="1" minOccurs="0"></element>
-    		<element name="Version" type="string" maxOccurs="1" minOccurs="0"></element>
+		<element name="Version" type="string" maxOccurs="1" minOccurs="0"></element>
+		<element name="Tag" type="gosa:TagValues" maxOccurs="1" minOccurs="0"></element>
     	</all>
     </complexType>
 
     <element name="PuppetReport" type="gosa:PuppetReport"></element>
     <element name="PuppetLog" type="gosa:PuppetLog"></element>
+
+    <complexType name="TagValues">
+    	<sequence>
+    		<element name="value" type="string" maxOccurs="unbounded" minOccurs="1"></element>
+    	</sequence>
+    </complexType>
 </schema>
