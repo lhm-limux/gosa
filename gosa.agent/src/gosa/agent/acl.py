@@ -1534,12 +1534,14 @@ class ACLResolver(Plugin):
             for action in actions:
                 acl.add_action(action['topic'], action['acls'], action['options'])
             self.add_acl_to_base(base, acl)
+            return acl.id
 
         if rolename:
             acl = ACL(role=rolename)
             acl.set_members(members)
             acl.set_priority(priority)
             self.add_acl_to_base(base, acl)
+            return acl.id
 
     @Command(needsUser=True, __help__=N_("Refresh existing ACL by ID."))
     def updateACL(self, user, acl_id, scope=None, priority=None, members=None, actions=None, rolename=None):
@@ -1804,11 +1806,13 @@ class ACLResolver(Plugin):
             for action in actions:
                 acl.add_action(action['topic'], action['acls'], action['options'])
             self.add_acl_to_role(rolename, acl)
+            return acl.id
 
         elif use_role:
             acl = ACLRoleEntry(role=use_role)
             acl.set_priority(priority)
             self.add_acl_to_role(rolename, acl)
+            return acl.id
 
     @Command(needsUser=True, __help__=N_("Refresh existing role by ID."))
     def updateACLRole(self, user, acl_id, scope=None, priority=None, actions=None, use_role=None):
