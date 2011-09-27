@@ -31,12 +31,17 @@ class ObjectBackendRegistry(object):
         return ObjectBackendRegistry.backends[name]
 
 
-def loadAttrs(obj, keys, backend=None):
+def load(obj, keys, backend=None):
     if not backend:
         backend = obj._backend
 
     backendI = ObjectBackendRegistry.getBackend(backend)
+    return backendI.load(obj.uuid, keys)
 
-    #TODO: temporary workaround while keys is a list
-    keys = dict([(k, None) for k in keys])
-    return backendI.loadAttrs(obj.uuid, keys)
+
+def save(obj, data, backend=None):
+    if not backend:
+        backend = obj._backend
+
+    backendI = ObjectBackendRegistry.getBackend(backend)
+    return backendI.save(obj.uuid, data)

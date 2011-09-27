@@ -41,7 +41,7 @@ import time
 import datetime
 import re
 from lxml import etree, objectify
-from gosa.agent.objects.backend.registry import ObjectBackendRegistry, loadAttrs
+from gosa.agent.objects.backend.registry import ObjectBackendRegistry, load
 from gosa.agent.objects.filter import get_filter
 from gosa.agent.objects.comparator import get_comparator
 from gosa.agent.objects.operator import get_operator
@@ -632,7 +632,9 @@ class GOsaObject(object):
         for backend in propsByBackend:
 
             try:
-                attrs = loadAttrs(obj, propsByBackend[backend], backend)
+                #TODO: remove workaround
+                info = dict([(k, None) for k in propsByBackend[backend]])
+                attrs = load(obj, info, backend)
             except ValueError:
                 print "Error reading property: %s!" % (backend,)
                 continue
