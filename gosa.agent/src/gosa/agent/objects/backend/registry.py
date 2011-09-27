@@ -36,4 +36,7 @@ def loadAttrs(obj, keys, backend=None):
         backend = obj._backend
 
     backendI = ObjectBackendRegistry.getBackend(backend)
+
+    #TODO: temporary workaround while keys is a list
+    keys = dict([(k, None) for k in keys])
     return backendI.loadAttrs(obj.uuid, keys)
