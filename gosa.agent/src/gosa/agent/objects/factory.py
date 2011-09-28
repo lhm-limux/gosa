@@ -676,8 +676,9 @@ class GOsaObject(object):
         for backend in propsByBackend:
 
             try:
-                #TODO: remove workaround
-                info = dict([(k, None) for k in propsByBackend[backend]])
+                # Create a dictionary with all attributes we want to fetch
+                # {attribute_name: type, name: type}
+                info = dict([(k, TYPE_MAP_REV[props[key]['type']]) for k in propsByBackend[backend]])
                 attrs = load(obj, info, backend)
             except ValueError:
                 print "Error reading property: %s!" % (backend,)
