@@ -42,55 +42,48 @@
 				<Name>uid</Name>
 				<Description>User ID</Description>
 				<Syntax>UnicodeString</Syntax>
+				<Validators>
+					<Condition>
+						<Name>stringLength</Name>
+						<Param>3</Param>
+						<Param>-1</Param>
+					</Condition>
+				</Validators>
 			</Attribute>
 
 			<Attribute>
 				<Name>sn</Name>
 				<Description>Surname</Description>
 				<Syntax>UnicodeString</Syntax>
-				<Validators>
-					<ConditionOperator>
-						<Operator>or</Operator>
-						<LeftConditionChain>
-							<Condition>
-								<Name>stringLength</Name>
-								<Param>5</Param>
-								<Param>10</Param>
-							</Condition>
-						</LeftConditionChain>
-						<RightConditionChain>
-							<Condition>
-								<Name>Equals</Name>
-								<Param>Harry</Param>
-								<Param>%{sn}s</Param>
-							</Condition>
-						</RightConditionChain>
-					</ConditionOperator>
-
-				</Validators>
 			</Attribute>
 
 			<Attribute>
 				<Name>givenName</Name>
 				<Description>Given name</Description>
 				<Syntax>UnicodeString</Syntax>
-				<InFilter>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>ConcatString</Name>
-								<Param>sambaHash: </Param>
-								<Param>left</Param>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</InFilter>
 			</Attribute>
 
 			<Attribute>
 				<Name>gender</Name>
 				<Description>'Gender: M for male, F for female</Description>
 				<Syntax>String</Syntax>
+                          	<Validators>
+                                        <ConditionOperator>
+                                                <Operator>or</Operator>
+                                                <LeftConditionChain>
+                                                        <Condition>
+                                                                <Name>Equals</Name>
+                                                                <Param>M</Param>
+                                                        </Condition>
+                                                </LeftConditionChain>
+                                                <RightConditionChain>
+                                                        <Condition>
+                                                                <Name>Equals</Name>
+                                                                <Param>F</Param>
+                                                        </Condition>
+                                                </RightConditionChain>
+                                        </ConditionOperator>
+                                </Validators>
 			</Attribute>
 
 			<Attribute>
