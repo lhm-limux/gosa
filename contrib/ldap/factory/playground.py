@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from gosa.agent.objects import GOsaObjectFactory
+import time
+import datetime
 
 f = GOsaObjectFactory('.')
 p = f.getObject('Person', "cn=Cajus Pollmeier,ou=people,ou=Technik,dc=gonicus,dc=de")
@@ -37,9 +39,13 @@ print "passwordMethod:", p.passwordMethod
 #print "cn:", p.cn
 
 #p.sn = u"Hickert"
-p.userPassword = u"tollessecret"
+p.uid = u"hickert"
 p.givenName = u"Fabian"
 p.sn = u"Hickert"
-p.cn = "Test"
-
+p.userPassword = u"tollessecret"
+p.roomNumber = 22
+p.jpegPhoto =  open('dummy.binary', 'r').read()
+p.gotoLastSystemLogin = datetime.datetime.now()
+p.dateOfBirth = datetime.datetime.today()
+p.gender = "M"
 p.commit()

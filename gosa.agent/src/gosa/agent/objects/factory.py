@@ -53,7 +53,7 @@ TYPE_MAP = {
         'String': str,
         'UnicodeString': unicode,
         'Integer': int,
-        'Timestamp': time.time,
+        'Timestamp': datetime.datetime,
         'Date': datetime.date,
         'Binary': None
         }
@@ -684,6 +684,10 @@ class GOsaObject(object):
 
             # Assign fetched value to the properties.
             for key in propsByBackend[backend]:
+
+                if key not in attrs:
+                    print "!! Value for '%s' could not be read, it wasn't returned by the backend!" % (key,)
+                    continue
 
                 # Assign property
                 if 'MultiValue' in props[key] and props[key]['MultiValue']:

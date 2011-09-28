@@ -37,6 +37,13 @@
 		</Methods>
 
 		<Attributes>
+			
+			<Attribute>
+				<Name>uid</Name>
+				<Description>User ID</Description>
+				<Syntax>UnicodeString</Syntax>
+			</Attribute>
+
 			<Attribute>
 				<Name>sn</Name>
 				<Description>Surname</Description>
@@ -79,11 +86,41 @@
 					</FilterChain>
 				</InFilter>
 			</Attribute>
-			
+
 			<Attribute>
-				<Name>uid</Name>
-				<Description>User ID</Description>
+				<Name>gender</Name>
+				<Description>'Gender: M for male, F for female</Description>
+				<Syntax>String</Syntax>
+			</Attribute>
+
+			<Attribute>
+				<Name>dateOfBirth</Name>
+				<Description>Date of birth</Description>
+				<Syntax>Date</Syntax>
+			</Attribute>
+
+			<Attribute>
+				<Name>personalTitle</Name>
+				<Description>Personal title</Description>
 				<Syntax>UnicodeString</Syntax>
+			</Attribute>
+
+			<Attribute>
+				<Name>gotoLastSystemLogin</Name>
+				<Description>The last system login timestamp</Description>
+				<Syntax>Timestamp</Syntax>
+			</Attribute>
+
+			<Attribute>
+				<Name>jpegPhoto</Name>
+				<Description></Description>
+				<Syntax>Binary</Syntax>
+			</Attribute>
+
+			<Attribute>
+				<Name>roomNumber</Name>
+				<Description></Description>
+				<Syntax>Integer</Syntax>
 			</Attribute>
 
 			<Attribute>
