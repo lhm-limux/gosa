@@ -2,21 +2,11 @@
 import ldap
 import ldap.filter
 import ldap.schema
+import time
 from logging import getLogger
 from gosa.common import Environment
 from gosa.agent.ldap_utils import LDAPHandler
 from gosa.agent.objects.backend.backend import ObjectBackend, EntryNotFound, EntryNotUnique
-
-# Types
-# 'Boolean': bool,
-# 'String': str,
-# 'UnicodeString': unicode,
-# 'Integer': int,
-# 'Timestamp': time.time,
-# 'Date': datetime.date,
-# 'Binary': None,
-# 'Dictionary': dict,
-# 'List': list,
 
 
 class LDAP(ObjectBackend):
@@ -49,8 +39,11 @@ class LDAP(ObjectBackend):
         # Do value conversation
         items = dict((k,v) for k, v in res[0][1].iteritems() if k in keys)
         for key, value in items.items():
-            #TODO
-            print "Converting %s to %s" % (key, value)
+            cnv = getattr(self, "_convert_from_%s" % info[key].lower())
+            lcnv = []
+            for lvalue in items[key]:
+                lcnv.append(cnv(lvalue))
+            items[key] = lcnv
 
         return items
 
@@ -118,3 +111,25 @@ class LDAP(ObjectBackend):
 
         if len(res) != 1:
             raise EntryNotUnique("entry '%s' is not unique" % uuid)
+
+    def _convert_from_boolean(self, value):
+        return value == "TRUE"
+
+    def _convert_from_string(self, value):
+        return str(value)
+
+    def _convert_from_unicodestring(self, value):
+        return unicode(value)
+
+    def _convert_from_integer(self, value):
+        return int(value)
+
+    def _convert_from_timestamp(self, value):
+        return time.strptime(value, "%Y%m%d%H%M%SZ")
+
+    def _convert_form_date(self, value):
+        ts = time.mktime(time.strptime(i, "%Y%m%d%H%M%SZ"))
+        return datetime.date.fromtimestamp(ts)
+
+    def _convert_from_binary(self, value):
+        return value
