@@ -115,20 +115,12 @@
 								<Param>sambaLMHash</Param>
 							</Filter>
 						</FilterEntry>
-						<FilterEntry>
-							<Filter>
-								<Name>ConcatString</Name>
-								<Param>sambaHash: </Param>
-								<Param>left</Param>
-							</Filter>
-						</FilterEntry>
 					</FilterChain>
 					<FilterChain>
 						<FilterEntry>
 							<Filter>
-								<Name>ConcatString</Name>
-								<Param>userPassword: </Param>
-								<Param>left</Param>
+								<Name>HashPassword</Name>
+								<Param>%(passwordMethod)s</Param>
 							</Filter>
 						</FilterEntry>
 					</FilterChain>
