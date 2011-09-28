@@ -102,7 +102,7 @@
 							<Filter>
 								<Name>Replace</Name>
 								<Param>^{([^}]*)}.*$</Param>
-								<Param>\\1</Param>
+								<Param>\1</Param>
 							</Filter>
 						</FilterEntry>
 					</FilterChain>
