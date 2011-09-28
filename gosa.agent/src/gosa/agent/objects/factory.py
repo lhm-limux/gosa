@@ -188,18 +188,16 @@ class GOsaObjectFactory(object):
                 in_b =  str(prop.Backend)
 
             # Do we have an output filter definition?
-            out_f =  None
+            out_f =  []
             if "OutFilter" in prop.__dict__:
-                out_f = self.__build_filter(prop['OutFilter'])
-                if 'Backend' in prop['OutFilter'].__dict__:
-                    out_b = str(prop['OutFilter']['Backend'])
+                for entry in  prop['OutFilter'].iterchildren():
+                    out_f.append(self.__handleFilterChain(entry))
 
             # Do we have a input filter definition?
-            in_f =  None
+            in_f =  []
             if "InFilter" in prop.__dict__:
-                in_f = self.__build_filter(prop['InFilter'])
-                if 'Backend' in prop['InFilter'].__dict__:
-                    in_b = str(prop['InFilter']['Backend'])
+                for entry in  prop['InFilter'].iterchildren():
+                    in_f.append(self.__handleFilterChain(entry))
 
             # We require at least one backend information tag
             if not in_b:
@@ -361,7 +359,7 @@ class GOsaObjectFactory(object):
 
         return out
 
-    def __handleFilterChain(self, element, out):
+    def __handleFilterChain(self, element, out=None):
         """
         This method is used in '__build_filter' to generate a process
         list for the in and out filters.
@@ -370,6 +368,8 @@ class GOsaObjectFactory(object):
 
         Occurrence: OutFilter->FilterChain
         """
+        if not out:
+            out = {}
 
         # FilterChains can contain muliple "FilterEntry" tags.
         # But at least one.
@@ -787,13 +787,35 @@ class GOsaObject(object):
             # Get the new value for the property and execute the out-filter
             value = props[key]['value']
             new_key = key
-            if props[key]['out_filter']:
-                new_key, value = self.__processFilter(props[key]['out_filter'], props[key])
 
-            # Collect properties by backend
-            if not props[key]['out_backend'] in toStore:
-                toStore[props[key]['out_backend']] = {}
-            toStore[props[key]['out_backend']][new_key] = value
+            # Process each and every out-filter with a clean set of input values,
+            #  to avoid that return-values overwrite themselves.
+            if len(props[key]['out_filter']):
+                for out_f in props[key]['out_filter']:
+                    valDict = {key: {
+                            'backend': props[key]['out_backend'],
+                            'value': props[key]['value'][key],
+                            'type': props[key]['type']}}
+
+                    valDict = self.__processFilter(out_f, key, valDict)
+
+                    # Collect properties by backend
+                    for prop_key in valDict:
+                        be = valDict[prop_key]['backend']
+
+                        if not be in toStore:
+                            toStore[be] = {}
+                        toStore[be][prop_key] = valDict[prop_key]
+            else:
+
+                # Collect properties by backend
+                be = props[key]['out_backend']
+                if not be in toStore:
+                    toStore[be] = {}
+                toStore[be][key] = {
+                    'backend': be,
+                    'value': props[key]['value'][key],
+                    'type': props[key]['type']}
 
         print "\n\n---- Saving ----"
         for store in toStore:
@@ -873,7 +895,7 @@ class GOsaObject(object):
 
         return res, errormsgs
 
-    def __processFilter(self, fltr, prop):
+    def __processFilter(self, fltr, key, prop):
         """
         This method processes a given process-list (fltr) for a given property (prop).
         For example: When a property has to be stored in the backend, it will
@@ -887,10 +909,6 @@ class GOsaObject(object):
         # This is our process-line pointer it points to the process-list line
         #  we're executing at the moment
         lptr = 0
-
-        # Read current key, value
-        key = prop['name']
-        value = prop['value']
 
         # Our filter result stack
         stack = list()
@@ -906,12 +924,25 @@ class GOsaObject(object):
             if 'filter' in curline:
 
                 # Build up argument list
-                args = [self, key, value]
+                args = [self, key, prop]
                 for entry in curline['params']:
                     args.append(entry)
 
                 # Process filter and keep results
-                key, value = (curline['filter']).process(*args)
+                key, prop = (curline['filter']).process(*args)
+
+                # Ensure that the processed data is still valid.
+                # Filter may mess things up and then the next cannot process correctly.
+                if (key not in prop):
+                    fname = type(curline['filter']).__name__
+                    raise Exception("Filter '%s' returned invalid key property key '%s'!" % (fname, key))
+
+                # Check if the filter returned all expected property values.
+                for pk in prop:
+                    if not all(k in prop[pk] for k in ('backend', 'value', 'type')):
+                        fname = type(curline['filter']).__name__
+                        missing = "".join(set(['backend', 'value', 'type']) - set(prop[key].keys()))
+                        raise Exception("Filter '%s' does not return all expected property values! %s missing." % (fname, missing))
 
             # A condition matches for something and returns a boolean value.
             # We'll put this value on the stack for later use.
@@ -940,7 +971,7 @@ class GOsaObject(object):
             elif 'operator' in curline:
                 stack.append((curline['operator']).process(stack.pop(), stack.pop()))
 
-        return key, value
+        return prop
 
     def __fillInPlaceholders(self, fltr):
         """

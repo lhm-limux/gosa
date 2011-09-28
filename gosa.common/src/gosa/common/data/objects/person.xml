@@ -76,6 +76,38 @@
 			</Attribute>
 
 			<Attribute>
+				<Name>userPassword</Name>
+				<Description>The users password</Description>
+				<Syntax>String</Syntax>
+				<OutFilter>
+					<FilterChain>
+						<FilterEntry>
+							<Filter>
+								<Name>Target</Name>
+								<Param>sambaLMHash</Param>
+							</Filter>
+						</FilterEntry>
+						<FilterEntry>
+							<Filter>
+								<Name>ConcatString</Name>
+								<Param>sambaHash: </Param>
+								<Param>left</Param>
+							</Filter>
+						</FilterEntry>
+					</FilterChain>
+					<FilterChain>
+						<FilterEntry>
+							<Filter>
+								<Name>ConcatString</Name>
+								<Param>userPassword: </Param>
+								<Param>left</Param>
+							</Filter>
+						</FilterEntry>
+					</FilterChain>
+				</OutFilter>
+			</Attribute>
+
+			<Attribute>
 				<Name>cn</Name>
 				<DependsOn>
 					<Attribute>sn</Attribute>
@@ -84,25 +116,8 @@
 				<Description>Common name</Description>
 				<Syntax>String</Syntax>
 
-				<InFilter>
-					<Backend>LDAP</Backend>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>Target</Name>
-								<Param>commonName</Param>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</InFilter>
 				<OutFilter>
 					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>Target</Name>
-								<Param>cn</Param>
-							</Filter>
-						</FilterEntry>
 						<FilterEntry>
 							<Filter>
 								<Name>Clear</Name>

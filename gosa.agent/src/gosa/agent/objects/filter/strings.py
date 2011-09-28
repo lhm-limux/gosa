@@ -7,23 +7,15 @@ class ConcatString(ElementFilter):
     def __init__(self, obj):
         super(ConcatString, self).__init__(obj)
 
-    def process(self, obj, key, value, appstr, position):
-
-        new_val = value[key]
-        if type(value[key]) in [str, unicode]:
+    def process(self, obj, key, valDict, appstr, position):
+        if type(valDict[key]['value']) in [str, unicode]:
             if position == "right":
-                new_val = value[key] + appstr
+                new_val = valDict[key]['value'] + appstr
             else:
-                new_val = appstr + value[key]
-
-        elif type(value[key]) in [dict, list]:
-            new_val = {}
-            if position == "right":
-                new_val = [x + appstr for x in value[key]]
-            else:
-                new_val = [appstr + x for x in value[key]]
+                new_val = appstr + valDict[key]['value']
+            valDict[key]['value'] = new_val
         else:
-            raise ValueError("Unknown input type for filter %s. Type as '%s'!" % (
-                    self.__class__.__name__, type(value)))
+            raise ValueError("Unknown input type for filter %s. Type is '%s'!" % (
+                    self.__class__.__name__, type(valDict[key]['value'])))
 
-        return key, {key: new_val}
+        return key, valDict
