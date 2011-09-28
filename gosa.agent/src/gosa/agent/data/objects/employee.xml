@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Objects xmlns="http://www.gonicus.de/Objects">
 	<Object>
-		<Name>Base</Name>
-		<Description>Base class</Description>
+		<Name>Employee</Name>
+		<Description>Employee class</Description>
 		<DefaultBackend>LDAP</DefaultBackend>
-		<BaseRDN></BaseRDN>
+		<BaseRDN>ou=people</BaseRDN>
 
 		<Attributes>
 			<Attribute>
-				<Name>type</Name>
-				<Description>The attribute type</Description>
-				<Backend>LDAP</Backend>
-				<Syntax>String</Syntax>
+				<Name>wurst</Name>
+				<Description>Wurst</Description>
+				<Syntax>UnicodeString</Syntax>
 			</Attribute>
 		</Attributes>
 
@@ -19,7 +18,7 @@
 			<Type>Nothing</Type>
 		</Container>
 
+		<Extends>Person</Extends>
 		<BaseObject>false</BaseObject>
-
 	</Object>
 </Objects>

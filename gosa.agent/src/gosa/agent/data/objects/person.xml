@@ -12,12 +12,12 @@
 				<MethodParameters>
 					<MethodParameter>
 						<Name>notify_title</Name>
-						<Type>String</Type>
+						<Type>UnicodeString</Type>
 						<Default>title</Default>
 					</MethodParameter>	
 					<MethodParameter>
 						<Name>notify_message</Name>
-						<Type>String</Type>
+						<Type>UnicodeString</Type>
 						<Required>true</Required>
 					</MethodParameter>			
 				</MethodParameters>
@@ -40,7 +40,7 @@
 			<Attribute>
 				<Name>sn</Name>
 				<Description>Surname</Description>
-				<Syntax>String</Syntax>
+				<Syntax>UnicodeString</Syntax>
 				<Validators>
 					<ConditionOperator>
 						<Operator>or</Operator>
@@ -66,13 +66,13 @@
 			<Attribute>
 				<Name>givenName</Name>
 				<Description>Given name</Description>
-				<Syntax>String</Syntax>
+				<Syntax>UnicodeString</Syntax>
 			</Attribute>
 			
 			<Attribute>
 				<Name>uid</Name>
 				<Description>User ID</Description>
-				<Syntax>String</Syntax>
+				<Syntax>UnicodeString</Syntax>
 			</Attribute>
 
 			<Attribute>

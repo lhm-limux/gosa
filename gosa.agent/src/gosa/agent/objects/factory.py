@@ -27,7 +27,7 @@ which will then provide the defined attributes, methods, aso.
 Here are some examples on how to instatiate on new object:
 
 >>> from gosa.agent.objects import GOsaObjectFactory
->>> person = f.getObjectInstance('Person', "410ad9f0-c4c0-11e0-962b-0800200c9a66")
+>>> person = f.getObject('Person', "410ad9f0-c4c0-11e0-962b-0800200c9a66")
 >>> print person->sn
 >>> person->sn = "Surname"
 >>> person->commit()
@@ -41,15 +41,17 @@ import time
 import datetime
 import re
 from lxml import etree, objectify
-from gosa.agent.objects.backend.registry import ObjectBackendRegistry, loadAttrs
+from gosa.common import Environment
 from gosa.agent.objects.filter import get_filter
+from gosa.agent.objects.backend.registry import ObjectBackendRegistry, load
 from gosa.agent.objects.comparator import get_comparator
 from gosa.agent.objects.operator import get_operator
 
 # Map XML base types to python values
 TYPE_MAP = {
         'Boolean': bool,
-        'String': unicode,
+        'String': str,
+        'UnicodeString': unicode,
         'Integer': int,
         'Timestamp': time.time,
         'Date': datetime.date,
@@ -67,16 +69,18 @@ class GOsaObjectFactory(object):
     """
     This class reads GOsa-object defintions and generates python-meta classes
     for each object, which can then be instantiated using
-    :meth:`gosa.agent.objects.factory.GOsaObjectFactory.getObjectInstance`.
+    :meth:`gosa.agent.objects.factory.GOsaObjectFactory.getObject`.
     """
     __xml_defs = {}
     __classes = {}
     __var_regex = re.compile('^[a-z_][a-z0-9\-_]*$', re.IGNORECASE)
 
     def __init__(self, path):
+        self.env = Environment.getInstance()
+
         # Initialize parser
         #pylint: disable=E1101
-        schema_path = pkg_resources.resource_filename('gosa.common', 'data/objects/object.xsd')
+        schema_path = pkg_resources.resource_filename('gosa.agent', 'data/objects/object.xsd')
         schema_doc = open(schema_path).read()
         schema_root = etree.XML(schema_doc)
         schema = etree.XMLSchema(schema_root)
@@ -85,21 +89,76 @@ class GOsaObjectFactory(object):
         # Load and parse schema
         self.loadSchema(path)
 
+#----------------------------------------------------------------------------------------
+
+    #@Command()
+    def getObject(self, name, *args, **kwargs):
+        """
+        Returns a GOsa-object instance.
+
+        e.g.:
+
+        >>> person = f.getObject('Person', "410ad9f0-c4c0-11e0-962b-0800200c9a66")
+
+        """
+        if not name in self.__classes:
+            self.__classes[name] = self.__build_class(name)
+
+        return self.__classes[name](*args, **kwargs)
+
+    #@Command()
+    def createObject(self, name, *args, **kwargs):
+        #TODO
+        pass
+
+    #@Command()
+    def removeObject(self, name, uuid, recursive=False):
+        #TODO
+        pass
+
+    #@Command()
+    def getObjectExtensions(self, name, *args, **kwargs):
+        #TODO
+        pass
+
+    #@Command()
+    def getObjectExtension(self, name, *args, **kwargs):
+        #TODO
+        pass
+
+    #@Command()
+    def createObjectExtension(self, name, *args, **kwargs):
+        #TODO
+        pass
+
+    #@Command()
+    def removeObjectExtension(self, name, uuid):
+        #TODO
+        pass
+
+#----------------------------------------------------------------------------------------
+
     def loadSchema(self, path):
         """
         This method reads all gosa-object defintion files and then calls
-        :meth:`gosa.agent.objects.factory.GOsaObjectFactory.getObjectInstance`
+        :meth:`gosa.agent.objects.factory.GOsaObjectFactory.getObject`
         to initiate the parsing into meta-classes for each file.
 
         These meta-classes are used for object instantiation later.
 
         """
         #pylint: disable=E1101
-        path = pkg_resources.resource_filename('gosa.common', 'data/objects')
+        path = pkg_resources.resource_filename('gosa.agent', 'data/objects')
 
-        # Look on path and check for xml files
+        # Include built in schema
         for f in [n for n in os.listdir(path) if n.endswith(os.extsep + 'xml')]:
             self.__parse_schema(os.path.join(path, f))
+
+        # Include additional schema configuration
+        path = os.path.join(self.env.config.getBaseDir(), 'schema')
+        if os.path.isdir(path):
+            for f in [n for n in os.listdir(path) if n.endswith(os.extsep + 'xml')]:
+                self.__parse_schema(os.path.join(path, f))
 
     def __parse_schema(self, path):
         """
@@ -115,21 +174,6 @@ class GOsaObjectFactory(object):
             print "Error loading: %s, %s", path, e
             exit()
 
-    #@Command()
-    def getObjectInstance(self, name, *args, **kwargs):
-        """
-        Returns a GOsa-object instance.
-
-        e.g.:
-
-        >>> person = f.getObjectInstance('Person', "410ad9f0-c4c0-11e0-962b-0800200c9a66")
-
-        """
-        if not name in self.__classes:
-            self.__classes[name] = self.__build_class(name)
-
-        return self.__classes[name](*args, **kwargs)
-
     def __build_class(self, name):
         """
         This method builds a meta-class for each object defintion read from the
@@ -139,7 +183,7 @@ class GOsaObjectFactory(object):
         attributes and mehtods of the object.
 
         The final meta-class will be stored and can then be requested using:
-        :meth:`gosa.agent.objects.factory.GOsaObjectFactory.getObjectInstance`
+        :meth:`gosa.agent.objects.factory.GOsaObjectFactory.getObject`
         """
         class klass(GOsaObject):
 
@@ -632,7 +676,9 @@ class GOsaObject(object):
         for backend in propsByBackend:
 
             try:
-                attrs = loadAttrs(obj, propsByBackend[backend], backend)
+                #TODO: remove workaround
+                info = dict([(k, None) for k in propsByBackend[backend]])
+                attrs = load(obj, info, backend)
             except ValueError:
                 print "Error reading property: %s!" % (backend,)
                 continue
