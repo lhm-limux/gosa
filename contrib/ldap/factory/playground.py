@@ -37,6 +37,6 @@ p = f.getObject('Person', "cn=Cajus Pollmeier,ou=people,ou=Technik,dc=gonicus,dc
 p.userPassword = u"tollessecret"
 p.givenName = u"Fabian"
 p.sn = u"Hickert"
-p.cn = u"Test"
+p.cn = "Test"
 
 p.commit()

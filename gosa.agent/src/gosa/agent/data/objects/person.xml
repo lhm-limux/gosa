@@ -78,7 +78,7 @@
 			<Attribute>
 				<Name>userPassword</Name>
 				<Description>The users password</Description>
-				<Syntax>String</Syntax>
+				<Syntax>UnicodeString</Syntax>
 				<OutFilter>
 					<FilterChain>
 						<FilterEntry>
