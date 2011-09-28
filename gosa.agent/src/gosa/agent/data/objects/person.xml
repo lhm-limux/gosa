@@ -37,53 +37,83 @@
 		</Methods>
 
 		<Attributes>
+			
+			<Attribute>
+				<Name>uid</Name>
+				<Description>User ID</Description>
+				<Syntax>UnicodeString</Syntax>
+				<Validators>
+					<Condition>
+						<Name>stringLength</Name>
+						<Param>3</Param>
+						<Param>-1</Param>
+					</Condition>
+				</Validators>
+			</Attribute>
+
 			<Attribute>
 				<Name>sn</Name>
 				<Description>Surname</Description>
 				<Syntax>UnicodeString</Syntax>
-				<Validators>
-					<ConditionOperator>
-						<Operator>or</Operator>
-						<LeftConditionChain>
-							<Condition>
-								<Name>stringLength</Name>
-								<Param>5</Param>
-								<Param>10</Param>
-							</Condition>
-						</LeftConditionChain>
-						<RightConditionChain>
-							<Condition>
-								<Name>Equals</Name>
-								<Param>Harry</Param>
-								<Param>%{sn}s</Param>
-							</Condition>
-						</RightConditionChain>
-					</ConditionOperator>
-
-				</Validators>
 			</Attribute>
 
 			<Attribute>
 				<Name>givenName</Name>
 				<Description>Given name</Description>
 				<Syntax>UnicodeString</Syntax>
-				<InFilter>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>ConcatString</Name>
-								<Param>sambaHash: </Param>
-								<Param>left</Param>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-				</InFilter>
 			</Attribute>
-			
+
 			<Attribute>
-				<Name>uid</Name>
-				<Description>User ID</Description>
+				<Name>gender</Name>
+				<Description>'Gender: M for male, F for female</Description>
+				<Syntax>String</Syntax>
+                          	<Validators>
+                                        <ConditionOperator>
+                                                <Operator>or</Operator>
+                                                <LeftConditionChain>
+                                                        <Condition>
+                                                                <Name>Equals</Name>
+                                                                <Param>M</Param>
+                                                        </Condition>
+                                                </LeftConditionChain>
+                                                <RightConditionChain>
+                                                        <Condition>
+                                                                <Name>Equals</Name>
+                                                                <Param>F</Param>
+                                                        </Condition>
+                                                </RightConditionChain>
+                                        </ConditionOperator>
+                                </Validators>
+			</Attribute>
+
+			<Attribute>
+				<Name>dateOfBirth</Name>
+				<Description>Date of birth</Description>
+				<Syntax>Date</Syntax>
+			</Attribute>
+
+			<Attribute>
+				<Name>personalTitle</Name>
+				<Description>Personal title</Description>
 				<Syntax>UnicodeString</Syntax>
+			</Attribute>
+
+			<Attribute>
+				<Name>gotoLastSystemLogin</Name>
+				<Description>The last system login timestamp</Description>
+				<Syntax>Timestamp</Syntax>
+			</Attribute>
+
+			<Attribute>
+				<Name>jpegPhoto</Name>
+				<Description></Description>
+				<Syntax>Binary</Syntax>
+			</Attribute>
+
+			<Attribute>
+				<Name>roomNumber</Name>
+				<Description></Description>
+				<Syntax>Integer</Syntax>
 			</Attribute>
 
 			<Attribute>

@@ -30,11 +30,11 @@ class stringLength(ElementComparator):
         minSize = int(minSize)
         maxSize = int(maxSize)
 
-        if len(value) < int(minSize):
+        if minSize >= 0 and len(value) < minSize:
             errors.append("Invalid length received for '%s: %s'! At least %s characters are required!" % (
                 str(key), str(value), minSize))
             return False
-        elif len(value) > maxSize and maxSize != 0:
+        elif maxSize >=0 and len(value) > maxSize:
             errors.append("Invalid length received for '%s: %s'! A maximum of %s characters are allowed!" % (
                 str(key), str(value), maxSize))
             return False
