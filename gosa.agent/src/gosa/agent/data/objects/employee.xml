@@ -10,7 +10,7 @@
 			<Attribute>
 				<Name>wurst</Name>
 				<Description>Wurst</Description>
-				<Syntax>String</Syntax>
+				<Syntax>UnicodeString</Syntax>
 			</Attribute>
 		</Attributes>
 

@@ -91,6 +91,7 @@
     <simpleType name="SyntaxType">
     	<restriction base="string">
     		<enumeration value="String"></enumeration>
+    		<enumeration value="UnicodeString"></enumeration>
     		<enumeration value="Integer"></enumeration>
     		<enumeration value="Timestamp"></enumeration>
     		<enumeration value="Date"></enumeration>

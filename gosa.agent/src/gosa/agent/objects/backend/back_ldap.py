@@ -7,6 +7,17 @@ from gosa.common import Environment
 from gosa.agent.ldap_utils import LDAPHandler
 from gosa.agent.objects.backend.backend import ObjectBackend, EntryNotFound, EntryNotUnique
 
+# Types
+# 'Boolean': bool,
+# 'String': str,
+# 'UnicodeString': unicode,
+# 'Integer': int,
+# 'Timestamp': time.time,
+# 'Date': datetime.date,
+# 'Binary': None,
+# 'Dictionary': dict,
+# 'List': list,
+
 
 class LDAP(ObjectBackend):
 
