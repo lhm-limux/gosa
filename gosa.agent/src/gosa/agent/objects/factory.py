@@ -688,9 +688,9 @@ class GOsaObject(object):
 
                 # Assign property
                 if 'MultiValue' in props[key] and props[key]['MultiValue']:
-                    value = {key: attrs[key]}
+                    value = attrs[key]
                 else:
-                    value = {key: attrs[key][0]}
+                    value = attrs[key][0]
 
                 props[key]['value'] = value
 
@@ -709,7 +709,7 @@ class GOsaObject(object):
                     for in_f in props[key]['in_filter']:
                         valDict = {key: {
                                 'backend': props[key]['in_backend'],
-                                'value': value[key],
+                                'value': value,
                                 'type': props[key]['type']}}
                         valDict = self.__processFilter(in_f, key, valDict)
 
@@ -784,7 +784,7 @@ class GOsaObject(object):
                     return
 
             # Set the new value
-            props[name]['value'] = {name: value}
+            props[name]['value'] = value
 
             # Update status if there's a change
             if current != props[name]['value'] and props[name]['status'] != STATUS_CHANGED:
@@ -852,7 +852,7 @@ class GOsaObject(object):
                 for out_f in props[key]['out_filter']:
                     valDict = {key: {
                             'backend': props[key]['out_backend'],
-                            'value': props[key]['value'][key],
+                            'value': props[key]['value'],
                             'type': props[key]['type']}}
 
                     valDict = self.__processFilter(out_f, key, valDict)
@@ -872,7 +872,7 @@ class GOsaObject(object):
                     toStore[be] = {}
                 toStore[be][key] = {
                     'backend': be,
-                    'value': props[key]['value'][key],
+                    'value': props[key]['value'],
                     'type': props[key]['type']}
 
         print "\n\n---- Saving ----"
@@ -1001,6 +1001,7 @@ class GOsaObject(object):
                         fname = type(curline['filter']).__name__
                         missing = "".join(set(['backend', 'value', 'type']) - set(prop[key].keys()))
                         raise Exception("Filter '%s' does not return all expected property values! %s missing." % (fname, missing))
+                print prop
 
             # A condition matches for something and returns a boolean value.
             # We'll put this value on the stack for later use.
@@ -1041,7 +1042,7 @@ class GOsaObject(object):
         props = getattr(self, '__properties')
         for key in props:
             name = props[key]['name']
-            propList[name] =  props[key]['value'][name]
+            propList[name] =  props[key]['value']
 
         # An inline function which replaces format string tokens
         def _placeHolder(x):
