@@ -5,6 +5,8 @@ from gosa.common.components import Command
 from gosa.common.components import Plugin
 from gosa.common.utils import N_
 from gosa.common import Environment
+from gosa.agent.objects.filter import ElementFilter
+
 
 class SambaUtils(Plugin):
     """
@@ -32,3 +34,26 @@ class SambaUtils(Plugin):
         ``Return:`` lm:nt hash combination
         """
         return '%s:%s' % smbpasswd.hash(password)
+
+
+class SambaHash(ElementFilter):
+
+    def __init__(self, obj):
+        super(SambaHash, self).__init__(obj)
+
+    def process(self, obj, key, valDict):
+        if type(valDict[key]['value']) in [str, unicode]:
+            lm, nt = smbpasswd.hash(valDict[key]['value'])
+            valDict['sambaNTPassword'] = {
+                    'value': nt,
+                    'backend': valDict[key]['backend'],
+                    'type': valDict[key]['type']}
+            valDict['sambaLMPassword'] = {
+                    'value': lm,
+                    'backend': valDict[key]['backend'],
+                    'type': valDict[key]['type']}
+        else:
+            raise ValueError("Unknown input type for filter %s. Type is '%s'!" % (
+                    self.__class__.__name__, type(valDict[key]['value'])))
+
+        return key, valDict

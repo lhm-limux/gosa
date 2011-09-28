@@ -110,8 +110,7 @@ setup(
         filter.fromunixtime = gosa.agent.objects.filter.timestamp:FromUnixTime
         filter.concatstring = gosa.agent.objects.filter.strings:ConcatString
         filter.replace = gosa.agent.objects.filter.strings:Replace
-        filter.hashpassword = gosa.agent.objects.filter.password:HashPassword
-        filter.sambahash = gosa.agent.objects.filter.password:SambaHash
+        filter.sambahash = gosa.agent.plugins.samba.utils:SambaHash
         filter.target = gosa.agent.objects.filter.basic:Target
         #filter.loadattr = gosa.agent.objects.filter.basic:LoadAttr
         #filter.saveattr = gosa.agent.objects.filter.basic:SaveAttr

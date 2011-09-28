@@ -115,14 +115,6 @@
 							</Filter>
 						</FilterEntry>
 					</FilterChain>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>HashPassword</Name>
-								<Param>%(passwordMethod)s</Param>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
 				</OutFilter>
 			</Attribute>
 
