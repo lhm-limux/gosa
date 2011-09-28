@@ -701,16 +701,28 @@ class GOsaObject(object):
             # Once we've loaded all properties from the backend, execute the
             # in-filters.
             for key in propsByBackend[backend]:
-                # If we've got an in-filter defintion then process it now.
-                if props[key]['in_filter']:
-                    new_key, value = self.__processFilter(props[key]['in_filter'], props[key])
 
-                    # Update the key value if necessary
-                    if key != new_key:
-                        props[key]['name'] = new_key
+                # Execute defined in-filters.
+                if len(props[key]['in_filter']):
 
-                    # Update the value
-                    props[key]['value'] = value
+                    value = props[key]['value']
+                    for in_f in props[key]['in_filter']:
+                        valDict = {key: {
+                                'backend': props[key]['in_backend'],
+                                'value': value[key],
+                                'type': props[key]['type']}}
+                        valDict = self.__processFilter(in_f, key, valDict)
+
+                        # Check if the in-filter returned a valid result.
+                        # In-filters do not support property name manipulation
+                        if key not in valDict or len(valDict) != 1:
+                            raise Exception("Property name manipulation not allowed for in-filters! "
+                                    "Check in-filter for property '%s'!" % key)
+
+                        # Assign filter results
+                        props[key]['value'] = valDict[key]['value']
+                        props[key]['type'] = valDict[key]['type']
+                        props[key]['backend'] = valDict[key]['backend']
 
                 # Keep the initial value
                 props[key]['old'] = props[key]['value']
