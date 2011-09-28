@@ -985,8 +985,8 @@ class GOsaObject(object):
                 for pk in prop:
                     if not all(k in prop[pk] for k in ('backend', 'value', 'type')):
                         fname = type(curline['filter']).__name__
-                        missing = "".join(set(['backend', 'value', 'type']) - set(prop[key].keys()))
-                        raise Exception("Filter '%s' does not return all expected property values! %s missing." % (fname, missing))
+                        missing = ", ".join(set(['backend', 'value', 'type']) - set(prop[pk].keys()))
+                        raise Exception("Filter '%s' does not return all expected property values! '%s' missing." % (fname, missing))
 
             # A condition matches for something and returns a boolean value.
             # We'll put this value on the stack for later use.

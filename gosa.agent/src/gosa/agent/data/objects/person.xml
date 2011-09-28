@@ -111,16 +111,7 @@
 					<FilterChain>
 						<FilterEntry>
 							<Filter>
-								<Name>Target</Name>
-								<Param>sambaLMHash</Param>
-							</Filter>
-						</FilterEntry>
-					</FilterChain>
-					<FilterChain>
-						<FilterEntry>
-							<Filter>
-								<Name>HashPassword</Name>
-								<Param>%(passwordMethod)s</Param>
+								<Name>SambaHash</Name>
 							</Filter>
 						</FilterEntry>
 					</FilterChain>
