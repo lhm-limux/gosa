@@ -90,6 +90,7 @@
 
     <simpleType name="SyntaxType">
     	<restriction base="string">
+    		<enumeration value="Boolean"></enumeration>
     		<enumeration value="String"></enumeration>
     		<enumeration value="UnicodeString"></enumeration>
     		<enumeration value="Integer"></enumeration>
