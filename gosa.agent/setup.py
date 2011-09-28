@@ -109,9 +109,10 @@ setup(
         filter.tounixtime = gosa.agent.objects.filter.timestamp:ToUnixTime
         filter.fromunixtime = gosa.agent.objects.filter.timestamp:FromUnixTime
         filter.concatstring = gosa.agent.objects.filter.strings:ConcatString
+        filter.replace = gosa.agent.objects.filter.strings:Replace
         filter.target = gosa.agent.objects.filter.basic:Target
-        filter.loadattr = gosa.agent.objects.filter.basic:LoadAttr
-        filter.saveattr = gosa.agent.objects.filter.basic:SaveAttr
+        #filter.loadattr = gosa.agent.objects.filter.basic:LoadAttr
+        #filter.saveattr = gosa.agent.objects.filter.basic:SaveAttr
         filter.clear = gosa.agent.objects.filter.basic:Clear
 
         [gosa.object.operator]

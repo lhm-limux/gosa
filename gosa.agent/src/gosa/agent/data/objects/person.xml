@@ -90,6 +90,23 @@
 				<Name>userPassword</Name>
 				<Description>The users password</Description>
 				<Syntax>UnicodeString</Syntax>
+				<InFilter>
+					<FilterChain>
+						<FilterEntry>
+							<Filter>
+								<Name>Target</Name>
+								<Param>passwordMethod</Param>
+							</Filter>
+						</FilterEntry>
+						<FilterEntry>
+							<Filter>
+								<Name>Replace</Name>
+								<Param>^{([^}]*)}.*$</Param>
+								<Param>\\1</Param>
+							</Filter>
+						</FilterEntry>
+					</FilterChain>
+				</InFilter>
 				<OutFilter>
 					<FilterChain>
 						<FilterEntry>

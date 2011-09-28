@@ -8,28 +8,29 @@ class Target(ElementFilter):
         super(Target, self).__init__(obj)
 
     def process(self, obj, key, valDict, new_key):
-        valDict[new_key] = valDict[key]
-        del(valDict[key])
+        if key != new_key:
+            valDict[new_key] = valDict[key]
+            del(valDict[key])
         return new_key, valDict
 
 
-class LoadAttr(ElementFilter):
-
-    def __init__(self, obj):
-        super(LoadAttr, self).__init__(obj)
-
-    def process(self, obj, key, value, attr):
-        #FIXME
-        return key, 854711
-
-
-class SaveAttr(ElementFilter):
-
-    def __init__(self, obj):
-        super(SaveAttr, self).__init__(obj)
-
-    def process(self, obj, key, value):
-        return key, value
+#class LoadAttr(ElementFilter):
+#
+#    def __init__(self, obj):
+#        super(LoadAttr, self).__init__(obj)
+#
+#    def process(self, obj, key, value, attr):
+#        #FIXME
+#        return key, 854711
+#
+#
+#class SaveAttr(ElementFilter):
+#
+#    def __init__(self, obj):
+#        super(SaveAttr, self).__init__(obj)
+#
+#    def process(self, obj, key, value):
+#        return key, value
 
 
 class Clear(ElementFilter):

@@ -270,7 +270,6 @@ class GOsaObjectFactory(object):
 
             props[str(prop['Name'])] = {
                     'value': None,
-                    'name': str(prop['Name']),
                     'in_value': None,
                     'in_name': None,
                     'orig': None,
@@ -343,8 +342,7 @@ class GOsaObjectFactory(object):
                 # placeholders in command-parameters later.
                 propList = {}
                 for key in props:
-                    pName = props[key]['name']
-                    propList[pName] = props[key]['value'][pName]
+                    propList[key] = props[key]['value']
 
                 # Add method-parameters passed to this method.
                 for entry in arguments:
@@ -715,38 +713,31 @@ class GOsaObject(object):
 
                         # Check if the in-filter returned a valid result.
                         # In-filters do not support property name manipulation
-                        if key not in valDict or len(valDict) != 1:
-                            raise Exception("Property name manipulation not allowed for in-filters! "
-                                    "Check in-filter for property '%s'!" % key)
+                        #if key not in valDict or len(valDict) != 1:
+                        #    raise Exception("Property name manipulation not allowed for in-filters! "
+                        #            "Check in-filter for property '%s'!" % key)
 
                         # Assign filter results
-                        props[key]['value'] = valDict[key]['value']
-                        props[key]['type'] = valDict[key]['type']
-                        props[key]['backend'] = valDict[key]['backend']
+                        for key in valDict:
+                            if key not in props:
+                                props[key] = {
+                                    'value':  valDict[key]['value'],
+                                    'in_value': None,
+                                    'in_name': None,
+                                    'orig': None,
+                                    'status': STATUS_OK,
+                                    'dependsOn': [],
+                                    'type': valDict[key]['type'],
+                                    'syntax': None,
+                                    'validator': None,
+                                    'out_filter': None,
+                                    'out_backend': valDict[key]['backend'],
+                                    'in_filter': None,
+                                    'in_backend': valDict[key]['backend'],
+                                    'multivalue': False}
 
                 # Keep the initial value
                 props[key]['old'] = props[key]['value']
-
-            # A filter may have changed a properties name, we now update the
-            # properties list to use correct indicies.
-            self.__updatePropertyNames()
-
-    def __updatePropertyNames(self):
-        """
-        Synchronizes property names and their indices in the self.__properties
-        list.
-
-        This makes sense after execution of an in-filter. The in-filter may has
-        changed a properties name, but did not change its index in the
-        self.__properties list.
-        """
-
-        new_props = {}
-        props = getattr(self, '__properties')
-        for entry in props:
-            new_props[props[entry]['name']] = props[entry]
-
-        self.__dict__['__properties'] = new_props
 
     def _setattr_(self, name, value):
 
@@ -888,11 +879,6 @@ class GOsaObject(object):
         props = getattr(self, '__properties')
         for key in props:
             props[key]['value'] = props[key]['in_value']
-            props[key]['name'] = props[key]['in_name']
-
-        # A filter may have changed a properties name, we now update the
-        # properties list to use correct indicies.
-        self.__updatePropertyNames()
 
     def __processValidator(self, fltr, key, value):
         """
@@ -1001,7 +987,6 @@ class GOsaObject(object):
                         fname = type(curline['filter']).__name__
                         missing = "".join(set(['backend', 'value', 'type']) - set(prop[key].keys()))
                         raise Exception("Filter '%s' does not return all expected property values! %s missing." % (fname, missing))
-                print prop
 
             # A condition matches for something and returns a boolean value.
             # We'll put this value on the stack for later use.
@@ -1041,8 +1026,7 @@ class GOsaObject(object):
         propList = {}
         props = getattr(self, '__properties')
         for key in props:
-            name = props[key]['name']
-            propList[name] =  props[key]['value']
+            propList[key] =  props[key]['value']
 
         # An inline function which replaces format string tokens
         def _placeHolder(x):

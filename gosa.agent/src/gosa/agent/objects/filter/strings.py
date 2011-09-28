@@ -19,3 +19,17 @@ class ConcatString(ElementFilter):
                     self.__class__.__name__, type(valDict[key]['value'])))
 
         return key, valDict
+
+class Replace(ElementFilter):
+
+    def __init__(self, obj):
+        super(Replace, self).__init__(obj)
+
+    def process(self, obj, key, valDict, regex, replacement):
+        if type(valDict[key]['value']) in [str, unicode]:
+            print regex, replacement
+        else:
+            raise ValueError("Unknown input type for filter %s. Type is '%s'!" % (
+                    self.__class__.__name__, type(valDict[key]['value'])))
+
+        return key, valDict

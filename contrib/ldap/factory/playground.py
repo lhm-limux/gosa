@@ -7,6 +7,7 @@ p = f.getObject('Person', "cn=Cajus Pollmeier,ou=people,ou=Technik,dc=gonicus,dc
 #print "sn:", p.sn
 #print "commonName:", p.commonName
 print "givenName:", p.givenName
+print "userPassword:", p.userPassword
 #p.sn = u"Name"
 #p.givenName = u"Neuer"
 #p.notify(u"This is my title", u"To my amazing message!")
