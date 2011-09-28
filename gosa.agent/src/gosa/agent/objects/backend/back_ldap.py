@@ -38,6 +38,7 @@ class LDAP(ObjectBackend):
         # Do value conversation
         items = dict((k,v) for k, v in res[0][1].iteritems() if k in keys)
         for key, value in items.items():
+            #TODO
             print "Converting %s to %s" % (key, value)
 
         return items

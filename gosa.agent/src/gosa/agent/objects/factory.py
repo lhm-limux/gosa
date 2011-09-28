@@ -116,7 +116,7 @@ class GOsaObjectFactory(object):
             exit()
 
     #@Command()
-    def getObjectInstance(self, name, *args, **kwargs):
+    def getObject(self, name, *args, **kwargs):
         """
         Returns a GOsa-object instance.
 
@@ -129,6 +129,11 @@ class GOsaObjectFactory(object):
             self.__classes[name] = self.__build_class(name)
 
         return self.__classes[name](*args, **kwargs)
+
+    #@Command()
+    def createObject(self, name, *args, **kwargs):
+        #TODO
+        pass
 
     def __build_class(self, name):
         """

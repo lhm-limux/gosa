@@ -2,7 +2,7 @@
 from gosa.agent.objects import GOsaObjectFactory
 
 f = GOsaObjectFactory('.')
-p = f.getObjectInstance('Person', "cn=Cajus Pollmeier,ou=people,ou=Technik,dc=gonicus,dc=de")
+p = f.getObject('Person', "cn=Cajus Pollmeier,ou=people,ou=Technik,dc=gonicus,dc=de")
 print "Object type:", type(p)
 print "sn:", p.sn
 print "commonName:", p.commonName
