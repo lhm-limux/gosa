@@ -60,6 +60,8 @@ TYPE_MAP = {
         'List': list,
         }
 
+TYPE_MAP_REV = dict([(TYPE_MAP[k], k) for k in TYPE_MAP.keys()])
+
 # Status
 STATUS_OK = 0
 STATUS_CHANGED = 1
@@ -844,7 +846,7 @@ class GOsaObject(object):
                     valDict = {key: {
                             'backend': props[key]['out_backend'],
                             'value': props[key]['value'],
-                            'type': props[key]['type']}}
+                            'type': TYPE_MAP_REV[props[key]['type']]}}
 
                     valDict = self.__processFilter(out_f, key, valDict)
 
@@ -864,7 +866,7 @@ class GOsaObject(object):
                 toStore[be][key] = {
                     'backend': be,
                     'value': props[key]['value'],
-                    'type': props[key]['type']}
+                    'type': TYPE_MAP_REV[props[key]['type']]}
 
         print "\n\n---- Saving ----"
         for store in toStore:
