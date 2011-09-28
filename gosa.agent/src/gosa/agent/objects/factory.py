@@ -55,9 +55,7 @@ TYPE_MAP = {
         'Integer': int,
         'Timestamp': time.time,
         'Date': datetime.date,
-        'Binary': None,
-        'Dictionary': dict,
-        'List': list,
+        'Binary': None
         }
 
 TYPE_MAP_REV = dict([(TYPE_MAP[k], k) for k in TYPE_MAP.keys()])
