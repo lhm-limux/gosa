@@ -95,7 +95,6 @@ class LDAP(ObjectBackend):
 #    def update(self, uuid, data, data):
 #        pass
 
-
     def dn2uuid(self, dn):
         res = self.con.search_s(dn, ldap.SCOPE_BASE, '(objectClass=*)',
                 [self.uuid_entry])

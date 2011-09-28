@@ -634,9 +634,26 @@ class GOsaObject(object):
     """
     _reg = None
     _backend = None
+    _propsByBackend = {}
     uuid = None
 
     def __init__(self, dn=None):
+        # Instantiate Backend-Registry
+        self._reg = ObjectBackendRegistry.getInstance()
+
+        # Group attributes by Backend
+        propsByBackend = {}
+        props = getattr(self, '__properties')
+        for key in props:
+
+            # Initialize an empty array for each backend
+            if props[key]['in_backend'] not in propsByBackend:
+                propsByBackend[props[key]['in_backend']] = []
+
+            # Append property
+            propsByBackend[props[key]['in_backend']].append(key)
+
+        self._propsByBackend = propsByBackend
 
         # Initialize object using a dn
         if dn:
@@ -651,39 +668,27 @@ class GOsaObject(object):
         request per backend will be performed.
 
         """
+        props = getattr(self, '__properties')
 
         # Instantiate Backend-Registry
-        self._reg = ObjectBackendRegistry.getInstance()
         self.uuid = self._reg.dn2uuid(self._backend, dn)
-
-        # Group attributes by Backend
-        propsByBackend = {}
-        props = getattr(self, '__properties')
-        for key in props:
-
-            # Initialize an empty array for each backend
-            if props[key]['in_backend'] not in propsByBackend:
-                propsByBackend[props[key]['in_backend']] = []
-
-            # Append property
-            propsByBackend[props[key]['in_backend']].append(key)
 
         # Load attributes for each backend.
         # And then assign the values to the properties.
         obj = self
-        for backend in propsByBackend:
+        for backend in self._propsByBackend:
 
             try:
                 # Create a dictionary with all attributes we want to fetch
                 # {attribute_name: type, name: type}
-                info = dict([(k, TYPE_MAP_REV[props[key]['type']]) for k in propsByBackend[backend]])
+                info = dict([(k, TYPE_MAP_REV[props[k]['type']]) for k in self._propsByBackend[backend]])
                 attrs = load(obj, info, backend)
             except ValueError:
                 print "Error reading property: %s!" % (backend,)
                 continue
 
             # Assign fetched value to the properties.
-            for key in propsByBackend[backend]:
+            for key in self._propsByBackend[backend]:
 
                 # Assign property
                 if 'MultiValue' in props[key] and props[key]['MultiValue']:
@@ -699,7 +704,7 @@ class GOsaObject(object):
 
             # Once we've loaded all properties from the backend, execute the
             # in-filters.
-            for key in propsByBackend[backend]:
+            for key in self._propsByBackend[backend]:
 
                 # Execute defined in-filters.
                 if len(props[key]['in_filter']):
@@ -863,15 +868,20 @@ class GOsaObject(object):
                 if not be in toStore:
                     toStore[be] = {}
                 toStore[be][key] = {
-                    'backend': be,
                     'value': props[key]['value'],
                     'type': TYPE_MAP_REV[props[key]['type']]}
 
-        print "\n\n---- Saving ----"
-        for store in toStore:
-            print " |-> %s (Backend)" % store
-            for entry in toStore[store]:
-                print "   |-> %s: " % entry, toStore[store][entry]
+        #8<----------------------
+        print "-SAVE" + "-"*60
+        from pprint import pprint
+        pprint(toStore)
+        #8<----------------------
+
+        # Save by backend
+        obj = self
+        for backend, values in toStore.items():
+            info = dict([(k, {'type': TYPE_MAP_REV[props[k]['type']], 'value': values[k] if k in values else None}) for k in self._propsByBackend[backend]])
+            print "save(%s, %s, %s)" % (obj, info, backend)
 
     def revert(self):
         """
