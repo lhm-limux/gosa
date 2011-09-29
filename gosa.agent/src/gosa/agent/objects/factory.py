@@ -900,7 +900,7 @@ class GOsaObject(object):
                     valDict = {key: {
                             'backend': props[key]['out_backend'],
                             'value': props[key]['value'],
-                            'type': TYPE_MAP_REV[props[key]['type']]}}
+                            'type': TYPE_MAP_REV[props[key]['backend_type']]}}
 
                     valDict = self.__processFilter(out_f, key, valDict)
 
@@ -921,12 +921,12 @@ class GOsaObject(object):
                     toStore[be] = {}
                 toStore[be][key] = {
                     'value': props[key]['value'],
-                    'type': TYPE_MAP_REV[props[key]['type']]}
+                    'type': TYPE_MAP_REV[props[key]['backend_type']]}
 
         # Handle by backend
         obj = self
         for backend, values in toStore.items():
-            info = dict([(k, {'type': TYPE_MAP_REV[props[k]['type']],
+            info = dict([(k, {'type': TYPE_MAP_REV[props[k]['backend_type']],
                               'value': values[k]['value'] if k in values else None}
                             ) for k in self._propsByBackend[backend]])
 
