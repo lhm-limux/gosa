@@ -3,6 +3,11 @@ from gosa.agent.objects import GOsaObjectFactory
 import time
 import datetime
 
+import logging
+log = logging.getLogger()
+log.setLevel(logging.INFO)
+
+
 f = GOsaObjectFactory('.')
 p = f.getObject('Person', "cn=Cajus Pollmeier,ou=people,ou=Technik,dc=gonicus,dc=de")
 #print "Object type:", type(p)

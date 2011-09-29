@@ -40,6 +40,7 @@ import os
 import time
 import datetime
 import re
+import logging
 from lxml import etree, objectify
 from gosa.common import Environment
 from gosa.agent.objects.filter import get_filter
@@ -80,6 +81,7 @@ class GOsaObjectFactory(object):
 
     def __init__(self, path):
         self.env = Environment.getInstance()
+        self.log = logging.getLogger(__name__)
 
         # Initialize parser
         #pylint: disable=E1101
@@ -639,10 +641,12 @@ class GOsaObject(object):
     _backend = None
     _propsByBackend = {}
     uuid = None
+    log = None
 
     def __init__(self, dn=None):
         # Instantiate Backend-Registry
         self._reg = ObjectBackendRegistry.getInstance()
+        self.log = logging.getLogger(__name__)
 
         # Group attributes by Backend
         propsByBackend = {}
