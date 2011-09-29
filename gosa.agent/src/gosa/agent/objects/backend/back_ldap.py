@@ -124,8 +124,6 @@ class LDAP(ObjectBackend):
         return str(value)
 
     def _convert_from_unicodestring(self, value):
-        print type(value)
-        print value
         return unicode(value.decode('utf-8'))
 
     def _convert_from_integer(self, value):
