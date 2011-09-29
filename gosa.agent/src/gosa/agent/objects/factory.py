@@ -65,6 +65,9 @@ STATUS_OK = 0
 STATUS_CHANGED = 1
 
 
+class FactoryException(Exception):
+    pass
+
 class GOsaObjectFactory(object):
     """
     This class reads GOsa-object defintions and generates python-meta classes
@@ -245,10 +248,10 @@ class GOsaObjectFactory(object):
 
             # We require at least one backend information tag
             if not in_b:
-                raise Exception("Cannot detect a valid input backend for "
+                raise FactoryException("Cannot detect a valid input backend for "
                         "attribute %s!" % (prop['Name'],))
             if not out_b:
-                raise Exception("Cannot detect a valid output backend for "
+                raise FactoryException("Cannot detect a valid output backend for "
                         "attribute %s!" % (prop['Name'],))
 
             # Read and build up validators
@@ -327,11 +330,11 @@ class GOsaObjectFactory(object):
                     elif mDefault:
                         arguments[mName] = TYPE_MAP[mType](mDefault)
                     else:
-                        raise(Exception("Missing parameter '%s'!" % mName))
+                        raise(FactoryException("Missing parameter '%s'!" % mName))
 
                     # Ensure that the correct parameter type was given.
                     if TYPE_MAP[mType] != type(arguments[mName]):
-                        raise(Exception("Invalid parameter type given for '%s', expected "
+                        raise(FactoryException("Invalid parameter type given for '%s', expected "
                             "'%s' but received '%s'!" % (mName,
                                 TYPE_MAP[mType],type(arguments[mName]))))
 
@@ -354,7 +357,7 @@ class GOsaObjectFactory(object):
                     try:
                         value = value % propList
                     except:
-                        raise(Exception("Cannot call method '%s', error while filling "
+                        raise(FactoryException("Cannot call method '%s', error while filling "
                             " in placeholders! Error processing: %s!" %
                             (methodName, value)))
 
@@ -719,7 +722,7 @@ class GOsaObject(object):
                         # Check if the in-filter returned a valid result.
                         # In-filters do not support property name manipulation
                         #if key not in valDict or len(valDict) != 1:
-                        #    raise Exception("Property name manipulation not allowed for in-filters! "
+                        #    raise FactoryException("Property name manipulation not allowed for in-filters! "
                         #            "Check in-filter for property '%s'!" % key)
 
                         # Assign filter results
@@ -984,14 +987,14 @@ class GOsaObject(object):
                 # Filter may mess things up and then the next cannot process correctly.
                 if (key not in prop):
                     fname = type(curline['filter']).__name__
-                    raise Exception("Filter '%s' returned invalid key property key '%s'!" % (fname, key))
+                    raise FactoryException("Filter '%s' returned invalid key property key '%s'!" % (fname, key))
 
                 # Check if the filter returned all expected property values.
                 for pk in prop:
                     if not all(k in prop[pk] for k in ('backend', 'value', 'type')):
                         fname = type(curline['filter']).__name__
                         missing = ", ".join(set(['backend', 'value', 'type']) - set(prop[pk].keys()))
-                        raise Exception("Filter '%s' does not return all expected property values! '%s' missing." % (fname, missing))
+                        raise FactoryException("Filter '%s' does not return all expected property values! '%s' missing." % (fname, missing))
 
             # A condition matches for something and returns a boolean value.
             # We'll put this value on the stack for later use.
