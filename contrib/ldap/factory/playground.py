@@ -2,6 +2,14 @@
 from gosa.agent.objects import GOsaObjectFactory
 import time
 import datetime
+import sys
+import logging
+log = logging.getLogger()
+formatter = logging.Formatter('%(filename)s: %(levelname)s - %(message)s')
+hdlr= logging.StreamHandler(sys.stderr)
+hdlr.setFormatter(formatter)
+log.addHandler(hdlr)
+log.setLevel(logging.DEBUG)
 
 f = GOsaObjectFactory('.')
 p = f.getObject('Person', "cn=Cajus Pollmeier,ou=people,ou=Technik,dc=gonicus,dc=de")
