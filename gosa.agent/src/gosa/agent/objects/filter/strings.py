@@ -46,10 +46,16 @@ class DateToString(ElementFilter):
     def process(self, obj, key, valDict, fmt="%Y%m%d%H%M%SZ"):
         try:
             valDict[key]['value'] = valDict[key]['value'].strftime(fmt)
-        except:
-            raise ElementFilterException("Failed to parse date-property value into 'string'! %s:%s" % (
-                key, valDict[key]['value']))
+        except Exception as e:
+            raise ElementFilterException("Failed to parse date-property value into 'string'! (%s:%s) %s" % (
+                key, valDict[key]['value'], e))
         return key, valDict
+
+
+class TimeToString(DateToString):
+
+    def __init__(self, obj):
+        super(TimeToString, self).__init__(obj)
 
 
 class StringToDate(ElementFilter):
@@ -60,18 +66,9 @@ class StringToDate(ElementFilter):
     def process(self, obj, key, valDict, fmt="%Y%m%d%H%M%SZ"):
         try:
             valDict[key]['value'] = (datetime.datetime.strptime(valDict[key]['value'], fmt)).date()
-        except:
-            raise ElementFilterException("Failed to parse string-property value into 'date' object! %s:%s" % (
-                key, valDict[key]['value']))
-        return key, valDict
-
-
-class TimeToString(ElementFilter):
-
-    def __init__(self, obj):
-        super(TimeToString, self).__init__(obj)
-
-    def process(self, obj, key, valDict):
+        except Exception as e:
+            raise ElementFilterException("Failed to parse string-property value into 'date' object! (%s:%s) %s" % (
+                key, valDict[key]['value'], e))
         return key, valDict
 
 
@@ -80,5 +77,10 @@ class StringToTime(ElementFilter):
     def __init__(self, obj):
         super(StringToTime, self).__init__(obj)
 
-    def process(self, obj, key, valDict):
+    def process(self, obj, key, valDict, fmt="%Y%m%d%H%M%SZ"):
+        try:
+            valDict[key]['value'] = (datetime.datetime.strptime(valDict[key]['value'], fmt))
+        except Exception as e:
+            raise ElementFilterException("Failed to parse string-property value into 'date' object! (%s:%s) %s" % (
+                key, valDict[key]['value'], e))
         return key, valDict

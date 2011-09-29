@@ -12,6 +12,7 @@ print "givenName:", p.givenName
 print "userPassword:", p.userPassword
 print "passwordMethod:", p.passwordMethod
 print "dateOfBirth:", p.dateOfBirth
+print "gotoLastSystemLogin:", p.gotoLastSystemLogin
 #p.sn = u"Name"
 #p.givenName = u"Neuer"
 #p.notify(u"This is my title", u"To my amazing message!")
