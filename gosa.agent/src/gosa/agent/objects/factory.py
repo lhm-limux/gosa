@@ -383,7 +383,7 @@ class GOsaObjectFactory(object):
 
             # Append the method to the list of registered methods for this
             # object
-            self.log.debug(" adding method: '%s'" % (methodName, ))
+            self.log.debug("Adding method: '%s'" % (methodName, ))
             methods[methodName] = {'ref': funk}
 
         # Set properties and methods for this object.
@@ -882,7 +882,7 @@ class GOsaObject(object):
             value = props[key]['value']
             new_key = key
 
-            self.log.debug("Property changed: %s" % (key,))
+            self.log.debug("changed: %s" % (key,))
 
             # Process each and every out-filter with a clean set of input values,
             #  to avoid that return-values overwrite themselves.
