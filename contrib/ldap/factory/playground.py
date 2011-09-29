@@ -48,6 +48,6 @@ p.userPassword = u"tollessecret"
 p.roomNumber = 22
 p.jpegPhoto =  open('dummy.binary', 'r').read()
 p.gotoLastSystemLogin = datetime.datetime.today()
-#p.dateOfBirth = datetime.datetime.today().date()
+p.dateOfBirth = datetime.datetime.today().date()
 p.gender = "M"
 p.commit()
