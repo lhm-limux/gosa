@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from gosa.agent.objects.filter import ElementFilter
+from gosa.agent.objects.filter import ElementFilter, ElementFilterException
 import copy
 
 class Target(ElementFilter):
@@ -12,6 +12,19 @@ class Target(ElementFilter):
             valDict[new_key] = valDict[key]
             del(valDict[key])
         return new_key, valDict
+
+
+class SetValue(ElementFilter):
+
+    def __init__(self, obj):
+        super(SetValue, self).__init__(obj)
+
+    def process(self, obj, key, valDict, value, vtype="String"):
+        if vtype == "String":
+            valDict[key]['value'] = str(value)
+        else:
+            raise ElementFilterException("Invalid type value (%s) given for filter '%s'!" % (vtype,'SetValue'))
+        return key, valDict
 
 
 #class LoadAttr(ElementFilter):

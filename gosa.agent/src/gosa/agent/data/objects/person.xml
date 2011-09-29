@@ -90,6 +90,26 @@
 				<Name>dateOfBirth</Name>
 				<Description>Date of birth</Description>
 				<Syntax>Date</Syntax>
+ 				<InFilter>
+                                        <FilterChain>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>StringToDate</Name>
+								<Param>%Y-%m-%d</Param>
+                                                        </Filter>
+                                                </FilterEntry>
+                                        </FilterChain>
+                                </InFilter>
+ 				<OutFilter>
+                                        <FilterChain>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>DateToString</Name>
+								<Param>%Y-%m-%d</Param>
+                                                        </Filter>
+                                                </FilterEntry>
+                                        </FilterChain>
+                                </OutFilter>
 			</Attribute>
 
 			<Attribute>

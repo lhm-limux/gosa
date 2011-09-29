@@ -745,6 +745,11 @@ class GOsaObject(object):
                                     'in_filter': None,
                                     'in_backend': valDict[key]['backend'],
                                     'multivalue': False}
+                            else:
+                                props[key]['value'] = valDict[key]['value']
+                                props[key]['out_backend'] = valDict[key]['backend']
+                                props[key]['in_backend'] = valDict[key]['backend']
+                                props[key]['type'] = valDict[key]['type']
 
                 # Keep the initial value
                 props[key]['old'] = props[key]['value']
@@ -1039,7 +1044,10 @@ class GOsaObject(object):
         # An inline function which replaces format string tokens
         def _placeHolder(x):
             for name in propList:
-                x = x % propList
+                try:
+                    x = x % propList
+                except:
+                    pass
             return (x)
 
         # Walk trough each line of the process list an replace placeholders.
