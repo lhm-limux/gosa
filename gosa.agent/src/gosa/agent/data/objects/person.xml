@@ -41,7 +41,7 @@
 			<Attribute>
 				<Name>uid</Name>
 				<Description>User ID</Description>
-				<Syntax>UnicodeString</Syntax>
+				<Type>UnicodeString</Type>
 				<Validators>
 					<Condition>
 						<Name>stringLength</Name>
@@ -54,19 +54,19 @@
 			<Attribute>
 				<Name>sn</Name>
 				<Description>Surname</Description>
-				<Syntax>UnicodeString</Syntax>
+				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>givenName</Name>
 				<Description>Given name</Description>
-				<Syntax>UnicodeString</Syntax>
+				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>gender</Name>
 				<Description>'Gender: M for male, F for female</Description>
-				<Syntax>String</Syntax>
+				<Type>String</Type>
                           	<Validators>
                                         <ConditionOperator>
                                                 <Operator>or</Operator>
@@ -89,7 +89,7 @@
 			<Attribute>
 				<Name>dateOfBirth</Name>
 				<Description>Date of birth</Description>
-				<Syntax>String</Syntax>
+				<Type>String</Type>
  				<InFilter>
                                         <FilterChain>
                                                 <FilterEntry>
@@ -115,31 +115,31 @@
 			<Attribute>
 				<Name>personalTitle</Name>
 				<Description>Personal title</Description>
-				<Syntax>UnicodeString</Syntax>
+				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>gotoLastSystemLogin</Name>
 				<Description>The last system login timestamp</Description>
-				<Syntax>Timestamp</Syntax>
+				<Type>Timestamp</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>jpegPhoto</Name>
 				<Description></Description>
-				<Syntax>Binary</Syntax>
+				<Type>Binary</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>roomNumber</Name>
 				<Description></Description>
-				<Syntax>Integer</Syntax>
+				<Type>Integer</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>userPassword</Name>
 				<Description>The users password</Description>
-				<Syntax>UnicodeString</Syntax>
+				<Type>UnicodeString</Type>
 				<InFilter>
 					<FilterChain>
 						<FilterEntry>
@@ -175,7 +175,7 @@
 					<Attribute>givenName</Attribute>
 				</DependsOn>
 				<Description>Common name</Description>
-				<Syntax>String</Syntax>
+				<Type>String</Type>
 
 				<OutFilter>
 					<FilterChain>

@@ -275,7 +275,7 @@ class GOsaObjectFactory(object):
                 validator = self.__build_filter(prop['Validators'])
 
             # Read the properties syntax
-            syntax = str(prop['Syntax'])
+            syntax = str(prop['Type'])
 
             # check for multivalue definition
             multivalue = bool(prop['MultiValue']) if "MultiValue" in prop.__dict__ else False
@@ -720,7 +720,6 @@ class GOsaObject(object):
 
                 if key not in attrs:
                     #raise FactoryException("Value for '%s' could not be read, it wasn't returned by the backend!" % (key,))
-                    print "!! Value for '%s' could not be read, it wasn't returned by the backend!" % (key,)
                     self.log.debug("Attribute '%s' was not returned by load!" % (key))
                     continue
 

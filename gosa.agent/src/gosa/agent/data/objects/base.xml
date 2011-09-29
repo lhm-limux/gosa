@@ -11,7 +11,7 @@
 				<Name>type</Name>
 				<Description>The attribute type</Description>
 				<Backend>LDAP</Backend>
-				<Syntax>UnicodeString</Syntax>
+				<Type>UnicodeString</Type>
 			</Attribute>
 		</Attributes>
 

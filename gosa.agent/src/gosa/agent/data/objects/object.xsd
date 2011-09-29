@@ -60,8 +60,12 @@
         		minOccurs="0"
         	>
         	</element>
-        	<element name="Syntax" type="gosa:SyntaxType" maxOccurs="1"
-        		minOccurs="1"
+        	<element name="Type" type="gosa:AttributeTypes"
+        		maxOccurs="1" minOccurs="1"
+        	>
+        	</element>
+        	<element name="BackendType" type="gosa:AttributeTypes"
+        		maxOccurs="1" minOccurs="0"
         	>
         	</element>
         	<element name="Validators" type="gosa:Validator"
@@ -84,11 +88,14 @@
         		minOccurs="0"
         	>
         	</element>
-        	<element name="Mandatory" type="boolean" maxOccurs="1" minOccurs="0"></element>
+        	<element name="Mandatory" type="boolean" maxOccurs="1"
+        		minOccurs="0"
+        	>
+        	</element>
         </all>
     </complexType>
 
-    <simpleType name="SyntaxType">
+    <simpleType name="AttributeTypes">
     	<restriction base="string">
     		<enumeration value="Boolean"></enumeration>
     		<enumeration value="String"></enumeration>
@@ -145,7 +152,7 @@
     <complexType name="Parameter">
     	<all>
     		<element name="Name" type="string" maxOccurs="1" minOccurs="1"></element>
-    		<element name="Type" type="gosa:SyntaxType" maxOccurs="1" minOccurs="1"></element>
+    		<element name="Type" type="gosa:AttributeTypes" maxOccurs="1" minOccurs="1"></element>
     		<element name="Required" type="boolean" maxOccurs="1" minOccurs="0"></element>
     	</all>
     </complexType>
@@ -295,7 +302,7 @@
     		>
     		</element>
     		<element name="Default" type="string" maxOccurs="1" minOccurs="0"></element>
-    		<element name="Type" type="gosa:SyntaxType" maxOccurs="1"
+    		<element name="Type" type="gosa:AttributeTypes" maxOccurs="1"
     			minOccurs="1"
     		>
     		</element>
