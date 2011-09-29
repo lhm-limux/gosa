@@ -291,9 +291,6 @@ class GOsaObjectFactory(object):
 
             props[str(prop['Name'])] = {
                     'value': None,
-                    'in_value': None,
-                    'in_name': None,
-                    'orig': None,
                     'status': STATUS_OK,
                     'dependsOn': dependsOn,
                     'type': TYPE_MAP[syntax],
@@ -304,6 +301,7 @@ class GOsaObjectFactory(object):
                     'out_backend': out_b,
                     'in_filter': in_f,
                     'in_backend': in_b,
+                    'orig_value': None,
                     'multivalue': multivalue}
 
         # Build up a list of callable methods
@@ -735,11 +733,10 @@ class GOsaObject(object):
 
                 props[key]['value'] = value
 
-                # Keep original values, they may be overwritten in the in-filters.
-                props[key]['in_value'] = value
-                props[key]['in_value'] = key
                 self.log.debug("%s: %s" % (key, value))
 
+                # Keep original values, they may be overwritten in the in-filters.
+                props[key]['orig_value'] = attrs[key]
 
             # Once we've loaded all properties from the backend, execute the
             # in-filters.
@@ -768,9 +765,6 @@ class GOsaObject(object):
                             if key not in props:
                                 props[key] = {
                                     'value':  valDict[key]['value'],
-                                    'in_value': None,
-                                    'in_name': None,
-                                    'orig': None,
                                     'status': STATUS_OK,
                                     'dependsOn': [],
                                     'type': valDict[key]['type'],
@@ -897,11 +891,10 @@ class GOsaObject(object):
 
                 self.log.debug(" found %s out-filter for %s" % (str(len(props[key]['out_filter'])), key,))
                 for out_f in props[key]['out_filter']:
-                    valDict = {key: {
+                    valDict = {key:{
                             'backend': props[key]['out_backend'],
                             'value': props[key]['value'],
-                            'type': TYPE_MAP_REV[props[key]['type']]}}
-
+                            'type': TYPE_MAP_REV[props[key]['backend_type']]}}
                     valDict = self.__processFilter(out_f, key, valDict)
 
                     # Collect properties by backend
@@ -912,16 +905,18 @@ class GOsaObject(object):
                             toStore[be] = {}
 
                         self.log.debug(" outfilter returned %s:(%s) %s" % (prop_key, valDict[prop_key]['type'], valDict[prop_key]['value']))
-                        toStore[be][prop_key] = valDict[prop_key]
+                        toStore[be][prop_key] = {'orig': props[key]['orig_value'],
+                                                 'value': valDict[prop_key]['value'],
+                                                 'type': valDict[prop_key]['type']}
             else:
 
                 # Collect properties by backend
                 be = props[key]['out_backend']
                 if not be in toStore:
                     toStore[be] = {}
-                toStore[be][key] = {
-                    'value': props[key]['value'],
-                    'type': TYPE_MAP_REV[props[key]['type']]}
+                toStore[be][key] = {'orig': props[key]['orig_value'],
+                                    'value': props[key]['value'],
+                                    'type': TYPE_MAP_REV[props[key]['backend_type']]}
 
         # Handle by backend
         obj = self
@@ -941,7 +936,7 @@ class GOsaObject(object):
         """
         props = getattr(self, '__properties')
         for key in props:
-            props[key]['value'] = props[key]['in_value']
+            props[key]['value'] = props[key]['old']
 
         self.log.debug("Reverted object modifications for [%s|%s]" % (type(self).__name__, self.uuid))
 
@@ -1053,8 +1048,8 @@ class GOsaObject(object):
 
                 # Check if the filter returned all expected property values.
                 for pk in prop:
-                    if not all(k in prop[pk] for k in ('backend', 'value')):
-                        missing = ", ".join(set(['backend', 'value']) - set(prop[pk].keys()))
+                    if not all(k in prop[pk] for k in ('backend', 'value', 'type')):
+                        missing = ", ".join(set(['backend', 'value', 'type']) - set(prop[pk].keys()))
                         raise FactoryException("Filter '%s' does not return all expected property values! '%s' missing." % (fname, missing))
                 self.log.debug("  %s: [Filter]  %s(%s) called " % (lptr, fname, ", ".join(map(lambda x : "\"" + x + "\"",  curline['params']))))
 

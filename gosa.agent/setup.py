@@ -116,6 +116,7 @@ setup(
         filter.timeToString = gosa.agent.objects.filter.strings:TimeToString
         filter.sambahash = gosa.agent.plugins.samba.utils:SambaHash
         filter.target = gosa.agent.objects.filter.basic:Target
+        filter.setbackend = gosa.agent.objects.filter.basic:SetBackend
         filter.setvalue = gosa.agent.objects.filter.basic:SetValue
         #filter.loadattr = gosa.agent.objects.filter.basic:LoadAttr
         #filter.saveattr = gosa.agent.objects.filter.basic:SaveAttr
