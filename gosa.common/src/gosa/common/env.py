@@ -45,6 +45,7 @@ class Environment:
         self.id = platform.node()
 
         # Dump configuration
+        #TODO: core.loglevel is gone
         if self.config.get("core.loglevel") == "DEBUG":
             self.log.debug("configuration dump:")
 
