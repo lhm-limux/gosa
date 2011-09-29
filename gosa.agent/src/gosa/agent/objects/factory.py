@@ -683,8 +683,9 @@ class GOsaObject(object):
                 # {attribute_name: type, name: type}
                 info = dict([(k, TYPE_MAP_REV[props[k]['type']]) for k in self._propsByBackend[backend]])
                 attrs = load(obj, info, backend)
-            except ValueError:
+            except ValueError as e:
                 print "Error reading property: %s!" % (backend,)
+                print e
                 continue
 
             # Assign fetched value to the properties.

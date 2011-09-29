@@ -126,8 +126,8 @@ class LDAP(ObjectBackend):
     def _convert_from_timestamp(self, value):
         return time.strptime(value, "%Y%m%d%H%M%SZ")
 
-    def _convert_form_date(self, value):
-        ts = time.mktime(time.strptime(i, "%Y%m%d%H%M%SZ"))
+    def _convert_from_date(self, value):
+        ts = time.mktime(time.strptime(value, "%Y%m%d%H%M%SZ"))
         return datetime.date.fromtimestamp(ts)
 
     def _convert_from_binary(self, value):
