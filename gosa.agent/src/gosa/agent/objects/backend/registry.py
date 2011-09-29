@@ -39,9 +39,9 @@ def load(obj, keys, backend=None):
     return backendI.load(obj.uuid, keys)
 
 
-def save(obj, data, backend=None):
+def update(obj, data, backend=None):
     if not backend:
         backend = obj._backend
 
     backendI = ObjectBackendRegistry.getBackend(backend)
-    return backendI.save(obj.uuid, data)
+    return backendI.update(obj.uuid, data)

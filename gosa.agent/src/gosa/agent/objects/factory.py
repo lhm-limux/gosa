@@ -44,7 +44,7 @@ import logging
 from lxml import etree, objectify
 from gosa.common import Environment
 from gosa.agent.objects.filter import get_filter
-from gosa.agent.objects.backend.registry import ObjectBackendRegistry, load
+from gosa.agent.objects.backend.registry import ObjectBackendRegistry, load, update
 from gosa.agent.objects.comparator import get_comparator
 from gosa.agent.objects.operator import get_operator
 from logging import getLogger
@@ -916,17 +916,16 @@ class GOsaObject(object):
                     'value': props[key]['value'],
                     'type': TYPE_MAP_REV[props[key]['type']]}
 
-        #8<----------------------
-        print "-SAVE" + "-"*60
-        from pprint import pprint
-        pprint(toStore)
-        #8<----------------------
-
-        # Save by backend
+        # Handle by backend
         obj = self
         for backend, values in toStore.items():
-            info = dict([(k, {'type': TYPE_MAP_REV[props[k]['type']], 'value': values[k] if k in values else None}) for k in self._propsByBackend[backend]])
-            print "save(%s, %s, %s)" % (obj, info, backend)
+            info = dict([(k, {'type': TYPE_MAP_REV[props[k]['type']],
+                              'value': values[k]['value'] if k in values else None}
+                            ) for k in self._propsByBackend[backend]])
+
+            #TODO: currently we update, because we cannot create things.
+            #      This has to handle other create, extend, etc. too.
+            update(obj, info, backend)
 
     def revert(self):
         """

@@ -40,7 +40,7 @@ class ObjectBackend(object):
         """
         Update a base entry or an extension with the given UUID.
         """
-        raise NotImplementedError("object backend is missing save()")
+        raise NotImplementedError("object backend is missing update()")
 
     def exists(self, misc):
         """
