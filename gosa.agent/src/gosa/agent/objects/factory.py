@@ -92,6 +92,8 @@ class GOsaObjectFactory(object):
         schema = etree.XMLSchema(schema_root)
         self.__parser = objectify.makeparser(schema=schema)
 
+        self.log.info("Object factory initialized")
+
         # Load and parse schema
         self.loadSchema(path)
 
@@ -107,6 +109,7 @@ class GOsaObjectFactory(object):
         >>> person = f.getObject('Person', "410ad9f0-c4c0-11e0-962b-0800200c9a66")
 
         """
+        self.log.debug("Object of type '%s' requested %s" % (name, args))
         if not name in self.__classes:
             self.__classes[name] = self.__build_class(name)
 
@@ -175,6 +178,7 @@ class GOsaObjectFactory(object):
         try:
             xml = objectify.fromstring(open(path).read(), self.__parser)
             self.__xml_defs[str(xml.Object['Name'][0])] = xml
+            self.log.info("Loaded schema file for '%s' (%s)" % (str(xml.Object['Name'][0]),path))
 
         except etree.XMLSyntaxError as e:
             raise FactoryException("Error loading object-schema file: %s, %s" % path, e)
@@ -191,6 +195,9 @@ class GOsaObjectFactory(object):
         The final meta-class will be stored and can then be requested using:
         :meth:`gosa.agent.objects.factory.GOsaObjectFactory.getObject`
         """
+
+        self.log.debug("Building meta-class for object-type '%s'" % (name,))
+
         class klass(GOsaObject):
 
             #pylint: disable=E0213
@@ -230,6 +237,8 @@ class GOsaObjectFactory(object):
         # Append attributes
         for prop in classr['Attributes']['Attribute']:
 
+            self.log.debug("Adding property: '%s'" % (str(prop['Name']),))
+
             # Read backend definition per property (if it exists)
             out_b = defaultBackend
             in_b = defaultBackend
@@ -241,12 +250,15 @@ class GOsaObjectFactory(object):
             out_f =  []
             if "OutFilter" in prop.__dict__:
                 for entry in  prop['OutFilter'].iterchildren():
-                    out_f.append(self.__handleFilterChain(entry))
+                    self.log.debug(" appending out-filter")
+                    of = self.__handleFilterChain(entry)
+                    out_f.append(of)
 
             # Do we have a input filter definition?
             in_f =  []
             if "InFilter" in prop.__dict__:
                 for entry in  prop['InFilter'].iterchildren():
+                    self.log.debug(" appending in-filter")
                     in_f.append(self.__handleFilterChain(entry))
 
             # We require at least one backend information tag
@@ -260,6 +272,7 @@ class GOsaObjectFactory(object):
             # Read and build up validators
             validator =  None
             if "Validators" in prop.__dict__:
+                self.log.debug(" appending property validator")
                 validator = self.__build_filter(prop['Validators'])
 
             # Read the properties syntax
@@ -371,6 +384,7 @@ class GOsaObjectFactory(object):
 
             # Append the method to the list of registered methods for this
             # object
+            self.log.debug(" adding method: '%s'" % (methodName, ))
             methods[methodName] = {'ref': funk}
 
         # Set properties and methods for this object.
@@ -805,6 +819,8 @@ class GOsaObject(object):
             # Set the new value
             props[name]['value'] = value
 
+            self.log.debug("Updated property value of [%s|%s] %s:%s" % (type(self).__name__, self.uuid, name, value))
+
             # Update status if there's a change
             if current != props[name]['value'] and props[name]['status'] != STATUS_CHANGED:
                 props[name]['status'] = STATUS_CHANGED
@@ -848,6 +864,7 @@ class GOsaObject(object):
         """
 
         props = getattr(self, '__properties')
+        self.log.debug("Saving object modifications for [%s|%s]" % (type(self).__name__, self.uuid))
 
         # Collect values by store and process the property filters
         toStore = {}
@@ -865,9 +882,13 @@ class GOsaObject(object):
             value = props[key]['value']
             new_key = key
 
+            self.log.debug("Property changed: %s" % (key,))
+
             # Process each and every out-filter with a clean set of input values,
             #  to avoid that return-values overwrite themselves.
             if len(props[key]['out_filter']):
+
+                self.log.debug(" found %s out-filter for %s" % (str(len(props[key]['out_filter'])), key,))
                 for out_f in props[key]['out_filter']:
                     valDict = {key: {
                             'backend': props[key]['out_backend'],
@@ -882,6 +903,8 @@ class GOsaObject(object):
 
                         if not be in toStore:
                             toStore[be] = {}
+
+                        self.log.debug(" outfilter returned %s:(%s) %s" % (prop_key, valDict[prop_key]['type'], valDict[prop_key]['value']))
                         toStore[be][prop_key] = valDict[prop_key]
             else:
 
@@ -912,6 +935,8 @@ class GOsaObject(object):
         props = getattr(self, '__properties')
         for key in props:
             props[key]['value'] = props[key]['in_value']
+
+        self.log.debug("Reverted object modifications for [%s|%s]" % (type(self).__name__, self.uuid))
 
     def __processValidator(self, fltr, key, value):
         """
@@ -991,10 +1016,9 @@ class GOsaObject(object):
         stack = list()
 
         # Log values
-        self.log.debug(" --- ")
-        self.log.debug("FILTER STARTED (%s)" % (key))
+        self.log.debug(" -> FILTER STARTED (%s)" % (key))
         for key in prop:
-            self.log.debug("%s: %s:(%s) %s  [%s]" % (lptr, key, prop[key]['type'], prop[key]['value'],prop[key]['backend']))
+            self.log.debug("  %s: %s:(%s) %s  [%s]" % (lptr, key, prop[key]['type'], prop[key]['value'],prop[key]['backend']))
 
         # Process the list till we reach the end..
         while (lptr + 1) in fltr:
@@ -1025,7 +1049,7 @@ class GOsaObject(object):
                     if not all(k in prop[pk] for k in ('backend', 'value', 'type')):
                         missing = ", ".join(set(['backend', 'value', 'type']) - set(prop[pk].keys()))
                         raise FactoryException("Filter '%s' does not return all expected property values! '%s' missing." % (fname, missing))
-                self.log.debug("%s: Filter  %s(%s) called " % (lptr, fname, ", ".join(curline['params'])))
+                self.log.debug("  %s: Filter  %s(%s) called " % (lptr, fname, ", ".join(curline['params'])))
 
             # A condition matches for something and returns a boolean value.
             # We'll put this value on the stack for later use.
@@ -1038,7 +1062,7 @@ class GOsaObject(object):
                 stack.append((curline['condition']).process(*args))
 
                 fname = type(curline['condition']).__name__
-                self.log.debug("%s: Condition %s(%s) called " % (lptr, fname, ", ".join(curline['params'])))
+                self.log.debug("  %s: Condition %s(%s) called " % (lptr, fname, ", ".join(curline['params'])))
 
             # Handle jump, for example if a condition has failed, jump over its filter-chain.
             elif 'jump' in curline:
@@ -1053,7 +1077,7 @@ class GOsaObject(object):
                 else:
                     lptr = curline['to'] - 1
 
-                self.log.debug("%s: Goto %s ()" % (olptr, lptr))
+                self.log.debug("  %s: Goto %s ()" % (olptr, lptr))
 
             # A comparator compares two values from the stack and then returns a single
             #  boolean value.
@@ -1063,14 +1087,13 @@ class GOsaObject(object):
                 stack.append((curline['operator']).process(a, b))
 
                 fname = type(curline['operator']).__name__
-                self.log.debug("%s: Condition %s(%s, %s) called " % (lptr, fname, a, b)) 
+                self.log.debug("  %s: Condition %s(%s, %s) called " % (lptr, fname, a, b)) 
 
             # Log current values
             for key in prop:
-                self.log.debug("%s: %s:(%s) %s  [%s]" % (lptr, key, prop[key]['type'], prop[key]['value'],prop[key]['backend']))
+                self.log.debug("  %s: %s:(%s) %s  [%s]" % (lptr, key, prop[key]['type'], prop[key]['value'],prop[key]['backend']))
 
-        self.log.debug("FILTER ENDED")
-        self.log.debug(" --- ")
+        self.log.debug(" <- FILTER ENDED")
         return prop
 
     def __fillInPlaceholders(self, fltr):
