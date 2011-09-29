@@ -920,7 +920,12 @@ class GOsaObject(object):
 
         # Handle by backend
         obj = self
-        for backend, info in toStore.items():
+        for backend, values in toStore.items():
+            info = dict([(k, {'type': TYPE_MAP_REV[props[k]['type']],
+                              'orig': props[k]['orig'] if 'orig' in props[k] else None,
+                              'value': (values[k]['value'] if type(values[k]['value']) == list else [values[k]['value']]) if k in values else None}
+                            ) for k in self._propsByBackend[backend]])
+
             #TODO: currently we update, because we cannot create things.
             #      This has to handle other create, extend, etc. too.
             update(obj, info, backend)
