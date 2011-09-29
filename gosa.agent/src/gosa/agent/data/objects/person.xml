@@ -135,6 +135,7 @@
 				<Name>roomNumber</Name>
 				<Description></Description>
 				<Type>Integer</Type>
+				<BackendType>String</BackendType>
 			</Attribute>
 
 			<Attribute>

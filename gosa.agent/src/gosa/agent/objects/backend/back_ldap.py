@@ -100,16 +100,13 @@ class LDAP(ObjectBackend):
         # Load DN for entry and assemble a proper modlist
         dn = self.uuid2dn(uuid)
 
-        print "="*80
-        print "Resolved to DN:", dn
-        print "-"*80
-
         mod_attrs = []
+        self.log.debug("gathering modifications for entry '%s'" % dn)
         for attr, entry in data.iteritems():
 
             # Value removed?
             if entry['orig'] and not entry['value']:
-                print "- %s" % attr
+                self.log.debug(" * remove attribute '%s'" % attr)
                 mod_attrs.append((ldap.MOD_DELETE, attr, None))
                 continue
 
@@ -120,15 +117,13 @@ class LDAP(ObjectBackend):
 
             # New value?
             if not entry['orig'] and entry['value']:
-                print "+ %s: %s" % (attr, items)
+                self.log.debug(" * add attribute '%s' with value '%s'" % (attr, items))
                 mod_attrs.append((ldap.MOD_ADD, attr, items))
                 continue
 
             # Ok, modified...
+            self.log.debug(" * replace attribute '%s' with value '%s'" % (attr, items))
             mod_attrs.append((ldap.MOD_REPLACE, attr, items))
-            print "~ %s: %s" % (attr, items)
-
-        print "-"*80
 
         # Did we change one of the RDN attributes?
         new_rdn_parts = []
@@ -145,12 +140,12 @@ class LDAP(ObjectBackend):
         # Build new target DN and check if it has changed...
         tdn = ldap.dn.dn2str([new_rdn_parts] + rdns[1:])
         if tdn != dn:
+            self.log.debug("entry needs a rename from '%s' to '%s'" % (dn, tdn))
             self.con.rename_s(dn, ldap.dn.dn2str([new_rdn_parts]))
 
         # Write back...
+        self.log.debug("saving entry '%s'" % tdn)
         self.con.modify_s(tdn, mod_attrs)
-
-        print "="*80
 
     def uuid2dn(self, uuid):
         # Get DN of entry
