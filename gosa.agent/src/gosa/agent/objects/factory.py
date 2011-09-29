@@ -174,7 +174,7 @@ class GOsaObjectFactory(object):
             self.__xml_defs[str(xml.Object['Name'][0])] = xml
 
         except etree.XMLSyntaxError as e:
-            print "Error loading: %s, %s", path, e
+            raise FactoryException("Error loading object-schema file: %s, %s" % path, e)
             exit()
 
     def __build_class(self, name):
@@ -682,6 +682,7 @@ class GOsaObject(object):
                 info = dict([(k, TYPE_MAP_REV[props[key]['type']]) for k in propsByBackend[backend]])
                 attrs = load(obj, info, backend)
             except ValueError:
+                #raise FactoryException("Error reading properties for backend '%s'!" % (backend,))
                 print "Error reading property: %s!" % (backend,)
                 continue
 
@@ -689,6 +690,7 @@ class GOsaObject(object):
             for key in propsByBackend[backend]:
 
                 if key not in attrs:
+                    #raise FactoryException("Value for '%s' could not be read, it wasn't returned by the backend!" % (key,))
                     print "!! Value for '%s' could not be read, it wasn't returned by the backend!" % (key,)
                     continue
 
@@ -776,11 +778,9 @@ class GOsaObject(object):
 
             # Validate value
             if props[name]['validator']:
-                res, error = self.__processValidator(props[name]['validator'],
-                        name, value)
+                res, error = self.__processValidator(props[name]['validator'], name, value)
                 if not res:
-                    print "%s" % (error)
-                    return
+                    raise ValueError("Property (%s) validation failed! %s" % (name, error))
 
             # Set the new value
             props[name]['value'] = value
