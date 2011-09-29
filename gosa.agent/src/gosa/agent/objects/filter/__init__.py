@@ -21,3 +21,7 @@ class ElementFilter(object):
 
     def process(self, obj, key, value):
         raise NotImplementedError("not implemented")
+
+
+class ElementFilterException(Exception):
+    pass

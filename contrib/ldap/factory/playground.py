@@ -11,6 +11,8 @@ p = f.getObject('Person', "cn=Cajus Pollmeier,ou=people,ou=Technik,dc=gonicus,dc
 print "givenName:", p.givenName
 print "userPassword:", p.userPassword
 print "passwordMethod:", p.passwordMethod
+print "dateOfBirth:", p.dateOfBirth
+print "gotoLastSystemLogin:", p.gotoLastSystemLogin
 #p.sn = u"Name"
 #p.givenName = u"Neuer"
 #p.notify(u"This is my title", u"To my amazing message!")
@@ -46,6 +48,6 @@ p.userPassword = u"tollessecret"
 p.roomNumber = 22
 p.jpegPhoto =  open('dummy.binary', 'r').read()
 p.gotoLastSystemLogin = datetime.datetime.now()
-p.dateOfBirth = datetime.datetime.today()
+p.dateOfBirth = datetime.datetime.today().date()
 p.gender = "M"
 p.commit()
