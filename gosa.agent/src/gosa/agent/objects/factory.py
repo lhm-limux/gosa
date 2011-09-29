@@ -742,6 +742,10 @@ class GOsaObject(object):
             # in-filters.
             for key in self._propsByBackend[backend]:
 
+                # Skip loading in-filters for None values
+                if props[key]['value'] == None:
+                    continue
+
                 # Execute defined in-filters.
                 if len(props[key]['in_filter']):
                     self.log.debug("Found %s in-filter(s)  for attribute '%s'" % (str(len(props[key]['in_filter'])),key))
