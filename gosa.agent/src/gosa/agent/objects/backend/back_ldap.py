@@ -94,12 +94,35 @@ class LDAP(ObjectBackend):
 #        pass
 
     def update(self, uuid, data):
+        print
+
+        # Load DN for entry and assemble a proper modlist
+        dn = self.uuid2dn(uuid)
+        print "Resolved to DN:", dn
         print "-"*80
-        print "Update called for %s:" % uuid
+
+        # We only get the values that have changed
+
+        print "="*80
         from pprint import pprint
         pprint(data)
-        print "-"*80
-        pass
+
+        print "="*80
+        print
+
+    def uuid2dn(self, uuid):
+        # Get DN of entry
+        fltr_tpl = "%s=%%s" % self.uuid_entry
+        fltr = ldap.filter.filter_format(fltr_tpl, [uuid])
+
+        self.log.debug("searching with filter '%s' on base '%s'" % (fltr,
+            self.lh.get_base()))
+        res = self.con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, fltr,
+            keys)
+
+        self.__check_res(uuid, res)
+
+        return unicode(res[0][0].decode('utf-8'))
 
     def dn2uuid(self, dn):
         res = self.con.search_s(dn.encode('utf-8'), ldap.SCOPE_BASE, '(objectClass=*)',
