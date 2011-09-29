@@ -93,8 +93,13 @@ class LDAP(ObjectBackend):
 #    def extend(self, base, data):
 #        pass
 
-#    def update(self, uuid, data, data):
-#        pass
+    def update(self, uuid, data):
+        print "-"*80
+        print "Update called for %s:" % uuid
+        from pprint import pprint
+        pprint(data)
+        print "-"*80
+        pass
 
     def dn2uuid(self, dn):
         res = self.con.search_s(dn, ldap.SCOPE_BASE, '(objectClass=*)',
