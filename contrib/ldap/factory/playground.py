@@ -11,11 +11,6 @@ hdlr.setFormatter(formatter)
 log.addHandler(hdlr)
 log.setLevel(logging.DEBUG)
 
-import logging
-log = logging.getLogger()
-log.setLevel(logging.INFO)
-
-
 f = GOsaObjectFactory('.')
 p = f.getObject('Person', "cn=Cajus Pollmeier,ou=people,ou=Technik,dc=gonicus,dc=de")
 #print "Object type:", type(p)

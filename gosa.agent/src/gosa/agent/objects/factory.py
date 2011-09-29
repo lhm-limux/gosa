@@ -644,9 +644,11 @@ class GOsaObject(object):
     log = None
 
     def __init__(self, dn=None):
+
         # Instantiate Backend-Registry
         self._reg = ObjectBackendRegistry.getInstance()
         self.log = logging.getLogger(__name__)
+        self.log.info("New object instantiated '%s'" % type(self).__name__)
 
         # Group attributes by Backend
         propsByBackend = {}
