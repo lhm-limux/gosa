@@ -649,7 +649,8 @@ class GOsaObject(object):
         # Instantiate Backend-Registry
         self._reg = ObjectBackendRegistry.getInstance()
         self.log = getLogger(__name__)
-        self.log.info("New object instantiated '%s'" % type(self).__name__)
+        self.log.debug("New object instantiated '%s'" % (type(self).__name__))
+        self.log.debug("Object dn '%s'" % (dn))
 
         # Group attributes by Backend
         propsByBackend = {}
@@ -686,12 +687,14 @@ class GOsaObject(object):
         # Load attributes for each backend.
         # And then assign the values to the properties.
         obj = self
+        self.log.debug("Object uuid: %s" % (self.uuid))
         for backend in self._propsByBackend:
 
             try:
                 # Create a dictionary with all attributes we want to fetch
                 # {attribute_name: type, name: type}
                 info = dict([(k, TYPE_MAP_REV[props[k]['type']]) for k in self._propsByBackend[backend]])
+                self.log.debug("Loading attributes for backend '%s': %s" % (backend, str(info)))
                 attrs = load(obj, info, backend)
             except ValueError as e:
                 #raise FactoryException("Error reading properties for backend '%s'!" % (backend,))
@@ -704,6 +707,7 @@ class GOsaObject(object):
                 if key not in attrs:
                     #raise FactoryException("Value for '%s' could not be read, it wasn't returned by the backend!" % (key,))
                     print "!! Value for '%s' could not be read, it wasn't returned by the backend!" % (key,)
+                    self.log.debug("Attribute '%s' was not returned by load!" % (key))
                     continue
 
                 # Assign property
@@ -717,6 +721,8 @@ class GOsaObject(object):
                 # Keep original values, they may be overwritten in the in-filters.
                 props[key]['in_value'] = value
                 props[key]['in_value'] = key
+                self.log.debug("%s: %s" % (key, value))
+
 
             # Once we've loaded all properties from the backend, execute the
             # in-filters.
@@ -724,8 +730,10 @@ class GOsaObject(object):
 
                 # Execute defined in-filters.
                 if len(props[key]['in_filter']):
-
+                    self.log.debug("Found %s in-filter(s)  for attribute '%s'" % (str(len(props[key]['in_filter'])),key))
                     value = props[key]['value']
+
+                    # Execute each in-filter
                     for in_f in props[key]['in_filter']:
                         valDict = {key: {
                                 'backend': props[key]['in_backend'],
@@ -733,14 +741,9 @@ class GOsaObject(object):
                                 'type': props[key]['type']}}
                         valDict = self.__processFilter(in_f, key, valDict)
 
-                        # Check if the in-filter returned a valid result.
-                        # In-filters do not support property name manipulation
-                        #if key not in valDict or len(valDict) != 1:
-                        #    raise FactoryException("Property name manipulation not allowed for in-filters! "
-                        #            "Check in-filter for property '%s'!" % key)
-
                         # Assign filter results
                         for key in valDict:
+                            self.log.debug("In-filter returned %s: '%s'" % (key, valDict[key]['value']))
                             if key not in props:
                                 props[key] = {
                                     'value':  valDict[key]['value'],
@@ -987,6 +990,12 @@ class GOsaObject(object):
         # Our filter result stack
         stack = list()
 
+        # Log values
+        self.log.debug(" --- ")
+        self.log.debug("FILTER STARTED (%s)" % (key))
+        for key in prop:
+            self.log.debug("%s: %s:(%s) %s  [%s]" % (lptr, key, prop[key]['type'], prop[key]['value'],prop[key]['backend']))
+
         # Process the list till we reach the end..
         while (lptr + 1) in fltr:
 
@@ -1007,16 +1016,16 @@ class GOsaObject(object):
 
                 # Ensure that the processed data is still valid.
                 # Filter may mess things up and then the next cannot process correctly.
+                fname = type(curline['filter']).__name__
                 if (key not in prop):
-                    fname = type(curline['filter']).__name__
                     raise FactoryException("Filter '%s' returned invalid key property key '%s'!" % (fname, key))
 
                 # Check if the filter returned all expected property values.
                 for pk in prop:
                     if not all(k in prop[pk] for k in ('backend', 'value', 'type')):
-                        fname = type(curline['filter']).__name__
                         missing = ", ".join(set(['backend', 'value', 'type']) - set(prop[pk].keys()))
                         raise FactoryException("Filter '%s' does not return all expected property values! '%s' missing." % (fname, missing))
+                self.log.debug("%s: Filter  %s(%s) called " % (lptr, fname, ", ".join(curline['params'])))
 
             # A condition matches for something and returns a boolean value.
             # We'll put this value on the stack for later use.
@@ -1028,10 +1037,14 @@ class GOsaObject(object):
                 # Process condition and keep results
                 stack.append((curline['condition']).process(*args))
 
+                fname = type(curline['condition']).__name__
+                self.log.debug("%s: Condition %s(%s) called " % (lptr, fname, ", ".join(curline['params'])))
+
             # Handle jump, for example if a condition has failed, jump over its filter-chain.
             elif 'jump' in curline:
 
                 # Jump to <line> -1 because we will increase the line ptr later.
+                olptr = lptr
                 if curline['jump'] == 'conditional':
                     if stack.pop():
                         lptr = curline['onTrue'] - 1
@@ -1040,11 +1053,24 @@ class GOsaObject(object):
                 else:
                     lptr = curline['to'] - 1
 
+                self.log.debug("%s: Goto %s ()" % (olptr, lptr))
+
             # A comparator compares two values from the stack and then returns a single
             #  boolean value.
             elif 'operator' in curline:
-                stack.append((curline['operator']).process(stack.pop(), stack.pop()))
+                a = stack.pop()
+                b = stack.pop()
+                stack.append((curline['operator']).process(a, b))
 
+                fname = type(curline['operator']).__name__
+                self.log.debug("%s: Condition %s(%s, %s) called " % (lptr, fname, a, b)) 
+
+            # Log current values
+            for key in prop:
+                self.log.debug("%s: %s:(%s) %s  [%s]" % (lptr, key, prop[key]['type'], prop[key]['value'],prop[key]['backend']))
+
+        self.log.debug("FILTER ENDED")
+        self.log.debug(" --- ")
         return prop
 
     def __fillInPlaceholders(self, fltr):
