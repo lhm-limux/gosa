@@ -102,7 +102,7 @@ class LDAP(ObjectBackend):
         pass
 
     def dn2uuid(self, dn):
-        res = self.con.search_s(dn, ldap.SCOPE_BASE, '(objectClass=*)',
+        res = self.con.search_s(dn.encode('utf-8'), ldap.SCOPE_BASE, '(objectClass=*)',
                 [self.uuid_entry])
 
         # Check if res is valid
@@ -124,7 +124,7 @@ class LDAP(ObjectBackend):
         return str(value)
 
     def _convert_from_unicodestring(self, value):
-        return unicode(value)
+        return unicode(value.decode('utf-8'))
 
     def _convert_from_integer(self, value):
         return int(value)
