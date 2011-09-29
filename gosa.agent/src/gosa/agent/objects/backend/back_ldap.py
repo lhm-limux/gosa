@@ -118,7 +118,7 @@ class LDAP(ObjectBackend):
         self.log.debug("searching with filter '%s' on base '%s'" % (fltr,
             self.lh.get_base()))
         res = self.con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, fltr,
-            keys)
+                [self.uuid_entry])
 
         self.__check_res(uuid, res)
 
