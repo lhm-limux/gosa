@@ -3,6 +3,7 @@ import ldap
 import ldap.filter
 import ldap.schema
 import time
+import datetime
 from logging import getLogger
 from gosa.common import Environment
 from gosa.agent.ldap_utils import LDAPHandler
@@ -124,7 +125,7 @@ class LDAP(ObjectBackend):
         return int(value)
 
     def _convert_from_timestamp(self, value):
-        return time.strptime(value, "%Y%m%d%H%M%SZ")
+        return datetime.datetime.strptime(value, "%Y%m%d%H%M%SZ")
 
     def _convert_from_date(self, value):
         ts = time.mktime(time.strptime(value, "%Y%m%d%H%M%SZ"))

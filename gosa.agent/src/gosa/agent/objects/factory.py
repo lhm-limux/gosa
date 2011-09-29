@@ -330,13 +330,13 @@ class GOsaObjectFactory(object):
                     elif mDefault:
                         arguments[mName] = TYPE_MAP[mType](mDefault)
                     else:
-                        raise(FactoryException("Missing parameter '%s'!" % mName))
+                        raise FactoryException("Missing parameter '%s'!" % mName)
 
                     # Ensure that the correct parameter type was given.
                     if TYPE_MAP[mType] != type(arguments[mName]):
-                        raise(FactoryException("Invalid parameter type given for '%s', expected "
+                        raise FactoryException("Invalid parameter type given for '%s', expected "
                             "'%s' but received '%s'!" % (mName,
-                                TYPE_MAP[mType],type(arguments[mName]))))
+                                TYPE_MAP[mType],type(arguments[mName])))
 
                     cnt = cnt + 1
 
@@ -357,9 +357,9 @@ class GOsaObjectFactory(object):
                     try:
                         value = value % propList
                     except:
-                        raise(FactoryException("Cannot call method '%s', error while filling "
+                        raise FactoryException("Cannot call method '%s', error while filling "
                             " in placeholders! Error processing: %s!" %
-                            (methodName, value)))
+                            (methodName, value))
 
                     parameterList.append(value)
 
@@ -688,8 +688,7 @@ class GOsaObject(object):
                 attrs = load(obj, info, backend)
             except ValueError as e:
                 #raise FactoryException("Error reading properties for backend '%s'!" % (backend,))
-                print "Error reading property: %s!" % (backend,)
-                print e
+                print "Error:", e
                 continue
 
             # Assign fetched value to the properties.
