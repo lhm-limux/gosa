@@ -46,6 +46,7 @@ from gosa.agent.objects.filter import get_filter
 from gosa.agent.objects.backend.registry import ObjectBackendRegistry, load
 from gosa.agent.objects.comparator import get_comparator
 from gosa.agent.objects.operator import get_operator
+from logging import getLogger
 
 # Map XML base types to python values
 TYPE_MAP = {
@@ -639,10 +640,12 @@ class GOsaObject(object):
     _backend = None
     _propsByBackend = {}
     uuid = None
+    log = None
 
     def __init__(self, dn=None):
         # Instantiate Backend-Registry
         self._reg = ObjectBackendRegistry.getInstance()
+        self.log = getLogger(__name__)
 
         # Group attributes by Backend
         propsByBackend = {}
