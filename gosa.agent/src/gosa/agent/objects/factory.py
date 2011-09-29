@@ -882,7 +882,7 @@ class GOsaObject(object):
             value = props[key]['value']
             new_key = key
 
-            self.log.debug("Property changed: %s" % (key,))
+            self.log.debug("changed: %s" % (key,))
 
             # Process each and every out-filter with a clean set of input values,
             #  to avoid that return-values overwrite themselves.
