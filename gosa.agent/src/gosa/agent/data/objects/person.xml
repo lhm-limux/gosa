@@ -199,8 +199,6 @@
 								<Param>right</Param>
 							</Filter>
 						</FilterEntry>
-
-
 					</FilterChain>
 				</OutFilter>
 				<MultiValue>false</MultiValue>

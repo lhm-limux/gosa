@@ -14,6 +14,16 @@ class Target(ElementFilter):
         return new_key, valDict
 
 
+class SetBackend(ElementFilter):
+
+    def __init__(self, obj):
+        super(SetBackend, self).__init__(obj)
+
+    def process(self, obj, key, valDict, new_backend):
+        valDict[key]['backend'] = new_backend
+        return key, valDict
+
+
 class SetValue(ElementFilter):
 
     def __init__(self, obj):
