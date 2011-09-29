@@ -182,7 +182,6 @@ class GOsaObjectFactory(object):
 
         except etree.XMLSyntaxError as e:
             raise FactoryException("Error loading object-schema file: %s, %s" % path, e)
-            exit()
 
     def __build_class(self, name):
         """
@@ -712,8 +711,9 @@ class GOsaObject(object):
                 attrs = load(obj, info, backend)
             except ValueError as e:
                 #raise FactoryException("Error reading properties for backend '%s'!" % (backend,))
-                print "Error:", e
-                continue
+                import traceback
+                traceback.print_exc()
+                exit()
 
             # Assign fetched value to the properties.
             for key in self._propsByBackend[backend]:
