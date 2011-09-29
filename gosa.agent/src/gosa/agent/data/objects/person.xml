@@ -89,7 +89,8 @@
 			<Attribute>
 				<Name>dateOfBirth</Name>
 				<Description>Date of birth</Description>
-				<Type>String</Type>
+				<Type>Date</Type>
+				<BackendType>String</BackendType>
  				<InFilter>
                                         <FilterChain>
                                                 <FilterEntry>
