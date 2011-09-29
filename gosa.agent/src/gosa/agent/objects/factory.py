@@ -897,11 +897,10 @@ class GOsaObject(object):
 
                 self.log.debug(" found %s out-filter for %s" % (str(len(props[key]['out_filter'])), key,))
                 for out_f in props[key]['out_filter']:
-                    valDict = {key: {
+                    valDict = {key:{
                             'backend': props[key]['out_backend'],
                             'value': props[key]['value'],
                             'type': TYPE_MAP_REV[props[key]['backend_type']]}}
-
                     valDict = self.__processFilter(out_f, key, valDict)
 
                     # Collect properties by backend
@@ -912,24 +911,20 @@ class GOsaObject(object):
                             toStore[be] = {}
 
                         self.log.debug(" outfilter returned %s:(%s) %s" % (prop_key, valDict[prop_key]['type'], valDict[prop_key]['value']))
-                        toStore[be][prop_key] = valDict[prop_key]
+                        toStore[be][prop_key] = {'value': valDict[prop_key]['value'],
+                                                 'type': valDict[prop_key]['type']}
             else:
 
                 # Collect properties by backend
                 be = props[key]['out_backend']
                 if not be in toStore:
                     toStore[be] = {}
-                toStore[be][key] = {
-                    'value': props[key]['value'],
-                    'type': TYPE_MAP_REV[props[key]['backend_type']]}
+                toStore[be][key] = {'value': props[key]['value'],
+                                         'type': TYPE_MAP_REV[props[key]['backend_type']]}
 
         # Handle by backend
         obj = self
-        for backend, values in toStore.items():
-            info = dict([(k, {'type': TYPE_MAP_REV[props[k]['backend_type']],
-                              'value': values[k]['value'] if k in values else None}
-                            ) for k in self._propsByBackend[backend]])
-
+        for backend, info in toStore.items():
             #TODO: currently we update, because we cannot create things.
             #      This has to handle other create, extend, etc. too.
             update(obj, info, backend)
@@ -1052,8 +1047,8 @@ class GOsaObject(object):
 
                 # Check if the filter returned all expected property values.
                 for pk in prop:
-                    if not all(k in prop[pk] for k in ('backend', 'value')):
-                        missing = ", ".join(set(['backend', 'value']) - set(prop[pk].keys()))
+                    if not all(k in prop[pk] for k in ('backend', 'value', 'type')):
+                        missing = ", ".join(set(['backend', 'value', 'type']) - set(prop[pk].keys()))
                         raise FactoryException("Filter '%s' does not return all expected property values! '%s' missing." % (fname, missing))
                 self.log.debug("  %s: [Filter]  %s(%s) called " % (lptr, fname, ", ".join(map(lambda x : "\"" + x + "\"",  curline['params']))))
 

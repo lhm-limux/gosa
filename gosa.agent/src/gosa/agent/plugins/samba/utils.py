@@ -47,11 +47,11 @@ class SambaHash(ElementFilter):
             valDict['sambaNTPassword'] = {
                     'value': nt,
                     'backend': valDict[key]['backend'],
-                    'type': valDict[key]['type']}
+                    'type': 'String'}
             valDict['sambaLMPassword'] = {
                     'value': lm,
                     'backend': valDict[key]['backend'],
-                    'type': valDict[key]['type']}
+                    'type': 'String'}
         else:
             raise ValueError("Unknown input type for filter %s. Type is '%s'!" % (
                     self.__class__.__name__, type(valDict[key]['value'])))
