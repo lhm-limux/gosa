@@ -384,7 +384,7 @@ class GOsaObjectFactory(object):
 
             # Append the method to the list of registered methods for this
             # object
-            self.log.debug(" adding method: '%s'" % (methodName, ))
+            self.log.debug("Adding method: '%s'" % (methodName, ))
             methods[methodName] = {'ref': funk}
 
         # Set properties and methods for this object.
