@@ -67,7 +67,6 @@ class StringToDate(ElementFilter):
     def process(self, obj, key, valDict, fmt="%Y%m%d%H%M%SZ"):
         try:
             valDict[key]['value'] = (datetime.datetime.strptime(valDict[key]['value'], fmt)).date()
-            valDict[key]['type'] = datetime.date
         except Exception as e:
             raise ElementFilterException("Failed to parse string-property value into 'date' object! (%s:%s) %s" % (
                 key, valDict[key]['value'], e))

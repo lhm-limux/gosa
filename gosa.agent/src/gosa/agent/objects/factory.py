@@ -276,6 +276,9 @@ class GOsaObjectFactory(object):
 
             # Read the properties syntax
             syntax = str(prop['Type'])
+            backend_syntax = syntax
+            if "BackendType" in prop.__dict__:
+                backend_syntax = str(prop['BackendType'])
 
             # check for multivalue definition
             multivalue = bool(prop['MultiValue']) if "MultiValue" in prop.__dict__ else False
@@ -294,6 +297,7 @@ class GOsaObjectFactory(object):
                     'status': STATUS_OK,
                     'dependsOn': dependsOn,
                     'type': TYPE_MAP[syntax],
+                    'backend_type': TYPE_MAP[backend_syntax],
                     'syntax': syntax,
                     'validator': validator,
                     'out_filter': out_f,
@@ -706,7 +710,7 @@ class GOsaObject(object):
             try:
                 # Create a dictionary with all attributes we want to fetch
                 # {attribute_name: type, name: type}
-                info = dict([(k, TYPE_MAP_REV[props[k]['type']]) for k in self._propsByBackend[backend]])
+                info = dict([(k, TYPE_MAP_REV[props[k]['backend_type']]) for k in self._propsByBackend[backend]])
                 self.log.debug("Loading attributes for backend '%s': %s" % (backend, str(info)))
                 attrs = load(obj, info, backend)
             except ValueError as e:
@@ -1020,7 +1024,7 @@ class GOsaObject(object):
         # Log values
         self.log.debug(" -> FILTER STARTED (%s)" % (key))
         for key in prop:
-            self.log.debug("  %s: %s:(%s) %s  [%s]" % (lptr, key, prop[key]['type'], prop[key]['value'],prop[key]['backend']))
+            self.log.debug("  %s: %s: %s" % (lptr, key, prop[key]['value']))
 
         # Process the list till we reach the end..
         while (lptr + 1) in fltr:
@@ -1048,10 +1052,10 @@ class GOsaObject(object):
 
                 # Check if the filter returned all expected property values.
                 for pk in prop:
-                    if not all(k in prop[pk] for k in ('backend', 'value', 'type')):
-                        missing = ", ".join(set(['backend', 'value', 'type']) - set(prop[pk].keys()))
+                    if not all(k in prop[pk] for k in ('backend', 'value')):
+                        missing = ", ".join(set(['backend', 'value']) - set(prop[pk].keys()))
                         raise FactoryException("Filter '%s' does not return all expected property values! '%s' missing." % (fname, missing))
-                self.log.debug("  %s: Filter  %s(%s) called " % (lptr, fname, ", ".join(curline['params'])))
+                self.log.debug("  %s: [Filter]  %s(%s) called " % (lptr, fname, ", ".join(map(lambda x : "\"" + x + "\"",  curline['params']))))
 
             # A condition matches for something and returns a boolean value.
             # We'll put this value on the stack for later use.
@@ -1064,7 +1068,7 @@ class GOsaObject(object):
                 stack.append((curline['condition']).process(*args))
 
                 fname = type(curline['condition']).__name__
-                self.log.debug("  %s: Condition %s(%s) called " % (lptr, fname, ", ".join(curline['params'])))
+                self.log.debug("  %s: [Condition] %s(%s) called " % (lptr, fname, ", ".join(curline['params'])))
 
             # Handle jump, for example if a condition has failed, jump over its filter-chain.
             elif 'jump' in curline:
@@ -1079,7 +1083,7 @@ class GOsaObject(object):
                 else:
                     lptr = curline['to'] - 1
 
-                self.log.debug("  %s: Goto %s ()" % (olptr, lptr))
+                self.log.debug("  %s: [Goto] %s ()" % (olptr, lptr))
 
             # A comparator compares two values from the stack and then returns a single
             #  boolean value.
@@ -1089,11 +1093,12 @@ class GOsaObject(object):
                 stack.append((curline['operator']).process(a, b))
 
                 fname = type(curline['operator']).__name__
-                self.log.debug("  %s: Condition %s(%s, %s) called " % (lptr, fname, a, b)) 
+                self.log.debug("  %s: [Condition] %s(%s, %s) called " % (lptr, fname, a, b)) 
 
             # Log current values
+            self.log.debug("  result")
             for key in prop:
-                self.log.debug("  %s: %s:(%s) %s  [%s]" % (lptr, key, prop[key]['type'], prop[key]['value'],prop[key]['backend']))
+                self.log.debug("   %s: %s" % (key, prop[key]['value']))
 
         self.log.debug(" <- FILTER ENDED")
         return prop
