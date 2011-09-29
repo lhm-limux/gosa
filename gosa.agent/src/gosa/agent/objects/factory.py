@@ -905,8 +905,9 @@ class GOsaObject(object):
                             toStore[be] = {}
 
                         self.log.debug(" outfilter returned %s:(%s) %s" % (prop_key, valDict[prop_key]['type'], valDict[prop_key]['value']))
+                        #TODO: remove list workaround needed for testing
                         toStore[be][prop_key] = {'orig': props[key]['orig_value'],
-                                                 'value': valDict[prop_key]['value'],
+                                                 'value': [valDict[prop_key]['value']],
                                                  'type': valDict[prop_key]['type']}
             else:
 
@@ -914,21 +915,19 @@ class GOsaObject(object):
                 be = props[key]['out_backend']
                 if not be in toStore:
                     toStore[be] = {}
+
+                #TODO: remove list workaround needed for testing
                 toStore[be][key] = {'orig': props[key]['orig_value'],
-                                    'value': props[key]['value'],
+                                    'value': [props[key]['value']],
                                     'type': TYPE_MAP_REV[props[key]['backend_type']]}
 
         # Handle by backend
         obj = self
-        for backend, values in toStore.items():
-            info = dict([(k, {'type': TYPE_MAP_REV[props[k]['type']],
-                              'orig': props[k]['orig'] if 'orig' in props[k] else None,
-                              'value': (values[k]['value'] if type(values[k]['value']) == list else [values[k]['value']]) if k in values else None}
-                            ) for k in self._propsByBackend[backend]])
+        for backend, data in toStore.items():
 
             #TODO: currently we update, because we cannot create things.
             #      This has to handle other create, extend, etc. too.
-            update(obj, info, backend)
+            update(obj, data, backend)
 
     def revert(self):
         """

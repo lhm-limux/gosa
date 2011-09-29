@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import ldap
+import ldap.dn
 import ldap.filter
 import ldap.schema
 import ldap.modlist
@@ -99,22 +100,57 @@ class LDAP(ObjectBackend):
         # Load DN for entry and assemble a proper modlist
         dn = self.uuid2dn(uuid)
 
-        # -> alt=*, None   -> gelöscht
-        # -> alt=*, neu=*  -> verändert
-        # -> alt=None, neu=*  -> neu
-
-        print
-        print "-"*80
+        print "="*80
         print "Resolved to DN:", dn
-        print "="*80
-        from pprint import pprint
-        pprint(data)
+        print "-"*80
+
+        mod_attrs = []
+        for attr, entry in data.iteritems():
+
+            # Value removed?
+            if entry['orig'] and not entry['value']:
+                print "- %s" % attr
+                mod_attrs.append((ldap.MOD_DELETE, attr, None))
+                continue
+
+            cnv = getattr(self, "_convert_to_%s" % entry['type'].lower())
+            items = []
+            for lvalue in entry['value']:
+                items.append(cnv(lvalue))
+
+            # New value?
+            if not entry['orig'] and entry['value']:
+                print "+ %s: %s" % (attr, items)
+                mod_attrs.append((ldap.MOD_ADD, attr, items))
+                continue
+
+            # Ok, modified...
+            mod_attrs.append((ldap.MOD_REPLACE, attr, items))
+            print "~ %s: %s" % (attr, items)
+
+        print "-"*80
+
+        # Did we change one of the RDN attributes?
+        new_rdn_parts = []
+        rdns = ldap.dn.str2dn(dn, flags=ldap.DN_FORMAT_LDAPV3)
+        rdn_parts = rdns[0]
+
+        for attr, value, idx in rdn_parts:
+            if attr in data:
+                cnv = getattr(self, "_convert_to_%s" % data[attr]['type'].lower())
+                new_rdn_parts.append((attr, cnv(data[attr]['value'][0]), 4))
+            else:
+                new_rdn_parts.append((attr, value, idx))
+
+        # Build new target DN and check if it has changed...
+        tdn = ldap.dn.dn2str([new_rdn_parts] + rdns[1:])
+        if tdn != dn:
+            self.con.rename_s(dn, ldap.dn.dn2str([new_rdn_parts]))
+
+        # Write back...
+        self.con.modify_s(tdn, mod_attrs)
 
         print "="*80
-        print
-
-        # We only get the values that have changed
-
 
     def uuid2dn(self, uuid):
         # Get DN of entry
@@ -128,7 +164,7 @@ class LDAP(ObjectBackend):
 
         self.__check_res(uuid, res)
 
-        return unicode(res[0][0].decode('utf-8'))
+        return res[0][0]
 
     def dn2uuid(self, dn):
         res = self.con.search_s(dn.encode('utf-8'), ldap.SCOPE_BASE, '(objectClass=*)',
@@ -166,4 +202,25 @@ class LDAP(ObjectBackend):
         return datetime.date.fromtimestamp(ts)
 
     def _convert_from_binary(self, value):
+        return value
+
+    def _convert_to_boolean(self, value):
+        return "TRUE" if value else "FALSE"
+
+    def _convert_to_string(self, value):
+        return str(value)
+
+    def _convert_to_unicodestring(self, value):
+        return str(value.encode('utf-8'))
+
+    def _convert_to_integer(self, value):
+        return int(value)
+
+    def _convert_to_timestamp(self, value):
+        return value.strftime("%Y%m%d%H%M%SZ")
+
+    def _convert_to_date(self, value):
+        return value.strftime("%Y%m%d%H%M%SZ")
+
+    def _convert_to_binary(self, value):
         return value
