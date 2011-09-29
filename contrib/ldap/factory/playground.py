@@ -47,7 +47,7 @@ p.sn = u"Hickert"
 p.userPassword = u"tollessecret"
 p.roomNumber = 22
 p.jpegPhoto =  open('dummy.binary', 'r').read()
-p.gotoLastSystemLogin = datetime.datetime.now()
-p.dateOfBirth = datetime.datetime.today().date()
+p.gotoLastSystemLogin = datetime.datetime.today()
+#p.dateOfBirth = datetime.datetime.today().date()
 p.gender = "M"
 p.commit()

@@ -89,7 +89,7 @@
 			<Attribute>
 				<Name>dateOfBirth</Name>
 				<Description>Date of birth</Description>
-				<Syntax>Date</Syntax>
+				<Syntax>String</Syntax>
  				<InFilter>
                                         <FilterChain>
                                                 <FilterEntry>
@@ -122,24 +122,6 @@
 				<Name>gotoLastSystemLogin</Name>
 				<Description>The last system login timestamp</Description>
 				<Syntax>Timestamp</Syntax>
- 				<InFilter>
-                                        <FilterChain>
-                                                <FilterEntry>
-                                                        <Filter>
-                                                                <Name>StringToTime</Name>
-                                                        </Filter>
-                                                </FilterEntry>
-                                        </FilterChain>
-                                </InFilter>
- 				<OutFilter>
-                                        <FilterChain>
-                                                <FilterEntry>
-                                                        <Filter>
-                                                                <Name>TimeToString</Name>
-                                                        </Filter>
-                                                </FilterEntry>
-                                        </FilterChain>
-                                </OutFilter>
 			</Attribute>
 
 			<Attribute>
