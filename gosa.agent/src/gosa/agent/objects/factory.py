@@ -927,6 +927,7 @@ class GOsaObject(object):
         obj = self
         for backend, values in toStore.items():
             info = dict([(k, {'type': TYPE_MAP_REV[props[k]['type']],
+                              'old': props[k]['old'] if 'old' in props[k] else None,
                               'value': values[k]['value'] if k in values else None}
                             ) for k in self._propsByBackend[backend]])
 

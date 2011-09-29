@@ -2,6 +2,7 @@
 import ldap
 import ldap.filter
 import ldap.schema
+import ldap.modlist
 import time
 import datetime
 from logging import getLogger
@@ -94,21 +95,26 @@ class LDAP(ObjectBackend):
 #        pass
 
     def update(self, uuid, data):
-        print
 
         # Load DN for entry and assemble a proper modlist
         dn = self.uuid2dn(uuid)
-        print "Resolved to DN:", dn
+
+        # -> alt=*, None   -> gelöscht
+        # -> alt=*, neu=*  -> verändert
+        # -> alt=None, neu=*  -> neu
+
+        print
         print "-"*80
-
-        # We only get the values that have changed
-
+        print "Resolved to DN:", dn
         print "="*80
         from pprint import pprint
         pprint(data)
 
         print "="*80
         print
+
+        # We only get the values that have changed
+
 
     def uuid2dn(self, uuid):
         # Get DN of entry
