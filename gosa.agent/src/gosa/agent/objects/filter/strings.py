@@ -11,16 +11,11 @@ class ConcatString(ElementFilter):
         super(ConcatString, self).__init__(obj)
 
     def process(self, obj, key, valDict, appstr, position):
-        if type(valDict[key]['value']) in [str, unicode]:
-            if position == "right":
-                new_val = valDict[key]['value'] + appstr
-            else:
-                new_val = appstr + valDict[key]['value']
-            valDict[key]['value'] = new_val
+        if position == "right":
+            new_val = map(lambda x: x + appstr, valDict[key]['value'] )
         else:
-            raise ValueError("Unknown input type for filter %s. Type is '%s'!" % (
-                    self.__class__.__name__, type(valDict[key]['value'])))
-
+            new_val = map(lambda x: appstr + x, valDict[key]['value'] )
+        valDict[key]['value'] = new_val
         return key, valDict
 
 class Replace(ElementFilter):
@@ -29,12 +24,7 @@ class Replace(ElementFilter):
         super(Replace, self).__init__(obj)
 
     def process(self, obj, key, valDict, regex, replacement):
-        if type(valDict[key]['value']) in [str, unicode]:
-            valDict[key]['value'] = re.sub(regex, str(replacement), valDict[key]['value'])
-        else:
-            raise ValueError("Unknown input type for filter %s. Type is '%s'!" % (
-                    self.__class__.__name__, type(valDict[key]['value'])))
-
+        valDict[key]['value'] = map(lambda x: re.sub(regex, str(replacement), x), valDict[key]['value'])
         return key, valDict
 
 
@@ -44,12 +34,7 @@ class DateToString(ElementFilter):
         super(DateToString, self).__init__(obj)
 
     def process(self, obj, key, valDict, fmt="%Y%m%d%H%M%SZ"):
-
-        try:
-            valDict[key]['value'] = valDict[key]['value'].strftime(fmt)
-        except Exception as e:
-            raise ElementFilterException("Failed to parse date-property value into 'string'! (%s:%s) %s" % (
-                key, valDict[key]['value'], e))
+        valDict[key]['value'] = map(lambda x: x.strftime(fmt), valDict[key]['value'])
         return key, valDict
 
 
@@ -65,11 +50,7 @@ class StringToDate(ElementFilter):
         super(StringToDate, self).__init__(obj)
 
     def process(self, obj, key, valDict, fmt="%Y%m%d%H%M%SZ"):
-        try:
-            valDict[key]['value'] = (datetime.datetime.strptime(valDict[key]['value'], fmt)).date()
-        except Exception as e:
-            raise ElementFilterException("Failed to parse string-property value into 'date' object! (%s:%s) %s" % (
-                key, valDict[key]['value'], e))
+        valDict[key]['value'] = map(lambda x: datetime.datetime.strptime(x, fmt).date(), valDict[key]['value'])
         return key, valDict
 
 
@@ -79,9 +60,5 @@ class StringToTime(ElementFilter):
         super(StringToTime, self).__init__(obj)
 
     def process(self, obj, key, valDict, fmt="%Y%m%d%H%M%SZ"):
-        try:
-            valDict[key]['value'] = (datetime.datetime.strptime(valDict[key]['value'], fmt))
-        except Exception as e:
-            raise ElementFilterException("Failed to parse string-property value into 'date' object! (%s:%s) %s" % (
-                key, valDict[key]['value'], e))
+        valDict[key]['value'] = map(lambda x: datetime.datetime.strptime(x, fmt), valDict[key]['value'])
         return key, valDict
