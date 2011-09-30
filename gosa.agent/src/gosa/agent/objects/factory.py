@@ -934,6 +934,8 @@ class GOsaObject(object):
             update(obj, data, backend)
 
     def save(self):
+        print "Root backend", getattr(self, '_backend')
+        print "Root backend parameters", getattr(self, '_backendAttrs')
 
         props = getattr(self, '__properties')
         for key in props:

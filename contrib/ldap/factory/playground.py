@@ -5,16 +5,17 @@ import datetime
 import sys
 
 f = GOsaObjectFactory('.')
-p = f.getObject('Person', u"cn=Fabian Sebastian2 Hickert (Ja es geht!),ou=people,ou=ehemalige,ou=Virtuelle Mailbenutzer,ou=gonicus.de,ou=Mail-Domänen,dc=gonicus,dc=de")
+p = f.getObject('Person')
+#p = f.getObject('Person', u"cn=Fabian Sebastian2 Hickert (Ja es geht!),ou=people,ou=ehemalige,ou=Virtuelle Mailbenutzer,ou=gonicus.de,ou=Mail-Domänen,dc=gonicus,dc=de")
 #print "Object type:", type(p)
 #print "sn:", p.sn
 #print "commonName:", p.commonName
-print "givenName:", p.givenName
-print "userPassword:", p.userPassword
-print "passwordMethod:", p.passwordMethod
-print "dateOfBirth:", p.dateOfBirth
-print "gotoLastSystemLogin:", p.gotoLastSystemLogin
-print "roomNumber:", p.roomNumber
+#print "givenName:", p.givenName
+#print "userPassword:", p.userPassword
+#print "passwordMethod:", p.passwordMethod
+#print "dateOfBirth:", p.dateOfBirth
+#print "gotoLastSystemLogin:", p.gotoLastSystemLogin
+#print "roomNumber:", p.roomNumber
 #p.sn = u"Name"
 #p.givenName = u"Neuer"
 #p.notify(u"This is my title", u"To my amazing message!")
@@ -44,7 +45,7 @@ print "roomNumber:", p.roomNumber
 
 #p.sn = u"Hickert"
 p.uid = u"hickert"
-p.givenName = u"Fabian Sebastian2"
+p.givenName = u"Fabian"
 p.sn = u"Hickert"
 p.userPassword = u"tollessecret"
 p.roomNumber += 1
