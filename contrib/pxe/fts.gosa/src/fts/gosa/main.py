@@ -3,8 +3,10 @@
 from gosa.common import Environment
 from gosa.common.components import AMQPServiceProxy
 
+
 class GosaHandler(object):
     def __init__(self):
+        # TODO: Use config file
         self.env = Environment.getInstance()
         self.proxy = AMQPServiceProxy('amqps://cajus:tester@amqp.intranet.gonicus.de/org.gosa')
 
@@ -13,5 +15,4 @@ class GosaHandler(object):
 
 #Environment.config="fts.conf"
 #Environment.noargs=True
-#env = Environment.getInstance()
 #FAI().systemGetBootParams("00:06:29:1F:75:95")
