@@ -3,7 +3,7 @@
 	<Object>
 		<Name>Base</Name>
 		<Description>Base class</Description>
-		<DefaultBackend>LDAP</DefaultBackend>
+		<Backend>LDAP</Backend>
 		<BaseRDN></BaseRDN>
 
 		<Attributes>

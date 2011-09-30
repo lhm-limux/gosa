@@ -180,7 +180,7 @@ class GOsaObjectFactory(object):
             self.log.info("Loaded schema file for '%s' (%s)" % (str(xml.Object['Name'][0]),path))
 
         except etree.XMLSyntaxError as e:
-            raise FactoryException("Error loading object-schema file: %s, %s" % path, e)
+            raise FactoryException("Error loading object-schema file: %s, %s" % (path, e))
 
     def __build_class(self, name):
         """
@@ -216,7 +216,7 @@ class GOsaObjectFactory(object):
 
         # Tweak name to the new target
         setattr(klass, '__name__', name)
-        setattr(klass, '_backend', str(self.__xml_defs[name].Object.DefaultBackend))
+        setattr(klass, '_backend', str(self.__xml_defs[name].Object.Backend))
 
         # Prepare property and method list.
         classr = self.__xml_defs[name].Object
@@ -229,8 +229,8 @@ class GOsaObjectFactory(object):
 
         # Check for a default backend
         defaultBackend = None
-        if "DefaultBackend" in classr.__dict__:
-            defaultBackend = str(classr.DefaultBackend)
+        if "Backend" in classr.__dict__:
+            defaultBackend = str(classr.Backend)
 
         # Append attributes
         for prop in classr['Attributes']['Attribute']:

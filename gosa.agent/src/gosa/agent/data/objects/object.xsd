@@ -10,10 +10,12 @@
         		minOccurs="1">
         	</element>
         	<element name="Description" type="string" maxOccurs="1"
-        		minOccurs="1">
+        		minOccurs="1"
+        	>
         	</element>
-        	<element name="DefaultBackend" type="string" maxOccurs="1"
-        		minOccurs="1">
+        	<element name="Backend" type="gosa:Backend"
+        		maxOccurs="1" minOccurs="1"
+        	>
         	</element>
         	<element name="BaseRDN" type="string" maxOccurs="1"
         		minOccurs="0">
@@ -316,5 +318,13 @@
     		maxOccurs="unbounded" minOccurs="1">
     		</element>
     	</sequence>
+    </complexType>
+
+    <complexType name="Backend">
+    	<simpleContent>
+    		<extension base="string">
+    			<anyAttribute processContents="lax" />
+    		</extension>
+    	</simpleContent>
     </complexType>
 </schema>

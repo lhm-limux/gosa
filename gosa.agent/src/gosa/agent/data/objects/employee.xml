@@ -3,7 +3,7 @@
 	<Object>
 		<Name>Employee</Name>
 		<Description>Employee class</Description>
-		<DefaultBackend>LDAP</DefaultBackend>
+		<Backend>LDAP</Backend>
 		<BaseRDN>ou=people</BaseRDN>
 
 		<Attributes>
