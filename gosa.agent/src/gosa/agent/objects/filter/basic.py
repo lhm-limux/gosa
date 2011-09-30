@@ -62,6 +62,8 @@ class SetValue(ElementFilter):
         super(SetValue, self).__init__(obj)
 
     def process(self, obj, key, valDict, value, vtype="String"):
+
+        #TODO: Handle all possible property types and remember! Values are lists always.
         if vtype == "String":
             valDict[key]['value'] = str(value)
         else:
@@ -95,21 +97,3 @@ class Clear(ElementFilter):
         else:
             raise ValueError("Unknown input type for filter %s. Type as '%s'!" % (
                     self.__class__.__name__, type(value)))
-
-#class LoadAttr(ElementFilter):
-#
-#    def __init__(self, obj):
-#        super(LoadAttr, self).__init__(obj)
-#
-#    def process(self, obj, key, value, attr):
-#        #FIXME
-#        return key, 854711
-#
-#
-#class SaveAttr(ElementFilter):
-#
-#    def __init__(self, obj):
-#        super(SaveAttr, self).__init__(obj)
-#
-#    def process(self, obj, key, value):
-#        return key, value
