@@ -932,6 +932,7 @@ class GOsaObject(object):
             #TODO: currently we update, because we cannot create things.
             #      This has to handle other create, extend, etc. too.
             update(obj, data, backend)
+            pass
 
     def revert(self):
         """
@@ -1097,7 +1098,7 @@ class GOsaObject(object):
                 stack.append((curline['operator']).process(a, b))
 
                 fname = type(curline['operator']).__name__
-                self.log.debug("  %s: [Condition] %s(%s, %s) called " % (lptr, fname, a, b)) 
+                self.log.debug("  %s: [Condition] %s(%s, %s) called " % (lptr, fname, a, b))
 
             # Log current values
             self.log.debug("  result")
@@ -1116,7 +1117,13 @@ class GOsaObject(object):
         propList = {}
         props = getattr(self, '__properties')
         for key in props:
-            propList[key] =  props[key]['value']
+            if props[key]['multivalue']:
+                propList[key] = props[key]['value']
+            else:
+                if props[key]['value'] and len(props[key]['value']):
+                    propList[key] = props[key]['value'][0]
+                else:
+                    propList[key] = None
 
         # An inline function which replaces format string tokens
         def _placeHolder(x):
