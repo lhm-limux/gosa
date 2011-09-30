@@ -227,10 +227,7 @@ class GOsaObjectFactory(object):
         if 'description' in classr:
             setattr(klass, '__doc__', str(classr['description']))
 
-        # Check for a default backend
-        defaultBackend = None
-        if "Backend" in classr.__dict__:
-            defaultBackend = str(classr.Backend)
+        defaultBackend = str(classr.Backend)
 
         # Append attributes
         for prop in classr['Attributes']['Attribute']:
