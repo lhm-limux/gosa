@@ -738,8 +738,6 @@ class GOsaObject(object):
                 if props[key]['value'] == None:
                     continue
 
-                print props[key]['type']
-
                 # Execute defined in-filters.
                 if len(props[key]['in_filter']):
                     self.log.debug("Found %s in-filter(s)  for attribute '%s'" % (str(len(props[key]['in_filter'])),key))
@@ -775,8 +773,14 @@ class GOsaObject(object):
                                 props[key]['in_backend'] = valDict[key]['backend']
                                 props[key]['type'] = valDict[key]['type']
 
-                # Keep the initial value
-                props[key]['old'] = props[key]['value']
+        # Convert the received type into the target type if not done already
+        for key in props:
+            if props[key]['value'] and props[key]['type'] and not all(map(lambda x: type(x) == props[key]['type'], props[key]['value'])):
+                props[key]['value'] = map(lambda x: props[key]['type'](x), props[key]['value'])
+                self.log.debug("Converted '%s' to type '%s'!" % (key,props[key]['type']))
+
+            # Keep the initial value
+            props[key]['old'] = props[key]['value']
 
     def _setattr_(self, name, value):
 
