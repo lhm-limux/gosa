@@ -9,20 +9,23 @@ From the docs:
 ZODB databases can be accessed from multithreaded Python programs. The Storage
 and DB instances can be shared among several threads, as long as individual
 Connection instances are created for each thread.
+
+TODO:
+ * indexing
+ * btrees
 """
 import ZODB.config
 import transaction
+from BTrees.OOBTree import OOBTree
 
 db = ZODB.config.databaseFromURL('client.conf')
 conn = db.open()
 root = conn.root()
 
-# Store some things in the root
-#root['list'] = ['a', 'b', 1.0, 3]
-#root['dict'] = {'a':1, 'b':4}
-
-# Commit the transaction
+#data = OOBTree()
+#data['members'] = {'cajus': 'pollmeier', 'fabian': 'hickert'}
+#root['objects'] = data
+#
 #transaction.commit()
 
-print root['list']
-print root['dict']
+print root['objects']['members']
