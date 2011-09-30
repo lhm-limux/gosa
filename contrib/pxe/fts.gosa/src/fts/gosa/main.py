@@ -5,7 +5,6 @@ from gosa.common.components import AMQPServiceProxy
 
 class GosaHandler(object):
     def __init__(self):
-        # TODO: Use config file
         self.env = Environment.getInstance()
         self.proxyurl = self.env.config.get('fts.gosa', 'proxy_uri')
         #self.proxy = AMQPServiceProxy('amqps://cajus:tester@amqp.intranet.gonicus.de/org.gosa')
