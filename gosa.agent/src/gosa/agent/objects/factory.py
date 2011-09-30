@@ -725,18 +725,9 @@ class GOsaObject(object):
                     self.log.debug("Attribute '%s' was not returned by load!" % (key))
                     continue
 
-                # Assign property
-                if 'MultiValue' in props[key] and props[key]['MultiValue']:
-                    value = attrs[key]
-                else:
-                    value = attrs[key][0]
-
-                props[key]['value'] = value
-
-                self.log.debug("%s: %s" % (key, value))
-
                 # Keep original values, they may be overwritten in the in-filters.
-                props[key]['orig_value'] = attrs[key]
+                props[key]['orig_value'] = props[key]['value'] = attrs[key]
+                self.log.debug("%s: %s" % (key, props[key]['value']))
 
             # Once we've loaded all properties from the backend, execute the
             # in-filters.
@@ -818,7 +809,10 @@ class GOsaObject(object):
                     raise ValueError("Property (%s) validation failed! %s" % (name, error))
 
             # Set the new value
-            props[name]['value'] = value
+            if props[name]['multivalue']:
+                props[name]['value'] = value
+            else:
+                props[name]['value'][0] = value
 
             self.log.debug("Updated property value of [%s|%s] %s:%s" % (type(self).__name__, self.uuid, name, value))
 
@@ -840,7 +834,10 @@ class GOsaObject(object):
         methods = getattr(self, '__methods')
 
         if name in props:
-            return props[name]['value']
+            if props[name]['multivalue']:
+                return props[name]['value']
+            else:
+                return props[name]['value'][0]
 
         elif name in methods:
             return methods[name]['ref']
@@ -1050,6 +1047,11 @@ class GOsaObject(object):
                     if not all(k in prop[pk] for k in ('backend', 'value', 'type')):
                         missing = ", ".join(set(['backend', 'value', 'type']) - set(prop[pk].keys()))
                         raise FactoryException("Filter '%s' does not return all expected property values! '%s' missing." % (fname, missing))
+
+                    # Check if the returned value-type is list or None.
+                    if type(prop[pk]['value']) not in [list, None]:
+                        raise FactoryException("Filter '%s' does not return a 'list' or 'None' as value for key %s! '%s' missing." % (fname, pk))
+
                 self.log.debug("  %s: [Filter]  %s(%s) called " % (lptr, fname, ", ".join(map(lambda x : "\"" + x + "\"",  curline['params']))))
 
             # A condition matches for something and returns a boolean value.
