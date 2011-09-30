@@ -24,6 +24,12 @@ class ObjectBackend(object):
         """
         raise NotImplementedError("object backend is missing load()")
 
+    def move(self, dn, new_dn):
+        """
+        Move object from source DN to new DN.
+        """
+        raise NotImplementedError("object backend is not capable of movingi objects")
+
     def create(self, dn, data):
         """
         Create a new base object entry with the given DN.

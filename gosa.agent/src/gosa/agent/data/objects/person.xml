@@ -177,7 +177,7 @@
 					<Attribute>givenName</Attribute>
 				</DependsOn>
 				<Description>Common name</Description>
-				<Type>String</Type>
+				<Type>UnicodeString</Type>
 
 				<OutFilter>
 					<FilterChain>
