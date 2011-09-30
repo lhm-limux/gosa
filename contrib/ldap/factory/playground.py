@@ -48,7 +48,8 @@ p.givenName = u"Fabian Sebastian2"
 p.sn = u"Hickert"
 p.userPassword = u"tollessecret"
 p.roomNumber += 1 
-p.jpegPhoto =  open('dummy.binary', 'r').read()
+open('dummy.gif_read', 'w').write(p.jpegPhoto)
+p.jpegPhoto =  open('dummy.gif', 'r').read()
 p.gotoLastSystemLogin = datetime.datetime.today()
 p.dateOfBirth = datetime.datetime.today().date()
 p.gender = "M"
