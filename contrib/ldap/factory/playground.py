@@ -6,7 +6,7 @@ import sys
 
 f = GOsaObjectFactory('.')
 #p = f.getObject('Person', u"cn=Birger Peer Küpper,ou=people,ou=ehemalige,ou=Virtuelle Mailbenutzer,ou=gonicus.de,ou=Mail-Domänen,dc=gonicus,dc=de")
-p = f.getObject('Person', u"cn=Fabian Hickert (Ja es geht!),ou=people,ou=ehemalige,ou=Virtuelle Mailbenutzer,ou=gonicus.de,ou=Mail-Domänen,dc=gonicus,dc=de")
+p = f.getObject('Person', u"cn=Birger Peer Küpper (Ja es geht!),ou=people,ou=ehemalige,ou=Virtuelle Mailbenutzer,ou=gonicus.de,ou=Mail-Domänen,dc=gonicus,dc=de")
 #print "Object type:", type(p)
 #print "sn:", p.sn
 #print "commonName:", p.commonName
@@ -44,8 +44,8 @@ print "gotoLastSystemLogin:", p.gotoLastSystemLogin
 
 #p.sn = u"Hickert"
 p.uid = u"hickert"
-p.givenName = u"Fabian"
-p.sn = u"Hickert"
+p.givenName = u"Birger Peer"
+p.sn = u"Küpper"
 p.userPassword = u"tollessecret"
 p.roomNumber = 22
 p.jpegPhoto =  open('dummy.binary', 'r').read()
