@@ -14,5 +14,4 @@ class GosaHandler(object):
 
 #Environment.config="fts.conf"
 #Environment.noargs=True
-#env = Environment.getInstance()
 #FAI().systemGetBootParams("00:06:29:1F:75:95")
