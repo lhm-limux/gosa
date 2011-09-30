@@ -738,6 +738,8 @@ class GOsaObject(object):
                 if props[key]['value'] == None:
                     continue
 
+                print props[key]['type']
+
                 # Execute defined in-filters.
                 if len(props[key]['in_filter']):
                     self.log.debug("Found %s in-filter(s)  for attribute '%s'" % (str(len(props[key]['in_filter'])),key))
@@ -932,7 +934,6 @@ class GOsaObject(object):
             #TODO: currently we update, because we cannot create things.
             #      This has to handle other create, extend, etc. too.
             update(obj, data, backend)
-            pass
 
     def revert(self):
         """
