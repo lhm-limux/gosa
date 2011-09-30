@@ -773,8 +773,14 @@ class GOsaObject(object):
                                 props[key]['in_backend'] = valDict[key]['backend']
                                 props[key]['type'] = valDict[key]['type']
 
-                # Keep the initial value
-                props[key]['old'] = props[key]['value']
+        # Convert the received type into the target type if not done already
+        for key in props:
+            if props[key]['value'] and props[key]['type'] and not all(map(lambda x: type(x) == props[key]['type'], props[key]['value'])):
+                props[key]['value'] = map(lambda x: props[key]['type'](x), props[key]['value'])
+                self.log.debug("Converted '%s' to type '%s'!" % (key,props[key]['type']))
+
+            # Keep the initial value
+            props[key]['old'] = props[key]['value']
 
     def _setattr_(self, name, value):
 
@@ -932,7 +938,6 @@ class GOsaObject(object):
             #TODO: currently we update, because we cannot create things.
             #      This has to handle other create, extend, etc. too.
             update(obj, data, backend)
-            pass
 
     def revert(self):
         """
