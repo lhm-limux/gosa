@@ -61,8 +61,6 @@ TYPE_MAP = {
         'Binary': None
         }
 
-TYPE_MAP_REV = dict([(TYPE_MAP[k], k) for k in TYPE_MAP.keys()])
-
 # Status
 STATUS_OK = 0
 STATUS_CHANGED = 1
