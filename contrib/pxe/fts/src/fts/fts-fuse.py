@@ -131,6 +131,8 @@ class PxeFS(Fuse):
         or not timestamp in self.filesystem[self.root][path]
         or self.filesystem[self.root][path]['timestamp'] < int(time()) - int(self.positive_cache_timeout):
             self.filesystem[self.root][path] = {}
+
+            # Iterate over known modules, first match wins
             for method in self.boot_method_reg:
                 self.env.log.debug("Calling boot method {method}".format(method=method))
                 try:
