@@ -812,7 +812,10 @@ class GOsaObject(object):
             if props[name]['multivalue']:
                 props[name]['value'] = value
             else:
-                props[name]['value'][0] = value
+                if props[name]['value'] == None:
+                    props[name]['value'] = [value]
+                else:
+                    props[name]['value'][0] = value
 
             self.log.debug("Updated property value of [%s|%s] %s:%s" % (type(self).__name__, self.uuid, name, value))
 
@@ -840,7 +843,7 @@ class GOsaObject(object):
             if props[name]['multivalue']:
                 return props[name]['value']
             else:
-                if len(props[name]['value']):
+                if props[name]['value'] and len(props[name]['value']):
                     return props[name]['value'][0]
                 else:
                     return None

@@ -48,8 +48,8 @@ p.uid = u"hickert"
 p.givenName = u"Fabian"
 p.sn = u"Hickert"
 p.userPassword = u"tollessecret"
-p.roomNumber += 1
-open('dummy.gif_read', 'w').write(p.jpegPhoto)
+#p.roomNumber += 1
+#open('dummy.gif_read', 'w').write(p.jpegPhoto)
 p.jpegPhoto =  open('dummy.gif', 'r').read()
 p.gotoLastSystemLogin = datetime.datetime.today()
 p.dateOfBirth = datetime.datetime.today().date()
