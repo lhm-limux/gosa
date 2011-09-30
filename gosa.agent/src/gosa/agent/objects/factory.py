@@ -38,6 +38,7 @@ Here are some examples on how to instatiate on new object:
 import pkg_resources
 import os
 import time
+import copy
 import datetime
 import re
 import logging
@@ -794,7 +795,7 @@ class GOsaObject(object):
         # Try to save as property value
         props = getattr(self, '__properties')
         if name in props:
-            current = props[name]['value']
+            current = copy.deepcopy(props[name]['value'])
 
             # Run type check
             if props[name]['type'] and not issubclass(type(value), props[name]['type']):
@@ -833,12 +834,19 @@ class GOsaObject(object):
         props = getattr(self, '__properties')
         methods = getattr(self, '__methods')
 
+        # If the requested property exists in the object-attributes, then return it.
         if name in props:
+
+            # We can have single and multivalues, return the correct type here.
             if props[name]['multivalue']:
                 return props[name]['value']
             else:
-                return props[name]['value'][0]
+                if len(props[name]['value']):
+                    return props[name]['value'][0]
+                else:
+                    return None
 
+        # The requested property-name seems to be a method, return the method reference.
         elif name in methods:
             return methods[name]['ref']
 
@@ -902,9 +910,8 @@ class GOsaObject(object):
                             toStore[be] = {}
 
                         self.log.debug(" outfilter returned %s:(%s) %s" % (prop_key, valDict[prop_key]['type'], valDict[prop_key]['value']))
-                        #TODO: remove list workaround needed for testing
                         toStore[be][prop_key] = {'orig': props[key]['orig_value'],
-                                                 'value': [valDict[prop_key]['value']],
+                                                 'value': valDict[prop_key]['value'],
                                                  'type': valDict[prop_key]['type']}
             else:
 
@@ -915,7 +922,7 @@ class GOsaObject(object):
 
                 #TODO: remove list workaround needed for testing
                 toStore[be][key] = {'orig': props[key]['orig_value'],
-                                    'value': [props[key]['value']],
+                                    'value': props[key]['value'],
                                     'type': TYPE_MAP_REV[props[key]['backend_type']]}
 
         # Handle by backend
