@@ -3,6 +3,7 @@
 from gosa.common import Environment
 from gosa.common.components import AMQPServiceProxy
 
+
 class GosaHandler(object):
     def __init__(self):
         # TODO: Use config file
