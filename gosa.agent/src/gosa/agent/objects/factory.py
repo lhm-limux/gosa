@@ -294,8 +294,8 @@ class GOsaObjectFactory(object):
                     'value': None,
                     'status': STATUS_OK,
                     'dependsOn': dependsOn,
-                    'type': TYPE_MAP[syntax],
-                    'backend_type': TYPE_MAP[backend_syntax],
+                    'type':syntax,
+                    'backend_type': backend_syntax,
                     'syntax': syntax,
                     'validator': validator,
                     'out_filter': out_f,
@@ -709,7 +709,7 @@ class GOsaObject(object):
             try:
                 # Create a dictionary with all attributes we want to fetch
                 # {attribute_name: type, name: type}
-                info = dict([(k, TYPE_MAP_REV[props[k]['backend_type']]) for k in self._propsByBackend[backend]])
+                info = dict([(k, props[k]['backend_type']) for k in self._propsByBackend[backend]])
                 self.log.debug("Loading attributes for backend '%s': %s" % (backend, str(info)))
                 attrs = load(obj, info, backend)
             except ValueError as e:
@@ -775,8 +775,10 @@ class GOsaObject(object):
 
         # Convert the received type into the target type if not done already
         for key in props:
-            if props[key]['value'] and props[key]['type'] and not all(map(lambda x: type(x) == props[key]['type'], props[key]['value'])):
-                props[key]['value'] = map(lambda x: props[key]['type'](x), props[key]['value'])
+            if props[key]['value'] and \
+                    TYPE_MAP[props[key]['type']] and \
+                    not all(map(lambda x: type(x) == TYPE_MAP[props[key]['type']], props[key]['value'])):
+                props[key]['value'] = map(lambda x: TYPE_MAP[props[key]['type']](x), props[key]['value'])
                 self.log.debug("Converted '%s' to type '%s'!" % (key,props[key]['type']))
 
             # Keep the initial value
@@ -804,7 +806,7 @@ class GOsaObject(object):
             current = copy.deepcopy(props[name]['value'])
 
             # Run type check
-            if props[name]['type'] and not issubclass(type(value), props[name]['type']):
+            if TYPE_MAP[props[name]['type']] and not issubclass(type(value), TYPE_MAP[props[name]['type']]):
                 raise TypeError("cannot assign value '%s'(%s) to property '%s'(%s)" % (
                     value, type(value).__name__,
                     name, props[name]['syntax']))
@@ -905,7 +907,7 @@ class GOsaObject(object):
                     valDict = {key:{
                             'backend': props[key]['out_backend'],
                             'value': props[key]['value'],
-                            'type': TYPE_MAP_REV[props[key]['backend_type']]}}
+                            'type': props[key]['backend_type']}}
                     valDict = self.__processFilter(out_f, key, valDict)
 
                     # Collect properties by backend
@@ -929,7 +931,7 @@ class GOsaObject(object):
                 #TODO: remove list workaround needed for testing
                 toStore[be][key] = {'orig': props[key]['orig_value'],
                                     'value': props[key]['value'],
-                                    'type': TYPE_MAP_REV[props[key]['backend_type']]}
+                                    'type': props[key]['backend_type']}
 
         # Handle by backend
         obj = self
