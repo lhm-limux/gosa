@@ -53,4 +53,5 @@ p.jpegPhoto =  open('dummy.gif', 'r').read()
 p.gotoLastSystemLogin = datetime.datetime.today()
 p.dateOfBirth = datetime.datetime.today().date()
 p.gender = "M"
-p.commit()
+#p.commit()
+p.save()

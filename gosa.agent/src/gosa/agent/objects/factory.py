@@ -217,6 +217,7 @@ class GOsaObjectFactory(object):
         # Tweak name to the new target
         setattr(klass, '__name__', name)
         setattr(klass, '_backend', str(self.__xml_defs[name].Object.Backend))
+        setattr(klass, '_backendAttrs', self.__xml_defs[name].Object.Backend.attrib)
 
         # Prepare property and method list.
         classr = self.__xml_defs[name].Object
@@ -227,7 +228,9 @@ class GOsaObjectFactory(object):
         if 'description' in classr:
             setattr(klass, '__doc__', str(classr['description']))
 
+        # Load the backend and its attributes
         defaultBackend = str(classr.Backend)
+        backendAttrs = classr.Backend.attrib
 
         # Append attributes
         for prop in classr['Attributes']['Attribute']:
@@ -235,11 +238,11 @@ class GOsaObjectFactory(object):
             self.log.debug("Adding property: '%s'" % (str(prop['Name']),))
 
             # Read backend definition per property (if it exists)
-            out_b = defaultBackend
-            in_b = defaultBackend
+            backend = defaultBackend
+            backend_attrs = backendAttrs
             if "Backend" in prop.__dict__:
-                out_b =  str(prop.Backend)
-                in_b =  str(prop.Backend)
+                backend =  str(prop.Backend)
+                backend_attrs = prop.Backend.attrib
 
             # Do we have an output filter definition?
             out_f =  []
@@ -255,14 +258,6 @@ class GOsaObjectFactory(object):
                 for entry in  prop['InFilter'].iterchildren():
                     self.log.debug(" appending in-filter")
                     in_f.append(self.__handleFilterChain(entry))
-
-            # We require at least one backend information tag
-            if not in_b:
-                raise FactoryException("Cannot detect a valid input backend for "
-                        "attribute %s!" % (prop['Name'],))
-            if not out_b:
-                raise FactoryException("Cannot detect a valid output backend for "
-                        "attribute %s!" % (prop['Name'],))
 
             # Read and build up validators
             validator =  None
@@ -294,9 +289,9 @@ class GOsaObjectFactory(object):
                     'syntax': syntax,
                     'validator': validator,
                     'out_filter': out_f,
-                    'out_backend': out_b,
                     'in_filter': in_f,
-                    'in_backend': in_b,
+                    'backend': backend,
+                    'backend_attrs': backend_attrs,
                     'orig_value': None,
                     'multivalue': multivalue}
 
@@ -669,11 +664,11 @@ class GOsaObject(object):
         for key in props:
 
             # Initialize an empty array for each backend
-            if props[key]['in_backend'] not in propsByBackend:
-                propsByBackend[props[key]['in_backend']] = []
+            if props[key]['backend'] not in propsByBackend:
+                propsByBackend[props[key]['backend']] = []
 
             # Append property
-            propsByBackend[props[key]['in_backend']].append(key)
+            propsByBackend[props[key]['backend']].append(key)
 
         self._propsByBackend = propsByBackend
 
@@ -741,7 +736,8 @@ class GOsaObject(object):
                     # Execute each in-filter
                     for in_f in props[key]['in_filter']:
                         valDict = {key: {
-                                'backend': props[key]['in_backend'],
+                                'backend': props[key]['backend'],
+                                'backend_attrs': props[key]['backend_attrs'],
                                 'value': value,
                                 'type': props[key]['type']}}
                         valDict = self.__processFilter(in_f, key, valDict)
@@ -758,14 +754,14 @@ class GOsaObject(object):
                                     'syntax': None,
                                     'validator': None,
                                     'out_filter': None,
-                                    'out_backend': valDict[key]['backend'],
                                     'in_filter': None,
-                                    'in_backend': valDict[key]['backend'],
+                                    'backend': valDict[key]['backend'],
+                                    'backend_attrs': valDict[key]['backend_attrs'],
                                     'multivalue': False}
                             else:
                                 props[key]['value'] = valDict[key]['value']
-                                props[key]['out_backend'] = valDict[key]['backend']
-                                props[key]['in_backend'] = valDict[key]['backend']
+                                props[key]['backend'] = valDict[key]['backend']
+                                props[key]['backend_attrs'] = valDict[key]['backend_attrs']
                                 props[key]['type'] = valDict[key]['type']
 
         # Convert the received type into the target type if not done already
@@ -900,7 +896,8 @@ class GOsaObject(object):
                 self.log.debug(" found %s out-filter for %s" % (str(len(props[key]['out_filter'])), key,))
                 for out_f in props[key]['out_filter']:
                     valDict = {key:{
-                            'backend': props[key]['out_backend'],
+                            'backend': props[key]['backend'],
+                            'backend_attrs': props[key]['backend_attrs'],
                             'value': props[key]['value'],
                             'type': props[key]['backend_type']}}
                     valDict = self.__processFilter(out_f, key, valDict)
@@ -919,7 +916,7 @@ class GOsaObject(object):
             else:
 
                 # Collect properties by backend
-                be = props[key]['out_backend']
+                be = props[key]['backend']
                 if not be in toStore:
                     toStore[be] = {}
 
@@ -935,6 +932,15 @@ class GOsaObject(object):
             #TODO: currently we update, because we cannot create things.
             #      This has to handle other create, extend, etc. too.
             update(obj, data, backend)
+
+    def save(self):
+
+        props = getattr(self, '__properties')
+        for key in props:
+            print "---" * 20
+            print "Key:", key
+            print "Backend:", props[key]['backend']
+            print "Backend attributes:", props[key]['backend_attrs']
 
     def revert(self):
         """

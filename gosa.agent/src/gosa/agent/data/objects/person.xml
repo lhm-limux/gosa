@@ -55,6 +55,7 @@
 				<Name>sn</Name>
 				<Description>Surname</Description>
 				<Type>UnicodeString</Type>
+				<Backend kekse="super leckere kekse hmmm!">LDAP</Backend>
 			</Attribute>
 
 			<Attribute>
