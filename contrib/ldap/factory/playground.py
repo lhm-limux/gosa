@@ -15,6 +15,7 @@ print "userPassword:", p.userPassword
 print "passwordMethod:", p.passwordMethod
 print "dateOfBirth:", p.dateOfBirth
 print "gotoLastSystemLogin:", p.gotoLastSystemLogin
+print "roomNumber:", p.roomNumber
 #p.sn = u"Name"
 #p.givenName = u"Neuer"
 #p.notify(u"This is my title", u"To my amazing message!")
@@ -47,7 +48,7 @@ p.uid = u"hickert"
 p.givenName = u"Fabian Sebastian2"
 p.sn = u"Hickert"
 p.userPassword = u"tollessecret"
-p.roomNumber = int(p.roomNumber) + 1
+p.roomNumber = 22
 p.jpegPhoto =  open('dummy.binary', 'r').read()
 p.gotoLastSystemLogin = datetime.datetime.today()
 p.dateOfBirth = datetime.datetime.today().date()
