@@ -60,6 +60,7 @@ class Greater(ElementComparator):
         for item in value:
             if not (value > match):
                 errors.append("Item %s (%s) is not greater then '%s'!" % (cnt, item, match))
+                return False
             cnt += 1
         return True
 
@@ -86,5 +87,6 @@ class Smaller(ElementComparator):
         for item in value:
             if not (value < match):
                 errors.append("Item %s (%s) is not smaller then '%s'!" % (cnt, item, match))
+                return False
             cnt += 1
         return True
