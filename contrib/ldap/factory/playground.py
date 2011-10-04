@@ -5,7 +5,7 @@ import datetime
 import sys
 
 f = GOsaObjectFactory('.')
-p = f.getObject('Person')
+p = f.getObject('Person', u'cn=Testersteron,ou=people,dc=gonicus,dc=de', create=True)
 #p = f.getObject('Person', u"cn=Fabian Sebastian2 Hickert (Ja es geht!),ou=people,ou=ehemalige,ou=Virtuelle Mailbenutzer,ou=gonicus.de,ou=Mail-Domänen,dc=gonicus,dc=de")
 #print "Object type:", type(p)
 #print "sn:", p.sn
@@ -54,5 +54,4 @@ p.jpegPhoto =  open('dummy.gif', 'r').read()
 p.gotoLastSystemLogin = datetime.datetime.today()
 p.dateOfBirth = datetime.datetime.today().date()
 p.gender = "M"
-#p.commit()
-p.save()
+p.commit()

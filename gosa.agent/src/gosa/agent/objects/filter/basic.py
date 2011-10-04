@@ -5,15 +5,14 @@ import copy
 class Target(ElementFilter):
     """
     This filter renames the attribute.
-    e.g.:
-    >>> <FilterEntry>
-    >>>  <Filter>
-    >>>   <Name>Target</Name>
-    >>>   <Param>passwordMethod</Param>
-    >>>  </Filter>
-    >>> </FilterEntry>
-    >>>  ...
+    e.g.::
 
+      <FilterEntry>
+       <Filter>
+        <Name>Target</Name>
+        <Param>passwordMethod</Param>
+       </Filter>
+      </FilterEntry>
     """
     def __init__(self, obj):
         super(Target, self).__init__(obj)
@@ -28,14 +27,14 @@ class Target(ElementFilter):
 class SetBackend(ElementFilter):
     """
     This filter allows to change the target backend of an attrbiute.
-    e.g.:
-    >>> <FilterEntry>
-    >>>  <Filter>
-    >>>   <Name>SetBackend</Name>
-    >>>   <Param>LDAP</Param>
-    >>>  </Filter>
-    >>> </FilterEntry>
-    >>>  ...
+    e.g.::
+
+      <FilterEntry>
+       <Filter>
+        <Name>SetBackend</Name>
+        <Param>LDAP</Param>
+       </Filter>
+      </FilterEntry>
     """
     def __init__(self, obj):
         super(SetBackend, self).__init__(obj)
@@ -48,15 +47,15 @@ class SetBackend(ElementFilter):
 class SetValue(ElementFilter):
     """
     This filter allows to change the value of an attrbiute.
-    e.g.:
-    >>> <FilterEntry>
-    >>>  <Filter>
-    >>>   <Name>SetValue</Name>
-    >>>   <Param>Hallo mein name ist Peter</Param>
-    >>>   <Param>UnicodeString</Param>
-    >>>  </Filter>
-    >>> </FilterEntry>
-    >>>  ...
+    e.g.::
+
+      <FilterEntry>
+       <Filter>
+        <Name>SetValue</Name>
+        <Param>Hallo mein name ist Peter</Param>
+        <Param>UnicodeString</Param>
+       </Filter>
+      </FilterEntry>
     """
     def __init__(self, obj):
         super(SetValue, self).__init__(obj)
@@ -74,26 +73,21 @@ class SetValue(ElementFilter):
 class Clear(ElementFilter):
     """
     This filter clears the value of an attribute.
-    e.g.:
-    >>> <FilterEntry>
-    >>>  <Filter>
-    >>>   <Name>SetValue</Name>
-    >>>   <Param>Hallo mein name ist Peter</Param>
-    >>>   <Param>UnicodeString</Param>
-    >>>  </Filter>
-    >>> </FilterEntry>
-    >>>  ...
     """
     def __init__(self, obj):
         super(Clear, self).__init__(obj)
 
     def process(self, obj, key, valDict):
+        #TODO: values are now lists by default? Or not? What about "None"?
         if type(valDict[key]['value']) in [str, unicode]:
             valDict[key]['value'] = ''
             return key, valDict
         elif type(valDict[key]['value']) in [dict, list]:
             valDict[key]['value'] = ['']
             return key, valDict
+        elif valDict[key]['value'] == None:
+            valDict[key]['value'] = ['']
+            return key, valDict
         else:
             raise ValueError("Unknown input type for filter %s. Type as '%s'!" % (
-                    self.__class__.__name__, type(value)))
+                    self.__class__.__name__, type(valDict[key]['value'])))

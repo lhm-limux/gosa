@@ -646,11 +646,12 @@ class GOsaObject(object):
     """
     _reg = None
     _backend = None
+    _create = False
     _propsByBackend = {}
     uuid = None
     log = None
 
-    def __init__(self, dn=None):
+    def __init__(self, dn=None, create=False):
 
         # Instantiate Backend-Registry
         self._reg = ObjectBackendRegistry.getInstance()
@@ -671,9 +672,11 @@ class GOsaObject(object):
             propsByBackend[props[key]['backend']].append(key)
 
         self._propsByBackend = propsByBackend
+        self._create = create
 
-        # Initialize object using a dn
-        if dn:
+        # Initialize object using a DN
+        if dn and not create:
+            print "-----> READ"
             self._read(dn)
 
     def _read(self, dn):
@@ -929,15 +932,14 @@ class GOsaObject(object):
                                     'type': props[key]['backend_type']}
 
         # Handle by backend
+        p_backend = getattr(self, '_backend')
         obj = self
-        for backend, data in toStore.items():
 
-            #TODO: currently we update, because we cannot create things.
-            #      This has to handle other create, extend, etc. too.
-            update(obj, data, backend)
 
-    def save(self):
-        print "Root backend", getattr(self, '_backend')
+        #-------------------------------------------------------------------------------
+
+        print "Create:", self._create
+        print "Root backend", p_backend
         print "Root backend parameters", getattr(self, '_backendAttrs')
 
         props = getattr(self, '__properties')
@@ -946,6 +948,24 @@ class GOsaObject(object):
             print "Key:", key
             print "Backend:", props[key]['backend']
             print "Backend attributes:", props[key]['backend_attrs']
+
+        exit(0)
+
+        #-------------------------------------------------------------------------------
+
+        # First, take care about the primary backend...
+        update(obj, toStore[p_backend], p_backend)
+
+        # ... then walk thru the remaining ones
+        for backend, data in toStore.items():
+
+            # Skip primary backend - already done
+            if backend == p_backend:
+                continue
+
+            #TODO: currently we update, because we cannot create things.
+            #      This has to handle other create, extend, etc. too.
+            update(obj, data, backend)
 
     def revert(self):
         """
