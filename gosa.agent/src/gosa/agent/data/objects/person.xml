@@ -3,7 +3,10 @@
 	<Object>
 		<Name>Person</Name>
 		<Description>Person class</Description>
-		<Backend objectClasses="inetOrgPerson,gosaAccount">LDAP</Backend>
+		<BackendParameters>
+			<Backend objectClasses="inetOrgPerson,gosaAccount">LDAP</Backend>
+		</BackendParameters>
+		<Backend>LDAP</Backend>
 		<BaseRDN>ou=people</BaseRDN>
 
 		<Methods>
@@ -55,7 +58,6 @@
 				<Name>sn</Name>
 				<Description>Surname</Description>
 				<Type>UnicodeString</Type>
-				<Backend kekse="super leckere kekse hmmm!">LDAP</Backend>
 			</Attribute>
 
 			<Attribute>

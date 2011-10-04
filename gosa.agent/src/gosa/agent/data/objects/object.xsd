@@ -7,33 +7,44 @@
     <complexType name="Object">
         <all>
         	<element name="Name" type="string" maxOccurs="1"
-        		minOccurs="1">
+        		minOccurs="1"
+        	>
         	</element>
         	<element name="Description" type="string" maxOccurs="1"
         		minOccurs="1"
         	>
         	</element>
-        	<element name="Backend" type="gosa:Backend"
-        		maxOccurs="1" minOccurs="1"
+        	<element name="BackendParameters"
+        		type="gosa:BackendParameters" maxOccurs="1" minOccurs="0"
+        	>
+        	</element>
+        	<element name="Backend" type="string" maxOccurs="1"
+        		minOccurs="1"
         	>
         	</element>
         	<element name="BaseRDN" type="string" maxOccurs="1"
-        		minOccurs="0">
+        		minOccurs="0"
+        	>
         	</element>
         	<element name="Attributes" type="gosa:Attributes"
-        		maxOccurs="1" minOccurs="0">
+        		maxOccurs="1" minOccurs="0"
+        	>
         	</element>
         	<element name="Container" type="gosa:ContainerType"
-        		maxOccurs="1" minOccurs="0">
+        		maxOccurs="1" minOccurs="0"
+        	>
         	</element>
         	<element name="Extends" type="string" maxOccurs="1"
-        		minOccurs="0">
+        		minOccurs="0"
+        	>
         	</element>
         	<element name="BaseObject" type="boolean" maxOccurs="1"
-        		minOccurs="0">
+        		minOccurs="0"
+        	>
         	</element>
-        	<element name="Methods" type="gosa:Methods"
-        		maxOccurs="1" minOccurs="0">
+        	<element name="Methods" type="gosa:Methods" maxOccurs="1"
+        		minOccurs="0"
+        	>
         	</element>
         </all>
     </complexType>
@@ -58,10 +69,7 @@
         		maxOccurs="1" minOccurs="0"
         	>
         	</element>
-        	<element name="Backend" type="gosa:Backend" maxOccurs="1"
-        		minOccurs="0"
-        	>
-        	</element>
+        	<element name="Backend" type="string" maxOccurs="1" minOccurs="0"></element>
         	<element name="Type" type="gosa:AttributeTypes"
         		maxOccurs="1" minOccurs="1"
         	>
@@ -91,6 +99,10 @@
         	>
         	</element>
         	<element name="Mandatory" type="boolean" maxOccurs="1"
+        		minOccurs="0"
+        	>
+        	</element>
+        	<element name="Unique" type="boolean" maxOccurs="1"
         		minOccurs="0"
         	>
         	</element>
@@ -319,11 +331,20 @@
     	</sequence>
     </complexType>
 
-    <complexType name="Backend">
+    <complexType name="BackendParameter">
     	<simpleContent>
     		<extension base="string">
     			<anyAttribute processContents="lax" />
     		</extension>
     	</simpleContent>
+    </complexType>
+
+    <complexType name="BackendParameters">
+    	<sequence>
+    		<element name="Backend"
+    			type="gosa:BackendParameter"
+    		>
+    		</element>
+    	</sequence>
     </complexType>
 </schema>
