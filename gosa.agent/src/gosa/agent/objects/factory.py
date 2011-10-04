@@ -869,17 +869,17 @@ class GOsaObject(object):
                         value, type(value).__name__,
                         name, props[name]['syntax']))
 
-            # Validate value
-            if props[name]['validator']:
-                res, error = self.__processValidator(props[name]['validator'], name, value)
-                if not res:
-                    raise ValueError("Property (%s) validation failed! %s" % (name, error))
-
             # Set the new value
             if props[name]['multivalue']:
                 new_value = value
             else:
                 new_value = [value]
+
+            # Validate value
+            if props[name]['validator']:
+                res, error = self.__processValidator(props[name]['validator'], name, new_value)
+                if not res:
+                    raise ValueError("Property (%s) validation failed! %s" % (name, error))
 
             # Ensure that unique values stay unique. Let the backend test this.
             #TODO: Cajus please hook the is-property-backend-unique test here.

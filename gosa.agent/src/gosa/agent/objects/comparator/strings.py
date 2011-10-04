@@ -27,6 +27,7 @@ class stringLength(ElementComparator):
         super(stringLength, self).__init__()
 
     def process(self, key, value, minSize, maxSize, errors=[]):
+
         minSize = int(minSize)
         maxSize = int(maxSize)
 

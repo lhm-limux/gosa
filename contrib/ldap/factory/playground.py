@@ -9,10 +9,11 @@ from gosa.agent.objects import GOsaObjectFactory
 # use create, update, remove
 if len(sys.argv) != 2:
     print "Usage: %s create|update|remove\n" % sys.argv[0]
-    exit(0)
-
-mode = sys.argv[1]
-del sys.argv[1]
+    #exit(0)
+    mode = 'update'
+else:
+    mode = sys.argv[1]
+    del sys.argv[1]
 
 f = GOsaObjectFactory('.')
 
