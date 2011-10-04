@@ -60,6 +60,13 @@
 			</Attribute>
 
 			<Attribute>
+				<Name>phoneNumber</Name>
+				<Description>The users phone numbers</Description>
+				<Type>String</Type>
+				<MultiValue>true</MultiValue>
+			</Attribute>
+
+			<Attribute>
 				<Name>givenName</Name>
 				<Description>Given name</Description>
 				<Type>UnicodeString</Type>

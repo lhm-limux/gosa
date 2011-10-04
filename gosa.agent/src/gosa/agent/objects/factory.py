@@ -829,6 +829,12 @@ class GOsaObject(object):
                 else:
                     props[name]['value'][0] = value
 
+            # Ensure that unique values stay uniqu. Let the backend test this
+            if False:
+                # e.g. is_unique(name, value)
+                raise FactoryException()
+
+
             self.log.debug("Updated property value of [%s|%s] %s:%s" % (type(self).__name__, self.uuid, name, value))
 
             # Update status if there's a change
