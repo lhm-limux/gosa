@@ -214,19 +214,28 @@ class GOsaObjectFactory(object):
             def __del__(me):
                 me._del_()
 
+        # Collect Backend attributes per Backend
+        back_attrs = {}
+        classr = self.__xml_defs[name].Object
+        if "BackendParameters" in classr.__dict__:
+            for entry in classr["BackendParameters"]:
+                back_attrs[str(entry.Backend)] = entry.Backend.attrib
+
         # Tweak name to the new target
         setattr(klass, '__name__', name)
-        setattr(klass, '_backend', str(self.__xml_defs[name].Object.Backend))
-        setattr(klass, '_backendAttrs', self.__xml_defs[name].Object.Backend.attrib)
+        setattr(klass, '_backend', str(classr.Backend))
+        setattr(klass, '_backendAttrs', back_attrs)
 
         # Prepare property and method list.
-        classr = self.__xml_defs[name].Object
         props = {}
         methods = {}
 
+        #TODO: Handle documentation string here. We cannot write __doc__
+        #      AttributeError: attribute '__doc__' of 'type' objects is not writable
+        #
         # Add documentation if available
-        if 'description' in classr:
-            setattr(klass, '__doc__', str(classr['description']))
+        #if 'Description' in classr.__dict__:
+        #    setattr(klass, '__doc__', str(classr['Description']))
 
         # Load the backend and its attributes
         defaultBackend = str(classr.Backend)
@@ -934,12 +943,12 @@ class GOsaObject(object):
 
         # Handle by backend
         p_backend = getattr(self, '_backend')
-        p_backend_attrs = getattr(self, '_backendAttrs')
         obj = self
 
         # First, take care about the primary backend...
         if self._create:
-            create(obj, toStore[p_backend], p_backend, p_backend_attrs)
+            create(obj, toStore[p_backend], p_backend,
+                    self._backendAttrs[p_backend])
         else:
             update(obj, toStore[p_backend], p_backend)
 
@@ -951,8 +960,7 @@ class GOsaObject(object):
                 continue
 
             if self._create:
-                backend_attrs = props[data.keys()[0]]['backend_attrs']
-                create(obj, data, backend, backend_attrs)
+                create(obj, data, backend, self._backendAttrs[backend])
             else:
                 update(obj, data, backend)
 
