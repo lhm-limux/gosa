@@ -106,8 +106,6 @@ setup(
         comparator.smaller = gosa.agent.objects.comparator.basic:Smaller
 
         [gosa.object.filter]
-        filter.tounixtime = gosa.agent.objects.filter.timestamp:ToUnixTime
-        filter.fromunixtime = gosa.agent.objects.filter.timestamp:FromUnixTime
         filter.concatstring = gosa.agent.objects.filter.strings:ConcatString
         filter.replace = gosa.agent.objects.filter.strings:Replace
         filter.stringToTime = gosa.agent.objects.filter.strings:StringToTime
