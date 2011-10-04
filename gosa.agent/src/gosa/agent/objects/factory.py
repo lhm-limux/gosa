@@ -807,6 +807,11 @@ class GOsaObject(object):
         """
         props = getattr(self, '__properties')
         if name in props:
+
+            # Do not allow to write to read-only attributes.
+            if props[name]['readonly']:
+                raise AttributeError("Cannot write to readonly attribute '%s'" % name)
+
             props[name]['value'] = []
         else:
             raise AttributeError("no such property '%s'" % name)
