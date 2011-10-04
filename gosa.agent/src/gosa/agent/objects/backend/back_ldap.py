@@ -128,7 +128,10 @@ class LDAP(ObjectBackend):
         if 'containerRDN' in params:
             base = "%s,%s" % (params['containerRDN'], base)
 
-        #TODO: create glue entries?
+        # Handle glue records?
+        if self.env.config.get("ldap.glue_records", default="True").lower() == "true":
+            self.make_glue_records(base)
+
         return
 
         # Build unique DN using maybe optional RDN parameters
@@ -253,6 +256,9 @@ class LDAP(ObjectBackend):
             dn_list.append("+".join(ndn) + "," + base)
 
         return sorted(dn_list, key=len)
+
+    def make_glue_records(self, base):
+        print "Make glue records", base
 
     def __check_res(self, uuid, res):
         if not res:
