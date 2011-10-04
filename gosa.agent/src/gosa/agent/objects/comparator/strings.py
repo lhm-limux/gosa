@@ -24,7 +24,7 @@ class Like(ElementComparator):
         # All items of value have to match.
         cnt = 0
         for item in value:
-            if Levenshtein.distance(item, match) >= 4:
+            if Levenshtein.distance(unicode(item), unicode(match)) >= 4:
                 errors.append("Item %s (%s) is not like '%s'!" % (cnt, item, match))
                 return False
             cnt += 1

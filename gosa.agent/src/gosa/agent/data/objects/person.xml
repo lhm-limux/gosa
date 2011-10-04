@@ -149,6 +149,23 @@
 				<Description></Description>
 				<Type>Integer</Type>
 				<BackendType>String</BackendType>
+                          	<Validators>
+                                        <ConditionOperator>
+                                                <Operator>and</Operator>
+                                                <LeftConditionChain>
+                                                        <Condition>
+                                                                <Name>Smaller</Name>
+                                                                <Param>200</Param>
+                                                        </Condition>
+                                                </LeftConditionChain>
+                                                <RightConditionChain>
+                                                        <Condition>
+                                                                <Name>Greater</Name>
+                                                                <Param>2</Param>
+                                                        </Condition>
+                                                </RightConditionChain>
+                                        </ConditionOperator>
+                                </Validators>
 			</Attribute>
 
 			<Attribute>

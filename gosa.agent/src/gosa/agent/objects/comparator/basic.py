@@ -57,9 +57,11 @@ class Greater(ElementComparator):
 
         # All items of value have to match.
         cnt = 0
+        match = int(match)
         for item in value:
-            if not (value > match):
-                errors.append("Item %s (%s) is not greater then '%s'!" % (cnt, item, match))
+            item = int(item)
+            if not (item > match):
+                errors.append("Item %s (%s) is not greater then %s!" % (cnt, item, match))
                 return False
             cnt += 1
         return True
@@ -83,10 +85,12 @@ class Smaller(ElementComparator):
     def process(self, key, value, match, errors=[]):
 
         # All items of value have to match.
+        match = int(match)
         cnt = 0
         for item in value:
-            if not (value < match):
-                errors.append("Item %s (%s) is not smaller then '%s'!" % (cnt, item, match))
+            item = int(item)
+            if not (item < match):
+                errors.append("Item %s (%s) is not smaller then %s!" % (cnt, item, match))
                 return False
             cnt += 1
         return True
