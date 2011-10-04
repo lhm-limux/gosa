@@ -4,7 +4,6 @@
 		<Name>Employee</Name>
 		<Description>Employee class</Description>
 		<Backend>LDAP</Backend>
-		<BaseRDN>ou=people</BaseRDN>
 
 		<Attributes>
 			<Attribute>

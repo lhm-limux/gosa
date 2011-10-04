@@ -7,7 +7,6 @@
 			<Backend objectClasses="inetOrgPerson,gosaAccount">LDAP</Backend>
 		</BackendParameters>
 		<Backend>LDAP</Backend>
-		<BaseRDN>ou=people</BaseRDN>
 
 		<Methods>
 			<Method>
