@@ -214,14 +214,12 @@ class LDAP(ObjectBackend):
     def get_uniq_dn(self, rdns, base, data):
         try:
             for dn in self.build_dn_list(rdns, base, data):
-                print "test", dn
                 res = self.con.search_s(dn.encode('utf-8'), ldap.SCOPE_BASE, '(objectClass=*)',
                     [self.uuid_entry])
 
         except ldap.NO_SUCH_OBJECT:
             return dn
 
-        print "raus hier"
         return None
 
     def build_dn_list(self, rdns, base, data):
