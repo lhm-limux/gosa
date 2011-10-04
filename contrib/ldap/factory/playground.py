@@ -44,6 +44,7 @@ p = f.getObject('Person', u"cn=Fabian Hickert (Ja es geht!),ou=people,dc=gonicus
 #print "cn:", p.cn
 
 p.sn = u"Hickert"
+#p.cn = u"Hickert"
 p.uid = u'hickert'
 p.givenName = u"Fabian"
 p.sn = u"Hickert"

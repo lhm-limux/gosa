@@ -217,6 +217,7 @@
 				</OutFilter>
 				<MultiValue>false</MultiValue>
 				<Mandatory>true</Mandatory>
+				<Readonly>true</Readonly>
 			</Attribute>
 		</Attributes>
 
