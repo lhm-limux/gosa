@@ -23,14 +23,27 @@ class RegEx(ElementComparator):
 
 
 class stringLength(ElementComparator):
+    """
+    Object property validator which checks for a given value length.
+
+    ======= ==================
+    Key     Description
+    ======= ==================
+    minSize The minimum-size of the property values.
+    maxSize The maximum-size of the property values.
+    ======= ==================
+
+    """
     def __init__(self, obj):
         super(stringLength, self).__init__()
 
     def process(self, key, value, minSize, maxSize, errors=[]):
 
+        # Convert limits to integer values.
         minSize = int(minSize)
         maxSize = int(maxSize)
 
+        # Each item of value has to match the given length-rules
         for entry in value:
             if minSize >= 0 and len(entry) < minSize:
                 errors.append("Invalid length received for '%s: %s'! At least %s characters are required!" % (

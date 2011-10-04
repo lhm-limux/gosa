@@ -879,7 +879,10 @@ class GOsaObject(object):
             if props[name]['validator']:
                 res, error = self.__processValidator(props[name]['validator'], name, new_value)
                 if not res:
-                    raise ValueError("Property (%s) validation failed! %s" % (name, error))
+                    if len(error):
+                        raise ValueError("Property (%s) validation failed! Last error was: %s" % (name, error[0]))
+                    else:
+                        raise ValueError("Property (%s) validation failed without error!" % (name,))
 
             # Ensure that unique values stay unique. Let the backend test this.
             #TODO: Cajus please hook the is-property-backend-unique test here.
@@ -1052,6 +1055,8 @@ class GOsaObject(object):
 
         # Our filter result stack
         stack = list()
+        self.log.debug(" -> VALIDATOR STARTED (%s)" % (key))
+        self.log.debug("  Value: %s" % (value, ))
 
         # Process the list till we reach the end..
         lasterrmsg = ""
@@ -1072,7 +1077,14 @@ class GOsaObject(object):
                 # Process condition and keep results
                 errors = []
                 named = {'errors': errors}
+                fname = type(curline['condition']).__name__
                 v = (curline['condition']).process(*args, **named)
+
+                # Log what happend!
+                self.log.debug("  %s: [Filter]  %s(%s) called and returned: %s" % (
+                    lptr, fname, ", ".join(map(lambda x : "\"" + x + "\"",  curline['params'])), v))
+
+                # Append the result to the stack.
                 stack.append(v)
                 if not v:
                     if len(errors):
@@ -1083,6 +1095,7 @@ class GOsaObject(object):
             elif 'operator' in curline:
                 v1 = stack.pop()
                 v2 = stack.pop()
+                fname = type(curline['operator']).__name__
                 res = (curline['operator']).process(v1, v2)
                 stack.append(res)
 
@@ -1091,11 +1104,16 @@ class GOsaObject(object):
                     errormsgs.append(lasterrmsg)
                     lasterrmsg = ""
 
+                # Log what happend!
+                self.log.debug("  %s: [OPERATOR]  %s(%s, %s) called and returned: %s" % (
+                    lptr, fname, v1, v2, res))
+
         # Attach last error message
         res = stack.pop()
         if not res and lasterrmsg != "":
             errormsgs.append(lasterrmsg)
 
+        self.log.debug(" <- VALIDATOR ENDED (%s)" % (key))
         return res, errormsgs
 
     def __processFilter(self, fltr, key, prop):
