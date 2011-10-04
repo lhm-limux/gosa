@@ -9,7 +9,7 @@ import datetime
 from logging import getLogger
 from gosa.common import Environment
 from gosa.agent.ldap_utils import LDAPHandler
-from gosa.agent.objects.backend.backend import ObjectBackend, EntryNotFound, EntryNotUnique
+from gosa.agent.objects.backend import ObjectBackend, EntryNotFound, EntryNotUnique
 
 
 class LDAP(ObjectBackend):

@@ -45,7 +45,7 @@ import logging
 from lxml import etree, objectify
 from gosa.common import Environment
 from gosa.agent.objects.filter import get_filter
-from gosa.agent.objects.backend.registry import ObjectBackendRegistry, load, update
+from gosa.agent.objects.backend.registry import ObjectBackendRegistry, load, update, create
 from gosa.agent.objects.comparator import get_comparator
 from gosa.agent.objects.operator import get_operator
 from logging import getLogger
@@ -676,7 +676,6 @@ class GOsaObject(object):
 
         # Initialize object using a DN
         if dn and not create:
-            print "-----> READ"
             self._read(dn)
 
     def _read(self, dn):
@@ -933,28 +932,14 @@ class GOsaObject(object):
 
         # Handle by backend
         p_backend = getattr(self, '_backend')
+        p_backend_attrs = getattr(self, '_backendAttrs')
         obj = self
 
-
-        #-------------------------------------------------------------------------------
-
-        print "Create:", self._create
-        print "Root backend", p_backend
-        print "Root backend parameters", getattr(self, '_backendAttrs')
-
-        props = getattr(self, '__properties')
-        for key in props:
-            print "---" * 20
-            print "Key:", key
-            print "Backend:", props[key]['backend']
-            print "Backend attributes:", props[key]['backend_attrs']
-
-        exit(0)
-
-        #-------------------------------------------------------------------------------
-
         # First, take care about the primary backend...
-        update(obj, toStore[p_backend], p_backend)
+        if self._create:
+            create(obj, toStore[p_backend], p_backend, p_backend_attrs)
+        else:
+            update(obj, toStore[p_backend], p_backend)
 
         # ... then walk thru the remaining ones
         for backend, data in toStore.items():
@@ -963,9 +948,11 @@ class GOsaObject(object):
             if backend == p_backend:
                 continue
 
-            #TODO: currently we update, because we cannot create things.
-            #      This has to handle other create, extend, etc. too.
-            update(obj, data, backend)
+            if self._create:
+                backend_attrs = props[data.keys()[0]]['backend_attrs']
+                create(obj, data, backend, backend_attrs)
+            else:
+                update(obj, data, backend)
 
     def revert(self):
         """
