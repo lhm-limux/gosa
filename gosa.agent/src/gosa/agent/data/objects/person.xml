@@ -60,7 +60,7 @@
 			</Attribute>
 
 			<Attribute>
-				<Name>phoneNumber</Name>
+				<Name>telephoneNumber</Name>
 				<Description>The users phone numbers</Description>
 				<Type>String</Type>
 				<MultiValue>true</MultiValue>

@@ -54,4 +54,5 @@ p.jpegPhoto =  open('dummy.gif', 'r').read()
 p.gotoLastSystemLogin = datetime.datetime.today()
 p.dateOfBirth = datetime.datetime.today().date()
 p.gender = "M"
+p.telephoneNumber = ['123', '333' ]
 p.commit()

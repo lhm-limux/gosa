@@ -280,8 +280,9 @@ class GOsaObjectFactory(object):
             if "BackendType" in prop.__dict__:
                 backend_syntax = str(prop['BackendType'])
 
-            # check for multivalue definition
+            # check for multivalue and unique definition
             multivalue = bool(prop['MultiValue']) if "MultiValue" in prop.__dict__ else False
+            unique = bool(prop['Unique']) if "Unique" in prop.__dict__ else False
 
             # Check for property dependencies
             dependsOn = []
@@ -302,6 +303,7 @@ class GOsaObjectFactory(object):
                     'backend': backend,
                     'backend_attrs': backend_attrs,
                     'orig_value': None,
+                    'unique': unique,
                     'multivalue': multivalue}
 
         # Build up a list of callable methods
@@ -809,11 +811,28 @@ class GOsaObject(object):
         if name in props:
             current = copy.deepcopy(props[name]['value'])
 
-            # Run type check
-            if TYPE_MAP[props[name]['type']] and not issubclass(type(value), TYPE_MAP[props[name]['type']]):
-                raise TypeError("cannot assign value '%s'(%s) to property '%s'(%s)" % (
-                    value, type(value).__name__,
-                    name, props[name]['syntax']))
+            # Run type check (Multi-value and single-value separately)
+            if props[name]['multivalue']:
+
+                # We require lists for multi-value objects
+                if type(value) != list:
+                    raise TypeError("Cannot assign multi-value '%s' to property '%s'. A list is required for multi-values!" % (
+                        value, name))
+
+                # Check each list value for the required type
+                failed = 0
+                for entry in value:
+                    if TYPE_MAP[props[name]['type']] and not issubclass(type(value[failed]), TYPE_MAP[props[name]['type']]):
+                        raise TypeError("Cannot assign multi-value '%s' to property '%s' which expects %s. Item %s is of invalid type %s!" % (
+                            value, name, props[name]['syntax'], failed, type(value[failed])))
+                    failed += 1
+            else:
+
+                # Check single-values here.
+                if TYPE_MAP[props[name]['type']] and not issubclass(type(value), TYPE_MAP[props[name]['type']]):
+                    raise TypeError("cannot assign value '%s'(%s) to property '%s'(%s)" % (
+                        value, type(value).__name__,
+                        name, props[name]['syntax']))
 
             # Validate value
             if props[name]['validator']:
@@ -823,20 +842,19 @@ class GOsaObject(object):
 
             # Set the new value
             if props[name]['multivalue']:
-                props[name]['value'] = value
+                new_value = value
             else:
-                if props[name]['value'] == None:
-                    props[name]['value'] = [value]
-                else:
-                    props[name]['value'][0] = value
+                new_value = [value]
 
-            # Ensure that unique values stay uniqu. Let the backend test this
-            if False:
-                # e.g. is_unique(name, value)
-                raise FactoryException()
+            # Ensure that unique values stay unique. Let the backend test this.
+            #TODO: Cajus please hook the back-unique test here.
+            # e.g. is_unique(name, new_value)
+            if props[name]['unique'] and True:
+                raise FactoryException("The property value '%s' for property %s is not unique!" % (value, name))
 
-
-            self.log.debug("Updated property value of [%s|%s] %s:%s" % (type(self).__name__, self.uuid, name, value))
+            # Assign the properties new value.
+            props[name]['value'] = new_value
+            self.log.debug("Updated property value of [%s|%s] %s:%s" % (type(self).__name__, self.uuid, name, new_value))
 
             # Update status if there's a change
             if current != props[name]['value'] and props[name]['status'] != STATUS_CHANGED:
