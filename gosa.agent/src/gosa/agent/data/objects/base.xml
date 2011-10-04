@@ -4,7 +4,6 @@
 		<Name>Base</Name>
 		<Description>Base class</Description>
 		<Backend>LDAP</Backend>
-		<BaseRDN></BaseRDN>
 
 		<Attributes>
 			<Attribute>

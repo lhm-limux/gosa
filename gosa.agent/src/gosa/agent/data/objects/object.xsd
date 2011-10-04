@@ -22,10 +22,6 @@
         		minOccurs="1"
         	>
         	</element>
-        	<element name="BaseRDN" type="string" maxOccurs="1"
-        		minOccurs="0"
-        	>
-        	</element>
         	<element name="Attributes" type="gosa:Attributes"
         		maxOccurs="1" minOccurs="0"
         	>

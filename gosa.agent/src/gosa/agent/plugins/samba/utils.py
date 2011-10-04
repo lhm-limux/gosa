@@ -42,7 +42,7 @@ class SambaHash(ElementFilter):
         super(SambaHash, self).__init__(obj)
 
     def process(self, obj, key, valDict):
-        if type(valDict[key]['value'][0]) in [str, unicode]:
+        if len(valDict[key]['value']) and type(valDict[key]['value'][0]) in [str, unicode]:
             lm, nt = smbpasswd.hash(valDict[key]['value'][0])
             valDict['sambaNTPassword'] = {
                     'value': [nt],
