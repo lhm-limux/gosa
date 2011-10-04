@@ -101,6 +101,9 @@ class LDAP(ObjectBackend):
 #    def extend(self, base, data):
 #        pass
 
+#    def move(self, dn, new_dn):
+#        pass
+
     def create(self, base, data, params):
         mod_attrs = []
         self.log.debug("gathering modifications for entry on base '%s'" % base)
@@ -135,6 +138,9 @@ class LDAP(ObjectBackend):
         # Write...
         self.log.debug("saving entry '%s'" % dn)
         self.con.add_s(dn, mod_attrs)
+
+        # Return automatic uuid
+        return self.dn2uuid(dn)
 
     def update(self, uuid, data):
 
