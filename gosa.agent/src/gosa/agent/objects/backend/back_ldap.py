@@ -129,6 +129,7 @@ class LDAP(ObjectBackend):
             base = "%s,%s" % (params['containerRDN'], base)
 
         #TODO: create glue entries?
+        return
 
         # Build unique DN using maybe optional RDN parameters
         rdns = [d.strip() for d in params['RDN'].split(",")]
