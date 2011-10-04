@@ -4,7 +4,8 @@
 		<Name>Person</Name>
 		<Description>Person class</Description>
 		<BackendParameters>
-			<Backend objectClasses="inetOrgPerson,gosaAccount" RDN="cn,uid,dateOfBirth" containerRDN="ou=people">LDAP</Backend>
+			<Backend objectClasses="inetOrgPerson,gosaAccount"
+				RDN="cn,uid,dateOfBirth">LDAP</Backend>
 		</BackendParameters>
 		<Backend>LDAP</Backend>
 

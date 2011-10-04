@@ -111,7 +111,7 @@ class LDAP(ObjectBackend):
             for lvalue in entry['value']:
                 items.append(cnv(lvalue))
 
-            self.log.debug(" * add attribute '%s' with value '%s'" % (attr, items))
+            self.log.debug(" * add attribute '%s' with value %s" % (attr, items))
             mod_attrs.append((attr, items))
 
         # We know about object classes - add them if possible
@@ -123,16 +123,6 @@ class LDAP(ObjectBackend):
         # provided
         if not 'RDN' in params:
             raise RDNNotSpecified("there is no 'RDN' backend parameter specified")
-
-        # Build base
-        if 'containerRDN' in params:
-            base = "%s,%s" % (params['containerRDN'], base)
-
-        # Handle glue records?
-        if self.env.config.get("ldap.glue_records", default="True").lower() == "true":
-            self.make_glue_records(base)
-
-        return
 
         # Build unique DN using maybe optional RDN parameters
         rdns = [d.strip() for d in params['RDN'].split(",")]
@@ -168,12 +158,12 @@ class LDAP(ObjectBackend):
 
             # New value?
             if not entry['orig'] and entry['value']:
-                self.log.debug(" * add attribute '%s' with value '%s'" % (attr, items))
+                self.log.debug(" * add attribute '%s' with value %s" % (attr, items))
                 mod_attrs.append((ldap.MOD_ADD, attr, items))
                 continue
 
             # Ok, modified...
-            self.log.debug(" * replace attribute '%s' with value '%s'" % (attr, items))
+            self.log.debug(" * replace attribute '%s' with value %s" % (attr, items))
             mod_attrs.append((ldap.MOD_REPLACE, attr, items))
 
         # Did we change one of the RDN attributes?
@@ -256,9 +246,6 @@ class LDAP(ObjectBackend):
             dn_list.append("+".join(ndn) + "," + base)
 
         return sorted(dn_list, key=len)
-
-    def make_glue_records(self, base):
-        print "Make glue records", base
 
     def __check_res(self, uuid, res):
         if not res:
