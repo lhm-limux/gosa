@@ -62,11 +62,14 @@ if mode == "remove":
 #print "sn:", p.sn
 #print "cn:", p.cn
 
-#p.sn = u"Hickert"
-p.uid = u"hickert"
+p.sn = u"Hickert"
+#p.cn = u"Hickert"
+p.uid = u'hickert'
 p.givenName = u"Fabian"
 p.sn = u"Hickert"
 p.userPassword = u"tollessecret"
+
+#del(p.uid)
 #p.roomNumber += 1
 #open('dummy.gif_read', 'w').write(p.jpegPhoto)
 p.jpegPhoto =  open('dummy.gif', 'r').read()

@@ -52,12 +52,21 @@
 						<Param>-1</Param>
 					</Condition>
 				</Validators>
+				<Mandatory>true</Mandatory>
 			</Attribute>
 
 			<Attribute>
 				<Name>sn</Name>
 				<Description>Surname</Description>
 				<Type>UnicodeString</Type>
+				<Mandatory>true</Mandatory>
+			</Attribute>
+
+			<Attribute>
+				<Name>givenName</Name>
+				<Description>Given name</Description>
+				<Type>UnicodeString</Type>
+				<Mandatory>true</Mandatory>
 			</Attribute>
 
 			<Attribute>
@@ -65,12 +74,6 @@
 				<Description>The users phone numbers</Description>
 				<Type>String</Type>
 				<MultiValue>true</MultiValue>
-			</Attribute>
-
-			<Attribute>
-				<Name>givenName</Name>
-				<Description>Given name</Description>
-				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
@@ -213,6 +216,8 @@
 					</FilterChain>
 				</OutFilter>
 				<MultiValue>false</MultiValue>
+				<Mandatory>true</Mandatory>
+				<Readonly>true</Readonly>
 			</Attribute>
 		</Attributes>
 

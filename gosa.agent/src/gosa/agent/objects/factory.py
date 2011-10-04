@@ -211,6 +211,10 @@ class GOsaObjectFactory(object):
                 return me._getattr_(name)
 
             #pylint: disable=E0213
+            def __delattr__(me, name):
+                me._delattr_(name)
+
+            #pylint: disable=E0213
             def __del__(me):
                 me._del_()
 
@@ -254,7 +258,7 @@ class GOsaObjectFactory(object):
                 backend_attrs = prop.Backend.attrib
 
             # Do we have an output filter definition?
-            out_f =  []
+            out_f = []
             if "OutFilter" in prop.__dict__:
                 for entry in  prop['OutFilter'].iterchildren():
                     self.log.debug(" appending out-filter")
@@ -280,9 +284,11 @@ class GOsaObjectFactory(object):
             if "BackendType" in prop.__dict__:
                 backend_syntax = str(prop['BackendType'])
 
-            # check for multivalue and unique definition
+            # check for multivalue, mandatory and unique definition
             multivalue = bool(prop['MultiValue']) if "MultiValue" in prop.__dict__ else False
             unique = bool(prop['Unique']) if "Unique" in prop.__dict__ else False
+            mandatory = bool(prop['Mandatory']) if "Mandatory" in prop.__dict__ else False
+            readonly = bool(prop['Readonly']) if "Readonly" in prop.__dict__ else False
 
             # Check for property dependencies
             dependsOn = []
@@ -304,6 +310,8 @@ class GOsaObjectFactory(object):
                     'backend_attrs': backend_attrs,
                     'orig_value': None,
                     'unique': unique,
+                    'mandatory': mandatory,
+                    'readonly': readonly,
                     'multivalue': multivalue}
 
         # Build up a list of callable methods
@@ -772,6 +780,9 @@ class GOsaObject(object):
                                     'in_filter': None,
                                     'backend': valDict[key]['backend'],
                                     'backend_attrs': valDict[key]['backend_attrs'],
+                                    'unique': False,
+                                    'mandatory': False,
+                                    'readonly': True,
                                     'multivalue': False}
                             else:
                                 props[key]['value'] = valDict[key]['value']
@@ -790,8 +801,22 @@ class GOsaObject(object):
             # Keep the initial value
             props[key]['old'] = props[key]['value']
 
-    def _setattr_(self, name, value):
+    def _delattr_(self, name):
+        """
+        Deleter method for properties.
+        """
+        props = getattr(self, '__properties')
+        if name in props:
 
+            # Do not allow to write to read-only attributes.
+            if props[name]['readonly']:
+                raise AttributeError("Cannot write to readonly attribute '%s'" % name)
+
+            props[name]['value'] = []
+        else:
+            raise AttributeError("no such property '%s'" % name)
+
+    def _setattr_(self, name, value):
         """
         This is the setter method for GOsa-object attributes.
         Each given attribute value is validated with the given set of
@@ -806,9 +831,19 @@ class GOsaObject(object):
         except AttributeError:
             pass
 
+        # A none value was passed to clear the value
+        if value == None:
+            self._delattr_(name)
+            return
+
         # Try to save as property value
         props = getattr(self, '__properties')
         if name in props:
+
+            # Do not allow to write to read-only attributes.
+            if props[name]['readonly']:
+                raise AttributeError("Cannot write to readonly attribute '%s'" % name)
+
             current = copy.deepcopy(props[name]['value'])
 
             # Run type check (Multi-value and single-value separately)
@@ -910,6 +945,12 @@ class GOsaObject(object):
 
         props = getattr(self, '__properties')
         self.log.debug("Saving object modifications for [%s|%s]" % (type(self).__name__, self.uuid))
+
+        # Check if all required attributes are set.
+        for key in props:
+            if props[key]['mandatory'] and len(props[key]['value']) == 0:
+                raise FactoryException("The required property '%s' is not set!" % (key,))
+
 
         # Collect values by store and process the property filters
         toStore = {}
