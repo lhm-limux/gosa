@@ -5,8 +5,8 @@ import datetime
 import sys
 
 f = GOsaObjectFactory('.')
-p = f.getObject('Person', u'ou=mümmelmann,dc=gonicus,dc=de', create=True)
-#p = f.getObject('Person', u"cn=Fabian Sebastian2 Hickert (Ja es geht!),ou=people,ou=ehemalige,ou=Virtuelle Mailbenutzer,ou=gonicus.de,ou=Mail-Domänen,dc=gonicus,dc=de")
+#p = f.getObject('Person', u'ou=people,dc=gonicus,dc=de', create=True)
+p = f.getObject('Person', u"cn=Fabian Hickert (Ja es geht!),ou=people,dc=gonicus,dc=de")
 #print "Object type:", type(p)
 #print "sn:", p.sn
 #print "commonName:", p.commonName

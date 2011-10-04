@@ -126,7 +126,7 @@ class LDAP(ObjectBackend):
 
         # Build unique DN using maybe optional RDN parameters
         rdns = [d.strip() for d in params['RDN'].split(",")]
-        dn = self.get_uniq_dn(rdns, base, data)
+        dn = self.get_uniq_dn(rdns, base, data).encode("utf-8")
         if not dn:
             raise DNGeneratorError("no unique DN available on '%' using: %s" % (base, ",".join(rdns)))
 
@@ -214,12 +214,14 @@ class LDAP(ObjectBackend):
     def get_uniq_dn(self, rdns, base, data):
         try:
             for dn in self.build_dn_list(rdns, base, data):
+                print "test", dn
                 res = self.con.search_s(dn.encode('utf-8'), ldap.SCOPE_BASE, '(objectClass=*)',
                     [self.uuid_entry])
 
         except ldap.NO_SUCH_OBJECT:
             return dn
 
+        print "raus hier"
         return None
 
     def build_dn_list(self, rdns, base, data):
