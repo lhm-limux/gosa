@@ -1,12 +1,31 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from gosa.agent.objects import GOsaObjectFactory
 import time
 import datetime
 import sys
+import os
+from gosa.agent.objects import GOsaObjectFactory
+
+# use create, update, remove
+if len(sys.argv) != 2:
+    print "Usage: %s create|update|remove\n" % sys.argv[0]
+    exit(0)
+
+mode = sys.argv[1]
+del sys.argv[1]
 
 f = GOsaObjectFactory('.')
-#p = f.getObject('Person', u'ou=people,dc=gonicus,dc=de', create=True)
-p = f.getObject('Person', u"cn=Fabian Hickert (Ja es geht!),ou=people,dc=gonicus,dc=de")
+
+if mode == "create":
+    p = f.getObject('Person', u'ou=people,dc=gonicus,dc=de', create=True)
+
+if mode == "update" or mode == "remove":
+    p = f.getObject('Person', u"cn=Fabian Hickert (Ja es geht!),ou=people,dc=gonicus,dc=de")
+
+if mode == "remove":
+    p.remove()
+    exit(0)
+
 #print "Object type:", type(p)
 #print "sn:", p.sn
 #print "commonName:", p.commonName

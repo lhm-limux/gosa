@@ -25,9 +25,9 @@ class ObjectBackend(object):
         """
         raise NotImplementedError("object backend is missing load()")
 
-    def move(self, dn, new_dn):
+    def move(self, uuid, new_base):
         """
-        Move object from source DN to new DN.
+        Move object to new base.
         """
         raise NotImplementedError("object backend is not capable of moving objects")
 

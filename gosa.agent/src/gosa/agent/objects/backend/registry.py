@@ -52,3 +52,10 @@ def create(obj, data, backend=None, backend_attrs=None):
 
     backendI = ObjectBackendRegistry.getBackend(backend)
     return backendI.create(obj.dn, data, backend_attrs)
+
+def remove(obj, backend=None, backend_attrs=None):
+    if not backend:
+        backend = obj._backend
+
+    backendI = ObjectBackendRegistry.getBackend(backend)
+    return backendI.remove(obj.uuid, False)

@@ -77,12 +77,13 @@ class LDAP(ObjectBackend):
         return len(res) == 1
 
     def remove(self, uuid, recursive=False):
-        dn = self.dn2uuid(uuid)
+        dn = self.uuid2dn(uuid)
 
         if recursive:
             self.__delete_children(dn)
 
         else:
+            self.log.debug("removing entry '%s'" % dn)
             self.con.delete_s(dn)
 
     def __delete_children(self, dn):
@@ -93,6 +94,7 @@ class LDAP(ObjectBackend):
             self.__delete_children(c_dn)
 
         # Delete ourselves
+        self.log.debug("removing entry '%s'" % dn)
         self.con.delete_s(dn)
 
 #    def retract(self, uuid):
@@ -101,8 +103,8 @@ class LDAP(ObjectBackend):
 #    def extend(self, base, data):
 #        pass
 
-#    def move(self, dn, new_dn):
-#        pass
+    def move(self, uuid, new_base):
+        print "Move %s to %s" % (uuid, new_base)
 
     def create(self, base, data, params):
         mod_attrs = []
