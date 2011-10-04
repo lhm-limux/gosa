@@ -3,7 +3,7 @@
 	<Object>
 		<Name>Person</Name>
 		<Description>Person class</Description>
-		<Backend objectClasses="inetOrgPerson,gosaAccount">LDAP</Backend>
+		<Backend objectClasses="inetOrgPerson,gosaAccount" RDN="cn,uid,dateOfBirth" containerRDN="ou=people">LDAP</Backend>
 		<BaseRDN>ou=people</BaseRDN>
 
 		<Methods>
