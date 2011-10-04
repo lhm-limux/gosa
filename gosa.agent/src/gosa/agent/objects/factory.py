@@ -649,12 +649,14 @@ class GOsaObject(object):
     _create = False
     _propsByBackend = {}
     uuid = None
+    dn = None
     log = None
 
     def __init__(self, dn=None, create=False):
 
         # Instantiate Backend-Registry
         self._reg = ObjectBackendRegistry.getInstance()
+        self. dn = dn
         self.log = getLogger(__name__)
         self.log.debug("New object instantiated '%s'" % (type(self).__name__))
         self.log.debug("Object dn '%s'" % (dn))

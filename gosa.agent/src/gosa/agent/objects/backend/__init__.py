@@ -29,15 +29,15 @@ class ObjectBackend(object):
         """
         Move object from source DN to new DN.
         """
-        raise NotImplementedError("object backend is not capable of movingi objects")
+        raise NotImplementedError("object backend is not capable of moving objects")
 
-    def create(self, dn, data):
+    def create(self, dn, data, params):
         """
         Create a new base object entry with the given DN.
         """
         raise NotImplementedError("object backend is not capable of creating base objects")
 
-    def extend(self, uuid, data):
+    def extend(self, uuid, data, params):
         """
         Create an extension to a base object with the given UUID.
         """

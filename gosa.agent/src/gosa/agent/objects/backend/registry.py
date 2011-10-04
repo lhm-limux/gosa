@@ -45,3 +45,10 @@ def update(obj, data, backend=None):
 
     backendI = ObjectBackendRegistry.getBackend(backend)
     return backendI.update(obj.uuid, data)
+
+def create(obj, data, backend=None, backend_attrs=None):
+    if not backend:
+        backend = obj._backend
+
+    backendI = ObjectBackendRegistry.getBackend(backend)
+    return backendI.create(obj.dn, data, backend_attrs)

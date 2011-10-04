@@ -12,6 +12,10 @@ from gosa.agent.ldap_utils import LDAPHandler
 from gosa.agent.objects.backend import ObjectBackend, EntryNotFound, EntryNotUnique
 
 
+class RDNNotSpecified(Exception):
+    pass
+
+
 class LDAP(ObjectBackend):
 
     def __init__(self):
@@ -89,11 +93,46 @@ class LDAP(ObjectBackend):
 #    def retract(self, uuid):
 #        pass
 
-#    def create(self, base, data):
-#        pass
-
 #    def extend(self, base, data):
 #        pass
+
+    def create(self, base, data, params):
+        mod_attrs = []
+        self.log.debug("gathering modifications for entry on base '%s'" % base)
+        for attr, entry in data.iteritems():
+
+            cnv = getattr(self, "_convert_to_%s" % entry['type'].lower())
+            items = []
+            for lvalue in entry['value']:
+                items.append(cnv(lvalue))
+
+            self.log.debug(" * add attribute '%s' with value '%s'" % (attr, items))
+            mod_attrs.append((attr, items))
+
+        # We know about object classes - add them if possible
+        if 'objectClasses' in params:
+            ocs = [o.strip() for o in params['objectClasses'].split(",")]
+            mod_attrs.append(('objectClass', ocs))
+
+        # Check if obligatory information for assembling the DN are
+        # provided
+        if not 'RDN' in params:
+            raise RDNNotSpecified("there is no 'RDN' backend parameter specified")
+
+        # Build base
+        if 'containerRDN' in params:
+            base = "%s,%s" % (ldap.dn.escape_dn_chars(params['containerRDN']), base)
+
+        print "--->", base
+        return
+
+        self.log.debug("evaulated entry DN to '%s'" % dn)
+
+        #TODO: create glue entries?
+
+        # Write...
+        self.log.debug("saving entry '%s'" % dn)
+        self.con.add_s(dn, mod_attrs)
 
     def update(self, uuid, data):
 
