@@ -847,7 +847,7 @@ class GOsaObject(object):
                 new_value = [value]
 
             # Ensure that unique values stay unique. Let the backend test this.
-            #TODO: Cajus please hook the back-unique test here.
+            #TODO: Cajus please hook the is-property-backend-unique test here.
             # e.g. is_unique(name, new_value)
             if props[name]['unique'] and True:
                 raise FactoryException("The property value '%s' for property %s is not unique!" % (value, name))
