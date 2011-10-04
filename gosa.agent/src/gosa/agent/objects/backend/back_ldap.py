@@ -6,10 +6,19 @@ import ldap.schema
 import ldap.modlist
 import time
 import datetime
+from itertools import permutations
 from logging import getLogger
 from gosa.common import Environment
 from gosa.agent.ldap_utils import LDAPHandler
-from gosa.agent.objects.backend.backend import ObjectBackend, EntryNotFound, EntryNotUnique
+from gosa.agent.objects.backend import ObjectBackend, EntryNotFound, EntryNotUnique
+
+
+class RDNNotSpecified(Exception):
+    pass
+
+
+class DNGeneratorError(Exception):
+    pass
 
 
 class LDAP(ObjectBackend):
@@ -89,11 +98,49 @@ class LDAP(ObjectBackend):
 #    def retract(self, uuid):
 #        pass
 
-#    def create(self, base, data):
-#        pass
-
 #    def extend(self, base, data):
 #        pass
+
+    def create(self, base, data, params):
+        mod_attrs = []
+        self.log.debug("gathering modifications for entry on base '%s'" % base)
+        for attr, entry in data.iteritems():
+
+            cnv = getattr(self, "_convert_to_%s" % entry['type'].lower())
+            items = []
+            for lvalue in entry['value']:
+                items.append(cnv(lvalue))
+
+            self.log.debug(" * add attribute '%s' with value '%s'" % (attr, items))
+            mod_attrs.append((attr, items))
+
+        # We know about object classes - add them if possible
+        if 'objectClasses' in params:
+            ocs = [o.strip() for o in params['objectClasses'].split(",")]
+            mod_attrs.append(('objectClass', ocs))
+
+        # Check if obligatory information for assembling the DN are
+        # provided
+        if not 'RDN' in params:
+            raise RDNNotSpecified("there is no 'RDN' backend parameter specified")
+
+        # Build base
+        if 'containerRDN' in params:
+            base = "%s,%s" % (params['containerRDN'], base)
+
+        #TODO: create glue entries?
+
+        # Build unique DN using maybe optional RDN parameters
+        rdns = [d.strip() for d in params['RDN'].split(",")]
+        dn = self.get_uniq_dn(rdns, base, data)
+        if not dn:
+            raise DNGeneratorError("no unique DN available on '%' using: %s" % (base, ",".join(rdns)))
+
+        self.log.debug("evaulated new entry DN to '%s'" % dn)
+
+        # Write...
+        self.log.debug("saving entry '%s'" % dn)
+        self.con.add_s(dn, mod_attrs)
 
     def update(self, uuid, data):
 
@@ -169,6 +216,42 @@ class LDAP(ObjectBackend):
         self.__check_res(dn, res)
 
         return res[0][1][self.uuid_entry][0]
+
+    def get_uniq_dn(self, rdns, base, data):
+        try:
+            for dn in self.build_dn_list(rdns, base, data):
+                res = self.con.search_s(dn.encode('utf-8'), ldap.SCOPE_BASE, '(objectClass=*)',
+                    [self.uuid_entry])
+
+        except ldap.NO_SUCH_OBJECT:
+            return dn
+
+        return None
+
+    def build_dn_list(self, rdns, base, data):
+        fix = rdns[0]
+        var = rdns[1:] if len(rdns) > 1 else []
+        dns = [fix]
+
+        # Bail out if fix part is not in data
+        if not fix in data:
+            raise DNGeneratorError("fix attribute '%s' is not in the entry" % fix)
+
+        # Append possible variations of RDN attributes
+        if var:
+            for rdn in permutations(var + [None] * (len(var) - 1), len(var)):
+                dns.append("%s,%s" % (fix, ",".join(filter(lambda x: x and x in data and data[x], list(rdn)))))
+        dns = list(set(dns))
+
+        # Assemble DN of RDN combinations
+        dn_list = []
+        for t in [tuple(d.split(",")) for d in dns]:
+            ndn = []
+            for k in t:
+                ndn.append("%s=%s" % (k, ldap.dn.escape_dn_chars(data[k]['value'][0])))
+            dn_list.append("+".join(ndn) + "," + base)
+
+        return sorted(dn_list, key=len)
 
     def __check_res(self, uuid, res):
         if not res:

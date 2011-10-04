@@ -45,7 +45,7 @@ import logging
 from lxml import etree, objectify
 from gosa.common import Environment
 from gosa.agent.objects.filter import get_filter
-from gosa.agent.objects.backend.registry import ObjectBackendRegistry, load, update
+from gosa.agent.objects.backend.registry import ObjectBackendRegistry, load, update, create
 from gosa.agent.objects.comparator import get_comparator
 from gosa.agent.objects.operator import get_operator
 from logging import getLogger
@@ -658,12 +658,14 @@ class GOsaObject(object):
     _create = False
     _propsByBackend = {}
     uuid = None
+    dn = None
     log = None
 
     def __init__(self, dn=None, create=False):
 
         # Instantiate Backend-Registry
         self._reg = ObjectBackendRegistry.getInstance()
+        self. dn = dn
         self.log = getLogger(__name__)
         self.log.debug("New object instantiated '%s'" % (type(self).__name__))
         self.log.debug("Object dn '%s'" % (dn))
@@ -685,7 +687,6 @@ class GOsaObject(object):
 
         # Initialize object using a DN
         if dn and not create:
-            print "-----> READ"
             self._read(dn)
 
     def _read(self, dn):
@@ -950,27 +951,12 @@ class GOsaObject(object):
         p_backend = getattr(self, '_backend')
         obj = self
 
-
-        #-------------------------------------------------------------------------------
-
-        print "Create:", self._create
-        print "Root backend", p_backend
-        print "Root backend parameters", getattr(self, '_backendAttrs')
-        props = getattr(self, '__properties')
-        for key in props:
-            print "---" * 20
-            print "Key:", key
-            backend = props[key]['backend']
-            print "Backend:", backend
-
-            if backend in self._backendAttrs:
-                print "Backend attributes:", self._backendAttrs[backend]
-        exit(0)
-
-        #-------------------------------------------------------------------------------
-
         # First, take care about the primary backend...
-        update(obj, toStore[p_backend], p_backend)
+        if self._create:
+            create(obj, toStore[p_backend], p_backend,
+                    self._backendAttrs[p_backend])
+        else:
+            update(obj, toStore[p_backend], p_backend)
 
         # ... then walk thru the remaining ones
         for backend, data in toStore.items():
@@ -979,9 +965,10 @@ class GOsaObject(object):
             if backend == p_backend:
                 continue
 
-            #TODO: currently we update, because we cannot create things.
-            #      This has to handle other create, extend, etc. too.
-            update(obj, data, backend)
+            if self._create:
+                create(obj, data, backend, self._backendAttrs[backend])
+            else:
+                update(obj, data, backend)
 
     def revert(self):
         """
