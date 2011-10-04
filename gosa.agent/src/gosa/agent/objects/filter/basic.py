@@ -78,16 +78,5 @@ class Clear(ElementFilter):
         super(Clear, self).__init__(obj)
 
     def process(self, obj, key, valDict):
-        #TODO: values are now lists by default? Or not? What about "None"?
-        if type(valDict[key]['value']) in [str, unicode]:
-            valDict[key]['value'] = ''
-            return key, valDict
-        elif type(valDict[key]['value']) in [dict, list]:
-            valDict[key]['value'] = ['']
-            return key, valDict
-        elif valDict[key]['value'] == None:
-            valDict[key]['value'] = ['']
-            return key, valDict
-        else:
-            raise ValueError("Unknown input type for filter %s. Type as '%s'!" % (
-                    self.__class__.__name__, type(valDict[key]['value'])))
+        valDict[key]['value'] = ['']
+        return key, valDict
