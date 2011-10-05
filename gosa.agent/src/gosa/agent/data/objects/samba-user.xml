@@ -31,30 +31,125 @@
                                 <Name>sambaPwdLastSet</Name>
                                 <Description>Timestamp of the last password update</Description>
                                 <Type>Timestamp</Type>
+				<BackendType>Integer</BackendType>
+	                       	<InFilter>
+                                        <FilterChain>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>IntegerToDatetime</Name>
+                                                        </Filter>
+                                                </FilterEntry>
+                                        </FilterChain>
+                                </InFilter>
+	                       	<OutFilter>
+                                        <FilterChain>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>DatetimeToInteger</Name>
+                                                        </Filter>
+                                                </FilterEntry>
+                                        </FilterChain>
+                                </OutFilter>
                         </Attribute>
 
            		<Attribute>
                                 <Name>sambaLogonTime</Name>
                                 <Description>Timestamp of last logon</Description>
                                 <Type>Timestamp</Type>
+				<BackendType>Integer</BackendType>
+	                       	<InFilter>
+                                        <FilterChain>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>IntegerToDatetime</Name>
+                                                        </Filter>
+                                                </FilterEntry>
+                                        </FilterChain>
+                                </InFilter>
+	                       	<OutFilter>
+                                        <FilterChain>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>DatetimeToInteger</Name>
+                                                        </Filter>
+                                                </FilterEntry>
+                                        </FilterChain>
+                                </OutFilter>
                         </Attribute>
 
            		<Attribute>
                                 <Name>sambaLogoffTime</Name>
                                 <Description>Timestamp of last logoff</Description>
                                 <Type>Timestamp</Type>
+				<BackendType>Integer</BackendType>
+	                       	<InFilter>
+                                        <FilterChain>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>IntegerToDatetime</Name>
+                                                        </Filter>
+                                                </FilterEntry>
+                                        </FilterChain>
+                                </InFilter>
+	                       	<OutFilter>
+                                        <FilterChain>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>DatetimeToInteger</Name>
+                                                        </Filter>
+                                                </FilterEntry>
+                                        </FilterChain>
+                                </OutFilter>
                         </Attribute>
 
            		<Attribute>
                                 <Name>sambaKickoffTime</Name>
                                 <Description>Timestamp of when the user will be logged off automatically</Description>
                                 <Type>Timestamp</Type>
+				<BackendType>Integer</BackendType>
+	                       	<InFilter>
+                                        <FilterChain>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>IntegerToDatetime</Name>
+                                                        </Filter>
+                                                </FilterEntry>
+                                        </FilterChain>
+                                </InFilter>
+	                       	<OutFilter>
+                                        <FilterChain>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>DatetimeToInteger</Name>
+                                                        </Filter>
+                                                </FilterEntry>
+                                        </FilterChain>
+                                </OutFilter>
                         </Attribute>
 
            		<Attribute>
                                 <Name>sambaPwdCanChange</Name>
                                 <Description>Timestamp of when the user is allowed to update the password</Description>
                                 <Type>Timestamp</Type>
+				<BackendType>Integer</BackendType>
+	                       	<InFilter>
+                                        <FilterChain>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>IntegerToDatetime</Name>
+                                                        </Filter>
+                                                </FilterEntry>
+                                        </FilterChain>
+                                </InFilter>
+	                       	<OutFilter>
+                                        <FilterChain>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>DatetimeToInteger</Name>
+                                                        </Filter>
+                                                </FilterEntry>
+                                        </FilterChain>
+                                </OutFilter>
                         </Attribute>
 
            		<Attribute>

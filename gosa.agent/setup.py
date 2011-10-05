@@ -119,6 +119,8 @@ setup(
         #filter.loadattr = gosa.agent.objects.filter.basic:LoadAttr
         #filter.saveattr = gosa.agent.objects.filter.basic:SaveAttr
         filter.clear = gosa.agent.objects.filter.basic:Clear
+        filter.integertodatetime = gosa.agent.objects.filter.basic:IntegerToDatetime
+        filter.datetimetointeger = gosa.agent.objects.filter.basic:DatetimeToInteger
 
         [gosa.object.operator]
         operator.and = gosa.agent.objects.operator.bool:And
