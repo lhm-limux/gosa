@@ -155,7 +155,26 @@
            		<Attribute>
                                 <Name>sambaPwdMustChange</Name>
                                 <Description>Timestamp of when the password will expire</Description>
-                                <Type>UnicodeString</Type>
+                                <Type>Timestamp</Type>
+                                <BackendType>Integer</BackendType>
+	                       	<InFilter>
+                                        <FilterChain>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>IntegerToDatetime</Name>
+                                                        </Filter>
+                                                </FilterEntry>
+                                        </FilterChain>
+                                </InFilter>
+	                       	<OutFilter>
+                                        <FilterChain>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>DatetimeToInteger</Name>
+                                                        </Filter>
+                                                </FilterEntry>
+                                        </FilterChain>
+                                </OutFilter>
                         </Attribute>
 
            		<Attribute>
@@ -167,7 +186,7 @@
            		<Attribute>
                                 <Name>displayName</Name>
                                 <Description>Display name</Description>
-                                <Type>UnicodeString</Type>
+                                <Type>String</Type>
                         </Attribute>
 
            		<Attribute>
@@ -228,6 +247,25 @@
                                 <Name>sambaBadPasswordTime</Name>
                                 <Description>Time of the last bad password attempt</Description>
                                 <Type>Timestamp</Type>
+                                <BackendType>Integer</BackendType>
+	                       	<InFilter>
+                                        <FilterChain>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>IntegerToDatetime</Name>
+                                                        </Filter>
+                                                </FilterEntry>
+                                        </FilterChain>
+                                </InFilter>
+	                       	<OutFilter>
+                                        <FilterChain>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>DatetimeToInteger</Name>
+                                                        </Filter>
+                                                </FilterEntry>
+                                        </FilterChain>
+                                </OutFilter>
                         </Attribute>
 
            		<Attribute>
