@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from gosa.agent.objects.filter import ElementFilter, ElementFilterException
 import copy
+import time
+import datetime
 
 class Target(ElementFilter):
     """
@@ -79,4 +81,46 @@ class Clear(ElementFilter):
 
     def process(self, obj, key, valDict):
         valDict[key]['value'] = ['']
+        return key, valDict
+
+
+class IntegerToDatetime(ElementFilter):
+    """
+    Converts an integer object into a datetime.datetime object..
+
+    e.g.:
+    >>> <FilterEntry>
+    >>>  <Filter>
+    >>>   <Name>IntegerToDatetime</Name>
+    >>>  </Filter>
+    >>> </FilterEntry>
+    >>>  ...
+    """
+
+    def __init__(self, obj):
+        super(IntegerToDatetime, self).__init__(obj)
+
+    def process(self, obj, key, valDict):
+        valDict[key]['value'] = map(lambda x: datetime.datetime.fromtimestamp(x), valDict[key]['value'])
+        return key, valDict
+
+
+class DatetimeToInteger(ElementFilter):
+    """
+    Converts a timestamp object into an integer value ...
+
+    e.g.:
+    >>> <FilterEntry>
+    >>>  <Filter>
+    >>>   <Name>DatetimeToInteger</Name>
+    >>>  </Filter>
+    >>> </FilterEntry>
+    >>>  ...
+    """
+
+    def __init__(self, obj):
+        super(DatetimeToInteger, self).__init__(obj)
+
+    def process(self, obj, key, valDict):
+        valDict[key]['value'] = map(lambda x: time.mktime(x.timetuple()), valDict[key]['value'])
         return key, valDict
