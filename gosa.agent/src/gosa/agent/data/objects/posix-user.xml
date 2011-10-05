@@ -54,13 +54,13 @@
            		<Attribute>
                                 <Name>uidNumber</Name>
                                 <Description>An integer uniquely identifying a user in an administrative domain</Description>
-                                <Type>UnicodeString</Type>
+                                <Type>Integer</Type>
                         </Attribute>
 
            		<Attribute>
                                 <Name>gidNumber</Name>
                                 <Description>An integer uniquely identifying a group in an administrative domain</Description>
-                                <Type>UnicodeString</Type>
+                                <Type>Integer</Type>
                         </Attribute>
 
            		<Attribute>

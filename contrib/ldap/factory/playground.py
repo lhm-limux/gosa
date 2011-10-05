@@ -9,10 +9,10 @@ from gosa.agent.objects import GOsaObjectFactory
 
 
 # Register pseudo event handler
-def f(event):
+def l(event):
     print "Event catched:", event.__class__.__name__
 
-zope.event.subscribers.append(f)
+zope.event.subscribers.append(l)
 
 
 # use create, update, remove, move
@@ -23,9 +23,15 @@ else:
     del sys.argv[1]
 
 f = GOsaObjectFactory('.')
+q = f.getObject('PosixUser', u"cn=Fabian Hickert (Ja es geht!),ou=people,dc=gonicus,dc=de", mode="extend")
+q.uidNumber = 4711
+q.commit()
+exit()
+
+
 
 if mode == "create":
-    p = f.getObject('GenericUser', u'ou=people,dc=gonicus,dc=de', create=True)
+    p = f.getObject('GenericUser', u'ou=people,dc=gonicus,dc=de', mode="create")
 
 if mode in ["update", "move", "remove"]:
     p = f.getObject('GenericUser', u"cn=Fabian Hickert (Ja es geht!),ou=people,dc=gonicus,dc=de")
