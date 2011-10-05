@@ -5,7 +5,7 @@
 		<Description>A generic user</Description>
 		<BackendParameters>
 			<Backend objectClasses="inetOrgPerson"
-				RDN="cn,uid,dateOfBirth">LDAP</Backend>
+				RDN="cn,uid">LDAP</Backend>
 		</BackendParameters>
 		<Backend>LDAP</Backend>
 
@@ -318,7 +318,7 @@
 			<Type>Nothing</Type>
 		</Container>
 
-		<BaseObject>false</BaseObject>
+		<BaseObject>true</BaseObject>
 	</Object>
 </Objects>
 

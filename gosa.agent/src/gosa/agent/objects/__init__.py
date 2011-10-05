@@ -58,7 +58,6 @@ Name            Description
 Name            The Name of the object
 Description     A description
 DefaultBackend  A default backend which defines which storage backend is used to persist the data
-BaseRDN         A base RDN which specifies a storage container for these objects
 Attributes      Attributes that are provided by this object
 Methods         Methods that can be called on object instances
 Container       A list of potential sub-objects this object can contain
@@ -122,7 +121,6 @@ lacks attribute and method definitions:
             <Description>Person class</Description>
             <DefaultBackend>LDAP</DefaultBackend>
 
-            <BaseRDN>ou=people</BaseRDN>
             <Container>
                 <Type>Something</Type>
             </Container>
@@ -132,8 +130,7 @@ lacks attribute and method definitions:
         ...
     </Objects>
 
-As you can see, four more tags were introduced here, a ``<BaseRDN>`` tag which specifies a
-storage-container name for these kind of objects.
+As you can see, three more tags were introduced here.
 
 A ``<Container>`` tag which specifies for which objects we are a container.
 For example an ``OrganizationalUnit`` can be a container for ``Person`` or ``Group`` objects.
@@ -155,7 +152,7 @@ is told to store Person objects in 'ou=people'.
 .. warning::
     The inheritance and extension handling is not implemented yet. But it will follow soon.
     In other words, these tags do not affect a GOsa-object right now: 
-    ``BaseRDN``, ``Container``, ``BaseObject``, ``Extends``
+    ``Container``, ``BaseObject``, ``Extends``
 
 
 Adding attributes and their in- and out-filters
