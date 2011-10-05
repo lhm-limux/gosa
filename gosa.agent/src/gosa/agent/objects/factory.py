@@ -227,10 +227,21 @@ class GOsaObjectFactory(object):
             for entry in classr["BackendParameters"]:
                 back_attrs[str(entry.Backend)] = entry.Backend.attrib
 
+        # Load object properties like: extends, is base object and allowed container elements
+        extends = str(classr['Extends']) if "Extends" in classr.__dict__ else None
+        base_object = bool(classr['BaseObject']) if "BaseObject" in classr.__dict__ else False
+        container = []
+        if "Container" in classr.__dict__:
+            for entry in classr["Container"]:
+                container.append(str(entry.Type))
+
         # Tweak name to the new target
         setattr(klass, '__name__', name)
         setattr(klass, '_backend', str(classr.Backend))
         setattr(klass, '_backendAttrs', back_attrs)
+        setattr(klass, '_extends', extends)
+        setattr(klass, '_base_object', base_object)
+        setattr(klass, '_container_for', container)
 
         # Prepare property and method list.
         props = {}
