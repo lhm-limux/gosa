@@ -233,6 +233,17 @@ class LDAP(ObjectBackend):
 
         return None
 
+    def is_uniq(self, attr, value):
+        fltr_tpl = "%s=%%s" % attr
+        fltr = ldap.filter.filter_format(fltr_tpl, [value])
+
+        self.log.debug("uniq test with filter '%s' on base '%s'" % (fltr,
+            self.lh.get_base()))
+        res = self.con.search_s(self.lh.get_base(), ldap.SCOPE_SUBTREE, fltr,
+            [self.uuid_entry])
+
+        return len(res) == 0
+
     def build_dn_list(self, rdns, base, data):
         fix = rdns[0]
         var = rdns[1:] if len(rdns) > 1 else []

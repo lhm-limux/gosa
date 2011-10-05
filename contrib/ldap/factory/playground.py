@@ -4,7 +4,16 @@ import time
 import datetime
 import sys
 import os
+import zope.event
 from gosa.agent.objects import GOsaObjectFactory
+
+
+# Register pseudo event handler
+def f(event):
+    print "Event catched:", event.__class__.__name__
+
+zope.event.subscribers.append(f)
+
 
 # use create, update, remove, move
 if len(sys.argv) != 2:
