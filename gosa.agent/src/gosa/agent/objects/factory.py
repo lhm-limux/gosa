@@ -1240,7 +1240,6 @@ class GOsaObject(object):
         """
         Removes this object - and eventually it's containements.
         """
-        #TODO: add recursive remove after we can search and list containments
         props = getattr(self, '__properties')
 
         # Collect backends
@@ -1253,8 +1252,13 @@ class GOsaObject(object):
         # Remove for all backends, removing the primary one as the last one
         backends.reverse()
         obj = self
-        for backend in backends:
-            remove(obj, backend)
+        if not recursive:
+            for backend in backends:
+                remove(obj, backend)
+
+        else:
+            #TODO: add recursive remove after we can search and list containments
+            raise NotImplemented("recursive removal not implemented")
 
     def move(self, new_base):
         #TODO
