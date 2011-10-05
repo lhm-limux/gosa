@@ -232,6 +232,7 @@ OutFilter       Yes         A filter which is used to store the attribute in the
 MultiValue      Yes         A boolean flag, which marks this value as multiple value
 Readonly        Yes         Marks the attribute as read only
 Mandatory       Yes         Marks the attribute as mandatory
+Unique          Yes         Marks the attribute as system-wide unique
 =============== =========== ===========================
 
 Here is an explanation of the simple properties above, the complex properties like ``Validators``,
@@ -255,8 +256,6 @@ The ``<Syntax>`` specifies which syntax this attribute has, here is a list of al
    * Integer: int
    * Timestamp: time.time
    * Date: datetime.date
-   * Dictionary: dict
-   * List: list
    * Binary
 
 An attribute may have multiple values, for example you can have multiple phone numbers or mail addresses.
