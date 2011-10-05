@@ -45,7 +45,7 @@ import logging
 from lxml import etree, objectify
 from gosa.common import Environment
 from gosa.agent.objects.filter import get_filter
-from gosa.agent.objects.backend.registry import ObjectBackendRegistry, load, update, create, remove
+from gosa.agent.objects.backend.registry import ObjectBackendRegistry, load, update, create, remove, move
 from gosa.agent.objects.comparator import get_comparator
 from gosa.agent.objects.operator import get_operator
 from logging import getLogger
@@ -1279,8 +1279,23 @@ class GOsaObject(object):
             raise NotImplemented("recursive removal not implemented")
 
     def move(self, new_base):
-        #TODO
-        pass
+        """
+        Moves this object - and eventually it's containements.
+        """
+        props = getattr(self, '__properties')
+
+        # Collect backends
+        backends = [getattr(self, '_backend')]
+
+        for prop, info in props.items():
+            if not info['backend'] in backends:
+                backends.append(info['backend'])
+
+        # Remove for all backends, removing the primary one as the last one
+        backends.reverse()
+        obj = self
+        for backend in backends:
+            move(obj, new_base, backend)
 
     def _del_(self):
         """

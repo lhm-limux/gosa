@@ -6,10 +6,8 @@ import sys
 import os
 from gosa.agent.objects import GOsaObjectFactory
 
-# use create, update, remove
+# use create, update, remove, move
 if len(sys.argv) != 2:
-    print "Usage: %s create|update|remove\n" % sys.argv[0]
-    #exit(0)
     mode = 'update'
 else:
     mode = sys.argv[1]
@@ -20,11 +18,16 @@ f = GOsaObjectFactory('.')
 if mode == "create":
     p = f.getObject('Person', u'ou=people,dc=gonicus,dc=de', create=True)
 
-if mode == "update" or mode == "remove":
+if mode in ["update", "move", "remove"]:
     p = f.getObject('Person', u"cn=Fabian Hickert (Ja es geht!),ou=people,dc=gonicus,dc=de")
 
 if mode == "remove":
     p.remove()
+    exit(0)
+
+if mode == "move":
+    p.move("ou=people,ou=Technik,dc=gonicus,dc=de")
+    p.move("ou=people,dc=gonicus,dc=de")
     exit(0)
 
 #print "Object type:", type(p)

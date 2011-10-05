@@ -104,7 +104,10 @@ class LDAP(ObjectBackend):
 #        pass
 
     def move(self, uuid, new_base):
-        print "Move %s to %s" % (uuid, new_base)
+        dn = self.uuid2dn(uuid)
+        self.log.debug("moving entry '%s' to new base '%s'" % (dn, new_base))
+        rdn = ldap.dn.explode_dn(dn, flags=ldap.DN_FORMAT_LDAPV3)[0]
+        self.con.rename_s(dn, rdn, new_base)
 
     def create(self, base, data, params):
         mod_attrs = []
