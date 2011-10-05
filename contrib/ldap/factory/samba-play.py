@@ -7,9 +7,8 @@ import os
 from gosa.agent.objects import GOsaObjectFactory
 
 f = GOsaObjectFactory('.')
-p = f.getObject('SambaUser', u"cn=Playground Tester,ou=people,dc=gonicus,dc=de")
+p = f.getObject('SambaUser', u"cn=Playground Tester,ou=people,dc=gonicus,dc=de", mode="update")
 
-print p.sambaLogonScript
 for prop in p.propertyNames:
     print "Attribute %s: %s" % (prop.ljust(40), getattr(p, prop))
 
