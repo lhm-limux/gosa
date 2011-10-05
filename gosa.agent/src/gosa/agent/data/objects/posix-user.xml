@@ -53,20 +53,24 @@
 
            		<Attribute>
                                 <Name>uidNumber</Name>
+                                <Unique>true</Unique>
                                 <Description>An integer uniquely identifying a user in an administrative domain</Description>
                                 <Type>Integer</Type>
+                                <Mandatory>true</Mandatory>
                         </Attribute>
 
            		<Attribute>
                                 <Name>gidNumber</Name>
                                 <Description>An integer uniquely identifying a group in an administrative domain</Description>
                                 <Type>Integer</Type>
+                                <Mandatory>true</Mandatory>
                         </Attribute>
 
            		<Attribute>
                                 <Name>homeDirectory</Name>
                                 <Description>The absolute path to the home directory</Description>
                                 <Type>String</Type>
+                                <Mandatory>true</Mandatory>
                         </Attribute>
 
            		<Attribute>

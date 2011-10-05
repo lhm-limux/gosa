@@ -137,16 +137,20 @@ class LDAP(ObjectBackend):
             else:
                 mod_attrs.append((ldap.MOD_ADD, 'objectClass', ocs))
 
-        # Check if obligatory information for assembling the DN are
-        # provided
-        if not 'RDN' in params:
-            raise RDNNotSpecified("there is no 'RDN' backend parameter specified")
+        if foreign_keys == None:
+            # Check if obligatory information for assembling the DN are
+            # provided
+            if not 'RDN' in params:
+                raise RDNNotSpecified("there is no 'RDN' backend parameter specified")
 
-        # Build unique DN using maybe optional RDN parameters
-        rdns = [d.strip() for d in params['RDN'].split(",")]
-        dn = self.get_uniq_dn(rdns, base, data).encode("utf-8")
-        if not dn:
-            raise DNGeneratorError("no unique DN available on '%' using: %s" % (base, ",".join(rdns)))
+            # Build unique DN using maybe optional RDN parameters
+            rdns = [d.strip() for d in params['RDN'].split(",")]
+            dn = self.get_uniq_dn(rdns, base, data).encode("utf-8")
+            if not dn:
+                raise DNGeneratorError("no unique DN available on '%' using: %s" % (base, ",".join(rdns)))
+
+        else:
+            dn = base
 
         self.log.debug("evaulated new entry DN to '%s'" % dn)
 
@@ -247,8 +251,11 @@ class LDAP(ObjectBackend):
 
         return None
 
-    def is_uniq(self, attr, value):
+    def is_uniq(self, attr, value, at_type):
         fltr_tpl = "%s=%%s" % attr
+
+        cnv = getattr(self, "_convert_to_%s" % at_type.lower())
+        value = cnv(value)
         fltr = ldap.filter.filter_format(fltr_tpl, [value])
 
         self.log.debug("uniq test with filter '%s' on base '%s'" % (fltr,
@@ -322,7 +329,7 @@ class LDAP(ObjectBackend):
         return str(value.encode('utf-8'))
 
     def _convert_to_integer(self, value):
-        return int(value)
+        return str(value)
 
     def _convert_to_timestamp(self, value):
         return value.strftime("%Y%m%d%H%M%SZ")

@@ -47,7 +47,7 @@ from zope.interface import Interface, implements
 from lxml import etree, objectify
 from gosa.common import Environment
 from gosa.agent.objects.filter import get_filter
-from gosa.agent.objects.backend.registry import ObjectBackendRegistry, load, update, create, remove, move
+from gosa.agent.objects.backend.registry import ObjectBackendRegistry, load, update, create, remove, move, extend
 from gosa.agent.objects.comparator import get_comparator
 from gosa.agent.objects.operator import get_operator
 from logging import getLogger
@@ -256,7 +256,7 @@ class GOsaObjectFactory(object):
             backend = defaultBackend
             backend_attrs = backendAttrs
             if "Backend" in prop.__dict__:
-                backend =  str(prop.Backend)
+                backend = str(prop.Backend)
                 backend_attrs = prop.Backend.attrib
 
             # Do we have an output filter definition?
@@ -311,6 +311,8 @@ class GOsaObjectFactory(object):
                     'backend': backend,
                     'backend_attrs': backend_attrs,
                     'orig_value': None,
+                    #FIXME:
+                    'foreign': False,
                     'unique': unique,
                     'mandatory': mandatory,
                     'readonly': readonly,
@@ -699,7 +701,7 @@ class GOsaObject(object):
         self._mode = mode
 
         # Initialize object using a DN
-        if dn and not create:
+        if dn and mode != "create":
             self._read(dn)
 
     def _read(self, dn):
@@ -786,6 +788,8 @@ class GOsaObject(object):
                                     'unique': False,
                                     'mandatory': False,
                                     'readonly': True,
+                                    #FIXME: needs to be programatically
+                                    'foreign': False,
                                     'multivalue': False}
                             else:
                                 props[key]['value'] = valDict[key]['value']
@@ -888,10 +892,10 @@ class GOsaObject(object):
                         raise ValueError("Property (%s) validation failed without error!" % (name,))
 
             # Ensure that unique values stay unique. Let the backend test this.
-            if props[name]['unique']:
-                backendI = ObjectBackendRegistry.getBackend(props[name]['backend'])
-                if not backendI.is_uniq(name, new_value):
-                    raise FactoryException("The property value '%s' for property %s is not unique!" % (value, name))
+            #if props[name]['unique']:
+            #    backendI = ObjectBackendRegistry.getBackend(props[name]['backend'])
+            #    if not backendI.is_uniq(name, new_value):
+            #        raise FactoryException("The property value '%s' for property %s is not unique!" % (value, name))
 
             # Assign the properties new value.
             props[name]['value'] = new_value
@@ -954,9 +958,8 @@ class GOsaObject(object):
 
         # Check if all required attributes are set.
         for key in props:
-            if props[key]['mandatory'] and len(props[key]['value']) == 0:
+            if props[key]['mandatory'] and not props[key]['value']:
                 raise FactoryException("The required property '%s' is not set!" % (key,))
-
 
         # Collect values by store and process the property filters
         toStore = {}

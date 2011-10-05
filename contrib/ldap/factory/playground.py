@@ -23,12 +23,6 @@ else:
     del sys.argv[1]
 
 f = GOsaObjectFactory('.')
-q = f.getObject('PosixUser', u"cn=Fabian Hickert (Ja es geht!),ou=people,dc=gonicus,dc=de", mode="extend")
-q.uidNumber = 4711
-q.commit()
-exit()
-
-
 
 if mode == "create":
     p = f.getObject('GenericUser', u'ou=people,dc=gonicus,dc=de', mode="create")
