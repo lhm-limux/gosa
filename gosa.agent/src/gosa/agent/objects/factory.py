@@ -315,88 +315,89 @@ class GOsaObjectFactory(object):
                     'multivalue': multivalue}
 
         # Build up a list of callable methods
-        for method in classr['Methods']['Method']:
+        if 'Methods' in classr.__dict__:
+            for method in classr['Methods']['Method']:
 
-            # Extract method information out of the xml tag
-            methodName = str(method['Name'])
-            command = str(method['Command'])
+                # Extract method information out of the xml tag
+                methodName = str(method['Name'])
+                command = str(method['Command'])
 
-            # Get the list of method parameters
-            mParams = []
-            if 'MethodParameters' in method.__dict__:
+                # Get the list of method parameters
+                mParams = []
+                if 'MethodParameters' in method.__dict__:
 
-                # Todo: Check type of the property and handle the
-                # default value.
+                    # Todo: Check type of the property and handle the
+                    # default value.
 
-                for param in method['MethodParameters']['MethodParameter']:
-                    pName = str(param['Name'])
-                    pType = str(param['Type'])
-                    pRequired = bool(param['Required']) if 'Required' in param.__dict__ else False
-                    pDefault = str(param['Default']) if 'Default' in param.__dict__ else None
-                    mParams.append( (pName, pType, pRequired, pDefault), )
+                    for param in method['MethodParameters']['MethodParameter']:
+                        pName = str(param['Name'])
+                        pType = str(param['Type'])
+                        pRequired = bool(param['Required']) if 'Required' in param.__dict__ else False
+                        pDefault = str(param['Default']) if 'Default' in param.__dict__ else None
+                        mParams.append( (pName, pType, pRequired, pDefault), )
 
-            # Get the list of command parameters
-            cParams = []
-            if 'CommandParameters' in method.__dict__:
-                for param in method['CommandParameters']['CommandParameter']:
-                    cParams.append(str(param['Value']))
+                # Get the list of command parameters
+                cParams = []
+                if 'CommandParameters' in method.__dict__:
+                    for param in method['CommandParameters']['CommandParameter']:
+                        cParams.append(str(param['Value']))
 
-            # Now add the method to the object
-            def funk(*args, **kwargs):
+                # Now add the method to the object
+                def funk(*args, **kwargs):
 
-                # Convert all given parameters into named arguments
-                # The eases up things a lot.
-                cnt = 0
-                arguments = {}
-                for mParam in mParams:
-                    mName, mType, mRequired, mDefault = mParam
-                    if mName in kwargs:
-                        arguments[mName] = kwargs[mName]
-                    elif cnt < len(args):
-                        arguments[mName] = args[cnt]
-                    elif mDefault:
-                        arguments[mName] = TYPE_MAP[mType](mDefault)
-                    else:
-                        raise FactoryException("Missing parameter '%s'!" % mName)
+                    # Convert all given parameters into named arguments
+                    # The eases up things a lot.
+                    cnt = 0
+                    arguments = {}
+                    for mParam in mParams:
+                        mName, mType, mRequired, mDefault = mParam
+                        if mName in kwargs:
+                            arguments[mName] = kwargs[mName]
+                        elif cnt < len(args):
+                            arguments[mName] = args[cnt]
+                        elif mDefault:
+                            arguments[mName] = TYPE_MAP[mType](mDefault)
+                        else:
+                            raise FactoryException("Missing parameter '%s'!" % mName)
 
-                    # Ensure that the correct parameter type was given.
-                    if TYPE_MAP[mType] != type(arguments[mName]):
-                        raise FactoryException("Invalid parameter type given for '%s', expected "
-                            "'%s' but received '%s'!" % (mName,
-                                TYPE_MAP[mType],type(arguments[mName])))
+                        # Ensure that the correct parameter type was given.
+                        if TYPE_MAP[mType] != type(arguments[mName]):
+                            raise FactoryException("Invalid parameter type given for '%s', expected "
+                                "'%s' but received '%s'!" % (mName,
+                                    TYPE_MAP[mType],type(arguments[mName])))
 
-                    cnt = cnt + 1
+                        cnt = cnt + 1
 
-                # Build the command-parameter list.
-                # Collect all property values of this GOsa-object to be able to fill in
-                # placeholders in command-parameters later.
-                propList = {}
-                for key in props:
-                    propList[key] = props[key]['value']
+                    # Build the command-parameter list.
+                    # Collect all property values of this GOsa-object to be able to fill in
+                    # placeholders in command-parameters later.
+                    propList = {}
+                    for key in props:
+                        propList[key] = props[key]['value']
 
-                # Add method-parameters passed to this method.
-                for entry in arguments:
-                    propList[entry] = arguments[entry]
+                    # Add method-parameters passed to this method.
+                    for entry in arguments:
+                        propList[entry] = arguments[entry]
 
-                # Fill in the placeholders of the command-parameters now.
-                parameterList = []
-                for value in cParams:
-                    try:
-                        value = value % propList
-                    except:
-                        raise FactoryException("Cannot call method '%s', error while filling "
-                            " in placeholders! Error processing: %s!" %
-                            (methodName, value))
+                    # Fill in the placeholders of the command-parameters now.
+                    parameterList = []
+                    for value in cParams:
+                        try:
+                            value = value % propList
+                        except:
+                            raise FactoryException("Cannot call method '%s', error while filling "
+                                " in placeholders! Error processing: %s!" %
+                                (methodName, value))
 
-                    parameterList.append(value)
+                        parameterList.append(value)
 
-                #TODO: Execute real-stuff later
-                print "Calling class method:", parameterList, command
+                    #TODO: Execute real-stuff later
+                    print "Calling class method:", parameterList, command
 
-            # Append the method to the list of registered methods for this
-            # object
-            self.log.debug("Adding method: '%s'" % (methodName, ))
-            methods[methodName] = {'ref': funk}
+                # Append the method to the list of registered methods for this
+                # object
+                self.log.debug("Adding method: '%s'" % (methodName, ))
+                methods[methodName] = {'ref': funk}
 
         # Set properties and methods for this object.
         setattr(klass, '__properties', props)
@@ -1014,11 +1015,12 @@ class GOsaObject(object):
         obj = self
 
         # First, take care about the primary backend...
-        if self._create:
-            create(obj, toStore[p_backend], p_backend,
-                    self._backendAttrs[p_backend])
-        else:
-            update(obj, toStore[p_backend], p_backend)
+        if p_backend in toStore:
+            if self._create:
+                create(obj, toStore[p_backend], p_backend,
+                        self._backendAttrs[p_backend])
+            else:
+                update(obj, toStore[p_backend], p_backend)
 
         # ... then walk thru the remaining ones
         for backend, data in toStore.items():
