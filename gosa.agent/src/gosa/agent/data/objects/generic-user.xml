@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects">
+	<Object>
+		<Name>GenericUser</Name>
+		<Description>A generic user</Description>
+		<BackendParameters>
+			<Backend objectClasses="inetOrgPerson"
+				RDN="cn,uid,dateOfBirth">LDAP</Backend>
+		</BackendParameters>
+		<Backend>LDAP</Backend>
+
+		<Attributes>
+			<Attribute>
+				<Name>audio</Name>
+				<Description>audio</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>businessCategory</Name>
+				<Description>businessCategory</Description>
+				<Type>String</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>carLicense</Name>
+				<Description>carLicense</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>departmentNumber</Name>
+				<Description>departmentNumber</Description>
+				<Type>Integer</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>displayName</Name>
+				<Description>displayName</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>employeeNumber</Name>
+				<Description>employeeNumber</Description>
+				<Type>Integer</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>employeeType</Name>
+				<Description>employeeType</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>givenName</Name>
+				<Description>givenName</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>homePhone</Name>
+				<Description>homePhone</Description>
+				<Type>String</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>homePostalAddress</Name>
+				<Description>homePostalAddress</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>initials</Name>
+				<Description>initials</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>jpegPhoto</Name>
+				<Description>jpegPhoto</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>labeledURI</Name>
+				<Description>labeledURI</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>mail</Name>
+				<Description>mail</Description>
+				<Type>String</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>manager</Name>
+				<Description>manager</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>mobile</Name>
+				<Description>mobile</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>o</Name>
+				<Description>o</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>pager</Name>
+				<Description>pager</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>photo</Name>
+				<Description>photo</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>roomNumber</Name>
+				<Description>roomNumber</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>secretary</Name>
+				<Description>secretary</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>uid</Name>
+				<Description>uid</Description>
+				<Type>String</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>userCertificate</Name>
+				<Description>userCertificate</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>x500uniqueIdentifier</Name>
+				<Description>x500uniqueIdentifier</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>preferredLanguage</Name>
+				<Description>preferredLanguage</Description>
+				<Type>String</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>userSMIMECertificate</Name>
+				<Description>userSMIMECertificate</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>userPKCS12</Name>
+				<Description>userPKCS12</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>title</Name>
+				<Description>title</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>x121Address</Name>
+				<Description>x121Address</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>registeredAddress</Name>
+				<Description>registeredAddress</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>destinationIndicator</Name>
+				<Description>destinationIndicator</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>preferredDeliveryMethod</Name>
+				<Description>preferredDeliveryMethod</Description>
+				<Type>String</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>telexNumber</Name>
+				<Description>telexNumber</Description>
+				<Type>String</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>teletexTerminalIdentifier</Name>
+				<Description>teletexTerminalIdentifier</Description>
+				<Type>String</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>telephoneNumber</Name>
+				<Description>telephoneNumber</Description>
+				<Type>String</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>internationaliSDNNumber</Name>
+				<Description>internationaliSDNNumber</Description>
+				<Type>String</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>facsimileTelephoneNumber</Name>
+				<Description>facsimileTelephoneNumber</Description>
+				<Type>String</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>street</Name>
+				<Description>street</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>postOfficeBox</Name>
+				<Description>postOfficeBox</Description>
+				<Type>String</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>postalCode</Name>
+				<Description>postalCode</Description>
+				<Type>String</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>postalAddress</Name>
+				<Description>postalAddress</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>physicalDeliveryOfficeName</Name>
+				<Description>physicalDeliveryOfficeName</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>ou</Name>
+				<Description>ou</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>st</Name>
+				<Description>st</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>l</Name>
+				<Description>l</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>userPassword</Name>
+				<Description>userPassword</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>seeAlso</Name>
+				<Description>seeAlso</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>description</Name>
+				<Description>description</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>sn</Name>
+				<Description>sn</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+
+			<Attribute>
+				<Name>cn</Name>
+				<Description>cn</Description>
+				<Type>UnicodeString</Type>
+			</Attribute>
+                </Attributes>
+
+		<Container>
+			<Type>Nothing</Type>
+		</Container>
+
+		<BaseObject>false</BaseObject>
+	</Object>
+</Objects>
+

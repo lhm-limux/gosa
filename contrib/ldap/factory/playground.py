@@ -18,10 +18,10 @@ else:
 f = GOsaObjectFactory('.')
 
 if mode == "create":
-    p = f.getObject('Person', u'ou=people,dc=gonicus,dc=de', create=True)
+    p = f.getObject('GenericUser', u'ou=people,dc=gonicus,dc=de', create=True)
 
 if mode == "update" or mode == "remove":
-    p = f.getObject('Person', u"cn=Fabian Hickert (Ja es geht!),ou=people,dc=gonicus,dc=de")
+    p = f.getObject('GenericUser', u"cn=Fabian Hickert (Ja es geht!),ou=people,dc=gonicus,dc=de")
 
 if mode == "remove":
     p.remove()
