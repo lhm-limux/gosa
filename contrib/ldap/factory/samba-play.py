@@ -22,4 +22,6 @@ p.sambaPwdMustChange = datetime.datetime.today()
 p.sambaBadPasswordCount = 5
 p.displayName = "PeterPan"
 
+p.passwordNotRequired = True
+
 p.commit()

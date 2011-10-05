@@ -60,6 +60,11 @@ class SambaHash(ElementFilter):
 
 
 class SambaAcctFlagsIn(ElementFilter):
+    """
+    In-Filter for sambaAcctFlags.
+
+    Each option will be transformed into a separate attribute.
+    """
 
     def __init__(self, obj):
         super(SambaAcctFlagsIn, self).__init__(obj)
@@ -77,10 +82,15 @@ class SambaAcctFlagsIn(ElementFilter):
                     'W': 'worktstationTrustAccount',
                     'X': 'passwordDoesNotExpire'}
 
+        # Add newly introduced properties.
         for src in mapping:
             valDict[mapping[src]] = {'value': [False], 'backend': valDict[key]['backend'], 'type': 'Boolean'}
 
+        # Now parse the existing acctFlags
         if len(valDict[key]['value']) >= 1:
             smbAcct = valDict[key]['value'][0]
+            for src in mapping:
+                if src in set(smbAcct):
+                    valDict[mapping[src]]['value'] = [True]
 
         return key, valDict

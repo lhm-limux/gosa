@@ -790,18 +790,20 @@ class GOsaObject(object):
                             if new_key not in props:
                                 props[new_key] = {
                                     'value':  valDict[new_key]['value'],
+                                    'orig_value':  valDict[new_key]['value'],
                                     'status': STATUS_OK,
                                     'dependsOn': [],
                                     'type': valDict[new_key]['type'],
+                                    'backend_type': valDict[new_key]['type'],
                                     'syntax': None,
                                     'validator': None,
-                                    'out_filter': None,
-                                    'in_filter': None,
+                                    'out_filter': [],
+                                    'in_filter': [],
                                     'backend': valDict[new_key]['backend'],
                                     'backend_attrs': props[key]['backend_attrs'],
                                     'unique': False,
                                     'mandatory': False,
-                                    'readonly': True,
+                                    'readonly': False,
                                     #FIXME: needs to be programatically
                                     'foreign': False,
                                     'multivalue': False}
