@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects">
+	<Object>
+		<Name>PosixUser</Name>
+		<Description>A posix extension for a generic user</Description>
+		<BackendParameters>
+			<Backend objectClasses="posixAccount,shadowAccount">LDAP</Backend>
+		</BackendParameters>
+		<Backend>LDAP</Backend>
+
+		<Attributes>
+           		<Attribute>
+                                <Name>userPassword</Name>
+                                <Description></Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>shadowLastChange</Name>
+                                <Description></Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>shadowMin</Name>
+                                <Description></Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>shadowMax</Name>
+                                <Description></Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>shadowWarning</Name>
+                                <Description></Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>shadowInactive</Name>
+                                <Description></Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>shadowExpire</Name>
+                                <Description></Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>shadowFlag</Name>
+                                <Description></Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>uidNumber</Name>
+                                <Description></Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>gidNumber</Name>
+                                <Description></Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>homeDirectory</Name>
+                                <Description></Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>loginShell</Name>
+                                <Description></Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>gecos</Name>
+                                <Description></Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>description</Name>
+                                <Description></Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+                </Attributes>
+
+		<Container>
+			<Type>Nothing</Type>
+		</Container>
+
+		<Extends>generic-user</Extends>
+		<BaseObject>false</BaseObject>
+	</Object>
+</Objects>
+
+
