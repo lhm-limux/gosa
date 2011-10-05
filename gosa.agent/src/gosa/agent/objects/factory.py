@@ -1015,11 +1015,12 @@ class GOsaObject(object):
         obj = self
 
         # First, take care about the primary backend...
-        if self._create:
-            create(obj, toStore[p_backend], p_backend,
-                    self._backendAttrs[p_backend])
-        else:
-            update(obj, toStore[p_backend], p_backend)
+        if p_backend in toStore:
+            if self._create:
+                create(obj, toStore[p_backend], p_backend,
+                        self._backendAttrs[p_backend])
+            else:
+                update(obj, toStore[p_backend], p_backend)
 
         # ... then walk thru the remaining ones
         for backend, data in toStore.items():

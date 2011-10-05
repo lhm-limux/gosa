@@ -65,7 +65,7 @@ if mode == "remove":
 
 p.sn = u"Hickert"
 #p.cn = u"Hickert"
-p.uid = u'hickert'
+p.uid = 'hickert'
 p.givenName = u"Fabian"
 p.sn = u"Hickert"
 p.userPassword = u"tollessecret"
@@ -74,8 +74,8 @@ p.userPassword = u"tollessecret"
 p.roomNumber = 21
 #open('dummy.gif_read', 'w').write(p.jpegPhoto)
 p.jpegPhoto =  open('dummy.gif', 'r').read()
-p.gotoLastSystemLogin = datetime.datetime.today()
-p.dateOfBirth = datetime.datetime.today().date()
-p.gender = "M"
-p.telephoneNumber = ['123', '333' ]
+#p.gotoLastSystemLogin = datetime.datetime.today()
+#p.dateOfBirth = datetime.datetime.today().date()
+#p.gender = "M"
+p.telephoneNumber = ['123', '333' , '1231']
 p.commit()

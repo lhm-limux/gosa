@@ -12,49 +12,50 @@
 		<Attributes>
 			<Attribute>
 				<Name>audio</Name>
-				<Description>audio</Description>
-				<Type>UnicodeString</Type>
+				<Description>The Audio attribute type allows the storing of sounds in the Directory. The attribute uses a u-law encoded sound file as used by the "play" utility on a Sun 4. This is an interim format</Description>
+				<Type>Binary</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>businessCategory</Name>
-				<Description>businessCategory</Description>
-				<Type>String</Type>
-			</Attribute>
-
-			<Attribute>
-				<Name>carLicense</Name>
-				<Description>carLicense</Description>
+				<Description>This attribute describes the kind of business performed by an organization.</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
+				<Name>carLicense</Name>
+				<Description>This multivalued field is used to record the values of the license or registration plate associated with an individual.</Description>
+				<Type>UnicodeString</Type>
+				<MultiValue>true</MultiValue>
+			</Attribute>
+
+			<Attribute>
 				<Name>departmentNumber</Name>
-				<Description>departmentNumber</Description>
+				<Description>Identifies a department within an organization</Description>
 				<Type>Integer</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>displayName</Name>
-				<Description>displayName</Description>
+				<Description>preferred name of a person to be used when displaying entries</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>employeeNumber</Name>
-				<Description>employeeNumber</Description>
+				<Description>numerically identifies an employee within an organization'</Description>
 				<Type>Integer</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>employeeType</Name>
-				<Description>employeeType</Description>
+				<Description>Used to identify the employer to employee relationship. Typical values used will be "Contractor", "Employee", "Intern", "Temp", "External", and "Unknown" but any value may be used.</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>givenName</Name>
-				<Description>givenName</Description>
+				<Description>The givenName attribute is used to hold the part of a person's name which is not their surname nor middle name.</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
@@ -66,247 +67,249 @@
 
 			<Attribute>
 				<Name>homePostalAddress</Name>
-				<Description>homePostalAddress</Description>
+				<Description>The Home postal address attribute type specifies a home postal address for an object.  This should be limited to up to 6 lines of 30 characters each.</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>initials</Name>
-				<Description>initials</Description>
-				<Type>UnicodeString</Type>
+				<Description>The initials attribute contains the initials of some or all of an individuals names, but not the surname(s).</Description>
+				<Type>String</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>jpegPhoto</Name>
-				<Description>jpegPhoto</Description>
-				<Type>UnicodeString</Type>
+				<Description>Used to store one or more images of a person using the JPEG File Interchange Format [JFIF].</Description>
+				<Type>Binary</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>labeledURI</Name>
-				<Description>labeledURI</Description>
+				<Description>Uniform Resource Identifier with optional label</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>mail</Name>
-				<Description>mail</Description>
+				<Description>RFC1274: RFC822 Mailbox</Description>
 				<Type>String</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>manager</Name>
-				<Description>manager</Description>
+				<Description> The Manager attribute type specifies the manager of an object represented by an entry.</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>mobile</Name>
-				<Description>mobile</Description>
+				<Description>The Mobile Telephone Number attribute type specifies a mobile telephone number associated with a person.  Attribute values should follow the agreed format for international telephone numbers: i.e., "+44 71 123 4567".</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>o</Name>
-				<Description>o</Description>
+				<Description>This attribute contains the name of an organization (organizationName).</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>pager</Name>
-				<Description>pager</Description>
+				<Description>The Pager Telephone Number attribute type specifies a pager telephone number for an object. Attribute values should follow the agreed format for international telephone numbers: i.e., "+44 71 123 4567".</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>photo</Name>
-				<Description>photo</Description>
+				<Description>The Photo attribute type specifies a "photograph" for an object. This should be encoded in G3 fax as explained in recommendation T.4, with an ASN.1 wrapper to make it compatible with an X.400 BodyPart as defined in X.420.</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>roomNumber</Name>
-				<Description>roomNumber</Description>
-				<Type>UnicodeString</Type>
+				<Description>The Room Number attribute type specifies the room number of an object.  Note that the commonName attribute should be used for naming room objects.</Description>
+				<Type>Integer</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>secretary</Name>
-				<Description>secretary</Description>
+				<Description>The Secretary attribute type specifies the secretary of a person. The attribute value for Secretary is a distinguished name</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>uid</Name>
-				<Description>uid</Description>
+				<Description>The Userid attribute type specifies a computer system login name.</Description>
 				<Type>String</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>userCertificate</Name>
-				<Description>userCertificate</Description>
+				<Description>This attribute is to be stored and requested in the binary form, as 'userCertificate;binary'.</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>x500uniqueIdentifier</Name>
-				<Description>x500uniqueIdentifier</Description>
+				<Description>The x500UniqueIdentifier attribute is used to distinguish between objects when a distinguished name has been reused.  This is a different attribute type from both the "uid" and "uniqueIdentifier" types.</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>preferredLanguage</Name>
-				<Description>preferredLanguage</Description>
+				<Description>Preferred written or spoken language for a person</Description>
 				<Type>String</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>userSMIMECertificate</Name>
-				<Description>userSMIMECertificate</Description>
+				<Description>A PKCS#7 [RFC2315] SignedData, where the content that is signed is ignored by consumers of userSMIMECertificate values.  It is recommended that values have a `contentType' of data with an absent `content' field.  Values of this attribute contain a person's entire certificate chain and an smimeCapabilities field [RFC2633] that at a minimum describes their SMIME algorithm capabilities.  Values for this attribute are to be stored and requested in binary form, as 'userSMIMECertificate;binary'.  If available, this attribute is preferred over the userCertificate attribute for S/MIME applications.</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>userPKCS12</Name>
-				<Description>userPKCS12</Description>
+				<Description>PKCS #12 [PKCS12] provides a format for exchange of personal identity information.  When such information is stored in a directory service, the userPKCS12 attribute should be used. This attribute is to be stored and requested in binary form, as 'userPKCS12;binary'.  The attribute values are PFX PDUs stored as binary data.</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>title</Name>
-				<Description>title</Description>
+				<Description>This attribute contains the title, such as "Vice President", of a person in their organizational context.  The "personalTitle" attribute would be used for a person's title independent of their job function.</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>x121Address</Name>
-				<Description>x121Address</Description>
+				<Description>RFC2256: X.121 Address</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>registeredAddress</Name>
-				<Description>registeredAddress</Description>
+				<Description>This attribute holds a postal address suitable for reception of telegrams or expedited documents, where it is necessary to have the recipient accept delivery.</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>destinationIndicator</Name>
-				<Description>destinationIndicator</Description>
+				<Description>This attribute is used for the telegram service.</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>preferredDeliveryMethod</Name>
-				<Description>preferredDeliveryMethod</Description>
+				<Description>Preferred delivery method</Description>
 				<Type>String</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>telexNumber</Name>
-				<Description>telexNumber</Description>
+				<Description>Telex number</Description>
 				<Type>String</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>teletexTerminalIdentifier</Name>
-				<Description>teletexTerminalIdentifier</Description>
+				<Description>Teletex terminal identifier</Description>
 				<Type>String</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>telephoneNumber</Name>
-				<Description>telephoneNumber</Description>
+				<Description>Telephone number</Description>
 				<Type>String</Type>
+				<MultiValue>true</MultiValue>
 			</Attribute>
 
 			<Attribute>
 				<Name>internationaliSDNNumber</Name>
-				<Description>internationaliSDNNumber</Description>
+				<Description>International iSDN number</Description>
 				<Type>String</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>facsimileTelephoneNumber</Name>
-				<Description>facsimileTelephoneNumber</Description>
+				<Description>Facsimile telephone number</Description>
 				<Type>String</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>street</Name>
-				<Description>street</Description>
+				<Description>This attribute contains the physical address of the object to which the entry corresponds, such as an address for package delivery (streetAddress).</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>postOfficeBox</Name>
-				<Description>postOfficeBox</Description>
+				<Description>Post office box</Description>
 				<Type>String</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>postalCode</Name>
-				<Description>postalCode</Description>
+				<Description>Postal code</Description>
 				<Type>String</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>postalAddress</Name>
-				<Description>postalAddress</Description>
+				<Description>The Home postal address attribute type specifies a home postal address for an object.  This should be limited to up to 6 lines of 30 characters each.</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>physicalDeliveryOfficeName</Name>
-				<Description>physicalDeliveryOfficeName</Description>
+				<Description>Physical delivery office name</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>ou</Name>
-				<Description>ou</Description>
+				<Description>This attribute contains the name of an organizational unit (organizationalUnitName).</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>st</Name>
-				<Description>st</Description>
+				<Description>This attribute contains the full name of a state or province (stateOrProvinceName).</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>l</Name>
-				<Description>l</Description>
+				<Description>This attribute contains the name of a locality, such as a city, county or other geographic region (localityName).</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>userPassword</Name>
-				<Description>userPassword</Description>
+				<Description>Passwords are stored using an Octet String syntax and are not encrypted.  Transfer of cleartext passwords are strongly discouraged where the underlying transport service cannot guarantee confidentiality and may result in disclosure of the password to unauthorized parties.</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>seeAlso</Name>
-				<Description>seeAlso</Description>
+				<Description>See also (distinguishedName)</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>description</Name>
-				<Description>description</Description>
+				<Description>Description</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>sn</Name>
-				<Description>sn</Description>
+				<Description>This is the X.500 surname attribute, which contains the family name of a person.
+			   </Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
 
 			<Attribute>
 				<Name>cn</Name>
-				<Description>cn</Description>
+				<Description>This is the X.500 commonName attribute, which contains a name of an object.  If the object corresponds to a person, it is typically the person's full name.</Description>
 				<Type>UnicodeString</Type>
 			</Attribute>
                 </Attributes>
