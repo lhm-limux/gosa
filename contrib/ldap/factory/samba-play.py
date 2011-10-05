@@ -12,4 +12,6 @@ p = f.getObject('SambaUser', u"cn=Playground Tester,ou=people,dc=gonicus,dc=de",
 for prop in p.propertyNames:
     print "Attribute %s: %s" % (prop.ljust(40), getattr(p, prop))
 
+p.sambaLogonTime = datetime.datetime.today()
+
 p.commit()

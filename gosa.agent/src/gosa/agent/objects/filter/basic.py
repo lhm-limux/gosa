@@ -122,5 +122,5 @@ class DatetimeToInteger(ElementFilter):
         super(DatetimeToInteger, self).__init__(obj)
 
     def process(self, obj, key, valDict):
-        valDict[key]['value'] = map(lambda x: time.mktime(x.timetuple()), valDict[key]['value'])
+        valDict[key]['value'] = map(lambda x: int(time.mktime(x.timetuple())), valDict[key]['value'])
         return key, valDict
