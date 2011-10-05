@@ -10,12 +10,6 @@
 
 		<Attributes>
            		<Attribute>
-                                <Name>userPassword</Name>
-                                <Description></Description>
-                                <Type>UnicodeString</Type>
-                        </Attribute>
-
-           		<Attribute>
                                 <Name>shadowLastChange</Name>
                                 <Description></Description>
                                 <Type>UnicodeString</Type>
@@ -59,44 +53,34 @@
 
            		<Attribute>
                                 <Name>uidNumber</Name>
-                                <Description></Description>
+                                <Description>An integer uniquely identifying a user in an administrative domain</Description>
                                 <Type>UnicodeString</Type>
                         </Attribute>
 
            		<Attribute>
                                 <Name>gidNumber</Name>
-                                <Description></Description>
+                                <Description>An integer uniquely identifying a group in an administrative domain</Description>
                                 <Type>UnicodeString</Type>
                         </Attribute>
 
            		<Attribute>
                                 <Name>homeDirectory</Name>
-                                <Description></Description>
-                                <Type>UnicodeString</Type>
+                                <Description>The absolute path to the home directory</Description>
+                                <Type>String</Type>
                         </Attribute>
 
            		<Attribute>
                                 <Name>loginShell</Name>
-                                <Description></Description>
-                                <Type>UnicodeString</Type>
+                                <Description>The path to the login shell</Description>
+                                <Type>String</Type>
                         </Attribute>
 
            		<Attribute>
                                 <Name>gecos</Name>
-                                <Description></Description>
-                                <Type>UnicodeString</Type>
-                        </Attribute>
-
-           		<Attribute>
-                                <Name>description</Name>
-                                <Description></Description>
+                                <Description>The GECOS field; the common name</Description>
                                 <Type>UnicodeString</Type>
                         </Attribute>
                 </Attributes>
-
-		<Container>
-			<Type>Nothing</Type>
-		</Container>
 
 		<Extends>generic-user</Extends>
 		<BaseObject>false</BaseObject>

@@ -314,10 +314,6 @@
 			</Attribute>
                 </Attributes>
 
-		<Container>
-			<Type>Nothing</Type>
-		</Container>
-
 		<BaseObject>true</BaseObject>
 	</Object>
 </Objects>
