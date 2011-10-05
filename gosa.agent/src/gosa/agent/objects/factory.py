@@ -415,12 +415,9 @@ class GOsaObjectFactory(object):
                 methods[methodName] = {'ref': funk}
 
         # Set properties and methods for this object.
-        setattr(klass, 'propertyNames', props.keys())
         setattr(klass, '__properties', props)
         setattr(klass, '__methods', methods)
-
         return klass
-
 
     def __build_filter(self, element, out=None):
         """
@@ -716,6 +713,10 @@ class GOsaObject(object):
         if dn and mode != "create":
             self._read(dn)
 
+    def listProperties(self):
+        props = getattr(self, '__properties')
+        return(props.keys())
+
     def _read(self, dn):
         """
         This method tries to initialize a GOsa-object instance by reading data
@@ -784,20 +785,20 @@ class GOsaObject(object):
                         valDict = self.__processFilter(in_f, key, valDict)
 
                         # Assign filter results
-                        for key in valDict:
-                            self.log.debug("In-filter returned %s: '%s'" % (key, valDict[key]['value']))
-                            if key not in props:
-                                props[key] = {
-                                    'value':  valDict[key]['value'],
+                        for new_key in valDict:
+                            self.log.debug("In-filter returned %s: '%s'" % (new_key, valDict[new_key]['value']))
+                            if new_key not in props:
+                                props[new_key] = {
+                                    'value':  valDict[new_key]['value'],
                                     'status': STATUS_OK,
                                     'dependsOn': [],
-                                    'type': valDict[key]['type'],
+                                    'type': valDict[new_key]['type'],
                                     'syntax': None,
                                     'validator': None,
                                     'out_filter': None,
                                     'in_filter': None,
-                                    'backend': valDict[key]['backend'],
-                                    'backend_attrs': valDict[key]['backend_attrs'],
+                                    'backend': valDict[new_key]['backend'],
+                                    'backend_attrs': props[key]['backend_attrs'],
                                     'unique': False,
                                     'mandatory': False,
                                     'readonly': True,
@@ -1199,8 +1200,9 @@ class GOsaObject(object):
                         raise FactoryException("Filter '%s' does not return all expected property values! '%s' missing." % (fname, missing))
 
                     # Check if the returned value-type is list or None.
-                    if type(prop[pk]['value']) not in [list, None]:
-                        raise FactoryException("Filter '%s' does not return a 'list' or 'None' as value for key %s! '%s' missing." % (fname, pk))
+                    if type(prop[pk]['value']) not in [list]:
+                        raise FactoryException("Filter '%s' does not return a 'list' as value for key %s (%s)!" % (
+                            fname, pk, type(prop[pk]['value'])))
 
                 self.log.debug("  %s: [Filter]  %s(%s) called " % (lptr, fname, ", ".join(map(lambda x : "\"" + x + "\"",  curline['params']))))
 

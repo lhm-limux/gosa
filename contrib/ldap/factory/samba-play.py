@@ -9,7 +9,7 @@ from gosa.agent.objects import GOsaObjectFactory
 f = GOsaObjectFactory('.')
 p = f.getObject('SambaUser', u"cn=Playground Tester,ou=people,dc=gonicus,dc=de", mode="update")
 
-for prop in p.propertyNames:
+for prop in p.listProperties():
     print "Attribute %s: %s" % (prop.ljust(40), getattr(p, prop))
 
 p.sambaLogonTime = datetime.datetime.today()

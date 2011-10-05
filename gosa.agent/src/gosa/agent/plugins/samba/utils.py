@@ -54,6 +54,33 @@ class SambaHash(ElementFilter):
                     'type': 'String'}
         else:
             raise ValueError("Unknown input type for filter %s. Type is '%s'!" % (
-                    self.__class__.__name__, type(valDict[key]['value'])))
+                self.__class__.__name__, type(valDict[key]['value'])))
+
+            return key, valDict
+
+
+class SambaAcctFlagsIn(ElementFilter):
+
+    def __init__(self, obj):
+        super(SambaAcctFlagsIn, self).__init__(obj)
+
+    def process(self, obj, key, valDict):
+        mapping = { 'D': 'accountDisabled',
+                    'H': 'homeDirectoryRequired',
+                    'I': 'interDomainTrust',
+                    'L': 'isAutoLocked',
+                    'M': 'anMNSLogonAccount',
+                    'N': 'passwordNotRequired',
+                    'S': 'serverTrustAccount',
+                    'T': 'temporaryDuplicateAccount',
+                    'U': 'normalUserAccount',
+                    'W': 'worktstationTrustAccount',
+                    'X': 'passwordDoesNotExpire'}
+
+        for src in mapping:
+            valDict[mapping[src]] = {'value': [False], 'backend': valDict[key]['backend'], 'type': 'Boolean'}
+
+        if len(valDict[key]['value']) >= 1:
+            smbAcct = valDict[key]['value'][0]
 
         return key, valDict
