@@ -69,3 +69,9 @@ class ObjectBackend(object):
 
     def is_uuid(self, uuid):
         return bool(self._is_uuid.match(uuid))
+
+    def is_uniq(self, attr, value):
+        """
+        Check if the given attribute is unique.
+        """
+        raise NotImplementedError("object backend is missing retract()")

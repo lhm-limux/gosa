@@ -42,6 +42,8 @@ import copy
 import datetime
 import re
 import logging
+import zope.event
+from zope.interface import Interface, implements
 from lxml import etree, objectify
 from gosa.common import Environment
 from gosa.agent.objects.filter import get_filter
@@ -886,10 +888,10 @@ class GOsaObject(object):
                         raise ValueError("Property (%s) validation failed without error!" % (name,))
 
             # Ensure that unique values stay unique. Let the backend test this.
-            #TODO: Cajus please hook the is-property-backend-unique test here.
-            # e.g. is_unique(name, new_value)
-            if props[name]['unique'] and True:
-                raise FactoryException("The property value '%s' for property %s is not unique!" % (value, name))
+            if props[name]['unique']:
+                backendI = ObjectBackendRegistry.getBackend(props[name]['backend'])
+                if not backendI.is_uniq(name, new_value):
+                    raise FactoryException("The property value '%s' for property %s is not unique!" % (value, name))
 
             # Assign the properties new value.
             props[name]['value'] = new_value
@@ -1013,6 +1015,7 @@ class GOsaObject(object):
         # Handle by backend
         p_backend = getattr(self, '_backend')
         obj = self
+        zope.event.notify(ObjectPreCreate(obj) if self._create else ObjectPreUpdate(obj))
 
         # First, take care about the primary backend...
         if p_backend in toStore:
@@ -1033,6 +1036,8 @@ class GOsaObject(object):
                 create(obj, data, backend, self._backendAttrs[backend])
             else:
                 update(obj, data, backend)
+
+        zope.event.notify(ObjectCreated(obj) if self._create else ObjectUpdated(obj))
 
     def revert(self):
         """
@@ -1276,9 +1281,12 @@ class GOsaObject(object):
             #TODO: emit a "move" signal for all affected objects
             raise NotImplemented("recursive removal is not implemented")
         else:
-            #TODO: emit a "move" signal for all affected objects
+            zope.event.notify(ObjectPreRemove(obj))
+
             for backend in backends:
                 remove(obj, backend)
+
+            zope.event.notify(ObjectRemoved(obj))
 
     def move(self, new_base):
         """
@@ -1293,6 +1301,8 @@ class GOsaObject(object):
             if not info['backend'] in backends:
                 backends.append(info['backend'])
 
+        zope.event.notify(ObjectPreMove(obj))
+
         # Move for all backends (...)
         backends.reverse()
         obj = self
@@ -1300,6 +1310,7 @@ class GOsaObject(object):
             move(obj, new_base, backend)
 
         #TODO: emit a "move" signal for all affected objects
+        zope.event.notify(ObjectMoved(obj))
 
     def _del_(self):
         """
@@ -1307,3 +1318,72 @@ class GOsaObject(object):
         """
         #TODO
         print "--> cleanup"
+
+
+class IObjectChanged(Interface):
+
+    def __init__(self, obj):
+        pass
+
+
+class IAttributeChanged(Interface):
+
+    def __init__(self, attr, value):
+        pass
+
+
+class ObjectUpdated(object):
+    implements(IObjectChanged)
+
+    def __init__(self, obj):
+        pass
+
+
+class ObjectCreated(object):
+    implements(IObjectChanged)
+
+    def __init__(self, obj):
+        pass
+
+
+class ObjectRemoved(object):
+    implements(IObjectChanged)
+
+    def __init__(self, obj):
+        pass
+
+
+class ObjectMoved(object):
+    implements(IObjectChanged)
+
+    def __init__(self, obj):
+        pass
+
+
+class ObjectPreUpdate(object):
+    implements(IObjectChanged)
+
+    def __init__(self, obj):
+        pass
+
+
+class ObjectPreCreate(object):
+    implements(IObjectChanged)
+
+    def __init__(self, obj):
+        pass
+
+
+class ObjectPreRemove(object):
+    implements(IObjectChanged)
+
+    def __init__(self, obj):
+        pass
+
+
+class ObjectPreMove(object):
+    implements(IObjectChanged)
+
+    def __init__(self, obj):
+        pass
+
