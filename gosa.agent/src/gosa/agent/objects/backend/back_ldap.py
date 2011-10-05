@@ -80,11 +80,11 @@ class LDAP(ObjectBackend):
         dn = self.uuid2dn(uuid)
 
         if recursive:
-            self.__delete_children(dn)
+            return self.__delete_children(dn)
 
         else:
             self.log.debug("removing entry '%s'" % dn)
-            self.con.delete_s(dn)
+            return self.con.delete_s(dn)
 
     def __delete_children(self, dn):
         res = self.con.search_s(dn, ldap.SCOPE_ONELEVEL, '(objectClass=*)',
@@ -95,7 +95,7 @@ class LDAP(ObjectBackend):
 
         # Delete ourselves
         self.log.debug("removing entry '%s'" % dn)
-        self.con.delete_s(dn)
+        return self.con.delete_s(dn)
 
 #    def retract(self, uuid):
 #        pass
@@ -104,7 +104,10 @@ class LDAP(ObjectBackend):
 #        pass
 
     def move(self, uuid, new_base):
-        print "Move %s to %s" % (uuid, new_base)
+        dn = self.uuid2dn(uuid)
+        self.log.debug("moving entry '%s' to new base '%s'" % (dn, new_base))
+        rdn = ldap.dn.explode_dn(dn, flags=ldap.DN_FORMAT_LDAPV3)[0]
+        return self.con.rename_s(dn, rdn, new_base)
 
     def create(self, base, data, params):
         mod_attrs = []
@@ -194,7 +197,7 @@ class LDAP(ObjectBackend):
 
         # Write back...
         self.log.debug("saving entry '%s'" % tdn)
-        self.con.modify_s(tdn, mod_attrs)
+        return self.con.modify_s(tdn, mod_attrs)
 
     def uuid2dn(self, uuid):
         # Get DN of entry

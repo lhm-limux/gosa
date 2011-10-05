@@ -119,6 +119,9 @@ class LDAPHandler(object):
                 retry_max=int(get("ldap.retry_max", default=3)),
                 retry_delay=int(get("ldap.retry_delay", default=5)))
 
+            # We only want v3
+            conn.protocol_version = ldap.VERSION3
+
             # If no SSL scheme used, try TLS
             if ldap.TLS_AVAIL and self.__url.urlscheme != "ldaps":
                 try:

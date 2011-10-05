@@ -62,3 +62,10 @@ def remove(obj, backend=None, backend_attrs=None):
 def remove_by_uuid(uuid, backend):
     backendI = ObjectBackendRegistry.getBackend(backend)
     return backendI.remove(obj.uuid, False)
+
+def move(obj, new_base, backend=None, backend_attrs=None):
+    if not backend:
+        backend = obj._backend
+
+    backendI = ObjectBackendRegistry.getBackend(backend)
+    return backendI.move(obj.uuid, new_base)
