@@ -404,6 +404,7 @@ class GOsaObjectFactory(object):
                 methods[methodName] = {'ref': funk}
 
         # Set properties and methods for this object.
+        setattr(klass, 'propertyNames', props.keys())
         setattr(klass, '__properties', props)
         setattr(klass, '__methods', methods)
 
