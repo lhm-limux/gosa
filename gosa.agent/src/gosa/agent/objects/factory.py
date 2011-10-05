@@ -1272,13 +1272,13 @@ class GOsaObject(object):
         # Remove for all backends, removing the primary one as the last one
         backends.reverse()
         obj = self
-        if not recursive:
+        if recursive:
+            #TODO: emit a "move" signal for all affected objects
+            raise NotImplemented("recursive removal is not implemented")
+        else:
+            #TODO: emit a "move" signal for all affected objects
             for backend in backends:
                 remove(obj, backend)
-
-        else:
-            #TODO: add recursive remove after we can search and list containments
-            raise NotImplemented("recursive removal not implemented")
 
     def move(self, new_base):
         """
@@ -1293,11 +1293,13 @@ class GOsaObject(object):
             if not info['backend'] in backends:
                 backends.append(info['backend'])
 
-        # Remove for all backends, removing the primary one as the last one
+        # Move for all backends (...)
         backends.reverse()
         obj = self
         for backend in backends:
             move(obj, new_base, backend)
+
+        #TODO: emit a "move" signal for all affected objects
 
     def _del_(self):
         """
