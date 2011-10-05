@@ -669,13 +669,13 @@ class GOsaObject(object):
     """
     _reg = None
     _backend = None
-    _create = False
+    _mode = False
     _propsByBackend = {}
     uuid = None
     dn = None
     log = None
 
-    def __init__(self, dn=None, create=False):
+    def __init__(self, dn=None, mode="update"):
 
         # Instantiate Backend-Registry
         self._reg = ObjectBackendRegistry.getInstance()
@@ -697,7 +697,7 @@ class GOsaObject(object):
             propsByBackend[props[key]['backend']].append(key)
 
         self._propsByBackend = propsByBackend
-        self._create = create
+        self._mode = mode
 
         # Initialize object using a DN
         if dn and not create:
@@ -1016,13 +1016,17 @@ class GOsaObject(object):
         # Handle by backend
         p_backend = getattr(self, '_backend')
         obj = self
-        zope.event.notify(ObjectPreCreate(obj) if self._create else ObjectPreUpdate(obj))
+        zope.event.notify(ObjectPreCreate(obj) if self._mode == "create" else ObjectPreUpdate(obj))
 
         # First, take care about the primary backend...
         if p_backend in toStore:
-            if self._create:
+            if self._mode == "create":
                 create(obj, toStore[p_backend], p_backend,
                         self._backendAttrs[p_backend])
+            elif self._mode == "extend":
+                foreign_keys = dict([(x, y) for x, y in props.items() if y['foreign']])
+                extend(obj, toStore[p_backend], p_backend,
+                        self._backendAttrs[p_backend], foreign_keys)
             else:
                 update(obj, toStore[p_backend], p_backend)
 
@@ -1033,12 +1037,14 @@ class GOsaObject(object):
             if backend == p_backend:
                 continue
 
-            if self._create:
+            if self._mode == "create":
                 create(obj, data, backend, self._backendAttrs[backend])
+            elif self._mode == "extend":
+                extend(obj, data, backend, self._backendAttrs[backend])
             else:
                 update(obj, data, backend)
 
-        zope.event.notify(ObjectCreated(obj) if self._create else ObjectUpdated(obj))
+        zope.event.notify(ObjectCreated(obj) if self._mode == "create" else ObjectUpdated(obj))
 
     def revert(self):
         """

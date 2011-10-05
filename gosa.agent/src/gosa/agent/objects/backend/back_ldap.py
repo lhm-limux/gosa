@@ -100,8 +100,8 @@ class LDAP(ObjectBackend):
 #    def retract(self, uuid):
 #        pass
 
-#    def extend(self, base, data):
-#        pass
+    def extend(self, base, data, params, foreign_keys):
+        return self.create(base, data, params, foreign_keys)
 
     def move(self, uuid, new_base):
         dn = self.uuid2dn(uuid)
@@ -109,10 +109,14 @@ class LDAP(ObjectBackend):
         rdn = ldap.dn.explode_dn(dn, flags=ldap.DN_FORMAT_LDAPV3)[0]
         return self.con.rename_s(dn, rdn, new_base)
 
-    def create(self, base, data, params):
+    def create(self, base, data, params, foreign_keys=None):
         mod_attrs = []
         self.log.debug("gathering modifications for entry on base '%s'" % base)
         for attr, entry in data.iteritems():
+
+            # Skip foreign keys
+            if foreign_keys and attr in foreign_keys:
+                continue
 
             cnv = getattr(self, "_convert_to_%s" % entry['type'].lower())
             items = []
@@ -120,12 +124,18 @@ class LDAP(ObjectBackend):
                 items.append(cnv(lvalue))
 
             self.log.debug(" * add attribute '%s' with value %s" % (attr, items))
-            mod_attrs.append((attr, items))
+            if foreign_keys == None:
+                mod_attrs.append((attr, items))
+            else:
+                mod_attrs.append((ldap.MOD_ADD, attr, items))
 
         # We know about object classes - add them if possible
         if 'objectClasses' in params:
             ocs = [o.strip() for o in params['objectClasses'].split(",")]
-            mod_attrs.append(('objectClass', ocs))
+            if foreign_keys == None:
+                mod_attrs.append(('objectClass', ocs))
+            else:
+                mod_attrs.append((ldap.MOD_ADD, 'objectClass', ocs))
 
         # Check if obligatory information for assembling the DN are
         # provided
@@ -142,7 +152,11 @@ class LDAP(ObjectBackend):
 
         # Write...
         self.log.debug("saving entry '%s'" % dn)
-        self.con.add_s(dn, mod_attrs)
+
+        if foreign_keys == None:
+            self.con.add_s(dn, mod_attrs)
+        else:
+            self.con.modify_s(dn, mod_attrs)
 
         # Return automatic uuid
         return self.dn2uuid(dn)
