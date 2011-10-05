@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Objects xmlns="http://www.gonicus.de/Objects">
+	<Object>
+		<Name>SambaUser</Name>
+		<Description>A samba extension for a generic user</Description>
+		<BackendParameters>
+			<Backend objectClasses="sambaSamAccount">LDAP</Backend>
+		</BackendParameters>
+		<Backend>LDAP</Backend>
+
+		<Attributes>
+           		<Attribute>
+                                <Name>sambaSID</Name>
+                                <Description>Security ID</Description>
+                                <Type>String</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>sambaLMPassword</Name>
+                                <Description>LanManager Password</Description>
+                                <Type>String</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>sambaNTPassword</Name>
+                                <Description>MD4 hash of the unicode password</Description>
+                                <Type>String</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>sambaPwdLastSet</Name>
+                                <Description>Timestamp of the last password update</Description>
+                                <Type>Timestamp</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>sambaLogonTime</Name>
+                                <Description>Timestamp of last logon</Description>
+                                <Type>Timestamp</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>sambaLogoffTime</Name>
+                                <Description>Timestamp of last logoff</Description>
+                                <Type>Timestamp</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>sambaKickoffTime</Name>
+                                <Description>Timestamp of when the user will be logged off automatically</Description>
+                                <Type>Timestamp</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>sambaPwdCanChange</Name>
+                                <Description>Timestamp of when the user is allowed to update the password</Description>
+                                <Type>Timestamp</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>sambaPwdMustChange</Name>
+                                <Description>Timestamp of when the password will expire</Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>sambaAcctFlags</Name>
+                                <Description>Account Flags</Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>displayName</Name>
+                                <Description>Display name</Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>sambaHomePath</Name>
+                                <Description>Home directory UNC path</Description>
+                                <Type>String</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>sambaHomeDrive</Name>
+                                <Description>Driver letter of home directory mapping</Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>sambaLogonScript</Name>
+                                <Description>Logon script path</Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>sambaProfilePath</Name>
+                                <Description>Roaming profile path</Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>sambaUserWorkstations</Name>
+                                <Description>List of user workstations the user is allowed to logon to</Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>sambaPrimaryGroupSID</Name>
+                                <Description>Primary Group Security ID</Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>sambaDomainName</Name>
+                                <Description>Windows NT domain to which the user belongs</Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>sambaMungedDial</Name>
+                                <Description>Base64 encoded user parameter string</Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>sambaBadPasswordCount</Name>
+                                <Description>Bad password attempt count</Description>
+                                <Type>Integer</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>sambaBadPasswordTime</Name>
+                                <Description>Time of the last bad password attempt</Description>
+                                <Type>Timestamp</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>sambaPasswordHistory</Name>
+                                <Description>Concatenated MD5 hashes of the salted NT passwords used on this account</Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>sambaLogonHours</Name>
+                                <Description>Logon Hours</Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+                </Attributes>
+
+		<Extends>generic-user</Extends>
+		<BaseObject>false</BaseObject>
+	</Object>
+</Objects>
+
+
+
