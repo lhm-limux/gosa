@@ -142,13 +142,19 @@ class SambaLogonHoursIn(ElementFilter):
         if len(valDict[key]['value']):
             res = {}
             value = valDict[key]['value'][0]
+
+            # Convert logon hours to a string representing the bitwise definition
             lstr = ''.join(map(lambda x: (bin(x)[2::]).rjust(8,'0'), struct.unpack('BBBBBBBBBBBBBBBBBBBBB', unhexlify(value))))
             new = ""
+
+            # New reverse every 8 bit part, and toggle high- and low-tuple (4Bits)
             for i in range(0, 21):
                 n = lstr[i*8:((i+1)*8)]
                 n = n[::-1]
                 new += n[0:4] + n[4:]
             lstr = new
+
+            # Parse result into more readable value
             for day in range(0,7):
                 res[day] = lstr[(day*24):((day+1)*24)]
             valDict[key]['value']=[res]
