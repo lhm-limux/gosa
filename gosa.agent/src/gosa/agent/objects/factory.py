@@ -153,7 +153,7 @@ class GOsaObjectFactory(object):
             unique=False, mandatory=False, readonly=False, multivalue=False, foreign=False, status=STATUS_OK, value=[]):
 
         if not backend_type:
-            backend_type = backend
+            backend_type = atype
 
         ret = {
                 'value': value,
@@ -1026,6 +1026,7 @@ class GOsaObject(object):
                 extend(obj, toStore[p_backend], p_backend,
                         self._backendAttrs[p_backend], foreign_keys)
             else:
+                print toStore[p_backend]
                 update(obj, toStore[p_backend], p_backend)
 
         # ... then walk thru the remaining ones
