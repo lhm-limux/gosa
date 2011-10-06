@@ -102,12 +102,6 @@ class LDAP(ObjectBackend):
         dn = self.uuid2dn(uuid)
         mod_attrs = []
 
-        print "-" * 80
-        print dn
-        print data
-        print params
-        print "-" * 80
-
         # We know about object classes - remove them
         if 'objectClasses' in params:
             ocs = [o.strip() for o in params['objectClasses'].split(",")]
