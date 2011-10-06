@@ -291,6 +291,15 @@
                                                 </FilterEntry>
                                         </FilterChain>
                                 </InFilter>
+	                       	<OutFilter>
+                                        <FilterChain>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>SambaAcctFlagsOut</Name>
+                                                        </Filter>
+                                                </FilterEntry>
+                                        </FilterChain>
+                                </OutFilter>
                         </Attribute>
                 </Attributes>
 

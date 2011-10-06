@@ -985,14 +985,18 @@ class GOsaObject(object):
 
                 self.log.debug(" found %s out-filter for %s" % (str(len(props[key]['out_filter'])), key,))
                 for out_f in props[key]['out_filter']:
-                    valDict = {key: copy.deepcopy(props[key])}
+                    valDict = copy.deepcopy(props)
                     valDict = self.__processFilter(out_f, key, valDict)
 
                     # Collect properties by backend
                     for prop_key in valDict:
 
+                        # Do not save untouched values
+                        if not valDict[prop_key]['status'] & STATUS_CHANGED:
+                            continue
+
                         # do not save properties that are marked with 'skip_save'
-                        self.log.debug(" outfilter returned %s:(%s) %s" % (prop_key, valDict[prop_key]['type'], valDict[prop_key]['value']))
+                        #self.log.debug(" outfilter returned %s:(%s) %s" % (prop_key, valDict[prop_key]['type'], valDict[prop_key]['value']))
                         if valDict[prop_key]['skip_save']:
                             continue
 
@@ -1159,8 +1163,8 @@ class GOsaObject(object):
 
         # Log values
         self.log.debug(" -> FILTER STARTED (%s)" % (key))
-        for key in prop:
-            self.log.debug("  %s: %s: %s" % (lptr, key, prop[key]['value']))
+        #for pkey in prop:
+        #    self.log.debug("  %s: %s: %s" % (lptr, pkey, prop[pkey]['value']))
 
         # Process the list till we reach the end..
         while (lptr + 1) in fltr:
@@ -1174,15 +1178,18 @@ class GOsaObject(object):
 
                 # Build up argument list
                 args = [self, key, prop]
+                fname = type(curline['filter']).__name__
                 for entry in curline['params']:
                     args.append(entry)
 
                 # Process filter and keep results
-                key, prop = (curline['filter']).process(*args)
+                try:
+                    key, prop = (curline['filter']).process(*args)
+                except Exception as e:
+                    raise FactoryException("Filter '%s' execution failed for '%s'! Error was: %s" % (fname, key, e))
 
                 # Ensure that the processed data is still valid.
                 # Filter may mess things up and then the next cannot process correctly.
-                fname = type(curline['filter']).__name__
                 if (key not in prop):
                     raise FactoryException("Filter '%s' returned invalid key property key '%s'!" % (fname, key))
 
@@ -1238,9 +1245,9 @@ class GOsaObject(object):
                 self.log.debug("  %s: [Condition] %s(%s, %s) called " % (lptr, fname, a, b))
 
             # Log current values
-            self.log.debug("  result")
-            for key in prop:
-                self.log.debug("   %s: %s" % (key, prop[key]['value']))
+            #self.log.debug("  result")
+            #for pkey in prop:
+            #    self.log.debug("   %s: %s" % (pkey, prop[pkey]['value']))
 
         self.log.debug(" <- FILTER ENDED")
         return prop
