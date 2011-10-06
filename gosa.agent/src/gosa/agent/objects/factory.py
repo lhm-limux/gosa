@@ -952,7 +952,11 @@ class GOsaObject(object):
         """
         props = getattr(self, '__properties')
 
-        #TODO: Check if _mode matches with the current object type (#61)
+        # Check if _mode matches with the current object type
+        if self._base_object and not self._mode in ['create', 'remove', 'update']:
+            raise FactoryException("mode '%s' not available for base objects" % self._mode)
+        if not self._base_object and self._mode in ['create', 'remove']:
+            raise FactoryException("mode '%s' only available for base objects" % self._mode)
 
         self.log.debug("saving object modifications for [%s|%s]" % (type(self).__name__, self.uuid))
 
