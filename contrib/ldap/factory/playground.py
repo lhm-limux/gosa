@@ -22,17 +22,16 @@ else:
     del sys.argv[1]
 
 f = GOsaObjectFactory()
-f.identifyObject(u"cn=Fabian Hickert (Ja es geht!),ou=people,dc=gonicus,dc=de")
-exit(0)
+#print f.identifyObject(u"cn=Klaus Mustermann,ou=people,dc=gonicus,dc=de")
 
 if mode == "create":
     p = f.getObject('GenericUser', u'ou=people,dc=gonicus,dc=de', mode="create")
 
 if mode in ["update", "move", "remove"]:
-    p = f.getObject('GenericUser', u"cn=Fabian Hickert (Ja es geht!),ou=people,dc=gonicus,dc=de")
+    p = f.getObject('GenericUser', u"cn=Klaus Mustermann,ou=people,dc=gonicus,dc=de")
 
 if mode == "extend":
-    p = f.getObject('PosixUser', u'cn=Fabian Hickert (Ja es geht!),ou=people,dc=gonicus,dc=de', mode="extend")
+    p = f.getObject('PosixUser', u'cn=Klaus Mustermann,ou=people,dc=gonicus,dc=de', mode="extend")
     p.uidNumber = 4711
     p.gidNumber = 4711
     p.homeDirectory = "/home/cajus"
@@ -40,7 +39,7 @@ if mode == "extend":
     exit(0)
 
 if mode == "retract":
-    p = f.getObject('PosixUser', u'cn=Fabian Hickert (Ja es geht!),ou=people,dc=gonicus,dc=de')
+    p = f.getObject('PosixUser', u'cn=Klaus Mustermann,ou=people,dc=gonicus,dc=de')
     p.retract()
     exit(0)
 
@@ -89,12 +88,12 @@ if mode == "move":
 #print "sn:", p.sn
 #print "cn:", p.cn
 
-p.sn = u"Hickert"
-#p.cn = u"Hickert"
-p.uid = 'hickert'
-p.givenName = u"Fabian"
-p.sn = u"Hickert"
-p.userPassword = u"tollessecret"
+p.sn = u"Mustermann"
+#p.cn = u"Mustermann"
+p.uid = 'mustermann'
+p.givenName = u"Klaus"
+p.sn = u"Mustermann"
+p.userPassword = u"secret"
 
 #del(p.uid)
 p.roomNumber = 21

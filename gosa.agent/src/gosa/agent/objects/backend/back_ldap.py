@@ -59,6 +59,14 @@ class LDAP(ObjectBackend):
 
         return items
 
+    def identify(self, dn, params):
+        ocs = ["(objectClass=%s)" % o.strip() for o in params['objectClasses'].split(",")]
+        fltr = "(&" + "".join(ocs) + ")"
+        res = self.con.search_s(dn.encode('utf-8'), ldap.SCOPE_BASE, fltr,
+                [self.uuid_entry])
+
+        return len(res) == 1
+
     def exists(self, misc):
         if self.is_uuid(misc):
             fltr_tpl = "%s=%%s" % self.uuid_entry
@@ -113,8 +121,9 @@ class LDAP(ObjectBackend):
 
         self.con.modify_s(dn, mod_attrs)
 
-    def extend(self, base, data, params, foreign_keys):
-        return self.create(base, data, params, foreign_keys)
+    def extend(self, uuid, data, params, foreign_keys):
+        dn = self.uuid2dn(uuid)
+        return self.create(dn, data, params, foreign_keys)
 
     def move_extension(self, uuid, new_base):
         # There is no need to handle this inside of the LDAP backend
@@ -184,7 +193,7 @@ class LDAP(ObjectBackend):
 
     def update(self, uuid, data):
 
-        # Load DN for entry and assemble a proper modlist
+        # Assemble a proper modlist
         dn = self.uuid2dn(uuid)
 
         mod_attrs = []

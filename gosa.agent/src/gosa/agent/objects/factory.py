@@ -45,7 +45,7 @@ from zope.interface import Interface, implements
 from lxml import etree, objectify
 from gosa.common import Environment
 from gosa.agent.objects.filter import get_filter
-from gosa.agent.objects.backend.registry import ObjectBackendRegistry, load, update, create, remove, move, extend, retract
+from gosa.agent.objects.backend.registry import ObjectBackendRegistry
 from gosa.agent.objects.comparator import get_comparator
 from gosa.agent.objects.operator import get_operator
 from logging import getLogger
@@ -100,12 +100,32 @@ class GOsaObjectFactory(object):
 
     #@Command()
     def identifyObject(self, dn):
-        print "Identify:", dn
+        obr = ObjectBackendRegistry.getInstance()
+        id_base = None
+        id_extend = []
 
         # First, find all base objects
         # -> for every base object -> ask the primary backend to identify [true/false]
         for name, obj in self.__xml_defs.items():
-            print bool(obj.Object.BaseObject)
+            t_obj = obj.Object
+            is_base = bool(t_obj.BaseObject)
+            backend = str(t_obj.Backend)
+            for bp in t_obj.BackendParameters.Backend:
+                if str(bp) == backend:
+                    attrs = bp.attrib
+                    break
+
+            be = ObjectBackendRegistry.getBackend(backend)
+            if be.identify(dn, attrs):
+                if is_base:
+                    id_base = name
+                else:
+                    id_extend.append(name)
+
+        if id_base:
+            return (id_base, id_extend)
+
+        return None
 
     #@Command()
     def getObject(self, name, *args, **kwargs):
@@ -763,7 +783,9 @@ class GOsaObject(object):
                 # {attribute_name: type, name: type}
                 info = dict([(k, props[k]['backend_type']) for k in self._propsByBackend[backend]])
                 self.log.debug("loading attributes for backend '%s': %s" % (backend, str(info)))
-                attrs = load(obj, info, backend)
+                be = ObjectBackendRegistry.getBackend(backend)
+                attrs = be.load(self.uuid, info)
+
             except ValueError as e:
                 #raise FactoryException("Error reading properties for backend '%s'!" % (backend,))
                 import traceback
@@ -975,9 +997,9 @@ class GOsaObject(object):
         self.log.debug("saving object modifications for [%s|%s]" % (type(self).__name__, self.uuid))
 
         # Check if all required attributes are set.
-        for key in props:
-            if props[key]['mandatory'] and not props[key]['value']:
-                raise FactoryException("The required property '%s' is not set!" % (key,))
+        #for key in props:
+        #    if props[key]['mandatory'] and not props[key]['value']:
+        #        raise FactoryException("The required property '%s' is not set!" % (key,))
 
         # Collect values by store and process the property filters
         toStore = {}
@@ -1051,12 +1073,15 @@ class GOsaObject(object):
 
         # First, take care about the primary backend...
         if p_backend in toStore:
+            be = ObjectBackendRegistry.getBackend(p_backend)
             if self._mode == "create":
-                create(obj, toStore[p_backend], p_backend, self._backendAttrs[p_backend])
+                be.create(self.dn, toStore[p_backend], self._backendAttrs[p_backend])
             elif self._mode == "extend":
-                extend(obj, toStore[p_backend], p_backend, self._backendAttrs[p_backend])
+                be.extend(self.uuid, toStore[p_backend],
+                        self._backendAttrs[p_backend],
+                        self.getForeignProperties())
             else:
-                update(obj, toStore[p_backend], p_backend)
+                be.update(self.uuid, toStore[p_backend])
 
         # ... then walk thru the remaining ones
         for backend, data in toStore.items():
@@ -1065,12 +1090,14 @@ class GOsaObject(object):
             if backend == p_backend:
                 continue
 
+            be = ObjectBackendRegistry.getBackend(backend)
+
             if self._mode == "create":
-                create(obj, data, backend, self._backendAttrs[backend])
+                be.create(self.dn, data, self._backendAttrs[backend])
             elif self._mode == "extend":
-                extend(obj, data, backend, self._backendAttrs[backend])
+                be.extend(self.uuid, data, self._backendAttrs[backend])
             else:
-                update(obj, data, backend)
+                be.update(self.uuid, data)
 
         zope.event.notify(ObjectChanged("post %s" % self._mode, obj))
 
@@ -1223,7 +1250,7 @@ class GOsaObject(object):
                         raise FactoryException("Filter '%s' does not return all expected property values! '%s' missing." % (fname, missing))
 
                     # Check if the returned value-type is list or None.
-                    if type(prop[pk]['value']) not in [list]:
+                    if type(prop[pk]['value']) not in [list, type(None)]:
                         raise FactoryException("Filter '%s' does not return a 'list' as value for key %s (%s)!" % (
                             fname, pk, type(prop[pk]['value'])))
 
@@ -1338,7 +1365,8 @@ class GOsaObject(object):
             zope.event.notify(ObjectChanged("pre remove", obj))
 
             for backend in backends:
-                remove(obj, backend)
+                be = ObjectBackendRegistry.getBackend(backend)
+                be.remove(obj.uuid)
 
             zope.event.notify(ObjectChanged("post remove", obj))
 
@@ -1366,13 +1394,14 @@ class GOsaObject(object):
             if not info['backend'] in backends:
                 backends.append(info['backend'])
 
+        obj = self
         zope.event.notify(ObjectChanged("pre move", obj))
 
         # Move for all backends (...)
         backends.reverse()
-        obj = self
         for backend in backends:
-            move(obj, new_base, backend)
+            be = ObjectBackendRegistry.getBackend(backend)
+            be.move(self.uuid, new_base)
 
         #TODO: emit a "move" signal for all affected objects
         zope.event.notify(ObjectChanged("post move", obj))
@@ -1399,7 +1428,9 @@ class GOsaObject(object):
         zope.event.notify(ObjectChanged("pre retract", obj))
 
         for backend in backends:
-            retract(obj, backend, self._backendAttrs[backend])
+            be = ObjectBackendRegistry.getBackend(backend)
+            r_attrs = self.getExclusiveProperties()
+            be.retract(self.uuid, [a for a in r_attrs if getattr(r_attrs, a)], self._backendAttrs[backend])
 
         zope.event.notify(ObjectChanged("pre retract", obj))
 

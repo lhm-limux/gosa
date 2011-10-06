@@ -311,7 +311,33 @@
 				<Name>cn</Name>
 				<Description>This is the X.500 commonName attribute, which contains a name of an object.  If the object corresponds to a person, it is typically the person's full name.</Description>
 				<Type>UnicodeString</Type>
-			</Attribute>
+                                <DependsOn>
+                                        <Attribute>sn</Attribute>
+                                        <Attribute>givenName</Attribute>
+                                </DependsOn>
+
+                                <OutFilter>
+                                        <FilterChain>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>Clear</Name>
+                                                        </Filter>
+                                                </FilterEntry>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>ConcatString</Name>
+                                                                <Param>%(givenName)s %(sn)s</Param>
+                                                                <Param>left</Param>
+                                                        </Filter>
+                                                </FilterEntry>
+                                        </FilterChain>
+                                </OutFilter>
+                                <MultiValue>false</MultiValue>
+                                <Mandatory>true</Mandatory>
+                                <Readonly>true</Readonly>
+                        </Attribute>
+
+
                 </Attributes>
 
 		<BaseObject>true</BaseObject>
