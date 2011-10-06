@@ -7,10 +7,21 @@ import os
 from gosa.agent.objects import GOsaObjectFactory
 
 f = GOsaObjectFactory('.')
-p = f.getObject('SambaUser', u"cn=Playground Tester,ou=people,dc=gonicus,dc=de")
+p = f.getObject('SambaUser', u"cn=Playground Tester,ou=people,dc=gonicus,dc=de", mode="update")
 
-print p.sambaLogonScript
-for prop in p.propertyNames:
+for prop in p.listProperties():
     print "Attribute %s: %s" % (prop.ljust(40), getattr(p, prop))
+
+p.sambaLogonTime = datetime.datetime.today()
+p.sambaPwdCanChange = datetime.datetime.today()
+p.sambaKickoffTime = datetime.datetime.today()
+p.sambaLogoffTime = datetime.datetime.today()
+p.sambaPwdLastSet = datetime.datetime.today()
+p.sambaBadPasswordTime = datetime.datetime.today()
+p.sambaPwdMustChange = datetime.datetime.today()
+p.sambaBadPasswordCount = 5
+p.displayName = "PeterPan"
+
+p.passwordNotRequired = True
 
 p.commit()

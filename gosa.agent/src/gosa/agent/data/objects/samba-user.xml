@@ -13,18 +13,21 @@
                                 <Name>sambaSID</Name>
                                 <Description>Security ID</Description>
                                 <Type>String</Type>
+                                <Mandatory>true</Mandatory>
                         </Attribute>
 
            		<Attribute>
                                 <Name>sambaLMPassword</Name>
                                 <Description>LanManager Password</Description>
                                 <Type>String</Type>
+                                <Readonly>true</Readonly>
                         </Attribute>
 
            		<Attribute>
                                 <Name>sambaNTPassword</Name>
                                 <Description>MD4 hash of the unicode password</Description>
                                 <Type>String</Type>
+                                <Readonly>true</Readonly>
                         </Attribute>
 
            		<Attribute>
@@ -155,19 +158,32 @@
            		<Attribute>
                                 <Name>sambaPwdMustChange</Name>
                                 <Description>Timestamp of when the password will expire</Description>
-                                <Type>UnicodeString</Type>
-                        </Attribute>
-
-           		<Attribute>
-                                <Name>sambaAcctFlags</Name>
-                                <Description>Account Flags</Description>
-                                <Type>UnicodeString</Type>
+                                <Type>Timestamp</Type>
+                                <BackendType>Integer</BackendType>
+	                       	<InFilter>
+                                        <FilterChain>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>IntegerToDatetime</Name>
+                                                        </Filter>
+                                                </FilterEntry>
+                                        </FilterChain>
+                                </InFilter>
+	                       	<OutFilter>
+                                        <FilterChain>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>DatetimeToInteger</Name>
+                                                        </Filter>
+                                                </FilterEntry>
+                                        </FilterChain>
+                                </OutFilter>
                         </Attribute>
 
            		<Attribute>
                                 <Name>displayName</Name>
                                 <Description>Display name</Description>
-                                <Type>UnicodeString</Type>
+                                <Type>String</Type>
                         </Attribute>
 
            		<Attribute>
@@ -213,12 +229,6 @@
                         </Attribute>
 
            		<Attribute>
-                                <Name>sambaMungedDial</Name>
-                                <Description>Base64 encoded user parameter string</Description>
-                                <Type>UnicodeString</Type>
-                        </Attribute>
-
-           		<Attribute>
                                 <Name>sambaBadPasswordCount</Name>
                                 <Description>Bad password attempt count</Description>
                                 <Type>Integer</Type>
@@ -228,6 +238,25 @@
                                 <Name>sambaBadPasswordTime</Name>
                                 <Description>Time of the last bad password attempt</Description>
                                 <Type>Timestamp</Type>
+                                <BackendType>Integer</BackendType>
+	                       	<InFilter>
+                                        <FilterChain>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>IntegerToDatetime</Name>
+                                                        </Filter>
+                                                </FilterEntry>
+                                        </FilterChain>
+                                </InFilter>
+	                       	<OutFilter>
+                                        <FilterChain>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>DatetimeToInteger</Name>
+                                                        </Filter>
+                                                </FilterEntry>
+                                        </FilterChain>
+                                </OutFilter>
                         </Attribute>
 
            		<Attribute>
@@ -240,6 +269,28 @@
                                 <Name>sambaLogonHours</Name>
                                 <Description>Logon Hours</Description>
                                 <Type>UnicodeString</Type>
+                        </Attribute>
+
+			<Attribute>
+                                <Name>sambaMungedDial</Name>
+                                <Description>Base64 encoded user parameter string</Description>
+                                <Type>UnicodeString</Type>
+                        </Attribute>
+
+           		<Attribute>
+                                <Name>sambaAcctFlags</Name>
+                                <Description>Account Flags</Description>
+                                <Type>UnicodeString</Type>
+				<Readonly>true</Readonly>
+	                       	<InFilter>
+                                        <FilterChain>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>SambaAcctFlagsIn</Name>
+                                                        </Filter>
+                                                </FilterEntry>
+                                        </FilterChain>
+                                </InFilter>
                         </Attribute>
                 </Attributes>
 

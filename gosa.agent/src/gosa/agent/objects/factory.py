@@ -146,6 +146,34 @@ class GOsaObjectFactory(object):
 
 #----------------------------------------------------------------------------------------
 
+    @staticmethod
+    def createNewProperty(backend, atype, dependsOn=[], backend_type=None, validator=[], in_f=[], out_f=[],
+            unique=False, mandatory=False, readonly=False, multivalue=False, foreign=False, status=STATUS_OK,
+            value=[], skip_save=False):
+
+        if not backend_type:
+            backend_type = atype
+
+        ret = {
+                'value': value,
+                'status': status,
+                'dependsOn': dependsOn,
+                'type': atype,
+                'backend_type': backend_type,
+                'validator': validator,
+                'out_filter': out_f,
+                'in_filter': in_f,
+                'backend': backend,
+                'orig_value': value,
+                'foreign': foreign,
+                'unique': unique,
+                'mandatory': mandatory,
+                'readonly': readonly,
+                'skip_save': skip_save,
+                'multivalue': multivalue}
+        return ret
+
+
     def loadSchema(self, path):
         """
         This method reads all gosa-object defintion files and then calls
@@ -225,10 +253,21 @@ class GOsaObjectFactory(object):
             for entry in classr["BackendParameters"]:
                 back_attrs[str(entry.Backend)] = entry.Backend.attrib
 
+        # Load object properties like: extends, is base object and allowed container elements
+        extends = str(classr['Extends']) if "Extends" in classr.__dict__ else None
+        base_object = bool(classr['BaseObject']) if "BaseObject" in classr.__dict__ else False
+        container = []
+        if "Container" in classr.__dict__:
+            for entry in classr["Container"]:
+                container.append(str(entry.Type))
+
         # Tweak name to the new target
         setattr(klass, '__name__', name)
         setattr(klass, '_backend', str(classr.Backend))
         setattr(klass, '_backendAttrs', back_attrs)
+        setattr(klass, '_extends', extends)
+        setattr(klass, '_base_object', base_object)
+        setattr(klass, '_container_for', container)
 
         # Prepare property and method list.
         props = {}
@@ -243,7 +282,6 @@ class GOsaObjectFactory(object):
 
         # Load the backend and its attributes
         defaultBackend = str(classr.Backend)
-        backendAttrs = classr.Backend.attrib
 
         # Append attributes
         for prop in classr['Attributes']['Attribute']:
@@ -252,10 +290,8 @@ class GOsaObjectFactory(object):
 
             # Read backend definition per property (if it exists)
             backend = defaultBackend
-            backend_attrs = backendAttrs
             if "Backend" in prop.__dict__:
                 backend = str(prop.Backend)
-                backend_attrs = prop.Backend.attrib
 
             # Do we have an output filter definition?
             out_f = []
@@ -289,6 +325,7 @@ class GOsaObjectFactory(object):
             unique = bool(prop['Unique']) if "Unique" in prop.__dict__ else False
             mandatory = bool(prop['Mandatory']) if "Mandatory" in prop.__dict__ else False
             readonly = bool(prop['Readonly']) if "Readonly" in prop.__dict__ else False
+            foreign = bool(prop['Foreign']) if "Foreign" in prop.__dict__ else False
 
             # Check for property dependencies
             dependsOn = []
@@ -296,25 +333,11 @@ class GOsaObjectFactory(object):
                 for d in prop.__dict__['DependsOn'].iterchildren():
                     dependsOn.append(str(d))
 
-            props[str(prop['Name'])] = {
-                    'value': None,
-                    'status': STATUS_OK,
-                    'dependsOn': dependsOn,
-                    'type':syntax,
-                    'backend_type': backend_syntax,
-                    'syntax': syntax,
-                    'validator': validator,
-                    'out_filter': out_f,
-                    'in_filter': in_f,
-                    'backend': backend,
-                    'backend_attrs': backend_attrs,
-                    'orig_value': None,
-                    #FIXME:
-                    'foreign': False,
-                    'unique': unique,
-                    'mandatory': mandatory,
-                    'readonly': readonly,
-                    'multivalue': multivalue}
+            # Create a new property with the given information
+            props[str(prop['Name'])] =  new_prop = GOsaObjectFactory.createNewProperty(backend, syntax,
+                    dependsOn=dependsOn, backend_type=backend_syntax, validator=validator, in_f=in_f,
+                    out_f=out_f, unique=unique, mandatory=mandatory, readonly=readonly,
+                    multivalue=multivalue, foreign=foreign, status=STATUS_OK, value=None)
 
         # Build up a list of callable methods
         if 'Methods' in classr.__dict__:
@@ -402,12 +425,9 @@ class GOsaObjectFactory(object):
                 methods[methodName] = {'ref': funk}
 
         # Set properties and methods for this object.
-        setattr(klass, 'propertyNames', props.keys())
         setattr(klass, '__properties', props)
         setattr(klass, '__methods', methods)
-
         return klass
-
 
     def __build_filter(self, element, out=None):
         """
@@ -703,6 +723,10 @@ class GOsaObject(object):
         if dn and mode != "create":
             self._read(dn)
 
+    def listProperties(self):
+        props = getattr(self, '__properties')
+        return(props.keys())
+
     def _read(self, dn):
         """
         This method tries to initialize a GOsa-object instance by reading data
@@ -753,6 +777,7 @@ class GOsaObject(object):
 
                 # Skip loading in-filters for None values
                 if props[key]['value'] == None:
+                    props[key]['orig_value'] = props[key]['value'] = []
                     continue
 
                 # Execute defined in-filters.
@@ -762,39 +787,13 @@ class GOsaObject(object):
 
                     # Execute each in-filter
                     for in_f in props[key]['in_filter']:
-                        valDict = {key: {
-                                'backend': props[key]['backend'],
-                                'backend_attrs': props[key]['backend_attrs'],
-                                'value': value,
-                                'type': props[key]['type']}}
-                        valDict = self.__processFilter(in_f, key, valDict)
+                        valDict = {key: copy.deepcopy(props[key])}
+                        self.__processFilter(in_f, key, valDict)
 
                         # Assign filter results
-                        for key in valDict:
-                            self.log.debug("in-filter returned %s: '%s'" % (key, valDict[key]['value']))
-                            if key not in props:
-                                props[key] = {
-                                    'value':  valDict[key]['value'],
-                                    'status': STATUS_OK,
-                                    'dependsOn': [],
-                                    'type': valDict[key]['type'],
-                                    'syntax': None,
-                                    'validator': None,
-                                    'out_filter': None,
-                                    'in_filter': None,
-                                    'backend': valDict[key]['backend'],
-                                    'backend_attrs': valDict[key]['backend_attrs'],
-                                    'unique': False,
-                                    'mandatory': False,
-                                    'readonly': True,
-                                    #FIXME: needs to be programatically
-                                    'foreign': False,
-                                    'multivalue': False}
-                            else:
-                                props[key]['value'] = valDict[key]['value']
-                                props[key]['backend'] = valDict[key]['backend']
-                                props[key]['backend_attrs'] = valDict[key]['backend_attrs']
-                                props[key]['type'] = valDict[key]['type']
+                        for new_key in valDict:
+                            self.log.debug("in-filter returned %s: '%s'" % (new_key, valDict[new_key]['value']))
+                            props[new_key] =  valDict[new_key]
 
         # Convert the received type into the target type if not done already
         for key in props:
@@ -865,7 +864,7 @@ class GOsaObject(object):
                 for entry in value:
                     if TYPE_MAP[props[name]['type']] and not issubclass(type(value[failed]), TYPE_MAP[props[name]['type']]):
                         raise TypeError("Cannot assign multi-value '%s' to property '%s' which expects %s. Item %s is of invalid type %s!" % (
-                            value, name, props[name]['syntax'], failed, type(value[failed])))
+                            value, name, props[name]['type'], failed, type(value[failed])))
                     failed += 1
             else:
 
@@ -873,7 +872,7 @@ class GOsaObject(object):
                 if TYPE_MAP[props[name]['type']] and not issubclass(type(value), TYPE_MAP[props[name]['type']]):
                     raise TypeError("cannot assign value '%s'(%s) to property '%s'(%s)" % (
                         value, type(value).__name__,
-                        name, props[name]['syntax']))
+                        name, props[name]['type']))
 
             # Set the new value
             if props[name]['multivalue']:
@@ -924,7 +923,7 @@ class GOsaObject(object):
             if props[name]['multivalue']:
                 return props[name]['value']
             else:
-                if props[name]['value'] and len(props[name]['value']):
+                if len(props[name]['value']):
                     return props[name]['value'][0]
                 else:
                     return None
@@ -986,33 +985,40 @@ class GOsaObject(object):
 
                 self.log.debug(" found %s out-filter for %s" % (str(len(props[key]['out_filter'])), key,))
                 for out_f in props[key]['out_filter']:
-                    valDict = {key:{
-                            'backend': props[key]['backend'],
-                            'backend_attrs': props[key]['backend_attrs'],
-                            'value': props[key]['value'],
-                            'type': props[key]['backend_type']}}
+                    valDict = {key: copy.deepcopy(props[key])}
                     valDict = self.__processFilter(out_f, key, valDict)
 
                     # Collect properties by backend
                     for prop_key in valDict:
-                        be = valDict[prop_key]['backend']
 
+                        # do not save properties that are marked with 'skip_save'
+                        self.log.debug(" outfilter returned %s:(%s) %s" % (prop_key, valDict[prop_key]['type'], valDict[prop_key]['value']))
+                        if valDict[prop_key]['skip_save']:
+                            continue
+
+                        # Create backend entry in the target list.
+                        be = valDict[prop_key]['backend']
                         if not be in toStore:
                             toStore[be] = {}
 
-                        self.log.debug(" outfilter returned %s:(%s) %s" % (prop_key, valDict[prop_key]['type'], valDict[prop_key]['value']))
-                        toStore[be][prop_key] = {'orig': props[key]['orig_value'],
+                        # Append entry to be sored.
+                        toStore[be][prop_key] = {'foreign': props[key]['foreign'],
+                                                 'orig': props[key]['orig_value'],
                                                  'value': valDict[prop_key]['value'],
-                                                 'type': valDict[prop_key]['type']}
+                                                 'type': valDict[prop_key]['backend_type']}
             else:
+
+                # do not save properties that are marked with 'skip_save'
+                if props[key]['skip_save']:
+                    continue
 
                 # Collect properties by backend
                 be = props[key]['backend']
                 if not be in toStore:
                     toStore[be] = {}
 
-                #TODO: remove list workaround needed for testing
-                toStore[be][key] = {'orig': props[key]['orig_value'],
+                toStore[be][key] = {'foreign': props[key]['foreign'],
+                                    'orig': props[key]['orig_value'],
                                     'value': props[key]['value'],
                                     'type': props[key]['backend_type']}
 
@@ -1187,8 +1193,9 @@ class GOsaObject(object):
                         raise FactoryException("Filter '%s' does not return all expected property values! '%s' missing." % (fname, missing))
 
                     # Check if the returned value-type is list or None.
-                    if type(prop[pk]['value']) not in [list, None]:
-                        raise FactoryException("Filter '%s' does not return a 'list' or 'None' as value for key %s! '%s' missing." % (fname, pk))
+                    if type(prop[pk]['value']) not in [list]:
+                        raise FactoryException("Filter '%s' does not return a 'list' as value for key %s (%s)!" % (
+                            fname, pk, type(prop[pk]['value'])))
 
                 self.log.debug("  %s: [Filter]  %s(%s) called " % (lptr, fname, ", ".join(map(lambda x : "\"" + x + "\"",  curline['params']))))
 
