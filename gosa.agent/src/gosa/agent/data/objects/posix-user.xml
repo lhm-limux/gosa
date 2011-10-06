@@ -3,6 +3,7 @@
 	<Object>
 		<Name>PosixUser</Name>
 		<Description>A posix extension for a generic user</Description>
+		<BaseObject>false</BaseObject>
 		<BackendParameters>
 			<Backend objectClasses="posixAccount,shadowAccount">LDAP</Backend>
 		</BackendParameters>
@@ -89,7 +90,6 @@
 		<Extends>
 			<Value>generic-user</Value>
 		</Extends>
-		<BaseObject>false</BaseObject>
 	</Object>
 </Objects>
 

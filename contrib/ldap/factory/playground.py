@@ -15,7 +15,7 @@ def l(event):
 zope.event.subscribers.append(l)
 
 
-# use create, update, remove, move
+# use create, update, remove, move, extend, retract
 if len(sys.argv) != 2:
     mode = 'update'
 else:
@@ -28,13 +28,19 @@ if mode == "create":
     p = f.getObject('GenericUser', u'ou=people,dc=gonicus,dc=de', mode="create")
 
 if mode in ["update", "move", "remove"]:
-    #p = f.getObject('GenericUser', u"cn=Fabian Hickert (Ja es geht!),ou=people,dc=gonicus,dc=de")
-    p = f.getObject('PosixUser', u"cn=Fabian Hickert (Ja es geht!),ou=people,dc=gonicus,dc=de")
+    p = f.getObject('GenericUser', u"cn=Fabian Hickert (Ja es geht!),ou=people,dc=gonicus,dc=de")
 
-    print p
+if mode == "extend":
+    p = f.getObject('PosixUser', u'cn=Fabian Hickert (Ja es geht!),ou=people,dc=gonicus,dc=de', mode="extend")
+    p.uidNumber = 4711
+    p.gidNumber = 4711
+    p.homeDirectory = "/home/cajus"
+    p.commit()
+    exit(0)
+
+if mode == "retract":
+    p = f.getObject('PosixUser', u'cn=Fabian Hickert (Ja es geht!),ou=people,dc=gonicus,dc=de')
     p.retract()
-
-    print "break"
     exit(0)
 
 if mode == "remove":

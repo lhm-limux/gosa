@@ -48,15 +48,18 @@ def create(obj, data, backend=None, backend_attrs=None):
     backendI = get_backend(obj, backend)
     return backendI.create(obj.dn, data, backend_attrs)
 
-def extend(obj, data, backend=None, backend_attrs=None, foreign_keys=None):
+def extend(obj, data, backend=None, backend_attrs=None):
     backendI = get_backend(obj, backend)
-    return backendI.extend(obj.dn, data, backend_attrs, foreign_keys)
+    return backendI.extend(obj.dn, data, backend_attrs,
+            obj.getForeignProperties())
 
 def remove(obj, backend=None, backend_attrs=None):
     return remove_by_uuid(obj.uuid, backend, backend_attrs)
 
-def retract(obj, backend=None, backend_attrs=None, foreign_keys=None):
-    return backendI.retract(obj.uuid, False)
+def retract(obj, backend=None, backend_attrs=None):
+    backendI = get_backend(obj, backend)
+    r_attrs = obj.getExclusiveProperties()
+    return backendI.retract(obj.uuid, [a for a in r_attrs if getattr(obj, a)], backend_attrs)
 
 def remove_by_uuid(uuid, backend=None, backend_attrs=None):
     backendI = get_backend(obj, backend)

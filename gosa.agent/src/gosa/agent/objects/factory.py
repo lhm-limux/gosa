@@ -1041,12 +1041,9 @@ class GOsaObject(object):
         # First, take care about the primary backend...
         if p_backend in toStore:
             if self._mode == "create":
-                create(obj, toStore[p_backend], p_backend,
-                        self._backendAttrs[p_backend])
+                create(obj, toStore[p_backend], p_backend, self._backendAttrs[p_backend])
             elif self._mode == "extend":
-                foreign_keys = dict([(x, y) for x, y in props.items() if y['foreign']])
-                extend(obj, toStore[p_backend], p_backend,
-                        self._backendAttrs[p_backend], foreign_keys)
+                extend(obj, toStore[p_backend], p_backend, self._backendAttrs[p_backend])
             else:
                 update(obj, toStore[p_backend], p_backend)
 
@@ -1076,6 +1073,14 @@ class GOsaObject(object):
             props[key]['value'] = props[key]['old']
 
         self.log.debug("reverted object modifications for [%s|%s]" % (type(self).__name__, self.uuid))
+
+    def getExclusiveProperties(self):
+        props = getattr(self, '__properties')
+        return [x for x, y in props.items() if not y['foreign']]
+
+    def getForeignProperties(self):
+        props = getattr(self, '__properties')
+        return [x for x, y in props.items() if y['foreign']]
 
     def __processValidator(self, fltr, key, value):
         """
@@ -1348,6 +1353,9 @@ class GOsaObject(object):
         """
         Removes this object extension
         """
+        if self._base_object:
+            raise FactoryException("base objects cannot be retracted")
+
         props = getattr(self, '__properties')
 
         # Collect backends
@@ -1363,7 +1371,7 @@ class GOsaObject(object):
         zope.event.notify(ObjectExtensionPreRemove(obj))
 
         for backend in backends:
-            retract(obj, backend)
+            retract(obj, backend, self._backendAttrs[backend])
 
         zope.event.notify(ObjectExtensionRemoved(obj))
 
