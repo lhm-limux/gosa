@@ -96,7 +96,7 @@ class GOsaObjectFactory(object):
         # Load and parse schema
         self.loadSchema(path)
 
-#----------------------------------------------------------------------------------------
+#-TODO-needs-re-work-------------------------------------------------------------------------------
 
     #@Command()
     def getObject(self, name, *args, **kwargs):
@@ -273,12 +273,9 @@ class GOsaObjectFactory(object):
         props = {}
         methods = {}
 
-        #TODO: Handle documentation string here. We cannot write __doc__
-        #      AttributeError: attribute '__doc__' of 'type' objects is not writable
-        #
         # Add documentation if available
-        #if 'Description' in classr.__dict__:
-        #    setattr(klass, '__doc__', str(classr['Description']))
+        if 'Description' in classr.__dict__:
+            setattr(klass, '_description', str(classr['Description']))
 
         # Load the backend and its attributes
         defaultBackend = str(classr.Backend)
