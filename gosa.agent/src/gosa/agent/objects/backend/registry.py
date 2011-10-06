@@ -68,3 +68,7 @@ def remove_by_uuid(uuid, backend=None, backend_attrs=None):
 def move(obj, new_base, backend=None, backend_attrs=None):
     backendI = get_backend(obj, backend)
     return backendI.move(obj.uuid, new_base)
+
+def move_extension(obj, new_base, backend=None, backend_attrs=None):
+    backendI = get_backend(obj, backend)
+    return backendI.move_extension(obj.uuid, new_base)

@@ -31,13 +31,19 @@ class ObjectBackend(object):
         """
         raise NotImplementedError("object backend is not capable of moving objects")
 
+    def move_extension(self, uuid, new_base):
+        """
+        Notify extension that it is on another base now.
+        """
+        raise NotImplementedError("object backend is not capable of moving extensions")
+
     def create(self, dn, data, params):
         """
         Create a new base object entry with the given DN.
         """
         raise NotImplementedError("object backend is not capable of creating base objects")
 
-    def extend(self, uuid, data, params):
+    def extend(self, uuid, data, params, foreign_keys):
         """
         Create an extension to a base object with the given UUID.
         """

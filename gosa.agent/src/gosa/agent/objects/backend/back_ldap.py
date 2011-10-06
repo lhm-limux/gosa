@@ -116,6 +116,10 @@ class LDAP(ObjectBackend):
     def extend(self, base, data, params, foreign_keys):
         return self.create(base, data, params, foreign_keys)
 
+    def move_extension(self, uuid, new_base):
+        # There is no need to handle this inside of the LDAP backend
+        pass
+
     def move(self, uuid, new_base):
         dn = self.uuid2dn(uuid)
         self.log.debug("moving entry '%s' to new base '%s'" % (dn, new_base))
