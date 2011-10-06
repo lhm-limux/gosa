@@ -79,7 +79,7 @@ class SambaAcctFlagsIn(ElementFilter):
 
         # Add newly introduced properties.
         for src in mapping:
-            valDict[mapping[src]] = GOsaObjectFactory.createNewProperty(valDict[key]['backend'], 'Boolean', value=[False])
+            valDict[mapping[src]] = GOsaObjectFactory.createNewProperty(valDict[key]['backend'], 'Boolean', value=[False], skip_save=True)
 
         # Now parse the existing acctFlags
         if len(valDict[key]['value']) >= 1:

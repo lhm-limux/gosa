@@ -150,7 +150,8 @@ class GOsaObjectFactory(object):
 
     @staticmethod
     def createNewProperty(backend, atype, dependsOn=[], backend_type=None, validator=[], in_f=[], out_f=[],
-            unique=False, mandatory=False, readonly=False, multivalue=False, foreign=False, status=STATUS_OK, value=[]):
+            unique=False, mandatory=False, readonly=False, multivalue=False, foreign=False, status=STATUS_OK,
+            value=[], skip_save=False):
 
         if not backend_type:
             backend_type = atype
@@ -170,6 +171,7 @@ class GOsaObjectFactory(object):
                 'unique': unique,
                 'mandatory': mandatory,
                 'readonly': readonly,
+                'skip_save': skip_save,
                 'multivalue': multivalue}
         return ret
 
@@ -983,31 +985,40 @@ class GOsaObject(object):
 
                 self.log.debug(" found %s out-filter for %s" % (str(len(props[key]['out_filter'])), key,))
                 for out_f in props[key]['out_filter']:
-                    valDict = {key:{
-                            'backend': props[key]['backend'],
-                            'value': props[key]['value'],
-                            'type': props[key]['backend_type']}}
+                    valDict = {key: copy.deepcopy(props[key])}
                     valDict = self.__processFilter(out_f, key, valDict)
 
                     # Collect properties by backend
                     for prop_key in valDict:
-                        be = valDict[prop_key]['backend']
 
+                        # do not save properties that are marked with 'skip_save'
+                        self.log.debug(" outfilter returned %s:(%s) %s" % (prop_key, valDict[prop_key]['type'], valDict[prop_key]['value']))
+                        if valDict[prop_key]['skip_save']:
+                            continue
+
+                        # Create backend entry in the target list.
+                        be = valDict[prop_key]['backend']
                         if not be in toStore:
                             toStore[be] = {}
 
-                        self.log.debug(" outfilter returned %s:(%s) %s" % (prop_key, valDict[prop_key]['type'], valDict[prop_key]['value']))
-                        toStore[be][prop_key] = {'orig': props[key]['orig_value'],
+                        # Append entry to be sored.
+                        toStore[be][prop_key] = {'foreign': props[key]['foreign'],
+                                                 'orig': props[key]['orig_value'],
                                                  'value': valDict[prop_key]['value'],
-                                                 'type': valDict[prop_key]['type']}
+                                                 'type': valDict[prop_key]['backend_type']}
             else:
+
+                # do not save properties that are marked with 'skip_save'
+                if props[key]['skip_save']:
+                    continue
 
                 # Collect properties by backend
                 be = props[key]['backend']
                 if not be in toStore:
                     toStore[be] = {}
 
-                toStore[be][key] = {'orig': props[key]['orig_value'],
+                toStore[be][key] = {'foreign': props[key]['foreign'],
+                                    'orig': props[key]['orig_value'],
                                     'value': props[key]['value'],
                                     'type': props[key]['backend_type']}
 
@@ -1026,7 +1037,6 @@ class GOsaObject(object):
                 extend(obj, toStore[p_backend], p_backend,
                         self._backendAttrs[p_backend], foreign_keys)
             else:
-                print toStore[p_backend]
                 update(obj, toStore[p_backend], p_backend)
 
         # ... then walk thru the remaining ones
