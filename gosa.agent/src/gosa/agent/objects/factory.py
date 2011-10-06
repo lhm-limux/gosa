@@ -1300,6 +1300,13 @@ class GOsaObject(object):
         """
         Removes this object - and eventually it's containements.
         """
+        if not self._base_object:
+            raise FactoryException("cannot remove non base object - use retract")
+
+        #TODO: notify extension about remove
+        #for every used extension:
+        #   extension.retract()
+
         props = getattr(self, '__properties')
 
         # Collect backends
@@ -1323,6 +1330,10 @@ class GOsaObject(object):
 
             zope.event.notify(ObjectChanged("post remove", obj))
 
+    def move_extension(self, new_base):
+        #TODO: do whatever needed to move (or just notify) an extension object
+        pass
+
     def move(self, new_base):
         """
         Moves this object - and eventually it's containements.
@@ -1331,6 +1342,10 @@ class GOsaObject(object):
             raise FactoryException("cannot move non base objects")
 
         props = getattr(self, '__properties')
+
+        #TODO: notify extension about move
+        #for every used extension:
+        #   extension.move_extension(self.uuid, new_base)
 
         # Collect backends
         backends = [getattr(self, '_backend')]
