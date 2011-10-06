@@ -45,7 +45,7 @@ from zope.interface import Interface, implements
 from lxml import etree, objectify
 from gosa.common import Environment
 from gosa.agent.objects.filter import get_filter
-from gosa.agent.objects.backend.registry import ObjectBackendRegistry, load, update, create, remove, move, extend
+from gosa.agent.objects.backend.registry import ObjectBackendRegistry, load, update, create, remove, move, extend, retract
 from gosa.agent.objects.comparator import get_comparator
 from gosa.agent.objects.operator import get_operator
 from logging import getLogger
@@ -96,7 +96,7 @@ class GOsaObjectFactory(object):
         # Load and parse schema
         self.loadSchema(path)
 
-#----------------------------------------------------------------------------------------
+#-TODO-needs-re-work-------------------------------------------------------------------------------
 
     #@Command()
     def getObject(self, name, *args, **kwargs):
@@ -278,12 +278,9 @@ class GOsaObjectFactory(object):
         props = {}
         methods = {}
 
-        #TODO: Handle documentation string here. We cannot write __doc__
-        #      AttributeError: attribute '__doc__' of 'type' objects is not writable
-        #
         # Add documentation if available
-        #if 'Description' in classr.__dict__:
-        #    setattr(klass, '__doc__', str(classr['Description']))
+        if 'Description' in classr.__dict__:
+            setattr(klass, '_description', str(classr['Description']))
 
         # Load the backend and its attributes
         defaultBackend = str(classr.Backend)
@@ -960,7 +957,11 @@ class GOsaObject(object):
         """
         props = getattr(self, '__properties')
 
-        #TODO: Check if _mode matches with the current object type (#61)
+        # Check if _mode matches with the current object type
+        if self._base_object and not self._mode in ['create', 'remove', 'update']:
+            raise FactoryException("mode '%s' not available for base objects" % self._mode)
+        if not self._base_object and self._mode in ['create', 'remove']:
+            raise FactoryException("mode '%s' only available for base objects" % self._mode)
 
         self.log.debug("saving object modifications for [%s|%s]" % (type(self).__name__, self.uuid))
 
@@ -1037,17 +1038,14 @@ class GOsaObject(object):
         # Handle by backend
         p_backend = getattr(self, '_backend')
         obj = self
-        zope.event.notify(ObjectPreCreate(obj) if self._mode == "create" else ObjectPreUpdate(obj))
+        zope.event.notify(ObjectChanged("pre %s" % self._mode, obj))
 
         # First, take care about the primary backend...
         if p_backend in toStore:
             if self._mode == "create":
-                create(obj, toStore[p_backend], p_backend,
-                        self._backendAttrs[p_backend])
+                create(obj, toStore[p_backend], p_backend, self._backendAttrs[p_backend])
             elif self._mode == "extend":
-                foreign_keys = dict([(x, y) for x, y in props.items() if y['foreign']])
-                extend(obj, toStore[p_backend], p_backend,
-                        self._backendAttrs[p_backend], foreign_keys)
+                extend(obj, toStore[p_backend], p_backend, self._backendAttrs[p_backend])
             else:
                 update(obj, toStore[p_backend], p_backend)
 
@@ -1065,7 +1063,7 @@ class GOsaObject(object):
             else:
                 update(obj, data, backend)
 
-        zope.event.notify(ObjectCreated(obj) if self._mode == "create" else ObjectUpdated(obj))
+        zope.event.notify(ObjectChanged("post %s" % self._mode, obj))
 
     def revert(self):
         """
@@ -1076,6 +1074,14 @@ class GOsaObject(object):
             props[key]['value'] = props[key]['old']
 
         self.log.debug("reverted object modifications for [%s|%s]" % (type(self).__name__, self.uuid))
+
+    def getExclusiveProperties(self):
+        props = getattr(self, '__properties')
+        return [x for x, y in props.items() if not y['foreign']]
+
+    def getForeignProperties(self):
+        props = getattr(self, '__properties')
+        return [x for x, y in props.items() if y['foreign']]
 
     def __processValidator(self, fltr, key, value):
         """
@@ -1313,17 +1319,20 @@ class GOsaObject(object):
             #TODO: emit a "move" signal for all affected objects
             raise NotImplemented("recursive removal is not implemented")
         else:
-            zope.event.notify(ObjectPreRemove(obj))
+            zope.event.notify(ObjectChanged("pre remove", obj))
 
             for backend in backends:
                 remove(obj, backend)
 
-            zope.event.notify(ObjectRemoved(obj))
+            zope.event.notify(ObjectChanged("post remove", obj))
 
     def move(self, new_base):
         """
         Moves this object - and eventually it's containements.
         """
+        if not self._base_object:
+            raise FactoryException("cannot move non base objects")
+
         props = getattr(self, '__properties')
 
         # Collect backends
@@ -1333,7 +1342,7 @@ class GOsaObject(object):
             if not info['backend'] in backends:
                 backends.append(info['backend'])
 
-        zope.event.notify(ObjectPreMove(obj))
+        zope.event.notify(ObjectChanged("pre move", obj))
 
         # Move for all backends (...)
         backends.reverse()
@@ -1342,7 +1351,33 @@ class GOsaObject(object):
             move(obj, new_base, backend)
 
         #TODO: emit a "move" signal for all affected objects
-        zope.event.notify(ObjectMoved(obj))
+        zope.event.notify(ObjectChanged("post move", obj))
+
+    def retract(self):
+        """
+        Removes this object extension
+        """
+        if self._base_object:
+            raise FactoryException("base objects cannot be retracted")
+
+        props = getattr(self, '__properties')
+
+        # Collect backends
+        backends = [getattr(self, '_backend')]
+
+        for prop, info in props.items():
+            if not info['backend'] in backends:
+                backends.append(info['backend'])
+
+        # Retract for all backends, removing the primary one as the last one
+        backends.reverse()
+        obj = self
+        zope.event.notify(ObjectChanged("pre retract", obj))
+
+        for backend in backends:
+            retract(obj, backend, self._backendAttrs[backend])
+
+        zope.event.notify(ObjectChanged("pre retract", obj))
 
     def _del_(self):
         """
@@ -1364,58 +1399,18 @@ class IAttributeChanged(Interface):
         pass
 
 
-class ObjectUpdated(object):
+class ObjectChanged(object):
     implements(IObjectChanged)
 
-    def __init__(self, obj):
-        pass
+    def __init__(self, reason, obj):
+        self.reason = reason
+        self.uuid = obj.uuid
 
 
-class ObjectCreated(object):
-    implements(IObjectChanged)
+class AttributeChanged(object):
+    implements(IAttributeChanged)
 
-    def __init__(self, obj):
-        pass
-
-
-class ObjectRemoved(object):
-    implements(IObjectChanged)
-
-    def __init__(self, obj):
-        pass
-
-
-class ObjectMoved(object):
-    implements(IObjectChanged)
-
-    def __init__(self, obj):
-        pass
-
-
-class ObjectPreUpdate(object):
-    implements(IObjectChanged)
-
-    def __init__(self, obj):
-        pass
-
-
-class ObjectPreCreate(object):
-    implements(IObjectChanged)
-
-    def __init__(self, obj):
-        pass
-
-
-class ObjectPreRemove(object):
-    implements(IObjectChanged)
-
-    def __init__(self, obj):
-        pass
-
-
-class ObjectPreMove(object):
-    implements(IObjectChanged)
-
-    def __init__(self, obj):
-        pass
-
+    def __init__(self, reason, obj, target):
+        self.reason = reason
+        self.target = target
+        self.uuid = obj.uuid

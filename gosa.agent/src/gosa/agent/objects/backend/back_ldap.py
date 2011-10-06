@@ -97,8 +97,21 @@ class LDAP(ObjectBackend):
         self.log.debug("removing entry '%s'" % dn)
         return self.con.delete_s(dn)
 
-#    def retract(self, uuid):
-#        pass
+    def retract(self, uuid, data, params):
+        # Remove defined data from the specified object
+        dn = self.uuid2dn(uuid)
+        mod_attrs = []
+
+        # We know about object classes - remove them
+        if 'objectClasses' in params:
+            ocs = [o.strip() for o in params['objectClasses'].split(",")]
+            mod_attrs.append((ldap.MOD_DELETE, 'objectClass', ocs))
+
+        # Remove all other keys related to this object
+        for key in data:
+            mod_attrs.append((ldap.MOD_DELETE, key, None))
+
+        self.con.modify_s(dn, mod_attrs)
 
     def extend(self, base, data, params, foreign_keys):
         return self.create(base, data, params, foreign_keys)

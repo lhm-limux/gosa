@@ -31,48 +31,40 @@ class ObjectBackendRegistry(object):
         return ObjectBackendRegistry.backends[name]
 
 
-def load(obj, keys, backend=None):
+def get_backend(obj, backend):
     if not backend:
         backend = obj._backend
+    return ObjectBackendRegistry.getBackend(backend)
 
-    backendI = ObjectBackendRegistry.getBackend(backend)
+def load(obj, keys, backend=None):
+    backendI = get_backend(obj, backend)
     return backendI.load(obj.uuid, keys)
 
-
 def update(obj, data, backend=None):
-    if not backend:
-        backend = obj._backend
-
-    backendI = ObjectBackendRegistry.getBackend(backend)
+    backendI = get_backend(obj, backend)
     return backendI.update(obj.uuid, data)
 
 def create(obj, data, backend=None, backend_attrs=None):
-    if not backend:
-        backend = obj._backend
-
-    backendI = ObjectBackendRegistry.getBackend(backend)
+    backendI = get_backend(obj, backend)
     return backendI.create(obj.dn, data, backend_attrs)
 
-def extend(obj, data, backend=None, backend_attrs=None, foreign_keys=None):
-    if not backend:
-        backend = obj._backend
-
-    backendI = ObjectBackendRegistry.getBackend(backend)
-    return backendI.extend(obj.dn, data, backend_attrs, foreign_keys)
+def extend(obj, data, backend=None, backend_attrs=None):
+    backendI = get_backend(obj, backend)
+    return backendI.extend(obj.dn, data, backend_attrs,
+            obj.getForeignProperties())
 
 def remove(obj, backend=None, backend_attrs=None):
-    if not backend:
-        backend = obj._backend
+    return remove_by_uuid(obj.uuid, backend, backend_attrs)
 
-    return remove_by_uuid(obj.uuid)
+def retract(obj, backend=None, backend_attrs=None):
+    backendI = get_backend(obj, backend)
+    r_attrs = obj.getExclusiveProperties()
+    return backendI.retract(obj.uuid, [a for a in r_attrs if getattr(obj, a)], backend_attrs)
 
-def remove_by_uuid(uuid, backend):
-    backendI = ObjectBackendRegistry.getBackend(backend)
+def remove_by_uuid(uuid, backend=None, backend_attrs=None):
+    backendI = get_backend(obj, backend)
     return backendI.remove(obj.uuid, False)
 
 def move(obj, new_base, backend=None, backend_attrs=None):
-    if not backend:
-        backend = obj._backend
-
-    backendI = ObjectBackendRegistry.getBackend(backend)
+    backendI = get_backend(obj, backend)
     return backendI.move(obj.uuid, new_base)
