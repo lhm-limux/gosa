@@ -277,12 +277,6 @@
                                 <Type>UnicodeString</Type>
                         </Attribute>
 
-           		<Attribute>
-                                <Name>sambaLogonHours</Name>
-                                <Description>Logon Hours</Description>
-                                <Type>UnicodeString</Type>
-                        </Attribute>
-
 			<Attribute>
                                 <Name>sambaMungedDial</Name>
                                 <Description>Base64 encoded user parameter string</Description>
@@ -312,6 +306,23 @@
                                                 </FilterEntry>
                                         </FilterChain>
                                 </OutFilter>
+                        </Attribute>
+
+			<Attribute>
+                                <Name>sambaLogonHours</Name>
+                                <Description>Logon Hours</Description>
+                                <Type>Object</Type>
+                                <BackendType>UnicodeString</BackendType>
+				<Readonly>true</Readonly>
+	                       	<InFilter>
+                                        <FilterChain>
+                                                <FilterEntry>
+                                                        <Filter>
+                                                                <Name>SambaLogonHoursIn</Name>
+                                                        </Filter>
+                                                </FilterEntry>
+                                        </FilterChain>
+                                </InFilter>
                         </Attribute>
                 </Attributes>
 

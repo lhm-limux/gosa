@@ -117,6 +117,7 @@
     		<enumeration value="Timestamp"></enumeration>
     		<enumeration value="Date"></enumeration>
     		<enumeration value="Binary"></enumeration>
+    		<enumeration value="Object"></enumeration>
     	</restriction>
     </simpleType>
 

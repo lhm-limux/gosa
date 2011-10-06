@@ -4,6 +4,7 @@ import time
 import datetime
 import sys
 import os
+import pprint
 from gosa.agent.objects import GOsaObjectFactory
 
 f = GOsaObjectFactory('.')
@@ -27,7 +28,8 @@ p.serverTrustAccount = not p.serverTrustAccount
 p.sambaHomePath = r"\\hallo\welt"
 p.sambaHomeDrive = "D:"
 
+for entry in p.sambaLogonHours:
+    print("%s: %s" % (entry, p.sambaLogonHours[entry]))
 
-p.commit()
-
-print p._extends
+#p.commit()
+#print p._extends

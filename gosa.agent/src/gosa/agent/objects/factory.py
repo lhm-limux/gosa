@@ -799,6 +799,9 @@ class GOsaObject(object):
 
         # Convert the received type into the target type if not done already
         for key in props:
+            if props[key]['type'] == 'Object':
+                continue
+
             if props[key]['value'] and \
                     TYPE_MAP[props[key]['type']] and \
                     not all(map(lambda x: type(x) == TYPE_MAP[props[key]['type']], props[key]['value'])):
