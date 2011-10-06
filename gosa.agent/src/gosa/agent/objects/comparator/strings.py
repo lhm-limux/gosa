@@ -51,7 +51,7 @@ class RegEx(ElementComparator):
         # All items of value have to match.
         cnt = 0
         for item in value:
-            if not re.match(match, value):
+            if not re.match(match, item):
                 errors.append("Item %s (%s) does not match the regular expression '%s'!" % (cnt, item, match))
                 return False
             cnt += 1

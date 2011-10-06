@@ -24,6 +24,8 @@ for prop in p.listProperties():
 
 #p.passwordNotRequired = True
 p.serverTrustAccount = not p.serverTrustAccount
+p.sambaHomePath = r"\\hallo\welt"
+p.sambaHomeDrive = "D:"
 
 
 p.commit()
