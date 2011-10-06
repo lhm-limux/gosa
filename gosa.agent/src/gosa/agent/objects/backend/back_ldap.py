@@ -97,8 +97,15 @@ class LDAP(ObjectBackend):
         self.log.debug("removing entry '%s'" % dn)
         return self.con.delete_s(dn)
 
-#    def retract(self, uuid):
-#        pass
+    def retract(self, uuid, data, params, foreign_keys):
+        # Remove defined data from the specified object
+        dn = self.uuid2dn(uuid)
+        print "-" * 80
+        print dn
+        print data
+        print params
+        print foreign-keys
+        print "-" * 80
 
     def extend(self, base, data, params, foreign_keys):
         return self.create(base, data, params, foreign_keys)

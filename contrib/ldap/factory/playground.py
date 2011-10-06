@@ -28,7 +28,14 @@ if mode == "create":
     p = f.getObject('GenericUser', u'ou=people,dc=gonicus,dc=de', mode="create")
 
 if mode in ["update", "move", "remove"]:
-    p = f.getObject('GenericUser', u"cn=Fabian Hickert (Ja es geht!),ou=people,dc=gonicus,dc=de")
+    #p = f.getObject('GenericUser', u"cn=Fabian Hickert (Ja es geht!),ou=people,dc=gonicus,dc=de")
+    p = f.getObject('PosixUser', u"cn=Fabian Hickert (Ja es geht!),ou=people,dc=gonicus,dc=de")
+
+    print p
+    p.retract()
+
+    print "break"
+    exit(0)
 
 if mode == "remove":
     p.remove()

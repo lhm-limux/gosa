@@ -45,7 +45,7 @@ from zope.interface import Interface, implements
 from lxml import etree, objectify
 from gosa.common import Environment
 from gosa.agent.objects.filter import get_filter
-from gosa.agent.objects.backend.registry import ObjectBackendRegistry, load, update, create, remove, move, extend
+from gosa.agent.objects.backend.registry import ObjectBackendRegistry, load, update, create, remove, move, extend, retract
 from gosa.agent.objects.comparator import get_comparator
 from gosa.agent.objects.operator import get_operator
 from logging import getLogger
@@ -1030,6 +1030,7 @@ class GOsaObject(object):
         # Handle by backend
         p_backend = getattr(self, '_backend')
         obj = self
+        #TODO: send ObjectExtensionPreCreate for extensions
         zope.event.notify(ObjectPreCreate(obj) if self._mode == "create" else ObjectPreUpdate(obj))
 
         # First, take care about the primary backend...
@@ -1058,6 +1059,7 @@ class GOsaObject(object):
             else:
                 update(obj, data, backend)
 
+        #TODO: send ObjectExtensionCreated for extensions
         zope.event.notify(ObjectCreated(obj) if self._mode == "create" else ObjectUpdated(obj))
 
     def revert(self):
@@ -1337,6 +1339,29 @@ class GOsaObject(object):
         #TODO: emit a "move" signal for all affected objects
         zope.event.notify(ObjectMoved(obj))
 
+    def retract(self):
+        """
+        Removes this object extension
+        """
+        props = getattr(self, '__properties')
+
+        # Collect backends
+        backends = [getattr(self, '_backend')]
+
+        for prop, info in props.items():
+            if not info['backend'] in backends:
+                backends.append(info['backend'])
+
+        # Retract for all backends, removing the primary one as the last one
+        backends.reverse()
+        obj = self
+        zope.event.notify(ObjectExtensionPreRemove(obj))
+
+        for backend in backends:
+            retract(obj, backend)
+
+        zope.event.notify(ObjectExtensionRemoved(obj))
+
     def _del_(self):
         """
         Internal cleanup method ...
@@ -1377,6 +1402,11 @@ class ObjectRemoved(object):
     def __init__(self, obj):
         pass
 
+class ObjectExtensionRemoved(object):
+    implements(IObjectChanged)
+
+    def __init__(self, obj):
+        pass
 
 class ObjectMoved(object):
     implements(IObjectChanged)
@@ -1400,6 +1430,12 @@ class ObjectPreCreate(object):
 
 
 class ObjectPreRemove(object):
+    implements(IObjectChanged)
+
+    def __init__(self, obj):
+        pass
+
+class ObjectExtensionPreRemove(object):
     implements(IObjectChanged)
 
     def __init__(self, obj):
