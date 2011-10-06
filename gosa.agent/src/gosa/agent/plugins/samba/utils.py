@@ -53,6 +53,38 @@ class SambaHash(ElementFilter):
 
             return key, valDict
 
+class SambaAcctFlagsOut(ElementFilter):
+    """
+    In-Filter for sambaAcctFlags.
+
+    Combines flag-properties into sambaAcctFlags proeprty
+    """
+
+    def __init__(self, obj):
+        super(SambaAcctFlagsOut, self).__init__(obj)
+
+    def process(self, obj, key, valDict):
+        mapping = { 'D': 'accountDisabled',
+                'H': 'homeDirectoryRequired',
+                'I': 'interDomainTrust',
+                'L': 'isAutoLocked',
+                'M': 'anMNSLogonAccount',
+                'N': 'passwordNotRequired',
+                'S': 'serverTrustAccount',
+                'T': 'temporaryDuplicateAccount',
+                'U': 'normalUserAccount',
+                'W': 'worktstationTrustAccount',
+                'X': 'passwordDoesNotExpire'}
+
+        # Now parse the existing acctFlags
+        flagStr = ""
+        for flag in mapping:
+            if len(valDict[mapping[flag]]['value']) >= 1 and valDict[mapping[flag]]['value'][0]:
+                flagStr += flag
+
+        valDict[key]['value'] = ["[" + flagStr + "]"]
+        return key, valDict
+
 
 class SambaAcctFlagsIn(ElementFilter):
     """
@@ -80,6 +112,7 @@ class SambaAcctFlagsIn(ElementFilter):
         # Add newly introduced properties.
         for src in mapping:
             valDict[mapping[src]] = GOsaObjectFactory.createNewProperty(valDict[key]['backend'], 'Boolean', value=[False], skip_save=True)
+            valDict[key]['dependsOn'].append(mapping[src])
 
         # Now parse the existing acctFlags
         if len(valDict[key]['value']) >= 1:

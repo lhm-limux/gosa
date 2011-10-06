@@ -122,6 +122,7 @@ setup(
         filter.integertodatetime = gosa.agent.objects.filter.basic:IntegerToDatetime
         filter.datetimetointeger = gosa.agent.objects.filter.basic:DatetimeToInteger
         filter.sambaacctflagsin = gosa.agent.plugins.samba.utils:SambaAcctFlagsIn
+        filter.sambaacctflagsout = gosa.agent.plugins.samba.utils:SambaAcctFlagsOut
 
         [gosa.object.operator]
         operator.and = gosa.agent.objects.operator.bool:And
