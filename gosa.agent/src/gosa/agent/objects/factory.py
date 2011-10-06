@@ -32,9 +32,7 @@ Here are some examples on how to instatiate on new object:
 >>> person->sn = "Surname"
 >>> person->commit()
 
-
 """
-
 import pkg_resources
 import os
 import time
@@ -93,7 +91,7 @@ class GOsaObjectFactory(object):
         schema = etree.XMLSchema(schema_root)
         self.__parser = objectify.makeparser(schema=schema)
 
-        self.log.info("Object factory initialized")
+        self.log.info("object factory initialized")
 
         # Load and parse schema
         self.loadSchema(path)
@@ -110,7 +108,7 @@ class GOsaObjectFactory(object):
         >>> person = f.getObject('Person', "410ad9f0-c4c0-11e0-962b-0800200c9a66")
 
         """
-        self.log.debug("Object of type '%s' requested %s" % (name, args))
+        self.log.debug("object of type '%s' requested %s" % (name, args))
         if not name in self.__classes:
             self.__classes[name] = self.__build_class(name)
 
@@ -207,7 +205,7 @@ class GOsaObjectFactory(object):
         try:
             xml = objectify.fromstring(open(path).read(), self.__parser)
             self.__xml_defs[str(xml.Object['Name'][0])] = xml
-            self.log.info("Loaded schema file for '%s' (%s)" % (str(xml.Object['Name'][0]),path))
+            self.log.info("loaded schema file for '%s' (%s)" % (str(xml.Object['Name'][0]),path))
 
         except etree.XMLSyntaxError as e:
             raise FactoryException("Error loading object-schema file: %s, %s" % (path, e))
@@ -224,7 +222,7 @@ class GOsaObjectFactory(object):
         :meth:`gosa.agent.objects.factory.GOsaObjectFactory.getObject`
         """
 
-        self.log.debug("Building meta-class for object-type '%s'" % (name,))
+        self.log.debug("building meta-class for object-type '%s'" % (name,))
 
         class klass(GOsaObject):
 
@@ -288,7 +286,7 @@ class GOsaObjectFactory(object):
         # Append attributes
         for prop in classr['Attributes']['Attribute']:
 
-            self.log.debug("Adding property: '%s'" % (str(prop['Name']),))
+            self.log.debug("adding property: '%s'" % (str(prop['Name']),))
 
             # Read backend definition per property (if it exists)
             backend = defaultBackend
@@ -423,7 +421,7 @@ class GOsaObjectFactory(object):
 
                 # Append the method to the list of registered methods for this
                 # object
-                self.log.debug("Adding method: '%s'" % (methodName, ))
+                self.log.debug("adding method: '%s'" % (methodName, ))
                 methods[methodName] = {'ref': funk}
 
         # Set properties and methods for this object.
@@ -703,8 +701,8 @@ class GOsaObject(object):
         self._reg = ObjectBackendRegistry.getInstance()
         self. dn = dn
         self.log = getLogger(__name__)
-        self.log.debug("New object instantiated '%s'" % (type(self).__name__))
-        self.log.debug("Object dn '%s'" % (dn))
+        self.log.debug("new object instantiated '%s'" % (type(self).__name__))
+        self.log.debug("object dn '%s'" % (dn))
 
         # Group attributes by Backend
         propsByBackend = {}
@@ -746,14 +744,14 @@ class GOsaObject(object):
         # Load attributes for each backend.
         # And then assign the values to the properties.
         obj = self
-        self.log.debug("Object uuid: %s" % (self.uuid))
+        self.log.debug("object uuid: %s" % (self.uuid))
         for backend in self._propsByBackend:
 
             try:
                 # Create a dictionary with all attributes we want to fetch
                 # {attribute_name: type, name: type}
                 info = dict([(k, props[k]['backend_type']) for k in self._propsByBackend[backend]])
-                self.log.debug("Loading attributes for backend '%s': %s" % (backend, str(info)))
+                self.log.debug("loading attributes for backend '%s': %s" % (backend, str(info)))
                 attrs = load(obj, info, backend)
             except ValueError as e:
                 #raise FactoryException("Error reading properties for backend '%s'!" % (backend,))
@@ -766,7 +764,7 @@ class GOsaObject(object):
 
                 if key not in attrs:
                     #raise FactoryException("Value for '%s' could not be read, it wasn't returned by the backend!" % (key,))
-                    self.log.debug("Attribute '%s' was not returned by load!" % (key))
+                    self.log.debug("attribute '%s' was not returned by load!" % (key))
                     continue
 
                 # Keep original values, they may be overwritten in the in-filters.
@@ -784,7 +782,7 @@ class GOsaObject(object):
 
                 # Execute defined in-filters.
                 if len(props[key]['in_filter']):
-                    self.log.debug("Found %s in-filter(s)  for attribute '%s'" % (str(len(props[key]['in_filter'])),key))
+                    self.log.debug("found %s in-filter(s)  for attribute '%s'" % (str(len(props[key]['in_filter'])),key))
                     value = props[key]['value']
 
                     # Execute each in-filter
@@ -794,7 +792,7 @@ class GOsaObject(object):
 
                         # Assign filter results
                         for new_key in valDict:
-                            self.log.debug("In-filter returned %s: '%s'" % (new_key, valDict[new_key]['value']))
+                            self.log.debug("in-filter returned %s: '%s'" % (new_key, valDict[new_key]['value']))
                             props[new_key] =  valDict[new_key]
 
         # Convert the received type into the target type if not done already
@@ -803,7 +801,7 @@ class GOsaObject(object):
                     TYPE_MAP[props[key]['type']] and \
                     not all(map(lambda x: type(x) == TYPE_MAP[props[key]['type']], props[key]['value'])):
                 props[key]['value'] = map(lambda x: TYPE_MAP[props[key]['type']](x), props[key]['value'])
-                self.log.debug("Converted '%s' to type '%s'!" % (key,props[key]['type']))
+                self.log.debug("converted '%s' to type '%s'!" % (key,props[key]['type']))
 
             # Keep the initial value
             props[key]['old'] = props[key]['value']
@@ -899,7 +897,7 @@ class GOsaObject(object):
 
             # Assign the properties new value.
             props[name]['value'] = new_value
-            self.log.debug("Updated property value of [%s|%s] %s:%s" % (type(self).__name__, self.uuid, name, new_value))
+            self.log.debug("updated property value of [%s|%s] %s:%s" % (type(self).__name__, self.uuid, name, new_value))
 
             # Update status if there's a change
             if current != props[name]['value'] and props[name]['status'] != STATUS_CHANGED:
@@ -952,9 +950,11 @@ class GOsaObject(object):
         """
         Commits changes of an GOsa-object to the corresponding backends.
         """
-
         props = getattr(self, '__properties')
-        self.log.debug("Saving object modifications for [%s|%s]" % (type(self).__name__, self.uuid))
+
+        #TODO: Check if _mode matches with the current object type (#61)
+
+        self.log.debug("saving object modifications for [%s|%s]" % (type(self).__name__, self.uuid))
 
         # Check if all required attributes are set.
         for key in props:
@@ -1067,7 +1067,7 @@ class GOsaObject(object):
         for key in props:
             props[key]['value'] = props[key]['old']
 
-        self.log.debug("Reverted object modifications for [%s|%s]" % (type(self).__name__, self.uuid))
+        self.log.debug("reverted object modifications for [%s|%s]" % (type(self).__name__, self.uuid))
 
     def __processValidator(self, fltr, key, value):
         """
@@ -1082,8 +1082,8 @@ class GOsaObject(object):
 
         # Our filter result stack
         stack = list()
-        self.log.debug(" -> VALIDATOR STARTED (%s)" % (key))
-        self.log.debug("  Value: %s" % (value, ))
+        self.log.debug(" validator started (%s)" % (key))
+        self.log.debug("  value: %s" % (value, ))
 
         # Process the list till we reach the end..
         lasterrmsg = ""
