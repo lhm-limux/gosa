@@ -6,6 +6,7 @@ from gosa.common.components import Plugin
 from gosa.common.utils import N_
 from gosa.common import Environment
 from gosa.agent.objects.filter import ElementFilter
+from gosa.agent.objects import GOsaObjectFactory
 
 
 class SambaUtils(Plugin):
@@ -44,14 +45,8 @@ class SambaHash(ElementFilter):
     def process(self, obj, key, valDict):
         if len(valDict[key]['value']) and type(valDict[key]['value'][0]) in [str, unicode]:
             lm, nt = smbpasswd.hash(valDict[key]['value'][0])
-            valDict['sambaNTPassword'] = {
-                    'value': [nt],
-                    'backend': valDict[key]['backend'],
-                    'type': 'String'}
-            valDict['sambaLMPassword'] = {
-                    'value': [lm],
-                    'backend': valDict[key]['backend'],
-                    'type': 'String'}
+            valDict['sambaNTPassword'] = GOsaObjectFactory.createNewProperty(valDict[key]['backend'], 'String', value=[nt])
+            valDict['sambaLMPassword'] = GOsaObjectFactory.createNewProperty(valDict[key]['backend'], 'String', value=[lm])
         else:
             raise ValueError("Unknown input type for filter %s. Type is '%s'!" % (
                 self.__class__.__name__, type(valDict[key]['value'])))
@@ -84,7 +79,7 @@ class SambaAcctFlagsIn(ElementFilter):
 
         # Add newly introduced properties.
         for src in mapping:
-            valDict[mapping[src]] = {'value': [False], 'backend': valDict[key]['backend'], 'type': 'Boolean'}
+            valDict[mapping[src]] = GOsaObjectFactory.createNewProperty(valDict[key]['backend'], 'Boolean', value=[False])
 
         # Now parse the existing acctFlags
         if len(valDict[key]['value']) >= 1:
