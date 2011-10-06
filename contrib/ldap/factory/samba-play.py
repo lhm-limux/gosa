@@ -27,3 +27,5 @@ p.serverTrustAccount = not p.serverTrustAccount
 
 
 p.commit()
+
+print p._extends
