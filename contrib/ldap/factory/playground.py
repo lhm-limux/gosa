@@ -10,7 +10,7 @@ from gosa.agent.objects import GOsaObjectFactory
 
 # Register pseudo event handler
 def l(event):
-    print "Event catched:", event.__class__.__name__
+    print "%s event catched: %s of %s" % (event.__class__.__name__, event.reason, event.uuid)
 
 zope.event.subscribers.append(l)
 

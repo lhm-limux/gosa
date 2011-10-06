@@ -1035,8 +1035,7 @@ class GOsaObject(object):
         # Handle by backend
         p_backend = getattr(self, '_backend')
         obj = self
-        #TODO: send ObjectExtensionPreCreate for extensions
-        zope.event.notify(ObjectPreCreate(obj) if self._mode == "create" else ObjectPreUpdate(obj))
+        zope.event.notify(ObjectChanged("pre %s" % self._mode, obj))
 
         # First, take care about the primary backend...
         if p_backend in toStore:
@@ -1061,8 +1060,7 @@ class GOsaObject(object):
             else:
                 update(obj, data, backend)
 
-        #TODO: send ObjectExtensionCreated for extensions
-        zope.event.notify(ObjectCreated(obj) if self._mode == "create" else ObjectUpdated(obj))
+        zope.event.notify(ObjectChanged("post %s" % self._mode, obj))
 
     def revert(self):
         """
@@ -1318,17 +1316,20 @@ class GOsaObject(object):
             #TODO: emit a "move" signal for all affected objects
             raise NotImplemented("recursive removal is not implemented")
         else:
-            zope.event.notify(ObjectPreRemove(obj))
+            zope.event.notify(ObjectChanged("pre remove", obj))
 
             for backend in backends:
                 remove(obj, backend)
 
-            zope.event.notify(ObjectRemoved(obj))
+            zope.event.notify(ObjectChanged("post remove", obj))
 
     def move(self, new_base):
         """
         Moves this object - and eventually it's containements.
         """
+        if not self._base_object:
+            raise FactoryException("cannot move non base objects")
+
         props = getattr(self, '__properties')
 
         # Collect backends
@@ -1338,7 +1339,7 @@ class GOsaObject(object):
             if not info['backend'] in backends:
                 backends.append(info['backend'])
 
-        zope.event.notify(ObjectPreMove(obj))
+        zope.event.notify(ObjectChanged("pre move", obj))
 
         # Move for all backends (...)
         backends.reverse()
@@ -1347,7 +1348,7 @@ class GOsaObject(object):
             move(obj, new_base, backend)
 
         #TODO: emit a "move" signal for all affected objects
-        zope.event.notify(ObjectMoved(obj))
+        zope.event.notify(ObjectChanged("post move", obj))
 
     def retract(self):
         """
@@ -1368,12 +1369,12 @@ class GOsaObject(object):
         # Retract for all backends, removing the primary one as the last one
         backends.reverse()
         obj = self
-        zope.event.notify(ObjectExtensionPreRemove(obj))
+        zope.event.notify(ObjectChanged("pre retract", obj))
 
         for backend in backends:
             retract(obj, backend, self._backendAttrs[backend])
 
-        zope.event.notify(ObjectExtensionRemoved(obj))
+        zope.event.notify(ObjectChanged("pre retract", obj))
 
     def _del_(self):
         """
@@ -1395,69 +1396,18 @@ class IAttributeChanged(Interface):
         pass
 
 
-class ObjectUpdated(object):
+class ObjectChanged(object):
     implements(IObjectChanged)
 
-    def __init__(self, obj):
-        pass
+    def __init__(self, reason, obj):
+        self.reason = reason
+        self.uuid = obj.uuid
 
 
-class ObjectCreated(object):
-    implements(IObjectChanged)
+class AttributeChanged(object):
+    implements(IAttributeChanged)
 
-    def __init__(self, obj):
-        pass
-
-
-class ObjectRemoved(object):
-    implements(IObjectChanged)
-
-    def __init__(self, obj):
-        pass
-
-class ObjectExtensionRemoved(object):
-    implements(IObjectChanged)
-
-    def __init__(self, obj):
-        pass
-
-class ObjectMoved(object):
-    implements(IObjectChanged)
-
-    def __init__(self, obj):
-        pass
-
-
-class ObjectPreUpdate(object):
-    implements(IObjectChanged)
-
-    def __init__(self, obj):
-        pass
-
-
-class ObjectPreCreate(object):
-    implements(IObjectChanged)
-
-    def __init__(self, obj):
-        pass
-
-
-class ObjectPreRemove(object):
-    implements(IObjectChanged)
-
-    def __init__(self, obj):
-        pass
-
-class ObjectExtensionPreRemove(object):
-    implements(IObjectChanged)
-
-    def __init__(self, obj):
-        pass
-
-
-class ObjectPreMove(object):
-    implements(IObjectChanged)
-
-    def __init__(self, obj):
-        pass
-
+    def __init__(self, reason, obj, target):
+        self.reason = reason
+        self.target = target
+        self.uuid = obj.uuid
