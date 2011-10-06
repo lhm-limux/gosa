@@ -30,9 +30,12 @@
         		maxOccurs="1" minOccurs="0"
         	>
         	</element>
-        	<element name="Extends" type="string" maxOccurs="1"
-        		minOccurs="0"
-        	>
+        	<element name="Extends" maxOccurs="1" minOccurs="0">
+        		<complexType>
+        			<sequence>
+        				<element name="Value" type="string" maxOccurs="unbounded" minOccurs="1"></element>
+        			</sequence>
+        		</complexType>
         	</element>
         	<element name="BaseObject" type="boolean" maxOccurs="1"
         		minOccurs="0"

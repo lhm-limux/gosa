@@ -190,12 +190,24 @@
                                 <Name>sambaHomePath</Name>
                                 <Description>Home directory UNC path</Description>
                                 <Type>String</Type>
+ 				<Validators>
+					<Condition>
+						<Name>RegEx</Name>
+						<Param>\\\\([^\\]*\\)*[^\\]</Param>
+					</Condition>
+                                </Validators>
                         </Attribute>
 
            		<Attribute>
                                 <Name>sambaHomeDrive</Name>
                                 <Description>Driver letter of home directory mapping</Description>
-                                <Type>UnicodeString</Type>
+                                <Type>String</Type>
+ 				<Validators>
+					<Condition>
+						<Name>RegEx</Name>
+						<Param>[A-Z]:</Param>
+					</Condition>
+                                </Validators>
                         </Attribute>
 
            		<Attribute>
@@ -303,7 +315,9 @@
                         </Attribute>
                 </Attributes>
 
-		<Extends>generic-user</Extends>
+		<Extends>
+			<Value>generic-user</Value>
+		</Extends>
 		<BaseObject>false</BaseObject>
 	</Object>
 </Objects>

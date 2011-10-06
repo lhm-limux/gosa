@@ -86,7 +86,9 @@
                         </Attribute>
                 </Attributes>
 
-		<Extends>generic-user</Extends>
+		<Extends>
+			<Value>generic-user</Value>
+		</Extends>
 		<BaseObject>false</BaseObject>
 	</Object>
 </Objects>

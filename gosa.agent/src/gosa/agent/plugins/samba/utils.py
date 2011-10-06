@@ -38,7 +38,9 @@ class SambaUtils(Plugin):
 
 
 class SambaHash(ElementFilter):
-
+    """
+    An object filter which generates samba NT/LM Password hashes for the incoming value.
+    """
     def __init__(self, obj):
         super(SambaHash, self).__init__(obj)
 
@@ -52,6 +54,7 @@ class SambaHash(ElementFilter):
                 self.__class__.__name__, type(valDict[key]['value'])))
 
             return key, valDict
+
 
 class SambaAcctFlagsOut(ElementFilter):
     """
