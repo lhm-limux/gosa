@@ -7,6 +7,8 @@ from gosa.common.utils import N_
 from gosa.common import Environment
 from gosa.agent.objects.filter import ElementFilter
 from gosa.agent.objects import GOsaObjectFactory
+import struct
+from binascii import unhexlify
 
 
 class SambaUtils(Plugin):
@@ -123,5 +125,32 @@ class SambaAcctFlagsIn(ElementFilter):
             for src in mapping:
                 if src in set(smbAcct):
                     valDict[mapping[src]]['value'] = [True]
+
+        return key, valDict
+
+
+class SambaLogonHoursIn(ElementFilter):
+    """
+    In-Filter for sambaLogonHours.
+    """
+
+    def __init__(self, obj):
+        super(SambaLogonHoursIn, self).__init__(obj)
+
+    def process(self, obj, key, valDict):
+
+        if len(valDict[key]['value']):
+            res = {}
+            value = valDict[key]['value'][0]
+            lstr = ''.join(map(lambda x: (bin(x)[2::]).rjust(8,'0'), struct.unpack('BBBBBBBBBBBBBBBBBBBBB', unhexlify(value))))
+            new = ""
+            for i in range(0, 21):
+                n = lstr[i*8:((i+1)*8)]
+                n = n[::-1]
+                new += n[0:4] + n[4:]
+            lstr = new
+            for day in range(0,7):
+                res[day] = lstr[(day*24):((day+1)*24)]
+            valDict[key]['value']=[res]
 
         return key, valDict
