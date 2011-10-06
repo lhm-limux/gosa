@@ -14,7 +14,6 @@ def l(event):
 
 zope.event.subscribers.append(l)
 
-
 # use create, update, remove, move, extend, retract
 if len(sys.argv) != 2:
     mode = 'update'
@@ -22,7 +21,9 @@ else:
     mode = sys.argv[1]
     del sys.argv[1]
 
-f = GOsaObjectFactory('.')
+f = GOsaObjectFactory()
+f.identifyObject(u"cn=Fabian Hickert (Ja es geht!),ou=people,dc=gonicus,dc=de")
+exit(0)
 
 if mode == "create":
     p = f.getObject('GenericUser', u'ou=people,dc=gonicus,dc=de', mode="create")

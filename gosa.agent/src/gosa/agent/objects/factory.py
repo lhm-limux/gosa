@@ -79,7 +79,7 @@ class GOsaObjectFactory(object):
     __classes = {}
     __var_regex = re.compile('^[a-z_][a-z0-9\-_]*$', re.IGNORECASE)
 
-    def __init__(self, path):
+    def __init__(self):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
 
@@ -94,9 +94,18 @@ class GOsaObjectFactory(object):
         self.log.info("object factory initialized")
 
         # Load and parse schema
-        self.loadSchema(path)
+        self.loadSchema()
 
 #-TODO-needs-re-work-------------------------------------------------------------------------------
+
+    #@Command()
+    def identifyObject(self, dn):
+        print "Identify:", dn
+
+        # First, find all base objects
+        # -> for every base object -> ask the primary backend to identify [true/false]
+        for name, obj in self.__xml_defs.items():
+            print bool(obj.Object.BaseObject)
 
     #@Command()
     def getObject(self, name, *args, **kwargs):
@@ -174,7 +183,7 @@ class GOsaObjectFactory(object):
         return ret
 
 
-    def loadSchema(self, path):
+    def loadSchema(self):
         """
         This method reads all gosa-object defintion files and then calls
         :meth:`gosa.agent.objects.factory.GOsaObjectFactory.getObject`

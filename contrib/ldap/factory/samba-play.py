@@ -7,7 +7,7 @@ import os
 import pprint
 from gosa.agent.objects import GOsaObjectFactory
 
-f = GOsaObjectFactory('.')
+f = GOsaObjectFactory()
 p = f.getObject('SambaUser', u"cn=Playground Tester,ou=people,dc=gonicus,dc=de", mode="update")
 
 for prop in p.listProperties():
